@@ -104,6 +104,7 @@ export interface UseSsoProviderEditOptions extends SharedComponentProps {
 export interface UseSsoProviderEditServiceReturn {
   provider: IdpKnownResponse | null;
   organization: OrganizationPrivate | null;
+  isOrganizationBlocked: boolean;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isLoading: boolean;
   isUpdating: boolean;
@@ -145,6 +146,9 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
+  showThirdPartyAccess: boolean;
+  showCrossAppAccess: boolean;
+  isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 

@@ -40,6 +40,9 @@ const createMockOrganizationDetailsProps = (
         onClick: vi.fn(),
       },
     },
+    showThirdPartyAccess: false,
+    isThirdPartyAccessReadOnly: false,
+    thirdPartyAccessDefaultValue: undefined,
     ...overrides,
   };
 };

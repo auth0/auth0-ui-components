@@ -10,6 +10,7 @@ import {
 } from '@auth0/universal-components-core';
 import { useCallback, useMemo } from 'react';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -49,6 +50,12 @@ export function useOrganizationDetailsEdit({
     async (data: OrganizationPrivate) => (canEdit ? service.updateOrgDetails(data) : false),
     [canEdit, service.updateOrgDetails],
   );
+  const {
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+    isLoadingConfig,
+  } = useConfig();
 
   const hasData = !!service.organization.name;
   const isActionDisabled = service.isSaveLoading || service.isInitializing;
@@ -89,8 +96,12 @@ export function useOrganizationDetailsEdit({
     isFetchLoading: service.isFetchLoading,
     isSaveLoading: service.isSaveLoading,
     isInitializing: service.isInitializing,
+    isLoadingConfig,
     formActions,
     fetchOrgDetails: service.fetchOrgDetails,
-    updateOrgDetails,
+    updateOrgDetails: service.updateOrgDetails,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
   };
 }

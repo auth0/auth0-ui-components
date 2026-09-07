@@ -33,6 +33,9 @@ export function createMockOrganizationDetailsEditView(
         onClick: () => Promise.resolve(true),
       },
     },
+    showThirdPartyAccess: false,
+    isThirdPartyAccessReadOnly: false,
+    thirdPartyAccessDefaultValue: undefined,
     ...overrides,
   };
 }
