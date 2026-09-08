@@ -86,7 +86,7 @@ export function useSsoDomainTabService(
       }
 
       if (domains?.createAction?.onBefore) {
-        const canProceed = domains.createAction.onBefore(data as Domain);
+        const canProceed = domains.createAction.onBefore(data);
         if (!canProceed) {
           throw new BusinessError({ message: t('domain_create.on_before') });
         }

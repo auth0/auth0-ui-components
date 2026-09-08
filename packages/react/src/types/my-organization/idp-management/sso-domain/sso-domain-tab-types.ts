@@ -21,9 +21,14 @@ export interface SsoDomainsQueryData {
 
 type RefetchSsoDomains = UseQueryResult<SsoDomainsQueryData>['refetch'];
 
+/** SSO domain create action — onBefore receives the request payload, onAfter receives the created Domain. */
+export interface SsoDomainCreateAction extends Omit<ComponentAction<Domain>, 'onBefore'> {
+  onBefore?: (item: CreateOrganizationDomainRequestContent) => boolean;
+}
+
 /** SSO domains tab edit action props. */
 export interface SsoDomainsTabEditProps {
-  createAction?: ComponentAction<Domain>;
+  createAction?: SsoDomainCreateAction;
   verifyAction?: ComponentAction<Domain>;
   deleteAction?: ComponentAction<Domain, void>;
   associateToProviderAction?: ComponentAction<Domain, IdpKnownResponse | null>;
