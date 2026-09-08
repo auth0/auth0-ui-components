@@ -21,7 +21,6 @@ import { useCallback } from 'react';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MEMBER_ACCESS_LEVELS } from '@/lib/constants/common-constants';
-import { isIdpKnownResponse } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type { UseSsoProviderTableServiceReturn } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -52,7 +51,7 @@ export function useSsoProviderTableService(
       const response = await coreClient!
         .getMyOrganizationApiClient()
         .organization.identityProviders.list({ member_access_level: [...MEMBER_ACCESS_LEVELS] });
-      return (response?.identity_providers ?? []).filter(isIdpKnownResponse);
+      return response?.identity_providers ?? [];
     },
     enabled: !!coreClient,
   });
