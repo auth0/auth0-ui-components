@@ -1,12 +1,15 @@
 'use client';
 
+// import type { OrganizationMemberDetailTab } from '@auth0/universal-components-react';
 // import { OrganizationMemberDetail } from '@auth0/universal-components-react';
-// import { useRouter, useParams } from 'next/navigation';
+// import { useRouter, useParams, useSearchParams } from 'next/navigation';
 
 export default function MemberDetailPage() {
   // const router = useRouter();
   // const params = useParams();
+  // const searchParams = useSearchParams();
   // const user_id = decodeURIComponent(params.user_id as string);
+  // const tab = searchParams.get('tab') as OrganizationMemberDetailTab;
 
   return (
     <div className="p-6 pt-8">
@@ -20,7 +23,11 @@ export default function MemberDetailPage() {
         </a>{' '}
         on how to add Member Detail component.
       </p>
-      {/* <OrganizationMemberDetail userId={user_id} onBack={() => router.push('/member-management')} /> */}
+      {/* <OrganizationMemberDetail
+        userId={user_id}
+        initialTab={tab}
+        onBack={() => router.push('/member-management')}
+      /> */}
     </div>
   );
 }

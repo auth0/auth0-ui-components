@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organization/member-management/organization-member-detail-types';
 
@@ -29,6 +30,7 @@ import type { OrganizationMemberAssignRolesModalProps } from '@/types/my-organiz
 export function OrganizationMemberAssignRolesModal({
   isOpen,
   isLoading = false,
+  isLoadingRoles = false,
   availableRoles,
   assignedRoles,
   customMessages,
@@ -88,7 +90,11 @@ export function OrganizationMemberAssignRolesModal({
         </DialogHeader>
 
         <div className="flex flex-col gap-3 w-full">
-          {!onRoleSearch && unassignedRoles.length === 0 ? (
+          {isLoadingRoles ? (
+            <div className="flex items-center justify-center py-8">
+              <Spinner />
+            </div>
+          ) : !onRoleSearch && unassignedRoles.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t('member.detail.roles.assign_modal.no_roles_available')}
             </p>

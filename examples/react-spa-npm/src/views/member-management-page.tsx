@@ -18,8 +18,8 @@ const MemberManagementPage = () => {
       </p>
       {/* <OrganizationMemberManagement
         viewMemberDetailsAction={{
-          onAfter: (userId) => {
-            navigate(`/member-management/${userId}`);
+          onAfter: ({ userId, tab }) => {
+            navigate(`/member-management/${userId}${tab ? `?tab=${tab}` : ''}`);
           },
         }}
       /> */}

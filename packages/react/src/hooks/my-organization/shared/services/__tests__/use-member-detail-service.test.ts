@@ -142,9 +142,12 @@ describe('useMemberDetailService', () => {
         await result.current.removeRolesMutation.mutateAsync(roles);
       });
 
-      expect(apiService.organization.members.roles.unassign).toHaveBeenCalledWith(VALID_USER_ID, {
-        role_ids: ['rol_admin'],
-      });
+      expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalledWith(
+        VALID_USER_ID,
+        {
+          role_ids: ['rol_admin'],
+        },
+      );
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
 
@@ -171,7 +174,7 @@ describe('useMemberDetailService', () => {
       });
 
       expect(onBefore).toHaveBeenCalledWith({ userId: VALID_USER_ID, roleIds: ['rol_abc123'] });
-      expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
+      expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
     });
 
     it('should call onAfter on success', async () => {
@@ -192,7 +195,7 @@ describe('useMemberDetailService', () => {
       const roles = [createMockMemberRole()];
       const { result, apiService } = await renderUseMemberDetailService();
       (
-        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+        apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error('Remove failed'));
 
       await act(async () => {
@@ -214,7 +217,7 @@ describe('useMemberDetailService', () => {
       });
 
       expect(returnValue?.aborted).toBe(true);
-      expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
+      expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
     });
   });
 });

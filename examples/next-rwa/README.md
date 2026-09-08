@@ -11,7 +11,7 @@ A Next.js application demonstrating Auth0 Universal Components with proxy-based 
 
 ## Prerequisites
 
-1. **Node.js v20 or later**
+1. **Node.js v20.9.0 or later**
 
    We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node versions. See [how to install nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script) or [how to use nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#usage).
 

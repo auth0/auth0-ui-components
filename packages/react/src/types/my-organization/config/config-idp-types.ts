@@ -16,4 +16,9 @@ export interface UseConfigIdpResult {
   isProvisioningEnabled: (strategy: IdpStrategy | undefined) => boolean;
   isProvisioningMethodEnabled: (strategy: IdpStrategy | undefined) => boolean;
   isIdpConfigValid: boolean;
+  showCrossAppAccess: (strategy: IdpStrategy | undefined) => boolean;
+  isCrossAppAccessReadOnly: (strategy: IdpStrategy | undefined) => boolean;
+  getCrossAppAccessDefaultValue: (
+    strategy: IdpStrategy | undefined,
+  ) => 'enabled' | 'disabled' | undefined;
 }

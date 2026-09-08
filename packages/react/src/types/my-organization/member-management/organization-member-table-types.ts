@@ -13,13 +13,14 @@ import type {
   MemberManagementFilterState,
   MemberManagementPaginationState,
   MemberManagementSortConfig,
+  ViewMemberDetailsParams,
 } from './organization-member-management-types';
 
 /** Props for OrganizationMemberTableActionsColumn component. */
 export interface OrganizationMemberTableActionsColumnProps {
   member: OrgMember;
   customMessages?: Partial<OrganizationMemberTabMessages>;
-  onViewDetails?: (userId: string) => void;
+  onViewDetails?: (params: ViewMemberDetailsParams) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrganization?: (member: OrgMember) => void;
 }
@@ -36,7 +37,7 @@ export interface OrganizationMemberTableProps {
   availableRoles?: Role[];
   readOnly?: boolean;
   className?: string;
-  onView?: (userId: string) => void;
+  onView?: (params: ViewMemberDetailsParams) => void;
   onAssignRole?: (member: OrgMember) => void;
   onRemoveFromOrganization?: (member: OrgMember) => void;
   onNextPage?: () => void;

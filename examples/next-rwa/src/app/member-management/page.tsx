@@ -19,8 +19,8 @@ export default function MemberManagementPage() {
       </p>
       {/* <OrganizationMemberManagement
         viewMemberDetailsAction={{
-          onAfter: (userId) => {
-            router.push(`/member-management/${userId}`);
+          onAfter: ({ userId, tab }) => {
+            router.push(`/member-management/${userId}${tab ? `?tab=${tab}` : ''}`);
           },
         }}
       /> */}

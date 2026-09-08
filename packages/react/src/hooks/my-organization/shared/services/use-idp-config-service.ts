@@ -9,6 +9,8 @@ import {
   type GetIdpConfigurationResponseContent,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
+  type CrossAppAccessResourceAppConfig,
+  type StrategyWithCrossAppAccess,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -78,6 +80,33 @@ export function useIdpConfig(): UseConfigIdpResult {
   const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean =>
     getStrategyFor(strategy)?.provisioning_methods.includes('scim') ?? false;
 
+  const getCrossAppAccessConfig = (
+    strategy: IdpStrategy | undefined,
+  ): CrossAppAccessResourceAppConfig | undefined => {
+    const strategyConfig = getStrategyFor(strategy) as StrategyWithCrossAppAccess | undefined;
+    return strategyConfig?.cross_app_access_resource_app;
+  };
+
+  const showCrossAppAccess = (strategy: IdpStrategy | undefined): boolean => {
+    const config = getCrossAppAccessConfig(strategy);
+    return config !== undefined;
+  };
+
+  const isCrossAppAccessReadOnly = (strategy: IdpStrategy | undefined): boolean => {
+    const config = getCrossAppAccessConfig(strategy);
+    if (!config) return true;
+    return (config.status.allowed_values?.length ?? 0) <= 1;
+  };
+
+  const getCrossAppAccessDefaultValue = (
+    strategy: IdpStrategy | undefined,
+  ): 'enabled' | 'disabled' | undefined => {
+    const config = getCrossAppAccessConfig(strategy);
+    if (!config) return undefined;
+    const isReadOnly = (config.status.allowed_values?.length ?? 0) <= 1;
+    return isReadOnly ? config.status.allowed_values?.[0] : config.status.default_value;
+  };
+
   return {
     idpConfig,
     isIdpConfigValid: !!strategies && Object.keys(strategies).length > 0,
@@ -85,5 +114,8 @@ export function useIdpConfig(): UseConfigIdpResult {
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    getCrossAppAccessDefaultValue,
   };
 }

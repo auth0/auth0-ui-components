@@ -24,7 +24,10 @@ export {
   SsoProviderTableView,
 } from './components/auth0/my-organization/sso-provider-table';
 export { DomainTable, DomainTableView } from './components/auth0/my-organization/domain-table';
-export { OrganizationMemberManagement } from './components/auth0/my-organization/organization-member-management';
+export {
+  OrganizationMemberManagement,
+  OrganizationMemberManagementView,
+} from './components/auth0/my-organization/organization-member-management';
 export {
   OrganizationMemberDetail,
   OrganizationMemberDetailView,

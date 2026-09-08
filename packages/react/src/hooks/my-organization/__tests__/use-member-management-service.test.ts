@@ -414,7 +414,7 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy,
       ).toHaveBeenCalledWith(invitation.id);
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
@@ -437,12 +437,12 @@ describe('useMemberManagementService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(invitation);
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy,
       ).not.toHaveBeenCalled();
     });
 
     it('should show error toast on failure', async () => {
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteLegacy = vi
         .fn()
         .mockRejectedValue(new Error('Revoke failed'));
 
@@ -478,7 +478,7 @@ describe('useMemberManagementService', () => {
 
       const orgApi = mockCoreClient.getMyOrganizationApiClient().organization;
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
-      expect(orgApi.invitations.delete).toHaveBeenCalled();
+      expect(orgApi.invitations.deleteLegacy).toHaveBeenCalled();
       expect(orgApi.invitations.create).toHaveBeenCalled();
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
@@ -535,6 +535,85 @@ describe('useMemberManagementService', () => {
         mockCoreClient.getMyOrganizationApiClient().organization.invitations.get,
       ).toHaveBeenCalledWith('inv_abc123xyz456');
       expect(details).toEqual(mockInvitation);
+    });
+  });
+
+  describe('when fetching member roles', () => {
+    const memberRolesListMock = () =>
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list;
+
+    it('does not fetch when userId is not provided', async () => {
+      const options = createDefaultOptions({ userId: undefined, memberRolesQueryEnabled: true });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('does not fetch when memberRolesQueryEnabled is false', async () => {
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: false,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('does not fetch when userId is invalid format', async () => {
+      const options = createDefaultOptions({
+        userId: 'invalid-user-id',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.rolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(result.current.memberRolesQuery.fetchStatus).toBe('idle');
+      expect(memberRolesListMock()).not.toHaveBeenCalled();
+    });
+
+    it('fetches roles when userId is valid and query is enabled', async () => {
+      const mockRoles = [
+        { id: 'rol_1', name: 'Admin' },
+        { id: 'rol_2', name: 'Member' },
+      ];
+      mockCoreClient.getMyOrganizationApiClient().organization.members.roles.list = vi
+        .fn()
+        .mockResolvedValue({ data: mockRoles });
+
+      const options = createDefaultOptions({
+        userId: 'auth0|user123',
+        memberRolesQueryEnabled: true,
+      });
+      const { result } = renderService(options);
+
+      await waitFor(() => {
+        expect(result.current.memberRolesQuery.isSuccess).toBe(true);
+      });
+
+      expect(memberRolesListMock()).toHaveBeenCalledWith('auth0|user123');
+      expect(result.current.memberRolesQuery.data).toEqual(mockRoles);
+    });
+
+    it('uses consistent query key for cache sharing', async () => {
+      const userId = 'auth0|user123';
+      expect(memberManagementQueryKeys.memberRoles(userId)).toEqual([
+        'member-management',
+        'member-roles',
+        userId,
+      ]);
     });
   });
 });

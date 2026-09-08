@@ -47,7 +47,15 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     backButton,
   } = props;
 
-  const { organization, isFetchLoading, formActions } = useOrganizationDetailsEdit({
+  const {
+    organization,
+    isFetchLoading,
+    isLoadingConfig,
+    formActions,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+  } = useOrganizationDetailsEdit({
     saveAction,
     cancelAction,
     readOnly,
@@ -55,7 +63,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
   });
 
   return (
-    <GateKeeper isLoading={isFetchLoading} styling={styling}>
+    <GateKeeper isLoading={isFetchLoading || isLoadingConfig} styling={styling}>
       <OrganizationDetailsEditView
         organization={organization}
         schema={schema}
@@ -65,6 +73,9 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
         hideHeader={hideHeader}
         backButton={backButton}
         formActions={formActions}
+        showThirdPartyAccess={showThirdPartyAccess}
+        isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+        thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
       />
     </GateKeeper>
   );
@@ -84,6 +95,9 @@ function OrganizationDetailsEditView({
   hideHeader,
   backButton,
   formActions,
+  showThirdPartyAccess,
+  isThirdPartyAccessReadOnly,
+  thirdPartyAccessDefaultValue,
 }: OrganizationDetailsEditViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
@@ -120,6 +134,9 @@ function OrganizationDetailsEditView({
             styling={styling}
             readOnly={readOnly}
             formActions={formActions}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
           />
         </div>
       </div>

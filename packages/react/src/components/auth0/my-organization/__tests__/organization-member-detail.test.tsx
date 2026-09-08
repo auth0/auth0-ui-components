@@ -1,5 +1,4 @@
-import type { ComponentAction } from '@auth0/universal-components-core';
-import { memberManagementQueryKeys, memberDetailQueryKeys } from '@auth0/universal-components-core';
+import { type ComponentAction, memberManagementQueryKeys } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -99,6 +98,20 @@ describe('OrganizationMemberDetail', () => {
 
       const detailsTab = screen.getByRole('tab', { name: 'member.detail.tabs.details' });
       expect(detailsTab).toHaveAttribute('data-state', 'active');
+    });
+
+    it('should show roles tab as active when initialTab is roles', async () => {
+      renderWithProviders(
+        <OrganizationMemberDetail
+          {...createMockOrganizationMemberDetailProps()}
+          initialTab="roles"
+        />,
+      );
+
+      await waitForComponentToLoad();
+
+      const rolesTab = screen.getByRole('tab', { name: 'member.detail.tabs.roles' });
+      expect(rolesTab).toHaveAttribute('data-state', 'active');
     });
   });
 
@@ -513,7 +526,7 @@ describe('OrganizationMemberDetail', () => {
 
     describe('removeRolesAction.onBefore', () => {
       describe('when returns true', () => {
-        it('should call members.roles.unassign', async () => {
+        it('should call members.roles.unassignLegacy', async () => {
           const user = userEvent.setup();
           const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
@@ -526,7 +539,7 @@ describe('OrganizationMemberDetail', () => {
             memberWithRoles,
           );
           (
-            apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+            apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
           renderWithProviders(
@@ -552,13 +565,13 @@ describe('OrganizationMemberDetail', () => {
           await user.click(confirmButton);
 
           await waitFor(() => {
-            expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+            expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalled();
           });
         });
       });
 
       describe('when returns false', () => {
-        it('should not call members.roles.unassign', async () => {
+        it('should not call members.roles.unassignLegacy', async () => {
           const user = userEvent.setup();
           const removeRolesAction: ComponentAction<{ userId: string; roleIds: string[] }> = {
             disabled: false,
@@ -571,7 +584,7 @@ describe('OrganizationMemberDetail', () => {
             memberWithRoles,
           );
           (
-            apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+            apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
           ).mockResolvedValue({});
 
           renderWithProviders(
@@ -600,7 +613,7 @@ describe('OrganizationMemberDetail', () => {
             expect(removeRolesAction.onBefore).toHaveBeenCalled();
           });
 
-          expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
+          expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
         });
       });
     });
@@ -653,7 +666,7 @@ describe('OrganizationMemberDetail', () => {
         queryKey: memberManagementQueryKeys.all,
       });
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({
-        queryKey: memberDetailQueryKeys.memberRoles(mockMember.user_id ?? ''),
+        queryKey: memberManagementQueryKeys.memberRoles(mockMember.user_id ?? ''),
       });
     });
 
@@ -670,7 +683,7 @@ describe('OrganizationMemberDetail', () => {
         data: createMockMemberRoles(),
       });
       (
-        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
+        apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
       ).mockResolvedValue({});
 
       renderWithProviders(
@@ -694,7 +707,7 @@ describe('OrganizationMemberDetail', () => {
       await user.click(confirmButton);
 
       await waitFor(() => {
-        expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
+        expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalled();
       });
 
       expect(invalidateQueriesSpy).toHaveBeenCalledWith({

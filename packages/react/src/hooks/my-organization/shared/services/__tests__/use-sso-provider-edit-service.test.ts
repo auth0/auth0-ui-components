@@ -1067,7 +1067,7 @@ describe('useSsoProviderEditService', () => {
 
       await waitFor(() => {
         expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error), {
-          fallbackMessage: 'An error occurred',
+          fallbackMessage: 'organization_changes_error_message_generic',
         });
       });
     });
@@ -1366,7 +1366,7 @@ describe('useSsoProviderEditService', () => {
 
       await waitFor(() => {
         expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error), {
-          fallbackMessage: 'An error occurred',
+          fallbackMessage: 'organization_changes_error_message_generic',
         });
       });
     });
