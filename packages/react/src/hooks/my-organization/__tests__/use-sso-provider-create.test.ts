@@ -7,18 +7,26 @@ import { useSsoProviderCreate } from '../use-sso-provider-create';
 import { PermissionContext } from '@/providers/permission-provider';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 
-vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
-  useConfig: () => ({
-    isLoadingConfig: false,
-    filteredStrategies: ['samlp', 'oidc'],
-  }),
+const mockUseConfig = vi.fn(() => ({
+  isLoadingConfig: false,
+  filteredStrategies: ['samlp', 'oidc'],
+  showThirdPartyAccess: false,
 }));
+
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: () => mockUseConfig(),
+}));
+
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     isLoadingIdpConfig: false,
     idpConfig: {},
+    showCrossAppAccess: vi.fn(() => false),
+    isCrossAppAccessReadOnly: vi.fn(() => false),
+    getCrossAppAccessDefaultValue: vi.fn(() => undefined),
   }),
 }));
+
 const mockCreateProvider = vi.fn();
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
@@ -33,6 +41,11 @@ const mockOnPrevious = vi.fn();
 describe('useSsoProviderCreate - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseConfig.mockReturnValue({
+      isLoadingConfig: false,
+      filteredStrategies: ['samlp', 'oidc'],
+      showThirdPartyAccess: false,
+    });
   });
 
   const wrapperFor =
@@ -191,6 +204,42 @@ describe('useSsoProviderCreate - logic behavior', () => {
       });
 
       expect(mockCreateProvider).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('showThirdPartyAccess', () => {
+    it('should return showThirdPartyAccess as false when config returns false', () => {
+      mockUseConfig.mockReturnValue({
+        isLoadingConfig: false,
+        filteredStrategies: ['samlp', 'oidc'],
+        showThirdPartyAccess: false,
+      });
+
+      const { result } = renderHook(() =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      );
+
+      expect(result.current.showThirdPartyAccess).toBe(false);
+    });
+
+    it('should return showThirdPartyAccess as true when config returns true', () => {
+      mockUseConfig.mockReturnValue({
+        isLoadingConfig: false,
+        filteredStrategies: ['samlp', 'oidc'],
+        showThirdPartyAccess: true,
+      });
+
+      const { result } = renderHook(() =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      );
+
+      expect(result.current.showThirdPartyAccess).toBe(true);
     });
   });
 });

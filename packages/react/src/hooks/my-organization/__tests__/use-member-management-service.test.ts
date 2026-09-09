@@ -606,8 +606,7 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations
-          .deleteMemberInvitations,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
       ).toHaveBeenCalledWith({ invitations: [invitation.id] });
       expect(mockedShowToast).toHaveBeenCalledWith(
         expect.objectContaining({ type: 'success', message: 'invitation.revoke.success' }),
@@ -632,8 +631,7 @@ describe('useMemberManagementService', () => {
       });
 
       const deleteMock =
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations
-          .deleteMemberInvitations;
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete;
       expect(deleteMock).toHaveBeenCalledTimes(1);
       expect(deleteMock).toHaveBeenCalledWith({ invitations: ['inv_1', 'inv_2', 'inv_3'] });
       expect(mockedShowToast).toHaveBeenCalledWith(
@@ -661,8 +659,7 @@ describe('useMemberManagementService', () => {
       });
 
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations
-          .deleteMemberInvitations,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
       ).toHaveBeenCalledWith({ invitations: ['inv_1'] });
     });
 
@@ -684,8 +681,7 @@ describe('useMemberManagementService', () => {
 
       expect(onBefore).toHaveBeenCalledWith(invitations);
       expect(
-        mockCoreClient.getMyOrganizationApiClient().organization.invitations
-          .deleteMemberInvitations,
+        mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete,
       ).not.toHaveBeenCalled();
     });
 
@@ -710,8 +706,9 @@ describe('useMemberManagementService', () => {
 
     it('should show the singular error message when one invitation fails', async () => {
       const error = new Error('Revoke failed');
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
-        vi.fn().mockRejectedValue(error);
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
+        .fn()
+        .mockRejectedValue(error);
 
       const options = createDefaultOptions();
       const { result } = renderService(options);
@@ -731,8 +728,9 @@ describe('useMemberManagementService', () => {
 
     it('should show the bulk error message when multiple invitations fail', async () => {
       const error = new Error('Bulk delete failed');
-      mockCoreClient.getMyOrganizationApiClient().organization.invitations.deleteMemberInvitations =
-        vi.fn().mockRejectedValue(error);
+      mockCoreClient.getMyOrganizationApiClient().organization.invitations.delete = vi
+        .fn()
+        .mockRejectedValue(error);
 
       const options = createDefaultOptions();
       const { result } = renderService(options);
@@ -772,7 +770,7 @@ describe('useMemberManagementService', () => {
       });
 
       expect(orgApi.invitations.get).toHaveBeenCalledWith(invitation.id);
-      expect(orgApi.invitations.deleteMemberInvitations).toHaveBeenCalledWith({
+      expect(orgApi.invitations.delete).toHaveBeenCalledWith({
         invitations: [invitation.id],
       });
       expect(orgApi.invitations.create).toHaveBeenCalledWith(

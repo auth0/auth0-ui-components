@@ -28,5 +28,8 @@ export const createMockUseIdpConfig = (
   fetchIdpConfig: vi.fn(async () => undefined),
   isProvisioningEnabled: vi.fn(() => false),
   isProvisioningMethodEnabled: vi.fn(() => false),
+  showCrossAppAccess: vi.fn(() => false),
+  isCrossAppAccessReadOnly: vi.fn(() => true),
+  getCrossAppAccessDefaultValue: vi.fn(() => undefined),
   ...overrides,
 });

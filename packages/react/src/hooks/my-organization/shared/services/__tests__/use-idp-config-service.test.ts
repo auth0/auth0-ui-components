@@ -9,6 +9,14 @@ import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
 vi.mock('@/hooks/shared/use-core-client');
 
+const createMockCrossAppAccessConfig = (overrides = {}) => ({
+  status: {
+    default_value: 'disabled' as const,
+    allowed_values: ['disabled', 'enabled'] as ('disabled' | 'enabled')[],
+  },
+  ...overrides,
+});
+
 const createMockIdpConfig = (overrides = {}) => ({
   strategies: {
     okta: {
@@ -179,6 +187,237 @@ describe('useIdpConfig', () => {
 
       expect(cachedData).toEqual(mockConfig);
       expect(mockGet).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('showCrossAppAccess', () => {
+    it.each(['oidc', 'okta', 'samlp'] as IdpStrategy[])(
+      'returns true for %s when cross_app_access_resource_app is present',
+      async (strategy) => {
+        mockGet.mockResolvedValue(
+          createMockIdpConfig({
+            strategies: {
+              [strategy]: {
+                enabled_features: [],
+                provisioning_methods: [],
+                cross_app_access_resource_app: createMockCrossAppAccessConfig(),
+              },
+            },
+          }),
+        );
+
+        const { result } = await renderUseIdpConfig();
+
+        expect(result.current.showCrossAppAccess(strategy)).toBe(true);
+      },
+    );
+
+    it.each(['oidc', 'okta', 'samlp'] as IdpStrategy[])(
+      'returns false for %s when cross_app_access_resource_app is absent',
+      async (strategy) => {
+        mockGet.mockResolvedValue(
+          createMockIdpConfig({
+            strategies: {
+              [strategy]: {
+                enabled_features: [],
+                provisioning_methods: [],
+              },
+            },
+          }),
+        );
+
+        const { result } = await renderUseIdpConfig();
+
+        expect(result.current.showCrossAppAccess(strategy)).toBe(false);
+      },
+    );
+
+    it.each(['adfs', 'waad', 'google-apps', 'pingfederate'] as IdpStrategy[])(
+      'returns false for unsupported strategy %s',
+      async (strategy) => {
+        mockGet.mockResolvedValue(createMockIdpConfig());
+
+        const { result } = await renderUseIdpConfig();
+
+        expect(result.current.showCrossAppAccess(strategy)).toBe(false);
+      },
+    );
+
+    it('returns false for undefined strategy', async () => {
+      mockGet.mockResolvedValue(createMockIdpConfig());
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.showCrossAppAccess(undefined)).toBe(false);
+    });
+  });
+
+  describe('isCrossAppAccessReadOnly', () => {
+    it('returns false when allowed_values has multiple values', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: {
+                  default_value: 'disabled',
+                  allowed_values: ['disabled', 'enabled'],
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isCrossAppAccessReadOnly('oidc')).toBe(false);
+    });
+
+    it('returns true when allowed_values has single value', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: {
+                  default_value: 'disabled',
+                  allowed_values: ['disabled'],
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isCrossAppAccessReadOnly('oidc')).toBe(true);
+    });
+
+    it('returns true when allowed_values is empty', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: {
+                  default_value: 'disabled',
+                  allowed_values: [],
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isCrossAppAccessReadOnly('oidc')).toBe(true);
+    });
+
+    it('returns true when cross_app_access_resource_app is absent', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isCrossAppAccessReadOnly('oidc')).toBe(true);
+    });
+
+    it('returns true for undefined strategy', async () => {
+      mockGet.mockResolvedValue(createMockIdpConfig());
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isCrossAppAccessReadOnly(undefined)).toBe(true);
+    });
+  });
+
+  describe('getCrossAppAccessDefaultValue', () => {
+    it('returns default_value when editable (multiple allowed_values)', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: {
+                  default_value: 'disabled',
+                  allowed_values: ['disabled', 'enabled'],
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getCrossAppAccessDefaultValue('oidc')).toBe('disabled');
+    });
+
+    it('returns allowed_values[0] when read-only (single allowed_value)', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: {
+                  default_value: 'disabled',
+                  allowed_values: ['enabled'],
+                },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getCrossAppAccessDefaultValue('oidc')).toBe('enabled');
+    });
+
+    it('returns undefined when cross_app_access_resource_app is absent', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getCrossAppAccessDefaultValue('oidc')).toBeUndefined();
+    });
+
+    it('returns undefined for undefined strategy', async () => {
+      mockGet.mockResolvedValue(createMockIdpConfig());
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getCrossAppAccessDefaultValue(undefined)).toBeUndefined();
     });
   });
 });

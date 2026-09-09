@@ -134,6 +134,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    showThirdPartyAccess,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -256,6 +260,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               }}
               permissions={permissions}
               readOnly={readOnly}
+              showThirdPartyAccess={showThirdPartyAccess}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              isOrganizationBlocked={isOrganizationBlocked}
             />
           </TabsContent>
 

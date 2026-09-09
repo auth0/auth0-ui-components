@@ -14,6 +14,8 @@ import type {
   SsoProviderDetailsSchema,
   ComponentAction,
   GetIdpConfigurationResponseContent,
+  ThirdPartyAccessMessages,
+  CrossAppAccessMessages,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -73,6 +75,10 @@ export interface SsoProviderTabProps
   hasSsoAttributeSyncWarning?: boolean;
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
 
 export interface ProviderDetailsClasses
@@ -88,11 +94,12 @@ export interface ProviderConfigureFieldsClasses
   > {}
 
 export interface SsoProviderDetailsClasses {
-  'SsoProviderDetails-formActions'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
   'SsoProvider-attributeMapping'?: string;
   'SsoProviderDetails-FormActions'?: string;
+  'ProviderConfigure-ThirdPartyAccess'?: string;
+  'ProviderConfigure-CrossAppAccess'?: string;
 }
 
 export interface SsoProviderDetailsProps
@@ -102,4 +109,38 @@ export interface SsoProviderDetailsProps
   readOnly?: boolean;
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
+  showThirdPartyAccess?: boolean;
+  showCrossAppAccess?: boolean;
+  isCrossAppAccessReadOnly?: boolean;
+  isOrganizationBlocked?: boolean;
 }
+
+export interface ThirdPartyAccessSectionProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  readOnly?: boolean;
+  isOrganizationBlocked?: boolean;
+  customMessages?: Partial<ThirdPartyAccessMessages>;
+  className?: string;
+}
+
+interface CrossAppAccessSectionBaseProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  readOnly?: boolean;
+  customMessages?: Partial<CrossAppAccessMessages>;
+  className?: string;
+}
+
+type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
+  strategy?: 'oidc' | 'okta';
+};
+
+type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {
+  strategy: 'samlp';
+  discoveryUrl: string;
+  onDiscoveryUrlChange: (url: string) => void;
+  discoveryUrlError?: string;
+};
+
+export type CrossAppAccessSectionProps = CrossAppAccessOidcProps | CrossAppAccessSamlProps;

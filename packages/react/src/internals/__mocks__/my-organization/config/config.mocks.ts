@@ -20,5 +20,8 @@ export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUse
   },
   fetchConfig: vi.fn(async () => undefined),
   filteredStrategies: [],
+  showThirdPartyAccess: false,
+  isThirdPartyAccessReadOnly: false,
+  thirdPartyAccessDefaultValue: undefined,
   ...overrides,
 });
