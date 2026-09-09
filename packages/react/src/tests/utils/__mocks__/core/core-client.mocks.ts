@@ -135,7 +135,6 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
           list: vi.fn().mockResolvedValue({ roles: [] }),
           assign: vi.fn().mockResolvedValue({}),
           unassign: vi.fn().mockResolvedValue({}),
-          unassignLegacy: vi.fn().mockResolvedValue({}),
         },
       },
       memberships: {
