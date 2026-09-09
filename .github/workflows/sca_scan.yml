@@ -2,13 +2,13 @@ name: SCA
 
 on:
   push:
-    branches: [main]
+    branches: [feat/my-org-ea-branch]
   pull_request:
-    branches: [main]
+    branches: [feat/my-org-ea-branch]
 
 jobs:
   snyk-cli:
-    uses: auth0/devsecops-tooling/.github/workflows/sca-scan.yml@main
+    uses: auth0/devsecops-tooling/.github/workflows/sca-scan.yml@feat/my-org-ea-branch
     with:
       additional-arguments: "--exclude=README.md,.jfrog"
     secrets: inherit
