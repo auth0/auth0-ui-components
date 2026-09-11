@@ -9,6 +9,7 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export interface FormActionsProps<T = void> {
@@ -22,6 +23,7 @@ export interface FormActionsProps<T = void> {
   align?: 'left' | 'right';
   className?: string;
   unsavedChangesText?: string;
+  nextActionTooltip?: React.ReactNode;
 }
 
 const DEFAULT_NEXT_ACTION: ActionButton = {
@@ -48,6 +50,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   showUnsavedChanges = true,
   align = 'right',
   unsavedChangesText = 'Unsaved changes',
+  nextActionTooltip,
 }) => {
   const nextButtonProps = React.useMemo(
     () => ({ ...DEFAULT_NEXT_ACTION, ...nextAction }),
@@ -71,6 +74,28 @@ export const FormActions: React.FC<FormActionsProps> = ({
       previousButtonProps.onClick(e.nativeEvent);
     },
     [previousButtonProps.onClick],
+  );
+
+  const withNextTooltip = React.useCallback(
+    (button: React.ReactNode) =>
+      nextActionTooltip ? (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              className="inline-flex"
+              tabIndex={0}
+              role="group"
+              aria-label={nextButtonProps.label}
+            >
+              {button}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent role="tooltip">{nextActionTooltip}</TooltipContent>
+        </Tooltip>
+      ) : (
+        button
+      ),
+    [nextActionTooltip],
   );
 
   const showUnsavedIndicator = showUnsavedChanges && hasUnsavedChanges;
@@ -108,33 +133,34 @@ export const FormActions: React.FC<FormActionsProps> = ({
         </Button>
       )}
 
-      {showNext && (
-        <Button
-          type={nextButtonProps.type}
-          variant={nextButtonProps.variant}
-          size={nextButtonProps.size}
-          disabled={nextButtonProps.disabled || isLoading}
-          className="FormActions-next min-w-17.5"
-          {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
-        >
-          {isLoading ? (
-            <Spinner
-              colorScheme={nextButtonProps.variant === 'destructive' ? 'primary' : 'foreground'}
-              size="sm"
-              aria-hidden="true"
-            />
-          ) : (
-            <>
-              {nextButtonProps.icon && (
-                <span className="mr-2" aria-hidden="true">
-                  {nextButtonProps.icon as React.ReactNode}
-                </span>
-              )}
-              {nextButtonProps.label}
-            </>
-          )}
-        </Button>
-      )}
+      {showNext &&
+        withNextTooltip(
+          <Button
+            type={nextButtonProps.type}
+            variant={nextButtonProps.variant}
+            size={nextButtonProps.size}
+            disabled={nextButtonProps.disabled || isLoading}
+            className="FormActions-next min-w-17.5"
+            {...(nextButtonProps.type !== 'submit' && { onClick: handleNextClick })}
+          >
+            {isLoading ? (
+              <Spinner
+                colorScheme={nextButtonProps.variant === 'destructive' ? 'primary' : 'foreground'}
+                size="sm"
+                aria-hidden="true"
+              />
+            ) : (
+              <>
+                {nextButtonProps.icon && (
+                  <span className="mr-2" aria-hidden="true">
+                    {nextButtonProps.icon as React.ReactNode}
+                  </span>
+                )}
+                {nextButtonProps.label}
+              </>
+            )}
+          </Button>,
+        )}
     </div>
   );
 };

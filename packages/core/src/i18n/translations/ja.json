@@ -26,7 +26,8 @@
     },
     "data_table": {
       "select_all": "すべての行を選択",
-      "select_row": "行を選択"
+      "select_row": "${index}行目を選択",
+      "view_row": "${index}行目を表示"
     },
     "error": {
       "generic": "リクエストの処理中に問題が発生しました。もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
@@ -316,7 +317,9 @@
           "display_name": "表示名"
         },
         "actions": {
+          "menu_label": "アクション",
           "edit_button_text": "編集",
+          "configure_button_text": "設定",
           "delete_button_text": "削除",
           "remove_button_text": "組織から削除",
           "enabled_tooltip": "SSOプロバイダーを無効にするには、トグルを切り替えてください。",
@@ -1137,10 +1140,12 @@
       "description": "組織のメンバーを管理します。"
     },
     "invite_button": "メンバーを招待",
+    "invite_button_disabled_tooltip": "メンバーを招待するには、IDプロバイダーまたはユーザーストアを設定してください。",
     "tabs": {
       "members": "メンバー",
       "invitations": "招待"
     },
+    "count_capped": "${count}以上",
     "member": {
       "table": {
         "columns": {
@@ -1182,8 +1187,6 @@
         "fetch_failed": "メンバーの読み込みに失敗しました。もう一度お試しください。",
         "remove_failed": "メンバーの削除に失敗しました。もう一度お試しください。",
         "assign_role_failed": "ロールの割り当てに失敗しました。もう一度お試しください。",
-        "too_many_roles_per_assignment": "一度に割り当てられるロールは最大10件までです。",
-        "too_many_roles_per_removal": "一度に削除できるロールは最大10件までです。",
         "member_role_limit_exceeded": "このメンバーのロールは最大50件に達しました。"
       },
       "detail": {
@@ -1202,6 +1205,7 @@
           "last_login": "最終ログイン"
         },
         "actions": {
+          "readonly_member_tooltip": "このアクションはこのメンバーには利用できません。",
           "remove_from_organization": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
@@ -1225,6 +1229,7 @@
           "remove_button_plural": "ロールを削除",
           "roles_selected": "${count}件のロールが選択されています",
           "roles_selected_plural": "${count}件のロールが選択されています",
+          "max_selection_message": "一度に削除できるロールは10件までです",
           "table": {
             "name": "名前",
             "description": "説明",
@@ -1238,6 +1243,10 @@
             "submit_button": "割り当て",
             "cancel_button": "キャンセル",
             "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+            "search_for_more": "ロールを検索するには入力してください。",
+            "no_matching_roles": "一致するロールはすべて割り当て済みです。別の検索をお試しください。",
+            "max_selection_message": "一度に割り当てられるロールは10件までです",
+            "searching_message": "検索中...",
             "success": "ロールが割り当てられました。",
             "success_plural": "ロールが割り当てられました。"
           },
@@ -1299,9 +1308,13 @@
         "email_required_error": "メールアドレスを1つ以上入力してください。",
         "roles_label": "ロール",
         "roles_placeholder": "ロールを選択（任意）",
-        "provider_label": "プロバイダー",
-        "provider_placeholder": "プロバイダーを選択（任意）",
-        "provider_helper": "選択しない場合、メンバーは任意のプロバイダーでログインできます。",
+        "roles_max_selection_message": "一度に選択できるのは10件までです",
+        "roles_searching_message": "検索中...",
+        "connection_label": "接続",
+        "connection_placeholder": "接続を選択",
+        "connection_helper": "メンバーがログインに使用する接続を選択してください。",
+        "connection_group_user_store": "ユーザーディレクトリ",
+        "connection_group_identity_provider": "エンタープライズSSO",
         "submit_button": "招待を送信",
         "creating": "作成中...",
         "cancel_button": "キャンセル",
@@ -1313,7 +1326,7 @@
         "email_label": "メール",
         "status_label": "ステータス",
         "roles_label": "ロール",
-        "provider_label": "IDプロバイダー",
+        "connection_label": "接続",
         "created_at_label": "作成日",
         "expires_at_label": "有効期限",
         "invited_by_label": "招待者",
@@ -1336,16 +1349,36 @@
         "confirm_button": "続行",
         "cancel_button": "キャンセル"
       },
+      "bulk_revoke": {
+        "button": "選択項目を削除",
+        "button_plural": "選択項目を削除",
+        "count": "${count}件を選択中",
+        "count_plural": "${count}件を選択中",
+        "success": "${count}件の招待が取り消されました。",
+        "max_selection_message": "一度に選択できるのは10件までです",
+        "confirm": {
+          "title": "保留中の招待を1件削除しますか？",
+          "title_plural": "保留中の招待を${count}件削除しますか？",
+          "description": "この招待を受けたメンバーは、元の招待リンクを使用してチームに参加できなくなります。この操作は取り消せません。",
+          "description_plural": "これらの招待を受けたメンバーは、元の招待リンクを使用してチームに参加できなくなります。この操作は取り消せません。",
+          "confirm_button": "招待を削除",
+          "confirm_button_plural": "招待を削除",
+          "cancel_button": "キャンセル"
+        }
+      },
       "success": {
         "url_copied": "招待URLをクリップボードにコピーしました。",
         "invitation_resent": "以前の招待が取り消されました。${email}に新しい招待が送信されました。"
       },
       "error": {
         "fetch_failed": "招待の読み込みに失敗しました。もう一度お試しください。",
+        "fetch_roles_failed": "招待のロールの読み込みに失敗しました。もう一度お試しください。",
         "create_failed": "招待の送信に失敗しました。もう一度お試しください。",
         "revoke_failed": "招待の取り消しに失敗しました。もう一度お試しください。",
         "resend_failed": "招待の再送信に失敗しました。もう一度お試しください。",
         "revoke_resend_failed": "招待の取り消しと再送信に失敗しました。もう一度お試しください。",
+        "bulk_revoke_failed": "選択した招待の取り消しに失敗しました。もう一度お試しください。",
+        "connection_required": "identity_provider_id または user_store_id のいずれか一方を指定する必要があります。",
         "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
       }
     }

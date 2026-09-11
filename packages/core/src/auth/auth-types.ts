@@ -9,6 +9,7 @@ import type { MyOrganizationClient } from '@auth0/myorganization-js';
 
 import type { I18nServiceInterface } from '../i18n/i18n-types';
 import type { MfaApiClient } from '../services/mfa-step-up/mfa-step-up-api-types';
+import type { PermissionApiClient } from '../services/permissions/permission-api-types';
 
 /**
  * Auth parameters for fetcher functions.
@@ -96,6 +97,7 @@ export interface BasicAuth0ContextInterface {
   getConfiguration: () => Readonly<ClientConfiguration>;
   mfa: MfaApiClient;
   createFetcher: CreateFetcherFunction;
+  getIdTokenClaims?: () => Promise<Record<string, unknown> | undefined>;
 }
 
 /**
@@ -158,4 +160,5 @@ export interface CoreClientInterface extends BaseCoreClientInterface {
   getMyAccountApiClient: () => MyAccountClient;
   getMyOrganizationApiClient: () => MyOrganizationClient;
   getMFAStepUpApiClient: () => MfaApiClient;
+  getPermissionApiClient: () => PermissionApiClient;
 }

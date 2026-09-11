@@ -21,28 +21,22 @@ import type { DomainTableActionsColumnProps } from '@/types/my-organization/doma
  * Handles the actions column for Domain table with dropdown menu
  * @param props - Component props.
  * @param props.customMessages - Custom translation messages to override defaults
- * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.permissions - What the current user is allowed to do
  * @param props.domain - Domain object or domain name
- * @param props.onView - Callback fired when view action is triggered
  * @param props.onConfigure - Callback fired when configure action is triggered
  * @param props.onVerify - Callback fired when verify action is triggered
  * @param props.onDelete - Callback fired when delete action is triggered
- * @returns JSX element
+ * @returns JSX element, or `null` when no action is available
  */
 export function DomainTableActionsColumn({
   customMessages = {},
-  readOnly = false,
+  permissions,
   domain,
-  onView,
   onConfigure,
   onVerify,
   onDelete,
 }: DomainTableActionsColumnProps) {
   const { t } = useTranslator('domain_management', customMessages);
-
-  const handleView = React.useCallback(() => {
-    onConfigure(domain);
-  }, [domain, onView]);
 
   const handleConfigure = React.useCallback(() => {
     onConfigure(domain);
@@ -56,6 +50,10 @@ export function DomainTableActionsColumn({
     onDelete(domain);
   }, [domain, onDelete]);
 
+  if (!permissions.canShowDomainMenu) {
+    return null;
+  }
+
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
       <DropdownMenu>
@@ -63,32 +61,37 @@ export function DomainTableActionsColumn({
           <MoreHorizontal className="h-4 w-4 text-primary-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {domain.status === 'verified' && (
-            <DropdownMenuItem onClick={handleConfigure} disabled={readOnly}>
+          {domain.status === 'verified' && permissions.canConfigureDomain && (
+            <DropdownMenuItem onClick={handleConfigure}>
               <PencilLine className="mr-2 h-4 w-4" />
               {t('domain_table.table.actions.configure_button_text')}
             </DropdownMenuItem>
           )}
           {domain.status === 'pending' && (
             <>
-              <DropdownMenuItem onClick={handleView} disabled={readOnly}>
-                <Eye className="mr-2 h-4 w-4" />
-                {t('domain_table.table.actions.view_button_text')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleVerify} disabled={readOnly}>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                {t('domain_table.table.actions.verify_button_text')}
-              </DropdownMenuItem>
+              {permissions.canConfigureDomain && (
+                <DropdownMenuItem onClick={handleConfigure}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  {t('domain_table.table.actions.view_button_text')}
+                </DropdownMenuItem>
+              )}
+              {permissions.canVerifyDomain && (
+                <DropdownMenuItem onClick={handleVerify}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  {t('domain_table.table.actions.verify_button_text')}
+                </DropdownMenuItem>
+              )}
             </>
           )}
-          <DropdownMenuItem
-            onClick={handleDelete}
-            className="text-destructive-foreground focus:text-destructive-foreground"
-            disabled={readOnly}
-          >
-            <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground focus:text-destructive-foreground" />
-            {t('domain_table.table.actions.delete_button_text')}
-          </DropdownMenuItem>
+          {permissions.canDeleteDomain && (
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-destructive-foreground focus:text-destructive-foreground"
+            >
+              <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground focus:text-destructive-foreground" />
+              {t('domain_table.table.actions.delete_button_text')}
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

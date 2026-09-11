@@ -96,6 +96,7 @@ function SsoProviderTable(props: SsoProviderTableProps) {
 function SsoProviderTableView({
   styling,
   customMessages,
+  permissions,
   readOnly,
   hideHeader,
   hideDeleteProvider,
@@ -131,6 +132,7 @@ function SsoProviderTableView({
 }: SsoProviderTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('idp_management.sso_provider_table', customMessages);
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -171,6 +173,7 @@ function SsoProviderTableView({
             shouldAllowDeletion={shouldAllowDeletion}
             hideDeleteProvider={hideDeleteProvider}
             hideRemoveFromOrganization={hideRemoveFromOrganization}
+            permissions={permissions}
             readOnly={readOnly}
             isUpdating={isUpdating}
             isUpdatingId={isUpdatingId}
@@ -187,7 +190,7 @@ function SsoProviderTableView({
     ],
     [
       t,
-      readOnly,
+      permissions,
       editAction,
       enableProviderAction,
       isUpdating,
@@ -213,8 +216,11 @@ function SsoProviderTableView({
                 label: t('header.create_button_text'),
                 onClick: () => handleCreate(),
                 icon: Plus,
-                hidden: shouldHideCreate || isViewLoading,
-                disabled: createAction?.disabled || readOnly,
+                hidden: readOnly || shouldHideCreate || isViewLoading,
+                disabled: createAction?.disabled || !permissions.canCreateProvider,
+                ...(permissions.canCreateProvider
+                  ? {}
+                  : { tooltip: { content: tCommon('error.forbidden') } }),
               },
             ]}
           />
@@ -228,9 +234,11 @@ function SsoProviderTableView({
         )}
       >
         <RefreshIndicator
+          disabled={!permissions.canListProviders}
           isStale={isProvidersStale}
           isFetching={isRefetchingProviders}
           lastUpdatedAt={providersUpdatedAt || undefined}
+          customMessages={customMessages}
           onRefresh={refetchProviders}
         />
       </div>
@@ -241,6 +249,8 @@ function SsoProviderTableView({
         data={providers}
         emptyState={{ title: t('table.empty_message') }}
         className={currentStyles.classes?.['SsoProviderTable-table']}
+        onRowClick={handleEdit}
+        rowClickLabel={(index) => tCommon('data_table.view_row', { index: index + 1 })}
       />
 
       {selectedIdp && (

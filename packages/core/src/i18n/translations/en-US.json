@@ -26,7 +26,8 @@
     },
     "data_table": {
       "select_all": "Select all rows",
-      "select_row": "Select row"
+      "select_row": "Select row ${index}",
+      "view_row": "View row ${index}"
     },
     "error": {
       "generic": "There was an issue processing your request. Please try again or contact support if the issue persists.",
@@ -329,7 +330,9 @@
           "display_name": "Display Name"
         },
         "actions": {
+          "menu_label": "Actions",
           "edit_button_text": "Edit",
+          "configure_button_text": "Configure",
           "delete_button_text": "Delete",
           "remove_button_text": "Remove from organization",
           "enabled_tooltip": "Toggle to disable the SSO provider",
@@ -1168,10 +1171,12 @@
       "description": "Manage the members of your organization."
     },
     "invite_button": "Invite Member",
+    "invite_button_disabled_tooltip": "Configure an identity provider or user store to invite members.",
     "tabs": {
       "members": "Members",
       "invitations": "Invitations"
     },
+    "count_capped": "${count}+",
     "member": {
       "table": {
         "columns": {
@@ -1213,8 +1218,6 @@
         "fetch_failed": "Failed to load members. Please try again.",
         "remove_failed": "Failed to remove member. Please try again.",
         "assign_role_failed": "Failed to assign role. Please try again.",
-        "too_many_roles_per_assignment": "You can only assign a maximum of 10 roles at a time.",
-        "too_many_roles_per_removal": "You can only remove a maximum of 10 roles at a time.",
         "member_role_limit_exceeded": "You have reached the maximum of 50 roles for this member."
       },
       "detail": {
@@ -1233,6 +1236,7 @@
           "last_login": "Last Login"
         },
         "actions": {
+          "readonly_member_tooltip": "This action is not available for this member.",
           "remove_from_organization": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
@@ -1256,6 +1260,7 @@
           "remove_button_plural": "Remove Roles",
           "roles_selected": "${count} role selected",
           "roles_selected_plural": "${count} roles selected",
+          "max_selection_message": "Only 10 can be removed at a time",
           "table": {
             "name": "Name",
             "description": "Description",
@@ -1269,6 +1274,10 @@
             "submit_button": "Assign Role(s)",
             "cancel_button": "Cancel",
             "no_roles_available": "All available roles are already assigned.",
+            "search_for_more": "Type to search for more roles.",
+            "no_matching_roles": "All matching roles already assigned. Try a different search.",
+            "max_selection_message": "Only 10 roles can be assigned at a time",
+            "searching_message": "Searching...",
             "success": "The role has been assigned.",
             "success_plural": "The roles have been assigned."
           },
@@ -1330,9 +1339,13 @@
         "email_required_error": "Please enter at least one email address.",
         "roles_label": "Roles",
         "roles_placeholder": "Select roles (optional)",
-        "provider_label": "Provider",
-        "provider_placeholder": "Select provider (optional)",
-        "provider_helper": "If none is selected, the member can log in with any provider.",
+        "roles_max_selection_message": "Only 10 roles can be selected at a time",
+        "roles_searching_message": "Searching...",
+        "connection_label": "Connection",
+        "connection_placeholder": "Select connection",
+        "connection_helper": "Select the connection the member will use to log in.",
+        "connection_group_user_store": "User Directory",
+        "connection_group_identity_provider": "Enterprise SSO",
         "submit_button": "Send Invite",
         "creating": "Creating...",
         "cancel_button": "Cancel",
@@ -1344,7 +1357,7 @@
         "email_label": "Email",
         "status_label": "Status",
         "roles_label": "Roles",
-        "provider_label": "Identity Provider",
+        "connection_label": "Connection",
         "created_at_label": "Created",
         "expires_at_label": "Expires",
         "invited_by_label": "Invited By",
@@ -1367,16 +1380,36 @@
         "confirm_button": "Proceed",
         "cancel_button": "Cancel"
       },
+      "bulk_revoke": {
+        "button": "Delete Invitation",
+        "button_plural": "Delete Invitations",
+        "count": "${count} selected",
+        "count_plural": "${count} selected",
+        "success": "${count} invitations have been revoked.",
+        "max_selection_message": "Only 10 can be selected at a time",
+        "confirm": {
+          "title": "Delete 1 pending invitation?",
+          "title_plural": "Delete ${count} pending invitations?",
+          "description": "This invited member will no longer be able to join your team using their original invitation link. This action cannot be undone.",
+          "description_plural": "These invited members will no longer be able to join your team using their original invitation links. This action cannot be undone.",
+          "confirm_button": "Delete Invitation",
+          "confirm_button_plural": "Delete Invitations",
+          "cancel_button": "Cancel"
+        }
+      },
       "success": {
         "url_copied": "Invitation URL copied to clipboard.",
         "invitation_resent": "Previous invite revoked. A new invitation has been sent to ${email}."
       },
       "error": {
         "fetch_failed": "Failed to load invitations. Please try again.",
+        "fetch_roles_failed": "Failed to load invitation roles. Please try again.",
         "create_failed": "Failed to send invitation. Please try again.",
         "revoke_failed": "Failed to revoke invitation. Please try again.",
         "resend_failed": "Failed to resend invitation. Please try again.",
         "revoke_resend_failed": "Failed to revoke and resend invitation. Please try again.",
+        "bulk_revoke_failed": "Failed to revoke the selected invitations. Please try again.",
+        "connection_required": "At least one of identity_provider_id or user_store_id must be provided.",
         "copy_url_failed": "Failed to copy invitation URL. Please try again."
       }
     }

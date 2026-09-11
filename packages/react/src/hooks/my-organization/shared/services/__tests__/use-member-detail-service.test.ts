@@ -142,12 +142,9 @@ describe('useMemberDetailService', () => {
         await result.current.removeRolesMutation.mutateAsync(roles);
       });
 
-      expect(apiService.organization.members.roles.unassignLegacy).toHaveBeenCalledWith(
-        VALID_USER_ID,
-        {
-          role_ids: ['rol_admin'],
-        },
-      );
+      expect(apiService.organization.members.roles.unassign).toHaveBeenCalledWith(VALID_USER_ID, {
+        role_ids: ['rol_admin'],
+      });
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'success' }));
     });
 
@@ -174,7 +171,7 @@ describe('useMemberDetailService', () => {
       });
 
       expect(onBefore).toHaveBeenCalledWith({ userId: VALID_USER_ID, roleIds: ['rol_abc123'] });
-      expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
+      expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
     });
 
     it('should call onAfter on success', async () => {
@@ -195,7 +192,7 @@ describe('useMemberDetailService', () => {
       const roles = [createMockMemberRole()];
       const { result, apiService } = await renderUseMemberDetailService();
       (
-        apiService.organization.members.roles.unassignLegacy as ReturnType<typeof vi.fn>
+        apiService.organization.members.roles.unassign as ReturnType<typeof vi.fn>
       ).mockRejectedValue(new Error('Remove failed'));
 
       await act(async () => {
@@ -205,7 +202,7 @@ describe('useMemberDetailService', () => {
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
     });
 
-    it('should return aborted when role count exceeds MAX_ROLES_PER_REQUEST', async () => {
+    it('should not abort on role count, since the roles table caps the selection', async () => {
       const manyRoles = Array.from({ length: 51 }, (_, i) =>
         createMockMemberRole({ id: `rol_${i}`, name: `Role ${i}` }),
       );
@@ -216,8 +213,8 @@ describe('useMemberDetailService', () => {
         returnValue = await result.current.removeRolesMutation.mutateAsync(manyRoles);
       });
 
-      expect(returnValue?.aborted).toBe(true);
-      expect(apiService.organization.members.roles.unassignLegacy).not.toHaveBeenCalled();
+      expect(returnValue?.aborted).toBe(false);
+      expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
     });
   });
 });

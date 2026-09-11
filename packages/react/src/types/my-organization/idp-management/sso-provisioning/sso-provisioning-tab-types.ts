@@ -15,6 +15,7 @@ import type {
   SsoProvisioningDeleteMessages,
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
+  IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 
 import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
@@ -44,6 +45,7 @@ export interface SsoProvisioningTabClasses {
 export interface SsoProvisioningTabProps
   extends SharedComponentProps<SsoProvisioningTabMessages, SsoProvisioningTabClasses> {
   provider: IdpKnownResponse;
+  permissions: IdpManagementPermissions;
   isProvisioningUpdating: boolean;
   isProvisioningDeleting: boolean;
   isScimTokensLoading: boolean;
@@ -84,6 +86,7 @@ export interface SsoProvisioningDetailsProps
     SsoProvisioningDetailsClasses,
     SsoProvisioningTabSchemas
   > {
+  permissions: IdpManagementPermissions;
   provider: IdpKnownResponse;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isScimTokensLoading: boolean;

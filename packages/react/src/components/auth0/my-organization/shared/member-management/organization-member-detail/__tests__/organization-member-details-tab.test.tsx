@@ -5,6 +5,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { OrganizationMemberEditDetailsTab } from '../organization-member-details-tab';
 
 import { createMockMember } from '@/tests/utils/__mocks__/my-organization/member-management/member.mocks';
+import {
+  createMemberPermissions,
+  ALL_MEMBER_PERMISSIONS,
+  READ_ONLY_MEMBER_PERMISSIONS,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 
@@ -14,6 +19,7 @@ const createProps = (overrides = {}) => ({
   member: createMockMember(),
   customMessages: {},
   isRemovingFromOrganization: false,
+  permissions: ALL_MEMBER_PERMISSIONS,
   onRemoveFromOrganizationClick: vi.fn(),
   ...overrides,
 });
@@ -134,6 +140,92 @@ describe('OrganizationMemberEditDetailsTab', () => {
         />,
       );
       expect(screen.getByText('Custom Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('granted permissions', () => {
+    const removeButtonName = 'member.detail.actions.remove_from_organization.button';
+
+    describe('when delete:my_org:memberships is granted', () => {
+      it('enables the remove from organization button', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({
+              permissions: createMemberPermissions(['delete:my_org:memberships']),
+            })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeEnabled();
+      });
+    });
+
+    describe('when create is granted without delete:my_org:memberships', () => {
+      it('keeps the destructive button visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({
+              permissions: createMemberPermissions(['create:my_org:member_roles']),
+            })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeDisabled();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('keeps the destructive button visible but disabled', () => {
+        renderWithProviders(
+          <OrganizationMemberEditDetailsTab
+            {...createProps({ permissions: READ_ONLY_MEMBER_PERMISSIONS })}
+          />,
+        );
+
+        expect(screen.getByRole('button', { name: removeButtonName })).toBeDisabled();
+      });
+    });
+  });
+
+  describe('Access Level Gating', () => {
+    it('disables remove button when member has readonly access_level', () => {
+      const member = createMockMember({ access_level: 'readonly' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).toBeDisabled();
+    });
+
+    it('disables remove button when member has none access_level', () => {
+      const member = createMockMember({ access_level: 'none' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).toBeDisabled();
+    });
+
+    it('enables remove button when member has limited access_level', () => {
+      const member = createMockMember({ access_level: 'limited' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).not.toBeDisabled();
+    });
+
+    it('enables remove button when member has full access_level', () => {
+      const member = createMockMember({ access_level: 'full' });
+      renderWithProviders(<OrganizationMemberEditDetailsTab {...createProps({ member })} />);
+      expect(
+        screen.getByRole('button', {
+          name: /member.detail.actions.remove_from_organization.button/i,
+        }),
+      ).not.toBeDisabled();
     });
   });
 });

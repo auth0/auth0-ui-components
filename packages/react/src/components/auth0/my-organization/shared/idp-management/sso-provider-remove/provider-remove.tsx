@@ -7,6 +7,7 @@
 import * as React from 'react';
 
 import { SsoProviderRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove-modal';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -22,6 +23,7 @@ import type { SsoProviderRemoveFromOrganizationProps } from '@/types/my-organiza
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.permissionDenied - Whether the action is unavailable for lack of a scope
  * @returns JSX element
  */
 export function SsoProviderRemoveFromOrganization({
@@ -31,6 +33,7 @@ export function SsoProviderRemoveFromOrganization({
   customMessages = {},
   isLoading,
   readOnly,
+  permissionDenied = false,
 }: SsoProviderRemoveFromOrganizationProps) {
   const { t } = useTranslator('idp_management.remove_sso_provider', customMessages);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -60,14 +63,15 @@ export function SsoProviderRemoveFromOrganization({
               </p>
             </div>
 
-            <Button
-              variant="destructive"
-              onClick={openModal}
-              disabled={readOnly}
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={permissionDenied}
               className="shrink-0"
             >
-              {t('remove_button_label')}
-            </Button>
+              <Button variant="destructive" onClick={openModal} disabled={readOnly}>
+                {t('remove_button_label')}
+              </Button>
+            </PermissionDeniedTooltip>
           </CardContent>
         </Card>
       </div>

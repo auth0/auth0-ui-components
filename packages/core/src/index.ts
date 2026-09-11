@@ -23,6 +23,9 @@ export type {
   EnhancedTranslationFunction,
 } from './i18n/i18n-types';
 
+// i18n custom messages - shared
+export * from './i18n/custom-messages/shared/shared-types';
+
 // i18n custom messages - my-account
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-delete-types';
@@ -116,20 +119,30 @@ export * from './services/my-organization/organization-management/organization-d
 export * from './services/my-organization/organization-management/organization-details-mappers';
 export * from './services/my-organization/organization-management/organization-details-constants';
 export * from './services/my-organization/organization-management/organization-details-query-keys';
+export * from './services/my-organization/organization-management/organization-details-permissions';
 
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
+export * from './services/my-organization/idp-management/idp-management-permissions';
 
 export * from './services/my-organization/domain-management/domain-types';
 export * from './services/my-organization/domain-management/domain-query-keys';
+export * from './services/my-organization/domain-management/domain-management-permissions';
 
 export * from './services/my-organization/member-management/member-management-types';
 export * from './services/my-organization/member-management/member-management-constants';
+export * from './services/my-organization/member-management/member-management-permissions';
 
 export * from './services/my-organization/config/config-types';
+
+// Permissions (shared across modules)
+export * from './services/permissions/permission-utils';
+export * from './services/permissions/permission-types';
+export * from './services/permissions/permission-map';
+export * from './services/permissions/permission-api-types';
 
 // My Account services
 export * from './services/my-account/user-mfa-management/user-mfa-management-types';

@@ -17,10 +17,7 @@ import { useMemberManagementService } from '@/hooks/my-organization/shared/servi
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  isValidUserId,
-  validateRequestRoleForMember,
-} from '@/lib/utils/my-organization/member-management/member-management-utils';
+import { isValidUserId } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   MemberDetailServiceResult,
   UseMemberDetailServiceOptions,
@@ -65,7 +62,6 @@ export function useMemberDetailService(
     memberRolesQueryEnabled: memberQuery.isSuccess,
     assignRolesAction,
     removeFromOrganizationAction,
-    enableRolesList: false,
     deferRoleSearch: true,
   });
 
@@ -83,17 +79,12 @@ export function useMemberDetailService(
       if (!userId) throw new Error('userId is required');
       const roleIds = roles.map((r) => r.id);
 
-      const validationResult = validateRequestRoleForMember(t, roleIds);
-      if (validationResult?.aborted) {
-        return validationResult;
-      }
-
       if (removeRolesAction?.onBefore && !removeRolesAction.onBefore({ userId, roleIds })) {
         throw new Error('Remove roles cancelled by onBefore');
       }
       await coreClient!
         .getMyOrganizationApiClient()
-        .organization.members.roles.unassignLegacy(userId, { role_ids: roleIds });
+        .organization.members.roles.unassign(userId, { role_ids: roleIds });
       removeRolesAction?.onAfter?.({ userId, roleIds });
       return { aborted: false } as const;
     },

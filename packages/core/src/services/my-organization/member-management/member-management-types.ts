@@ -101,6 +101,12 @@ export type CreateMemberInvitationResponseContent =
 export type GetMemberInvitationResponseContent = MyOrganization.GetMemberInvitationResponseContent;
 
 /**
+ * Response content for getting the roles assigned to a member invitation.
+ */
+export type GetMemberInvitationRolesResponseContent =
+  MyOrganization.GetMemberInvitationRolesResponseContent;
+
+/**
  * Request parameters for deleting organization memberships.
  */
 export type DeleteOrganizationMembersRequestContent =
@@ -126,3 +132,13 @@ export type RoleId = MyOrganization.RoleId;
  * Response content for listing organization roles.
  */
 export type ListRolesResponseContent = MyOrganization.ListRolesResponseContent;
+
+/**
+ * User store available for routing invitations (e.g. an enterprise directory).
+ */
+export type UserStore = MyOrganization.UserStore;
+
+/**
+ * Response content for listing organization user stores.
+ */
+export type ListUserStoresResponseContent = MyOrganization.ListUserStoresResponseContent;
