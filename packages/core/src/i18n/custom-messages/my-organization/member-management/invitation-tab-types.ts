@@ -51,6 +51,10 @@ export interface OrganizationInvitationTabMessages extends SharedMessages {
     connection_helper?: string;
     connection_group_user_store?: string;
     connection_group_identity_provider?: string;
+    /** @deprecated Use connection_label instead */
+    provider_label?: string;
+    /** @deprecated Use connection_placeholder instead */
+    provider_placeholder?: string;
     submit_button?: string;
     creating?: string;
     cancel_button?: string;

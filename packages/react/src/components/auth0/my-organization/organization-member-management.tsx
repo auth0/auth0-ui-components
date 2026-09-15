@@ -30,6 +30,7 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { cn } from '@/lib/utils';
+import { normalizeInvitationMessages } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -375,7 +376,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 export function OrganizationMemberManagement(props: OrganizationMemberManagementProps) {
   const {
     hideHeader = false,
-    customMessages = {},
+    customMessages: rawCustomMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
     createInvitationAction,
@@ -385,6 +386,11 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     assignRolesAction,
     removeFromOrganizationAction,
   } = props;
+
+  const customMessages = React.useMemo(
+    () => normalizeInvitationMessages(rawCustomMessages),
+    [rawCustomMessages],
+  );
 
   const memberManagement = useOrganizationMemberManagement({
     customMessages,

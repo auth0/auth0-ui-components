@@ -14,6 +14,7 @@ import {
   getRelativeLastLoginLabel,
   hasEmailDelimiter,
   isValidUserId,
+  normalizeInvitationMessages,
   splitEmailInput,
   validateMemberRoleLimit,
 } from '@/lib/utils/my-organization/member-management/member-management-utils';
@@ -320,6 +321,70 @@ describe('canMutateMember', () => {
 
   it('returns false for unknown access_level', () => {
     expect(canMutateMember('unknown')).toBe(false);
+  });
+});
+
+describe('normalizeInvitationMessages', () => {
+  it('promotes deprecated provider_label to connection_label', () => {
+    const result = normalizeInvitationMessages({
+      invitation: { create: { provider_label: 'Provider' } },
+    });
+    expect(result.invitation?.create?.connection_label).toBe('Provider');
+  });
+
+  it('promotes deprecated provider_placeholder to connection_placeholder', () => {
+    const result = normalizeInvitationMessages({
+      invitation: { create: { provider_placeholder: 'Pick one' } },
+    });
+    expect(result.invitation?.create?.connection_placeholder).toBe('Pick one');
+  });
+
+  it('prefers an explicit connection_label over the deprecated provider_label', () => {
+    const result = normalizeInvitationMessages({
+      invitation: {
+        create: { provider_label: 'Old', connection_label: 'New' },
+      },
+    });
+    expect(result.invitation?.create?.connection_label).toBe('New');
+  });
+
+  it('prefers an explicit connection_placeholder over the deprecated provider_placeholder', () => {
+    const result = normalizeInvitationMessages({
+      invitation: {
+        create: { provider_placeholder: 'Old', connection_placeholder: 'New' },
+      },
+    });
+    expect(result.invitation?.create?.connection_placeholder).toBe('New');
+  });
+
+  it('promotes label and placeholder together', () => {
+    const result = normalizeInvitationMessages({
+      invitation: {
+        create: { provider_label: 'Provider', provider_placeholder: 'Pick one' },
+      },
+    });
+    expect(result.invitation?.create?.connection_label).toBe('Provider');
+    expect(result.invitation?.create?.connection_placeholder).toBe('Pick one');
+  });
+
+  it('returns the original object when there is no create block', () => {
+    const messages = { invitation: {} };
+    expect(normalizeInvitationMessages(messages)).toBe(messages);
+  });
+
+  it('returns the original object when no deprecated keys are present', () => {
+    const messages = { invitation: { create: { connection_label: 'Connection' } } };
+    expect(normalizeInvitationMessages(messages)).toBe(messages);
+  });
+
+  it('preserves other create fields when normalizing', () => {
+    const result = normalizeInvitationMessages({
+      invitation: {
+        create: { title: 'Invite', provider_label: 'Provider' },
+      },
+    });
+    expect(result.invitation?.create?.title).toBe('Invite');
+    expect(result.invitation?.create?.connection_label).toBe('Provider');
   });
 });
 

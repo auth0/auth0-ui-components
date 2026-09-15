@@ -8,6 +8,7 @@ import {
   type EnhancedTranslationFunction,
   type MemberInvitation,
   type OrgMember,
+  type OrganizationMemberManagementMessages,
   type Role,
 } from '@auth0/universal-components-core';
 
@@ -220,4 +221,36 @@ export const validateMemberRoleLimit = (
  */
 export const canMutateMember = (accessLevel?: MemberAccessLevel | string): boolean => {
   return accessLevel === 'limited' || accessLevel === 'full';
+};
+
+/**
+ * Normalizes deprecated invitation message keys to their current equivalents.
+ * Deprecated `provider_label` falls back to `connection_label`; same for `provider_placeholder`.
+ *
+ * @param messages - Raw custom messages from the consumer.
+ * @returns Messages with deprecated fields back-filled into their replacements.
+ */
+export const normalizeInvitationMessages = (
+  messages: Partial<OrganizationMemberManagementMessages>,
+): Partial<OrganizationMemberManagementMessages> => {
+  const create = messages.invitation?.create;
+  if (!create) return messages;
+
+  const { provider_label, provider_placeholder, connection_label, connection_placeholder } = create;
+
+  if ((provider_label && !connection_label) || (provider_placeholder && !connection_placeholder)) {
+    return {
+      ...messages,
+      invitation: {
+        ...messages.invitation,
+        create: {
+          ...create,
+          connection_label: connection_label ?? provider_label,
+          connection_placeholder: connection_placeholder ?? provider_placeholder,
+        },
+      },
+    };
+  }
+
+  return messages;
 };
