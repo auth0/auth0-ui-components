@@ -381,6 +381,7 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
+    revokeInvitationActionSingle,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
@@ -392,11 +393,35 @@ export function OrganizationMemberManagement(props: OrganizationMemberManagement
     [rawCustomMessages],
   );
 
+  // Backward compat: wrap the deprecated single-item action into the array-based signature.
+  // revokeInvitationAction takes precedence; revokeInvitationActionSingle is only used as fallback.
+  const singleOnBefore = revokeInvitationActionSingle?.onBefore;
+  const singleOnAfter = revokeInvitationActionSingle?.onAfter;
+  const effectiveRevokeAction =
+    revokeInvitationAction ??
+    (revokeInvitationActionSingle
+      ? {
+          disabled: revokeInvitationActionSingle.disabled,
+          onBefore: singleOnBefore
+            ? (items: MemberInvitation[]) => {
+                const [item] = items;
+                return item !== undefined ? singleOnBefore(item) : true;
+              }
+            : undefined,
+          onAfter: singleOnAfter
+            ? (items: MemberInvitation[]) => {
+                const [item] = items;
+                if (item !== undefined) return singleOnAfter(item);
+              }
+            : undefined,
+        }
+      : undefined);
+
   const memberManagement = useOrganizationMemberManagement({
     customMessages,
     readOnly,
     createInvitationAction,
-    revokeInvitationAction,
+    revokeInvitationAction: effectiveRevokeAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
