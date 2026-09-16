@@ -30,7 +30,6 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { cn } from '@/lib/utils';
-import { normalizeInvitationMessages } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import type {
   OrganizationMemberManagementProps,
   OrganizationMemberManagementViewProps,
@@ -376,52 +375,22 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
 export function OrganizationMemberManagement(props: OrganizationMemberManagementProps) {
   const {
     hideHeader = false,
-    customMessages: rawCustomMessages = {},
+    customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
     createInvitationAction,
     revokeInvitationAction,
-    revokeInvitationActionSingle,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
     removeFromOrganizationAction,
   } = props;
 
-  const customMessages = React.useMemo(
-    () => normalizeInvitationMessages(rawCustomMessages),
-    [rawCustomMessages],
-  );
-
-  // Backward compat: wrap the deprecated single-item action into the array-based signature.
-  // revokeInvitationAction takes precedence; revokeInvitationActionSingle is only used as fallback.
-  const singleOnBefore = revokeInvitationActionSingle?.onBefore;
-  const singleOnAfter = revokeInvitationActionSingle?.onAfter;
-  const effectiveRevokeAction =
-    revokeInvitationAction ??
-    (revokeInvitationActionSingle
-      ? {
-          disabled: revokeInvitationActionSingle.disabled,
-          onBefore: singleOnBefore
-            ? (items: MemberInvitation[]) => {
-                const [item] = items;
-                return item !== undefined ? singleOnBefore(item) : true;
-              }
-            : undefined,
-          onAfter: singleOnAfter
-            ? (items: MemberInvitation[]) => {
-                const [item] = items;
-                if (item !== undefined) return singleOnAfter(item);
-              }
-            : undefined,
-        }
-      : undefined);
-
   const memberManagement = useOrganizationMemberManagement({
     customMessages,
     readOnly,
     createInvitationAction,
-    revokeInvitationAction: effectiveRevokeAction,
+    revokeInvitationAction,
     resendInvitationAction,
     viewMemberDetailsAction,
     assignRolesAction,
