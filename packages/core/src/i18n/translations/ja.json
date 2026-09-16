@@ -1209,13 +1209,13 @@
           "remove_from_organization": {
             "title": "組織からメンバーを削除",
             "description": "一度確定すると、この操作は元に戻せません。",
-            "button": "削除",
+            "button": "取り除く",
             "success": "${memberName} が ${organizationName} から削除されました。",
             "modal": {
               "title": "${organizationName} からメンバーを削除",
               "description": "<bold>\"${memberName}\"</bold> をこの組織から削除してもよろしいですか？この操作はアカウントを削除しませんが、アクセスを取り消し、サインインできなくなります。",
               "cancel_button": "キャンセル",
-              "confirm_button": "削除する"
+              "confirm_button": "取り除く"
             }
           }
         },
@@ -1254,7 +1254,7 @@
             "title": "メンバーからロールを削除しますか？",
             "title_plural": "メンバーからロールを削除しますか？",
             "description": "<memberBold>\"${memberName}\"</memberBold> から <roleBold>${roleName}</roleBold> ロールを削除します。",
-            "confirm_button": "削除",
+            "confirm_button": "取り除く",
             "cancel_button": "キャンセル",
             "success": "ロール \"${roleName}\" がメンバーから削除されました。",
             "success_plural": "ロール \"${roleNames}\" がメンバーから削除されました。"
@@ -1313,7 +1313,7 @@
         "connection_label": "接続",
         "connection_placeholder": "接続を選択",
         "connection_helper": "メンバーがログインに使用する接続を選択してください。",
-        "connection_group_user_store": "ユーザーディレクトリ",
+        "connection_group_user_store": "ユーザー・ストア",
         "connection_group_identity_provider": "エンタープライズSSO",
         "submit_button": "招待を送信",
         "creating": "作成中...",

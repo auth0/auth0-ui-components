@@ -1240,7 +1240,7 @@
           "remove_from_organization": {
             "title": "Remove Member from Organization",
             "description": "Once confirmed, this operation cannot be undone.",
-            "button": "Delete",
+            "button": "Remove",
             "success": "${memberName} has been removed from the ${organizationName}.",
             "modal": {
               "title": "Remove Member from ${organizationName}",
@@ -1344,7 +1344,7 @@
         "connection_label": "Connection",
         "connection_placeholder": "Select connection",
         "connection_helper": "Select the connection the member will use to log in.",
-        "connection_group_user_store": "User Directory",
+        "connection_group_user_store": "User Store",
         "connection_group_identity_provider": "Enterprise SSO",
         "submit_button": "Send Invite",
         "creating": "Creating...",
