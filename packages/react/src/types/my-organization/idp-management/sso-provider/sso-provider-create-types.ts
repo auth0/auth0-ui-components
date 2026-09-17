@@ -4,6 +4,7 @@
  */
 
 import type {
+  IdpManagementPermissions,
   SharedComponentProps,
   ProviderSelectMessages,
   ProviderDetailsMessages,
@@ -120,6 +121,7 @@ export interface SsoProviderCreateProps
 export interface UseSsoProviderCreateOptions {
   createAction?: SsoProviderCreateProps['createAction'];
   customMessages?: SsoProviderCreateProps['customMessages'];
+  readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
 export interface UseSsoProviderCreateServiceReturn {
@@ -134,6 +136,7 @@ export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOpt
 }
 
 export interface UseSsoProviderCreateResult {
+  permissions: IdpManagementPermissions;
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
