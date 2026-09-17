@@ -243,10 +243,14 @@ export interface OrganizationMemberManagementProps
     OrganizationMemberManagementClasses
   > {
   hideHeader?: boolean;
+  /** @deprecated No longer used */
+  enableRolesList?: boolean;
   /** Action hooks for invitation creation (onBefore/onAfter) */
   createInvitationAction?: ComponentAction<CreateInvitationInput, MemberInvitation>;
   /** Action hooks for invitation revocation, single or bulk (onBefore/onAfter) */
   revokeInvitationAction?: ComponentAction<MemberInvitation[]>;
+  /** @deprecated Use revokeInvitationAction (accepts an array) instead */
+  revokeInvitationActionSingle?: ComponentAction<MemberInvitation>;
   /** Action hooks for invitation revoke-and-resend (onBefore/onAfter) */
   resendInvitationAction?: ComponentAction<MemberInvitation, MemberInvitation>;
   /** Action hooks for viewing member details (onBefore/onAfter) */
