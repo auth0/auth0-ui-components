@@ -170,7 +170,7 @@ export function ProvisioningManageToken({
           <CardAction>
             <PermissionDeniedTooltip
               customMessages={customMessages}
-              enabled={!readOnly && !permissions.canCreateScimToken}
+              enabled={!readOnly && !isAtTokenLimit && !permissions.canCreateScimToken}
             >
               <Tooltip>
                 <TooltipTrigger asChild>
