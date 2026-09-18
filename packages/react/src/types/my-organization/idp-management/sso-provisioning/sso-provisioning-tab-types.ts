@@ -87,6 +87,7 @@ export interface SsoProvisioningDetailsProps
     SsoProvisioningTabSchemas
   > {
   permissions: IdpManagementPermissions;
+  readOnly?: boolean;
   provider: IdpKnownResponse;
   provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
   isScimTokensLoading: boolean;

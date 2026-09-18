@@ -65,6 +65,7 @@ export function SsoProvisioningDetails({
   onCreateScimToken,
   onDeleteScimToken,
   permissions,
+  readOnly = false,
   customMessages = {},
   styling = {
     variables: { common: {}, light: {}, dark: {} },
@@ -132,6 +133,7 @@ export function SsoProvisioningDetails({
             onCreateScimToken={onCreateScimToken}
             onDeleteScimToken={onDeleteScimToken}
             permissions={permissions}
+            readOnly={readOnly}
             customMessages={customMessages?.manage_tokens}
             styling={styling}
           />

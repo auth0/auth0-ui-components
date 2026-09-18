@@ -301,5 +301,40 @@ describe('ProvisioningManageToken', () => {
         .getAllByRole('button', { name: /delete/i })
         .forEach((button) => expect(button).toBeDisabled());
     });
+
+    it('should show permission denied tooltip on delete button when canDeleteScimToken is missing', async () => {
+      mockOnListScimTokens.mockResolvedValue({
+        scim_tokens: [{ token_id: 'token-1', valid_until: null }],
+      });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['create:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await screen.findByText(/token-1/);
+
+      const deleteButton = screen.getByRole('button', { name: /delete.*token-1/i });
+      expect(deleteButton.closest('span[tabindex="0"]')).toBeInTheDocument();
+    });
+
+    it('should not show permission denied tooltip on delete button when readOnly', async () => {
+      mockOnListScimTokens.mockResolvedValue({
+        scim_tokens: [{ token_id: 'token-1', valid_until: null }],
+      });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          readOnly={true}
+          permissions={createIdpPermissions(['create:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await screen.findByText(/token-1/);
+
+      const deleteButton = screen.getByRole('button', { name: /delete.*token-1/i });
+      expect(deleteButton.closest('span[tabindex="0"]')).not.toBeInTheDocument();
+    });
   });
 });
