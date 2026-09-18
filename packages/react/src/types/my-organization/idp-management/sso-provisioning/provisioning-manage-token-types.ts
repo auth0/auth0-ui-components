@@ -26,6 +26,7 @@ export interface ProvisioningManageTokenClasses {
 export interface ProvisioningManageTokenProps
   extends SharedComponentProps<ProvisioningManageTokenMessages, ProvisioningManageTokenClasses> {
   permissions: IdpManagementPermissions;
+  readOnly?: boolean;
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;

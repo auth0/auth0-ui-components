@@ -189,6 +189,7 @@ export function SsoProvisioningTab({
               customMessages={customMessages.details}
               styling={styling}
               permissions={permissions}
+              readOnly={readOnly}
             />
           )}
         </CardContent>
