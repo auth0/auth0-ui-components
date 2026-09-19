@@ -63,8 +63,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     isLoadingIdpConfig,
     idpConfig,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    getCrossAppAccessDefaultValue,
     isOrganizationBlocked,
   } = useSsoProviderCreate({
     createAction,
@@ -74,6 +76,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
   });
 
   const { strategy, details, configure } = formData;
+  const crossAppAccessDefaultValue = getCrossAppAccessDefaultValue();
 
   const ssoProviderCreateLogicProps: SsoProviderCreateLogicProps = {
     formData,
@@ -86,8 +89,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     isLoadingIdpConfig,
     idpConfig,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    crossAppAccessDefaultValue,
     isOrganizationBlocked,
     styling,
     customMessages,
@@ -136,8 +141,10 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     isLoadingIdpConfig,
     idpConfig,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    crossAppAccessDefaultValue,
     isOrganizationBlocked,
   }: SsoProviderCreateLogicProps = logic;
 
@@ -212,8 +219,10 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              crossAppAccessDefaultValue={crossAppAccessDefaultValue}
               isOrganizationBlocked={isOrganizationBlocked}
               styling={styling}
             />
@@ -232,6 +241,13 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
       currentStyles,
       styling,
       createStepActions,
+      isLoadingIdpConfig,
+      idpConfig,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+      crossAppAccessDefaultValue,
       isOrganizationBlocked,
     ],
   );

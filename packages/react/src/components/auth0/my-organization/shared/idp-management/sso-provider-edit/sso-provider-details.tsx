@@ -47,6 +47,7 @@ export function SsoProviderDetails({
     classes: {},
   },
   showThirdPartyAccess = false,
+  isThirdPartyAccessReadOnly = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
@@ -137,6 +138,7 @@ export function SsoProviderDetails({
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}
           showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
           showCrossAppAccess={showCrossAppAccess}
           isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           isOrganizationBlocked={isOrganizationBlocked}

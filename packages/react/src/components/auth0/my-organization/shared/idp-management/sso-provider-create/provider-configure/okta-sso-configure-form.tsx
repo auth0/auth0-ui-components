@@ -63,6 +63,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       mode = 'create',
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
+      crossAppAccessDefaultValue,
       styling,
     },
     ref,
@@ -96,7 +97,10 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
         assign_membership_on_login: oktaData?.assign_membership_on_login ?? false,
         cross_app_access_resource_app:
           (oktaData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-            ?.cross_app_access_resource_app ?? undefined,
+            ?.cross_app_access_resource_app ??
+          (crossAppAccessDefaultValue !== undefined
+            ? { status: crossAppAccessDefaultValue }
+            : undefined),
       },
     });
 
