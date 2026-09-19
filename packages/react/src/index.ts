@@ -3,6 +3,7 @@
  */
 
 // Components
+export { GateKeeper } from './components/auth0/shared/gate-keeper/gate-keeper';
 export {
   UserMFAManagement,
   UserMFAManagementView,
