@@ -88,10 +88,9 @@ describe('useSsoDomainTab', () => {
         { value: { permissions, isLoading: false } },
         children,
       );
-    return renderHook(
-      () => useSsoDomainTab('idp-1', { provider: defaultProvider, ...options }),
-      { wrapper },
-    );
+    return renderHook(() => useSsoDomainTab('idp-1', { provider: defaultProvider, ...options }), {
+      wrapper,
+    });
   };
 
   describe('initialization', () => {

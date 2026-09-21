@@ -4,7 +4,11 @@
  * @module use-sso-domain-tab
  */
 
-import { getIdpManagementPermissions, type Domain, type IdpId } from '@auth0/universal-components-core';
+import {
+  getIdpManagementPermissions,
+  type Domain,
+  type IdpId,
+} from '@auth0/universal-components-core';
 import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
