@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -25,7 +25,7 @@ const { mockServiceReturn, mockHandleError } = vi.hoisted(() => ({
     isRefetchingDomains: false,
     isDomainsStale: false,
     domainsUpdatedAt: 0,
-    nextToken: null,
+    nextToken: null as string | null,
     refetchDomains: vi.fn(),
     idpDomains: [] as string[],
     isCreating: false,
