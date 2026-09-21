@@ -1,12 +1,15 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import { createElement, type ReactNode } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
+import { PermissionContext } from '@/providers/permission-provider';
 import {
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { mockToast } from '@/tests/utils/test-setup';
 
 const { mockedShowToast } = mockToast();
@@ -75,11 +78,19 @@ describe('useSsoDomainTab', () => {
     );
   });
 
-  const renderUseSsoDomainTab = () => {
-    return renderHook(() =>
-      useSsoDomainTab('idp-1', {
-        provider: defaultProvider,
-      }),
+  const renderUseSsoDomainTab = (
+    options?: Parameters<typeof useSsoDomainTab>[1],
+    permissions: string[] = ALL_MY_ORG_PERMISSIONS,
+  ) => {
+    const wrapper = ({ children }: { children: ReactNode }) =>
+      createElement(
+        PermissionContext.Provider,
+        { value: { permissions, isLoading: false } },
+        children,
+      );
+    return renderHook(
+      () => useSsoDomainTab('idp-1', { provider: defaultProvider, ...options }),
+      { wrapper },
     );
   };
 
@@ -378,6 +389,177 @@ describe('useSsoDomainTab', () => {
         result.current.setShowDeleteModal(false);
       });
       expect(result.current.showDeleteModal).toBe(false);
+    });
+  });
+
+  describe('pagination', () => {
+    it('should initialize with default pagination state', () => {
+      const { result } = renderUseSsoDomainTab();
+
+      expect(result.current.pagination).toEqual({
+        pageSize: 10,
+        currentPage: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      });
+    });
+
+    it('should reflect hasNextPage from the service next token', () => {
+      mockServiceReturn.nextToken = 'next-cursor-token';
+
+      const { result } = renderUseSsoDomainTab();
+
+      expect(result.current.pagination.hasNextPage).toBe(true);
+    });
+
+    it('should advance to the next page when a next token exists', () => {
+      mockServiceReturn.nextToken = 'next-cursor-token';
+
+      const { result } = renderUseSsoDomainTab();
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(2);
+      expect(result.current.pagination.hasPreviousPage).toBe(true);
+    });
+
+    it('should not advance to the next page when there is no next token', () => {
+      mockServiceReturn.nextToken = null;
+
+      const { result } = renderUseSsoDomainTab();
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+
+      expect(result.current.pagination.currentPage).toBe(1);
+    });
+
+    it('should navigate back to the previous page', () => {
+      mockServiceReturn.nextToken = 'next-cursor-token';
+
+      const { result } = renderUseSsoDomainTab();
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+      expect(result.current.pagination.currentPage).toBe(2);
+
+      act(() => {
+        result.current.handlePreviousPage();
+      });
+      expect(result.current.pagination.currentPage).toBe(1);
+      expect(result.current.pagination.hasPreviousPage).toBe(false);
+    });
+
+    it('should reset to the first page when the page size changes', () => {
+      mockServiceReturn.nextToken = 'next-cursor-token';
+
+      const { result } = renderUseSsoDomainTab();
+
+      act(() => {
+        result.current.handleNextPage();
+      });
+      expect(result.current.pagination.currentPage).toBe(2);
+
+      act(() => {
+        result.current.handlePageSizeChange(25);
+      });
+      expect(result.current.pagination.pageSize).toBe(25);
+      expect(result.current.pagination.currentPage).toBe(1);
+      expect(result.current.pagination.hasPreviousPage).toBe(false);
+    });
+  });
+
+  describe('permission guards', () => {
+    const VIEWER = ['read:my_org:domains', 'read:my_org:identity_providers'];
+
+    it('should refuse to create a domain without create:my_org:domains', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+
+      expect(mockServiceReturn.createDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to verify a domain without update:my_org:domains', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to verify from the action column without update:my_org:domains', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to delete a domain without delete:my_org:domains', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleDelete(mockDomain);
+      });
+
+      expect(mockServiceReturn.deleteDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to open the delete modal without delete:my_org:domains', () => {
+      const { result } = renderUseSsoDomainTab(undefined, VIEWER);
+
+      act(() => {
+        result.current.handleDeleteClick(mockDomain);
+      });
+
+      expect(result.current.showDeleteModal).toBe(false);
+    });
+
+    it('should refuse to associate a domain without the create provider-domain scope', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, [
+        ...VIEWER,
+        'delete:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, true);
+      });
+
+      expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to dissociate a domain without the delete provider-domain scope', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, [
+        ...VIEWER,
+        'create:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, false);
+      });
+
+      expect(mockServiceReturn.deleteFromProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse every action when readOnly is set, even with the scopes granted', async () => {
+      const { result } = renderUseSsoDomainTab({ readOnly: true });
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+
+      expect(mockServiceReturn.createDomain).not.toHaveBeenCalled();
     });
   });
 });

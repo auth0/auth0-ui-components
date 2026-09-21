@@ -1,8 +1,10 @@
 import { vi } from 'vitest';
 
+import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type { SsoProvisioningDetailsProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
 export const mockProps = {
+  permissions: ALL_IDP_PERMISSIONS,
   provider: {
     id: 'test-id',
     name: 'Test Provider',

@@ -4,13 +4,14 @@
  * @module use-sso-domain-tab
  */
 
-import type { Domain, IdpId } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import { getIdpManagementPermissions, type Domain, type IdpId } from '@auth0/universal-components-core';
+import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
@@ -29,10 +30,21 @@ import type {
  */
 export function useSsoDomainTab(
   idpId: IdpId,
-  { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabOptions> = {},
+  {
+    customMessages = {},
+    domains,
+    provider,
+    readOnly = false,
+  }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const handleError = useErrorHandler();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     pageSize,
@@ -81,6 +93,7 @@ export function useSsoDomainTab(
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
+      if (!permissions.canCreateDomain) return;
       try {
         const newDomain = await createDomain({ domain: domainUrl });
 
@@ -110,6 +123,7 @@ export function useSsoDomainTab(
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       try {
         const { isVerified } = await verifyDomain(domain);
         if (isVerified) {
@@ -135,14 +149,19 @@ export function useSsoDomainTab(
     [verifyDomain, t, handleError, associateToProvider],
   );
 
-  const handleDeleteClick = useCallback((domain: Domain) => {
-    setSelectedDomain(domain);
-    setShowVerifyModal(false);
-    setShowDeleteModal(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
+      setSelectedDomain(domain);
+      setShowVerifyModal(false);
+      setShowDeleteModal(true);
+    },
+    [permissions],
+  );
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
       try {
         await deleteDomain(domain);
 
@@ -161,11 +180,12 @@ export function useSsoDomainTab(
         });
       }
     },
-    [handleError, deleteDomain, t],
+    [permissions, handleError, deleteDomain, t],
   );
 
   const handleVerifyActionColumn = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -202,6 +222,9 @@ export function useSsoDomainTab(
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
+      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
+        return;
+      }
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 

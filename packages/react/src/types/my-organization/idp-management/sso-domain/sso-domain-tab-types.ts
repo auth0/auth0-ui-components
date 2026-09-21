@@ -11,6 +11,7 @@ import type {
   IdpKnownResponse,
   SharedComponentProps,
   SsoDomainTabMessages,
+  IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 
@@ -68,6 +69,7 @@ export interface SsoDomainsTabProps
   domains: SsoDomainsTabEditProps | undefined;
   idpId: string;
   provider: IdpKnownResponse | null;
+  permissions: IdpManagementPermissions;
 }
 
 export interface SsoDomainTabActionColumn
@@ -77,6 +79,7 @@ export interface SsoDomainTabActionColumn
     SsoProviderEditDomainsTabSchema
   > {
   translatorKey?: string;
+  permissions: IdpManagementPermissions;
   idpDomains: string[];
   domain: Domain;
   handleVerify: (domain: Domain) => Promise<void>;

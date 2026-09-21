@@ -9,7 +9,7 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -234,6 +234,11 @@
           "target": "providers/gate-keeper-context.tsx"
         },
         {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
+        },
+        {
           "path": "src/providers/portal-context.tsx",
           "type": "registry:component",
           "target": "providers/portal-context.tsx"
@@ -297,6 +302,11 @@
           "path": "src/types/my-account/user-mfa-management/user-mfa-management-types.ts",
           "type": "registry:component",
           "target": "types/my-account/user-mfa-management/user-mfa-management-types.ts"
+        },
+        {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -371,7 +381,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -380,7 +390,7 @@
       "title": "Passkey management component.",
       "description": "A block component for user passkey management.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -530,6 +540,11 @@
           "target": "providers/gate-keeper-context.tsx"
         },
         {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
+        },
+        {
           "path": "src/providers/portal-context.tsx",
           "type": "registry:component",
           "target": "providers/portal-context.tsx"
@@ -580,6 +595,11 @@
           "target": "types/my-account/user-passkey-management/user-passkey-management-types.ts"
         },
         {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -617,7 +637,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -626,7 +646,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -715,6 +735,11 @@
           "path": "src/components/auth0/shared/pagination.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/pagination.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/refresh-indicator.tsx",
@@ -852,6 +877,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
           "path": "src/hooks/shared/use-telemetry.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-telemetry.ts"
@@ -875,6 +905,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -945,6 +980,11 @@
           "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-verify-types.ts"
+        },
+        {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -1019,7 +1059,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -1028,7 +1068,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -1214,6 +1254,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
@@ -1242,6 +1287,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -1304,6 +1354,11 @@
           "target": "types/my-organization/organization-management/organization-details-types.ts"
         },
         {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -1356,7 +1411,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -1365,7 +1420,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1441,6 +1496,11 @@
           "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/middle-ellipsis-text.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/sonner.tsx",
@@ -1563,14 +1623,14 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-debounced-value.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-debounced-value.ts"
-        },
-        {
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -1591,6 +1651,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -1653,6 +1718,11 @@
           "target": "types/my-organization/member-management/organization-member-management-types.ts"
         },
         {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -1661,6 +1731,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/constants/common-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/common-constants.ts"
         },
         {
           "path": "src/lib/constants/my-organization/member-management/member-management-constants.ts",
@@ -1688,6 +1763,11 @@
           "target": "lib/utils/shared/css-detection.ts"
         },
         {
+          "path": "src/lib/utils/shared/helper-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/shared/helper-utils.ts"
+        },
+        {
           "path": "src/lib/utils/tanstack-compat.ts",
           "type": "registry:component",
           "target": "lib/utils/tanstack-compat.ts"
@@ -1710,7 +1790,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -1719,7 +1799,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1747,6 +1827,11 @@
           "path": "src/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal.tsx",
@@ -1827,6 +1912,11 @@
           "path": "src/components/auth0/shared/pagination.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/pagination.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/refresh-indicator.tsx",
@@ -1974,14 +2064,19 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
-          "path": "src/hooks/shared/use-debounced-value.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-debounced-value.ts"
-        },
-        {
           "path": "src/hooks/shared/use-error-handler.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-error-toast.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-error-toast.ts"
         },
         {
           "path": "src/hooks/shared/use-theme.ts",
@@ -2002,6 +2097,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -2067,6 +2167,11 @@
           "path": "src/types/my-organization/member-management/organization-member-table-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/member-management/organization-member-table-types.ts"
+        },
+        {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -2141,7 +2246,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -2150,7 +2255,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2425,6 +2530,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
@@ -2453,6 +2563,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -2533,6 +2648,11 @@
           "path": "src/types/my-organization/organization-management/organization-details-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-details-types.ts"
+        },
+        {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
         },
         {
           "path": "src/types/theme-types.ts",
@@ -2622,7 +2742,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -2631,7 +2751,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2874,6 +2994,11 @@
           "target": "components/auth0/shared/pagination.tsx"
         },
         {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/refresh-indicator.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/refresh-indicator.tsx"
@@ -3069,6 +3194,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
@@ -3097,6 +3227,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -3224,6 +3359,11 @@
           "target": "types/my-organization/organization-management/organization-details-types.ts"
         },
         {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -3296,7 +3436,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     },
     {
@@ -3305,7 +3445,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.3.0",
+        "@auth0/universal-components-core@3.4.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3370,6 +3510,11 @@
           "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/middle-ellipsis-text.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/refresh-indicator.tsx",
@@ -3497,6 +3642,11 @@
           "target": "hooks/shared/use-error-handler.ts"
         },
         {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
           "path": "src/hooks/shared/use-telemetry.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-telemetry.ts"
@@ -3520,6 +3670,11 @@
           "path": "src/providers/gate-keeper-context.tsx",
           "type": "registry:component",
           "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
         },
         {
           "path": "src/providers/portal-context.tsx",
@@ -3587,6 +3742,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-table-types.ts"
         },
         {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
           "path": "src/types/theme-types.ts",
           "type": "registry:component",
           "target": "types/theme-types.ts"
@@ -3627,6 +3787,11 @@
           "target": "lib/utils/tanstack-compat.ts"
         },
         {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
+        },
+        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"
@@ -3639,7 +3804,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.3.0"
+        "coreVersion": "3.4.0"
       }
     }
   ]

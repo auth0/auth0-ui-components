@@ -3,6 +3,8 @@ import path from 'path';
 
 import type { Plugin } from 'vite';
 
+import { resolveWithinBase } from '../utils/path-utils';
+
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 60;
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -121,16 +123,16 @@ export function registryMiddleware(): Plugin {
         }
 
         const registryRoot = path.resolve(process.cwd(), 'public', 'r');
-        const baseDir = path.resolve(registryRoot, versionPath);
-        if (!baseDir.startsWith(registryRoot + path.sep) && baseDir !== registryRoot) {
+        const baseDir = resolveWithinBase(registryRoot, versionPath);
+        if (!baseDir) {
           res.statusCode = 403;
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ error: 'Access denied' }));
           return;
         }
 
-        const versionedPath = path.resolve(baseDir, normalizedFileName);
-        if (!versionedPath.startsWith(baseDir + path.sep) && versionedPath !== baseDir) {
+        const versionedPath = resolveWithinBase(baseDir, normalizedFileName);
+        if (!versionedPath) {
           res.statusCode = 403;
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ error: 'Access denied' }));

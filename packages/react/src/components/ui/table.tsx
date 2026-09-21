@@ -16,7 +16,14 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 const Table = React.forwardRef<HTMLTableElement, TableProps>(({ className, ...props }, ref) => (
   <div className="shadow-bevel-sm w-full overflow-clip rounded-2xl">
     <div className="overflow-x-auto">
-      <table ref={ref} className={cn('w-full border-collapse table-fixed', className)} {...props} />
+      <table
+        ref={ref}
+        className={cn(
+          'table w-full border-collapse table-fixed m-0 rounded-none shadow-none overflow-visible',
+          className,
+        )}
+        {...props}
+      />
     </div>
   </div>
 ));
@@ -26,7 +33,11 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('bg-muted text-primary text-sm', className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn('bg-muted text-primary text-sm border-b-0', className)}
+    {...props}
+  />
 ));
 TableHeader.displayName = 'TableHeader';
 
@@ -70,7 +81,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
       <th
         ref={ref}
         className={cn(
-          'hover:bg-accent/10 border-border/50 border-b px-4 py-2 text-left',
+          'hover:bg-accent/10 border-border/50 border-b px-4 py-2 text-left align-middle',
           isSortable && 'group cursor-pointer select-none',
           className,
         )}
@@ -100,7 +111,7 @@ interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {
 
 const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
   ({ className, ...props }, ref) => (
-    <td ref={ref} className={cn('px-4 py-2', className)} {...props} />
+    <td ref={ref} className={cn('px-4 py-2 align-middle', className)} {...props} />
   ),
 );
 TableCell.displayName = 'TableCell';

@@ -157,7 +157,7 @@ function StepTitle({ className, children }: StepTitleProps) {
     <p
       data-slot="stepper-title"
       className={cn(
-        'text-sm font-medium transition-colors whitespace-nowrap text-foreground',
+        'text-sm font-medium transition-colors whitespace-nowrap text-foreground m-0',
         className,
       )}
     >
