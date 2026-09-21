@@ -1,6 +1,22 @@
 import type { EnhancedTranslationFunction } from '@auth0/universal-components-core';
 
 /**
+ * Formats a number using locale-aware digit grouping.
+ * @param num - The number to format. Nullish and `NaN` values format as `0`.
+ * @param locale - Locale identifier. Defaults to the browser language, or `en-US` outside the browser.
+ * @returns The locale-formatted number.
+ */
+export function formatNumber(num: number | undefined | null, locale?: string): string {
+  if (num === null || num === undefined || isNaN(num)) {
+    return '0';
+  }
+
+  const resolvedLocale =
+    locale ?? (typeof navigator !== 'undefined' ? navigator.language : 'en-US');
+  return num.toLocaleString(resolvedLocale);
+}
+
+/**
  * Formats the elapsed time between two timestamps
  * @param fromTime - The from timestamp
  * @param t - Translator function

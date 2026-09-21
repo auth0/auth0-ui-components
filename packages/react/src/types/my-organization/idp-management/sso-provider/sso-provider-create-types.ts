@@ -4,6 +4,7 @@
  */
 
 import type {
+  IdpManagementPermissions,
   SharedComponentProps,
   ProviderSelectMessages,
   ProviderDetailsMessages,
@@ -124,6 +125,7 @@ export interface SsoProviderCreateProps
 export interface UseSsoProviderCreateOptions {
   createAction?: SsoProviderCreateProps['createAction'];
   customMessages?: SsoProviderCreateProps['customMessages'];
+  readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
 export interface UseSsoProviderCreateServiceReturn {
@@ -138,6 +140,7 @@ export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOpt
 }
 
 export interface UseSsoProviderCreateResult {
+  permissions: IdpManagementPermissions;
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
@@ -155,6 +158,7 @@ export interface UseSsoProviderCreateResult {
   isCrossAppAccessReadOnly: boolean;
   getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
   isOrganizationBlocked: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -170,44 +174,13 @@ export type FormState = {
   configure?: ProviderConfigureFormValues | null;
 };
 
-export type SsoProviderCreateViewProps = {
-  logic: SsoProviderCreateLogicProps;
-  handlers: SsoProviderCreateHandlerProps;
-};
-
-export interface SsoProviderCreateLogicProps {
-  formData: FormState;
+export interface SsoProviderCreateViewProps
+  extends UseSsoProviderCreateResult,
+    Pick<
+      SsoProviderCreateProps,
+      'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious'
+    > {
   strategy?: IdpStrategy;
   details?: ProviderDetailsFormValues | null;
   configure?: ProviderConfigureFormValues | null;
-  isCreating: boolean;
-  isLoadingConfig: boolean;
-  filteredStrategies: IdpStrategy[];
-  isLoadingIdpConfig: boolean;
-  idpConfig?: GetIdpConfigurationResponseContent | null;
-  showThirdPartyAccess?: boolean;
-  isThirdPartyAccessReadOnly?: boolean;
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
-  isOrganizationBlocked?: boolean;
-  styling?: SsoProviderCreateProps['styling'];
-  customMessages?: SsoProviderCreateProps['customMessages'];
-  backButton?: SsoProviderCreateProps['backButton'];
-}
-
-export interface SsoProviderCreateHandlerProps {
-  onNext: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  onPrevious: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
-  detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
-  configureRef: React.RefObject<ProviderConfigureHandle | null>;
-  handleCreate: () => Promise<void>;
-  createStepActions: (
-    stepId: 'provider_details' | 'provider_configure',
-    ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
-  ) => {
-    onNextAction: () => Promise<boolean>;
-    onPreviousAction: () => Promise<boolean>;
-  };
 }

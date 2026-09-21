@@ -17,8 +17,6 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   FormState,
-  SsoProviderCreateHandlerProps,
-  SsoProviderCreateLogicProps,
   SsoProviderCreateProps,
   SsoProviderCreateViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -50,70 +48,27 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     onPrevious,
   } = props;
 
-  const {
-    formData,
-    detailsRef,
-    configureRef,
-    setFormData,
-    handleCreate,
-    createStepActions,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    showThirdPartyAccess,
-    isThirdPartyAccessReadOnly,
-    showCrossAppAccess,
-    isCrossAppAccessReadOnly,
-    getCrossAppAccessDefaultValue,
-    isOrganizationBlocked,
-  } = useSsoProviderCreate({
+  const ssoProviderCreate = useSsoProviderCreate({
     createAction,
     customMessages,
     onNext,
     onPrevious,
   });
 
-  const { strategy, details, configure } = formData;
-  const crossAppAccessDefaultValue = getCrossAppAccessDefaultValue();
-
-  const ssoProviderCreateLogicProps: SsoProviderCreateLogicProps = {
-    formData,
-    strategy,
-    details,
-    configure,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    showThirdPartyAccess,
-    isThirdPartyAccessReadOnly,
-    showCrossAppAccess,
-    isCrossAppAccessReadOnly,
-    crossAppAccessDefaultValue,
-    isOrganizationBlocked,
-    styling,
-    customMessages,
-    backButton,
-  };
-
-  const ssoProviderCreateHandlerProps: SsoProviderCreateHandlerProps = {
-    onNext,
-    onPrevious,
-    setFormData,
-    detailsRef,
-    configureRef,
-    handleCreate,
-    createStepActions,
-  };
+  const { strategy, details, configure } = ssoProviderCreate.formData;
 
   return (
     <GateKeeper styling={styling}>
       <SsoProviderCreateView
-        logic={ssoProviderCreateLogicProps}
-        handlers={ssoProviderCreateHandlerProps}
+        {...ssoProviderCreate}
+        strategy={strategy}
+        details={details}
+        configure={configure}
+        styling={styling}
+        customMessages={customMessages}
+        backButton={backButton}
+        onNext={onNext}
+        onPrevious={onPrevious}
       />
     </GateKeeper>
   );
@@ -122,12 +77,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
 /**
  * Internal SSO provider creation view component
  * @param props - Component props
- * @param props.logic - Component logic props
- * @param props.handlers - Component handler props
  * @internal
  * @returns JSX element
  */
-function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) {
+function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
   const {
     styling,
     customMessages,
@@ -146,11 +99,6 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     isCrossAppAccessReadOnly,
     crossAppAccessDefaultValue,
     isOrganizationBlocked,
-  }: SsoProviderCreateLogicProps = logic;
-
-  const { isDarkMode } = useTheme();
-  const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
-  const {
     detailsRef,
     configureRef,
     onNext,
@@ -158,7 +106,10 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
     setFormData,
     handleCreate,
     createStepActions,
-  }: SsoProviderCreateHandlerProps = handlers;
+  } = props;
+
+  const { isDarkMode } = useTheme();
+  const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),

@@ -5,6 +5,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { ProvisioningManageToken } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import {
+  ALL_IDP_PERMISSIONS,
+  createIdpPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 
 // Mock hooks
 vi.mock('@/hooks/shared/use-translator', () => ({
@@ -22,6 +26,7 @@ describe('ProvisioningManageToken', () => {
   const mockOnDeleteScimToken = vi.fn();
 
   const defaultProps = {
+    permissions: ALL_IDP_PERMISSIONS,
     isScimTokensLoading: false,
     isScimTokenCreating: false,
     isScimTokenDeleting: false,
@@ -264,5 +269,115 @@ describe('ProvisioningManageToken', () => {
     await user.click(generateButton);
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  describe('granted permissions', () => {
+    it('should disable the generate button without create:my_org:identity_providers_scim_tokens', () => {
+      mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['delete:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      expect(screen.getByRole('button', { name: /generate_button_label/i })).toBeDisabled();
+    });
+
+    it('should disable token delete buttons without delete:my_org:identity_providers_scim_tokens', async () => {
+      mockOnListScimTokens.mockResolvedValue({
+        scim_tokens: [{ token_id: 'token-1', valid_until: null }],
+      });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['create:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await screen.findByText(/token-1/);
+
+      screen
+        .getAllByRole('button', { name: /delete/i })
+        .forEach((button) => expect(button).toBeDisabled());
+    });
+
+    it('should show permission denied tooltip on delete button when canDeleteScimToken is missing', async () => {
+      mockOnListScimTokens.mockResolvedValue({
+        scim_tokens: [{ token_id: 'token-1', valid_until: null }],
+      });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['create:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await screen.findByText(/token-1/);
+
+      const deleteButton = screen.getByRole('button', { name: /delete.*token-1/i });
+      expect(deleteButton.closest('span[tabindex="0"]')).toBeInTheDocument();
+    });
+
+    it('should not show permission denied tooltip on delete button when readOnly', async () => {
+      mockOnListScimTokens.mockResolvedValue({
+        scim_tokens: [{ token_id: 'token-1', valid_until: null }],
+      });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          readOnly={true}
+          permissions={createIdpPermissions(['create:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await screen.findByText(/token-1/);
+
+      const deleteButton = screen.getByRole('button', { name: /delete.*token-1/i });
+      expect(deleteButton.closest('span[tabindex="0"]')).not.toBeInTheDocument();
+    });
+
+    it('should show permission denied tooltip on generate button when canCreateScimToken is missing', () => {
+      mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['delete:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      const generateButton = screen.getByRole('button', { name: /generate_button_label/i });
+      expect(generateButton.closest('span[tabindex="0"]')).toBeInTheDocument();
+    });
+
+    it('should not show permission denied tooltip on generate button when readOnly', () => {
+      mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          readOnly={true}
+          permissions={createIdpPermissions(['delete:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      const generateButton = screen.getByRole('button', { name: /generate_button_label/i });
+      expect(generateButton.closest('span[tabindex="0"]')).not.toBeInTheDocument();
+    });
+
+    it('should not show permission denied tooltip on generate button when at token limit', async () => {
+      mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
+      render(
+        <ProvisioningManageToken
+          {...defaultProps}
+          permissions={createIdpPermissions(['delete:my_org:identity_providers_scim_tokens'])}
+        />,
+      );
+
+      await waitFor(() => {
+        const generateButton = screen.getByRole('button', { name: /generate_button_label/i });
+        expect(generateButton).toBeDisabled();
+        expect(generateButton.closest('span[tabindex="0"]')).not.toBeInTheDocument();
+      });
+    });
   });
 });

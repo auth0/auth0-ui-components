@@ -1,16 +1,19 @@
 import { BusinessError } from '@auth0/universal-components-core';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
+import { PermissionContext } from '@/providers/permission-provider';
 import {
   createMockSsoDomain,
   createMockVerifiedSsoDomain,
   createMockSsoProvider,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import { setupAllCommonMocks, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
@@ -80,8 +83,19 @@ describe('useSsoDomainTab', () => {
   const renderUseSsoDomainTab = async (
     idpId: string,
     options?: Parameters<typeof useSsoDomainTab>[1],
+    permissions: string[] = ALL_MY_ORG_PERMISSIONS,
   ) => {
-    const { wrapper, queryClient } = createTestQueryClientWrapper();
+    const { wrapper: queryWrapper, queryClient } = createTestQueryClientWrapper();
+    const wrapper = ({ children }: React.PropsWithChildren) =>
+      createElement(
+        queryWrapper,
+        null,
+        createElement(
+          PermissionContext.Provider,
+          { value: { permissions, isLoading: false } },
+          children,
+        ),
+      );
     const mergedOptions = { provider: defaultProvider, ...options };
     const hook = renderHook(() => useSsoDomainTab(idpId, mergedOptions), { wrapper });
     await waitFor(() => expect(hook.result.current.isLoading).toBe(false));
@@ -836,6 +850,99 @@ describe('useSsoDomainTab', () => {
       // Should not have duplicates
       const domainCount = result.current.idpDomains.filter((id) => id === mockDomain.id).length;
       expect(domainCount).toBe(1);
+    });
+  });
+
+  describe('permission guards', () => {
+    const VIEWER = ['read:my_org:domains', 'read:my_org:identity_providers'];
+
+    it('should refuse to create a domain without create:my_org:domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, VIEWER);
+      const create = mockCoreClient.getMyOrganizationApiClient().organization.domains.create;
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+
+      expect(create).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to verify a domain without update:my_org:domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(mockDomainVerifyCreate).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to verify from the action column without update:my_org:domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, VIEWER);
+
+      await act(async () => {
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockDomainVerifyCreate).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to delete a domain without delete:my_org:domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, VIEWER);
+      const remove = mockCoreClient.getMyOrganizationApiClient().organization.domains.delete;
+
+      await act(async () => {
+        await result.current.handleDelete(mockDomain);
+      });
+
+      expect(remove).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to open the delete modal without delete:my_org:domains', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, VIEWER);
+
+      act(() => {
+        result.current.handleDeleteClick(mockDomain);
+      });
+
+      expect(result.current.showDeleteModal).toBe(false);
+    });
+
+    it('should refuse to associate a domain without the create provider-domain scope', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, [
+        ...VIEWER,
+        'delete:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, true);
+      });
+
+      expect(mockIdentityProviderDomainsCreate).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to dissociate a domain without the delete provider-domain scope', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', undefined, [
+        ...VIEWER,
+        'create:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, false);
+      });
+
+      expect(mockIdentityProviderDomainsDelete).not.toHaveBeenCalled();
+    });
+
+    it('should refuse every action when readOnly is set, even with the scopes granted', async () => {
+      const { result } = await renderUseSsoDomainTab('idp-1', { readOnly: true });
+      const create = mockCoreClient.getMyOrganizationApiClient().organization.domains.create;
+
+      await act(async () => {
+        await result.current.handleCreate('example.com');
+      });
+
+      expect(create).not.toHaveBeenCalled();
     });
   });
 });
