@@ -83,8 +83,10 @@ export interface ProviderConfigureProps
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
 }
 
@@ -97,8 +99,10 @@ export interface ProviderConfigureFieldsProps
   idpConfig: GetIdpConfigurationResponseContent | null;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
 }
 
@@ -154,6 +158,7 @@ export interface UseSsoProviderCreateResult {
   isCrossAppAccessReadOnly: boolean;
   getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
   isOrganizationBlocked: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

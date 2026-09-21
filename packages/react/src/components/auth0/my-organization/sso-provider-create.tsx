@@ -94,8 +94,10 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     isLoadingIdpConfig,
     idpConfig,
     showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    crossAppAccessDefaultValue,
     isOrganizationBlocked,
     detailsRef,
     configureRef,
@@ -168,8 +170,10 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              crossAppAccessDefaultValue={crossAppAccessDefaultValue}
               isOrganizationBlocked={isOrganizationBlocked}
               styling={styling}
             />
@@ -188,6 +192,13 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       currentStyles,
       styling,
       createStepActions,
+      isLoadingIdpConfig,
+      idpConfig,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+      crossAppAccessDefaultValue,
       isOrganizationBlocked,
     ],
   );

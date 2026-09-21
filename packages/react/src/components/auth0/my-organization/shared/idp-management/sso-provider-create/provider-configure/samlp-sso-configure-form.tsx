@@ -94,8 +94,10 @@ export const SamlpProviderForm = React.forwardRef<
     onFormDirty,
     idpConfig,
     showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
     isOrganizationBlocked = false,
     styling,
   },
@@ -129,7 +131,11 @@ export const SamlpProviderForm = React.forwardRef<
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
       use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
-      cross_app_access_resource_app: samlpData?.cross_app_access_resource_app ?? undefined,
+      cross_app_access_resource_app:
+        samlpData?.cross_app_access_resource_app ??
+        (crossAppAccessDefaultValue !== undefined
+          ? { status: crossAppAccessDefaultValue }
+          : undefined),
       discovery_url: samlpData?.discovery_url ?? '',
     },
   });
@@ -483,7 +489,7 @@ export const SamlpProviderForm = React.forwardRef<
               <SsoThirdPartyAccessSection
                 checked={field.value ?? false}
                 onChange={field.onChange}
-                readOnly={readOnly}
+                readOnly={readOnly || isThirdPartyAccessReadOnly}
                 isOrganizationBlocked={isOrganizationBlocked}
                 className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
               />
