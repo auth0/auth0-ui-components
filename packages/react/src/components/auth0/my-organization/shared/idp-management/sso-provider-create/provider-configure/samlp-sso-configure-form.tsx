@@ -7,6 +7,7 @@
 import {
   createProviderConfigureSchema,
   type SamlpConfigureFormValues,
+  type SamlpConfigureFormInput,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
@@ -46,6 +47,7 @@ import {
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -106,30 +108,29 @@ export const SamlpProviderForm = React.forwardRef<
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-  const samlpData = initialData as SamlpConfigureFormValues | undefined;
+  const samlpData = initialData as SamlpConfigureFormInput | undefined;
+  const hasSignInEndpoint = Boolean(samlpData?.signInEndpoint);
+  const defaultMetaDataSource =
+    samlpData?.meta_data_source ?? (hasSignInEndpoint ? 'meta_data_file' : 'meta_data_url');
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
     mode: FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
-      meta_data_source: samlpData?.meta_data_source || 'meta_data_url',
+      meta_data_source: defaultMetaDataSource,
       metadataUrl: samlpData?.metadataUrl || '',
-      single_sign_on_login_url: samlpData?.single_sign_on_login_url || '',
-      cert: samlpData?.cert || '',
+      signInEndpoint: samlpData?.signInEndpoint || '',
+      signingCert: samlpData?.signingCert || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
-      use_for_third_party_client_access:
-        (samlpData as { use_for_third_party_client_access?: boolean })
-          ?.use_for_third_party_client_access ?? false,
-      cross_app_access_resource_app:
-        (samlpData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-          ?.cross_app_access_resource_app ?? undefined,
-      discovery_url: (samlpData as { discovery_url?: string })?.discovery_url ?? '',
+      use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
+      cross_app_access_resource_app: samlpData?.cross_app_access_resource_app ?? undefined,
+      discovery_url: samlpData?.discovery_url ?? '',
     },
   });
 
@@ -145,7 +146,12 @@ export const SamlpProviderForm = React.forwardRef<
     validate: async () => {
       return await form.trigger();
     },
-    getData: () => form.getValues(),
+    getData: () => {
+      const rawData = form.getValues();
+      const schema = createProviderConfigureSchema('samlp');
+      const result = schema.safeParse(rawData);
+      return result.success ? result.data : rawData;
+    },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
       if (data) {
@@ -168,10 +174,12 @@ export const SamlpProviderForm = React.forwardRef<
     if (file) {
       try {
         const content = await file.text();
-        form.setValue('cert', content);
+        form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         console.error('Error reading file:', error);
       }
+    } else {
+      form.setValue('signingCert', '', { shouldDirty: true, shouldValidate: true });
     }
   };
 
@@ -212,38 +220,40 @@ export const SamlpProviderForm = React.forwardRef<
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="metadataUrl"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.samlp.meta_data_url.label')}
-              </FormLabel>
-              <FormControl>
-                <TextField
-                  type="url"
-                  placeholder={t('fields.samlp.meta_data_url.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  aria-required={true}
-                  aria-invalid={Boolean(fieldState.error)}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.samlp.meta_data_url.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        {!showMetadataFileField && (
+          <FormField
+            control={form.control}
+            name="metadataUrl"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel className="text-label font-medium">
+                  {t('fields.samlp.meta_data_url.label')}
+                </FormLabel>
+                <FormControl>
+                  <TextField
+                    type="url"
+                    placeholder={t('fields.samlp.meta_data_url.placeholder')}
+                    error={Boolean(fieldState.error)}
+                    readOnly={readOnly}
+                    aria-required={true}
+                    aria-invalid={Boolean(fieldState.error)}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
+                  {t('fields.samlp.meta_data_url.helper_text')}
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        )}
 
         {showMetadataFileField && (
           <>
             <FormField
               control={form.control}
-              name="single_sign_on_login_url"
+              name="signInEndpoint"
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-label font-medium">
@@ -269,7 +279,7 @@ export const SamlpProviderForm = React.forwardRef<
             />
             <FormField
               control={form.control}
-              name="cert"
+              name="signingCert"
               render={() => (
                 <FormItem>
                   <FormLabel className="text-label font-medium">
@@ -278,7 +288,7 @@ export const SamlpProviderForm = React.forwardRef<
                   <FormControl>
                     <div className="space-y-3">
                       <FileUpload
-                        accept=".pem"
+                        accept={ALLOWED_CERT_EXTENSIONS.join(',')}
                         onChange={handleFileUpload}
                         value={uploadedFiles}
                         maxFiles={1}
