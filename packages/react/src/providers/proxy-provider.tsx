@@ -29,7 +29,7 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for RWAs using backend proxy auth.
- * @param props - Provider configuration including domain, proxyConfig, i18n, themeSettings, toastSettings, cacheConfig, loader, and children.
+ * @param props - Provider configuration including domain, proxyConfig, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, and children.
  * @returns Provider component tree
  */
 export const Auth0ComponentProvider = ({
@@ -49,6 +49,7 @@ export const Auth0ComponentProvider = ({
   },
   toastSettings,
   cacheConfig,
+  retryConfig,
   loader,
   children,
   telemetry: telemetryEnabled = true,
@@ -128,7 +129,7 @@ export const Auth0ComponentProvider = ({
         )}
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
-            <QueryProvider cacheConfig={cacheConfig}>
+            <QueryProvider cacheConfig={cacheConfig} retryConfig={retryConfig}>
               <PermissionProvider isAuthenticated>{children}</PermissionProvider>
             </QueryProvider>
           </CoreClientContext.Provider>
