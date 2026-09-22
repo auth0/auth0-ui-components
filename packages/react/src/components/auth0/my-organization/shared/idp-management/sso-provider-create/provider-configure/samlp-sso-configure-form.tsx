@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form';
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
 import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Accordion,
   AccordionContent,
@@ -44,6 +45,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
@@ -80,6 +82,34 @@ interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'st
   isCrossAppAccessReadOnly?: boolean;
 }
 
+/**
+ * Read-only, copyable Service Provider metadata field (Callback / ACS / SP Metadata URL).
+ *
+ * @param props - Component props.
+ * @param props.label - Field label.
+ * @param props.helperText - Helper text shown below the field.
+ * @param props.value - The read-only URL value rendered in the copyable field.
+ * @returns A read-only text field with a copy button.
+ * @internal
+ */
+function ReadOnlyUrlField({
+  label,
+  helperText,
+  value,
+}: {
+  label: string;
+  helperText: string;
+  value: string;
+}) {
+  return (
+    <div className="grid gap-2">
+      <Label className="text-label font-medium">{label}</Label>
+      <CopyableTextField type="text" readOnly value={value} />
+      <p className="text-muted-foreground text-sm font-normal text-left">{helperText}</p>
+    </div>
+  );
+}
+
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps
@@ -91,6 +121,7 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    connectionName,
     showThirdPartyAccess = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
@@ -103,6 +134,18 @@ export const SamlpProviderForm = React.forwardRef<
     'idp_management.create_sso_provider.provider_configure',
     customMessages,
   );
+
+  const { coreClient } = useCoreClient();
+
+  const spMetadataUrls = React.useMemo(() => {
+    const domain = coreClient?.getDomain();
+    const connectionParam = connectionName ? `?connection=${connectionName}` : '';
+    return {
+      callback_url: `https://${domain}/login/callback`,
+      acs_url: `https://${domain}/login/callback${connectionParam}`,
+      sp_metadata_url: `https://${domain}/samlp/metadata${connectionParam}`,
+    };
+  }, [coreClient, connectionName]);
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
@@ -458,6 +501,24 @@ export const SamlpProviderForm = React.forwardRef<
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        <ReadOnlyUrlField
+          label={t('fields.samlp.callback_url.label')}
+          helperText={t('fields.samlp.callback_url.helper_text')}
+          value={spMetadataUrls.callback_url}
+        />
+
+        <ReadOnlyUrlField
+          label={t('fields.samlp.acs_url.label')}
+          helperText={t('fields.samlp.acs_url.helper_text')}
+          value={spMetadataUrls.acs_url}
+        />
+
+        <ReadOnlyUrlField
+          label={t('fields.samlp.sp_metadata_url.label')}
+          helperText={t('fields.samlp.sp_metadata_url.helper_text')}
+          value={spMetadataUrls.sp_metadata_url}
+        />
 
         <CommonConfigureFields
           idpConfig={idpConfig}

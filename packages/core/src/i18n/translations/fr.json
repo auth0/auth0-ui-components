@@ -506,6 +506,18 @@
               "placeholder": "Entrez l'URL de l'icône",
               "helper_text": "URL pour l'icône du fournisseur affichée aux utilisateurs.",
               "error": "Veuillez entrer une URL valide"
+            },
+            "callback_url": {
+              "label": "URL de rappel",
+              "helper_text": "Vous devrez peut-être configurer votre fournisseur d'identité SAML avec cette URL de rappel."
+            },
+            "acs_url": {
+              "label": "URL ACS",
+              "helper_text": "Utilisez cette URL comme URL du service consommateur d'assertions (ACS) dans votre fournisseur d'identité SAML."
+            },
+            "sp_metadata_url": {
+              "label": "URL des métadonnées SP",
+              "helper_text": "Certains fournisseurs d'identité SAML peuvent importer les métadonnées directement à l'aide de cette URL."
             }
           },
           "adfs": {

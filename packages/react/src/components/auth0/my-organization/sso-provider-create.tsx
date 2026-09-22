@@ -208,6 +208,7 @@ function SsoProviderCreateView({ logic, handlers }: SsoProviderCreateViewProps) 
               strategy={strategy}
               isLoading={isLoadingIdpConfig}
               initialData={configure ?? undefined}
+              connectionName={details?.name}
               customMessages={customMessages?.provider_configure}
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}

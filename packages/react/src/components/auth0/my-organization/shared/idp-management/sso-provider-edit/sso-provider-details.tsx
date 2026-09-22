@@ -130,6 +130,7 @@ export function SsoProviderDetails({
           ref={providerConfigureRef}
           strategy={provider.strategy}
           initialData={{ ...provider, ...provider.options }}
+          connectionName={provider.name ?? undefined}
           readOnly={readOnly}
           idpConfig={idpConfig}
           mode="edit"

@@ -179,4 +179,121 @@ describe('SamlpProviderForm', () => {
       expect(checkbox).toBeDisabled();
     });
   });
+
+  describe('SP metadata fields', () => {
+    it('should render all three SP metadata field labels and helper texts', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      expect(screen.getByText('fields.samlp.callback_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.callback_url.helper_text')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.acs_url.helper_text')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_metadata_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_metadata_url.helper_text')).toBeInTheDocument();
+    });
+
+    it('should render the SP metadata fields as read-only with copy buttons', () => {
+      renderWithProviders(
+        <SamlpProviderForm idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      // One copy button per field (CopyableTextField's aria-label resolves to the "copy" key).
+      expect(screen.getAllByLabelText('copy')).toHaveLength(3);
+
+      const callbackInput = screen.getByDisplayValue(
+        'https://test-domain.auth0.com/login/callback',
+      );
+      expect(callbackInput).toHaveAttribute('readonly');
+    });
+
+    it('should compute URLs from the tenant domain, appending connection param to ACS and metadata', () => {
+      renderWithProviders(
+        <SamlpProviderForm idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      expect(
+        screen.getByDisplayValue('https://test-domain.auth0.com/login/callback'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/login/callback?connection=my-saml-connection',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/samlp/metadata?connection=my-saml-connection',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should use the configured tenant domain when computing URLs', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="acme" />, {
+        authDetails: { domain: 'example.auth0.com' },
+      });
+
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/login/callback'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/login/callback?connection=acme'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/samlp/metadata?connection=acme'),
+      ).toBeInTheDocument();
+    });
+
+    it('should omit the connection param when connectionName is not provided', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      // Callback and ACS collapse to the same value without a connection param.
+      expect(
+        screen.getAllByDisplayValue('https://test-domain.auth0.com/login/callback'),
+      ).toHaveLength(2);
+      expect(
+        screen.getByDisplayValue('https://test-domain.auth0.com/samlp/metadata'),
+      ).toBeInTheDocument();
+    });
+
+    it('should derive URLs from connectionName in the edit flow (initialData present)', () => {
+      const initialData = {
+        metadataUrl: 'https://idp.example.com/metadata',
+        bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      };
+
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          initialData={initialData}
+          connectionName="existing-conn"
+        />,
+      );
+
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/login/callback?connection=existing-conn',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/samlp/metadata?connection=existing-conn',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should not include the SP metadata URLs in the form payload (display-only)', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+
+      renderWithProviders(
+        <SamlpProviderForm ref={formRef} idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData() as Record<string, unknown>;
+        expect(data).toBeDefined();
+        expect(data.callback_url).toBeUndefined();
+        expect(data.acs_url).toBeUndefined();
+        expect(data.sp_metadata_url).toBeUndefined();
+      });
+    });
+  });
 });

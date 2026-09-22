@@ -572,6 +572,18 @@
               "placeholder": "Enter icon URL",
               "helper_text": "URL for the provider icon displayed to users.",
               "error": "Please enter a valid URL"
+            },
+            "callback_url": {
+              "label": "Callback URL",
+              "helper_text": "You may need to configure your SAML identity provider with this callback URL."
+            },
+            "acs_url": {
+              "label": "ACS URL",
+              "helper_text": "Use this URL as the Assertion Consumer Service (ACS) URL in your SAML identity provider."
+            },
+            "sp_metadata_url": {
+              "label": "SP Metadata URL",
+              "helper_text": "Some SAML identity providers can accept importing metadata directly using this URL."
             }
           },
           "adfs": {

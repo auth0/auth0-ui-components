@@ -625,6 +625,18 @@
               "placeholder": "アイコン URL を入力",
               "helper_text": "ユーザーに表示されるプロバイダーアイコンの URL。",
               "error": "有効な URL を入力してください"
+            },
+            "callback_url": {
+              "label": "コールバック URL",
+              "helper_text": "この コールバック URL を SAML ID プロバイダーに設定する必要がある場合があります。"
+            },
+            "acs_url": {
+              "label": "ACS URL",
+              "helper_text": "この URL を SAML ID プロバイダーの Assertion Consumer Service (ACS) URL として使用してください。"
+            },
+            "sp_metadata_url": {
+              "label": "SP メタデータ URL",
+              "helper_text": "一部の SAML ID プロバイダーは、この URL を使用してメタデータを直接インポートできます。"
             }
           }
         }
