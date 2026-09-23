@@ -152,6 +152,9 @@ export const SamlpProviderForm = React.forwardRef<
           ? { status: crossAppAccessDefaultValue }
           : undefined),
       discovery_url: samlpData?.discovery_url ?? '',
+      callback_url: spMetadataUrls.callback_url,
+      acs_url: spMetadataUrls.acs_url,
+      sp_metadata_url: spMetadataUrls.sp_metadata_url,
     },
   });
 
@@ -493,17 +496,13 @@ export const SamlpProviderForm = React.forwardRef<
         <FormField
           control={form.control}
           name="callback_url"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel className="text-label font-medium">
                 {t('fields.samlp.callback_url.label')}
               </FormLabel>
               <FormControl>
-                <CopyableTextField
-                  type="text"
-                  readOnly={true}
-                  value={spMetadataUrls.callback_url}
-                />
+                <CopyableTextField type="text" readOnly={true} {...field} />
               </FormControl>
               <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.samlp.callback_url.helper_text')}
@@ -515,13 +514,13 @@ export const SamlpProviderForm = React.forwardRef<
         <FormField
           control={form.control}
           name="acs_url"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel className="text-label font-medium">
                 {t('fields.samlp.acs_url.label')}
               </FormLabel>
               <FormControl>
-                <CopyableTextField type="text" readOnly={true} value={spMetadataUrls.acs_url} />
+                <CopyableTextField type="text" readOnly={true} {...field} />
               </FormControl>
               <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.samlp.acs_url.helper_text')}
@@ -533,17 +532,13 @@ export const SamlpProviderForm = React.forwardRef<
         <FormField
           control={form.control}
           name="sp_metadata_url"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel className="text-label font-medium">
                 {t('fields.samlp.sp_metadata_url.label')}
               </FormLabel>
               <FormControl>
-                <CopyableTextField
-                  type="text"
-                  readOnly={true}
-                  value={spMetadataUrls.sp_metadata_url}
-                />
+                <CopyableTextField type="text" readOnly={true} {...field} />
               </FormControl>
               <FormDescription className="text-paragraph font-normal text-left">
                 {t('fields.samlp.sp_metadata_url.helper_text')}

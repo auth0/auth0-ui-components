@@ -280,7 +280,7 @@ describe('SamlpProviderForm', () => {
       ).toBeInTheDocument();
     });
 
-    it('should not include the SP metadata URLs in the form payload (display-only)', async () => {
+    it('should expose the derived SP metadata URLs in the form data', async () => {
       const formRef = React.createRef<SamlpConfigureFormHandle>();
 
       renderWithProviders(
@@ -290,9 +290,13 @@ describe('SamlpProviderForm', () => {
       await waitFor(() => {
         const data = formRef.current?.getData() as Record<string, unknown>;
         expect(data).toBeDefined();
-        expect(data.callback_url).toBeUndefined();
-        expect(data.acs_url).toBeUndefined();
-        expect(data.sp_metadata_url).toBeUndefined();
+        expect(data.callback_url).toBe('https://test-domain.auth0.com/login/callback');
+        expect(data.acs_url).toBe(
+          'https://test-domain.auth0.com/login/callback?connection=my-saml-connection',
+        );
+        expect(data.sp_metadata_url).toBe(
+          'https://test-domain.auth0.com/samlp/metadata?connection=my-saml-connection',
+        );
       });
     });
   });
