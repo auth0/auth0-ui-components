@@ -14,7 +14,7 @@ import {
   type OktaConfigureFormValues,
   type GoogleAppsConfigureFormValues,
   type PingFederateConfigureFormValues,
-  type SamlpConfigureFormValues,
+  type SamlpConfigureFormInput,
   type WaadConfigureFormValues,
 } from '../sso-provider-create-schema';
 
@@ -60,18 +60,13 @@ describe('SSO Provider Create Schema', () => {
     it('should return error message for invalid strategy', () => {
       const result = providerSelectionSchema.safeParse({ strategy: 'invalid' });
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        // Zod returns invalid enum value message for enum mismatches
-        expect(result.error.errors[0].message).toContain('Invalid enum value');
-      }
+      expect(result.error?.errors[0]?.message).toContain('Invalid enum value');
     });
 
     it('should return custom error message for missing strategy', () => {
       const result = providerSelectionSchema.safeParse({});
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        expect(result.error.errors[0].message).toContain('provider strategy');
-      }
+      expect(result.error?.errors[0]?.message).toContain('provider strategy');
     });
   });
 
@@ -84,9 +79,7 @@ describe('SSO Provider Create Schema', () => {
       const result = customSchema.safeParse({});
 
       expect(result.success).toBe(false);
-      if (!result.success && result.error?.errors[0]) {
-        expect(result.error.errors[0].message).toBe(customMessage);
-      }
+      expect(result.error?.errors[0]?.message).toBe(customMessage);
     });
   });
 
@@ -550,59 +543,60 @@ describe('SSO Provider Create Schema', () => {
     });
 
     describe('SAMLP strategy', () => {
-      const validSamlConfig: SamlpConfigureFormValues = {
+      // Use input type for test data since it includes all fields before transform
+      const validSamlUrlInput: SamlpConfigureFormInput = {
         meta_data_source: 'meta_data_url',
-        single_sign_on_login_url: 'https://idp.example.com/sso',
         signatureAlgorithm: 'rsa-sha256',
         digestAlgorithm: 'sha256',
         protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         signSAMLRequest: true,
         bindingMethod: 'POST',
         metadataUrl: 'https://idp.example.com/metadata',
-        cert: 'MIIC...certificate...',
+        signingCert: 'MIIC...certificate...',
+        signInEndpoint: 'https://idp.example.com/sso',
         icon_url: 'https://example.com/icon.png',
         show_as_button: true,
       };
 
       it('should accept valid SAMLP configuration', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const result = schema.safeParse(validSamlConfig);
+        const result = schema.safeParse(validSamlUrlInput);
         expect(result.success).toBe(true);
       });
 
       it('should reject missing required meta_data_source', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { meta_data_source, ...withoutMetaDataSource } = validSamlConfig;
+        const { meta_data_source, ...withoutMetaDataSource } = validSamlUrlInput;
         const result = schema.safeParse(withoutMetaDataSource);
         expect(result.success).toBe(false);
       });
 
       it('should reject missing required signSAMLRequest', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { signSAMLRequest, ...withoutSignSAMLRequest } = validSamlConfig;
+        const { signSAMLRequest, ...withoutSignSAMLRequest } = validSamlUrlInput;
         const result = schema.safeParse(withoutSignSAMLRequest);
         expect(result.success).toBe(false);
       });
 
       it('should reject missing required metadataUrl', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { metadataUrl, ...withoutMetadataUrl } = validSamlConfig;
+        const { metadataUrl, ...withoutMetadataUrl } = validSamlUrlInput;
         const result = schema.safeParse(withoutMetadataUrl);
         expect(result.success).toBe(false);
       });
 
-      it('should accept optional cert for meta_data_url', () => {
+      it('should accept optional signingCert for meta_data_url', () => {
         const schema = createProviderConfigureSchema('samlp');
-        const { cert, ...withoutCert } = validSamlConfig;
-        const result = schema.safeParse(withoutCert);
+        const { signingCert, ...withoutSigningCert } = validSamlUrlInput;
+        const result = schema.safeParse(withoutSigningCert);
         expect(result.success).toBe(true);
       });
 
-      it('should reject missing required cert for meta_data_file', () => {
+      it('should reject missing required signingCert for meta_data_file', () => {
         const schema = createProviderConfigureSchema('samlp');
         const fileConfig = {
           meta_data_source: 'meta_data_file' as const,
-          single_sign_on_login_url: 'https://idp.example.com/sso',
+          signInEndpoint: 'https://idp.example.com/sso',
           signatureAlgorithm: 'rsa-sha256',
           digestAlgorithm: 'sha256',
           protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
@@ -616,13 +610,60 @@ describe('SSO Provider Create Schema', () => {
       it('should accept optional idpInitiated configuration', () => {
         const schema = createProviderConfigureSchema('samlp');
         const result = schema.safeParse({
-          ...validSamlConfig,
+          ...validSamlUrlInput,
           idpInitiated: {
             enabled: true,
             client_id: 'client123',
           },
         });
         expect(result.success).toBe(true);
+      });
+
+      describe('when validating discovery_url', () => {
+        it('should accept valid discovery URL', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlUrlInput,
+            discovery_url: 'https://example.com/.well-known/openid-configuration',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept empty discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlUrlInput,
+            discovery_url: '',
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should accept undefined discovery URL (optional field)', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlUrlInput,
+          });
+          expect(result.success).toBe(true);
+        });
+
+        it('should reject invalid discovery URL format', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlUrlInput,
+            discovery_url: 'not-a-valid-url',
+          });
+          expect(result.success).toBe(false);
+          expect(result.error?.errors[0]?.message).toContain('discovery URL');
+        });
+
+        it('should reject discovery URL without http/https protocol', () => {
+          const schema = createProviderConfigureSchema('samlp');
+          const result = schema.safeParse({
+            ...validSamlUrlInput,
+            discovery_url: 'ftp://example.com/.well-known',
+          });
+          expect(result.success).toBe(false);
+        });
       });
     });
 
@@ -758,10 +799,8 @@ describe('SSO Provider Create Schema', () => {
         assign_membership_on_login: true,
       });
       expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.show_as_button).toBe(false);
-        expect(result.data.assign_membership_on_login).toBe(true);
-      }
+      expect(result.data?.show_as_button).toBe(false);
+      expect(result.data?.assign_membership_on_login).toBe(true);
     });
   });
 });

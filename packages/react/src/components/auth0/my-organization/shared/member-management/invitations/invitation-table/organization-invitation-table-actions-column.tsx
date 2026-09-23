@@ -12,6 +12,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -25,22 +26,22 @@ import type { OrganizationInvitationTableActionsColumnProps } from '@/types/my-o
  * @param props - Component props.
  * @param props.invitation - The invitation to show actions for.
  * @param props.customMessages - Custom translation messages to override defaults.
- * @param props.readOnly - Whether the component is in read-only mode.
+ * @param props.permissions - What the current user is allowed to do.
  * @param props.onViewDetails - Callback fired when view details action is triggered.
  * @param props.onCopyUrl - Callback fired when copy URL action is triggered.
  * @param props.onRevokeAndResend - Callback fired when revoke and resend action is triggered.
  * @param props.onRevoke - Callback fired when revoke action is triggered.
- * @returns JSX element.
+ * @returns JSX element, or `null` when no action is available.
  */
 export function OrganizationInvitationTableActionsColumn({
   invitation,
   customMessages = {},
-  readOnly = false,
+  permissions,
   onViewDetails,
   onCopyUrl,
   onRevokeAndResend,
   onRevoke,
-}: OrganizationInvitationTableActionsColumnProps): React.JSX.Element {
+}: OrganizationInvitationTableActionsColumnProps): React.JSX.Element | null {
   const { t } = useTranslator('member_management', customMessages);
   const status = getInvitationStatus(invitation);
   const isPending = status === 'pending';
@@ -65,6 +66,10 @@ export function OrganizationInvitationTableActionsColumn({
     onRevoke?.(invitation);
   }, [invitation, onRevoke]);
 
+  if (!permissions.canShowInvitationMenu) {
+    return null;
+  }
+
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
       <Tooltip open={copiedTooltipOpen}>
@@ -77,41 +82,46 @@ export function OrganizationInvitationTableActionsColumn({
               >
                 <MoreHorizontal className="h-4 w-4 text-gray-600 dark:text-gray-400" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {/* View Details - always available */}
-                <DropdownMenuItem onClick={handleViewDetails}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  {t('invitation.actions.view_details')}
-                </DropdownMenuItem>
-
-                {isPending && invitation.invitation_url && (
-                  <DropdownMenuItem onClick={handleCopyUrl}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    {t('invitation.actions.copy_url')}
+              <DropdownMenuPortal>
+                <DropdownMenuContent align="end">
+                  {/* View Details - always available */}
+                  <DropdownMenuItem onClick={handleViewDetails}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    {t('invitation.actions.view_details')}
                   </DropdownMenuItem>
-                )}
 
-                {!readOnly && (
-                  <>
+                  {isPending && invitation.invitation_url && (
+                    <DropdownMenuItem onClick={handleCopyUrl}>
+                      <Copy className="mr-2 h-4 w-4" />
+                      {t('invitation.actions.copy_url')}
+                    </DropdownMenuItem>
+                  )}
+
+                  {permissions.canResendInvitation && (
                     <DropdownMenuItem onClick={handleRevokeAndResend}>
                       <RefreshCcw className="mr-2 h-4 w-4" />
                       {t('invitation.actions.revoke_and_resend')}
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={handleRevoke}
-                      className="text-destructive-foreground focus:text-destructive-foreground"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
-                      {t('invitation.actions.revoke')}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
+                  )}
+
+                  {permissions.canRevokeInvitation && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleRevoke}
+                        className="text-destructive-foreground focus:text-destructive-foreground"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                        {t('invitation.actions.revoke')}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenuPortal>
             </DropdownMenu>
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top" sideOffset={5} className="z-[1000]">
+        <TooltipContent side="top" sideOffset={5}>
           <span>{t('invitation.actions.copied')}</span>
         </TooltipContent>
       </Tooltip>

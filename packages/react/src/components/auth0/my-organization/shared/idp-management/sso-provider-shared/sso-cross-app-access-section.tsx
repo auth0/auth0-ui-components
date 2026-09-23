@@ -1,0 +1,123 @@
+/**
+ * Cross app access section for SSO provider.
+ * @module sso-cross-app-access-section
+ * @internal
+ */
+
+import * as React from 'react';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { TextField } from '@/components/ui/text-field';
+import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
+import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
+
+/**
+ * Cross App Access section component.
+ * Renders differently based on strategy:
+ * @param props - Component props.
+ * @returns Cross app access section.
+ */
+export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): React.ReactElement {
+  const { checked, onChange, readOnly = false, customMessages = {}, className, strategy } = props;
+
+  const { t } = useTranslator(
+    'idp_management.sso_provider_details.cross_app_access',
+    customMessages,
+  );
+
+  const id = useId();
+  const checkboxId = `${id}-checkbox`;
+  const descriptionId = `${id}-description`;
+  const urlInputId = `${id}-discovery-url`;
+  const urlHelperId = `${id}-url-helper`;
+  const urlErrorId = `${id}-url-error`;
+
+  const handleCheckedChange = (value: boolean | 'indeterminate') => {
+    if (value !== 'indeterminate') {
+      onChange(value);
+    }
+  };
+
+  const isSaml = strategy === 'samlp';
+  const discoveryUrl = isSaml ? props.discoveryUrl : '';
+  const onDiscoveryUrlChange = isSaml ? props.onDiscoveryUrlChange : undefined;
+  const discoveryUrlError = isSaml ? props.discoveryUrlError : undefined;
+  const isCheckboxDisabled = readOnly || (isSaml && !discoveryUrl?.trim());
+
+  const checkboxGroup = (
+    <div className="flex items-start gap-3">
+      <Checkbox
+        id={checkboxId}
+        checked={checked}
+        onCheckedChange={handleCheckedChange}
+        disabled={isCheckboxDisabled}
+        aria-disabled={isCheckboxDisabled}
+        aria-describedby={descriptionId}
+      />
+      <div className="flex flex-col">
+        <Label
+          htmlFor={checkboxId}
+          className={cn(
+            'text-sm font-normal cursor-pointer',
+            isCheckboxDisabled && 'text-muted-foreground cursor-not-allowed',
+          )}
+        >
+          {t('label')}
+        </Label>
+        <p id={descriptionId} className="text-sm text-muted-foreground">
+          {t('helper_text')} {t('domain_verification_text')}
+        </p>
+      </div>
+    </div>
+  );
+
+  if (isSaml) {
+    return (
+      <div className={cn('space-y-6', className)}>
+        <Separator />
+        <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
+        <p className="text-sm text-muted-foreground">{t('saml_description')}</p>
+
+        <div className="space-y-2">
+          <Label htmlFor={urlInputId} className="text-sm font-medium">
+            {t('saml_discovery_url_label')}
+          </Label>
+          <TextField
+            id={urlInputId}
+            value={discoveryUrl}
+            onChange={(e) => onDiscoveryUrlChange?.(e.target.value)}
+            placeholder={t('saml_discovery_url_placeholder')}
+            disabled={readOnly}
+            aria-describedby={discoveryUrlError ? urlErrorId : urlHelperId}
+            aria-invalid={Boolean(discoveryUrlError)}
+            error={Boolean(discoveryUrlError)}
+            className="w-full"
+          />
+          {discoveryUrlError ? (
+            <p id={urlErrorId} role="alert" className="text-sm text-destructive text-left">
+              {discoveryUrlError}
+            </p>
+          ) : (
+            <p id={urlHelperId} className="text-sm text-muted-foreground">
+              {t('saml_discovery_url_helper')}
+            </p>
+          )}
+        </div>
+
+        {checkboxGroup}
+      </div>
+    );
+  }
+
+  return (
+    <div className={cn('space-y-6', className)}>
+      <Separator />
+      <h6 className="text-base font-semibold leading-5">{t('title')}</h6>
+      {checkboxGroup}
+    </div>
+  );
+}

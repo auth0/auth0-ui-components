@@ -24,9 +24,12 @@ export type UpdateIdentityProviderRequestContent =
 export type UpdateIdentityProviderResponseContent =
   MyOrganization.UpdateIdentityProviderResponseContent;
 
+export type CrossAppAccessResourceApp = MyOrganization.CrossAppAccessResourceApp;
+
 export type CreateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &
   ProviderDetailsFormValues &
   ProviderConfigureFormValues;
+
 export type IdpUpdateBase = MyOrganization.IdpUpdateBase;
 
 export type UpdateIdentityProviderRequestContentPrivate = ProviderSelectionFormValues &

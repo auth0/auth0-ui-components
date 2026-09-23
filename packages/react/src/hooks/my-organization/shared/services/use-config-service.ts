@@ -47,6 +47,13 @@ export function useConfig(): UseConfigResult {
 
   const isConfigValid = !!allowedStrategies?.length;
 
+  const showThirdPartyAccess = config?.third_party_client_access !== undefined;
+  const isThirdPartyAccessReadOnly =
+    (config?.third_party_client_access?.allowed_values?.length ?? 0) <= 1;
+  const thirdPartyAccessDefaultValue = isThirdPartyAccessReadOnly
+    ? config?.third_party_client_access?.allowed_values?.[0]
+    : config?.third_party_client_access?.default_value;
+
   return {
     config: config ?? null,
     isLoadingConfig: configQuery.isLoading,
@@ -54,5 +61,8 @@ export function useConfig(): UseConfigResult {
     filteredStrategies,
     shouldAllowDeletion,
     isConfigValid,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
   };
 }

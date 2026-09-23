@@ -75,6 +75,7 @@ export const createOrganizationDetailSchema = (options: OrganizationDetailsSchem
         page_background: z.string().regex(backgroundColorRegex, backgroundColorErrorMessage),
       }),
     }),
+    third_party_client_access: z.enum(['allow', 'block']).optional(),
   });
 };
 

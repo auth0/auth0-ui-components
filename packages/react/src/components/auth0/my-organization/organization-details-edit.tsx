@@ -47,7 +47,16 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     backButton,
   } = props;
 
-  const { organization, isFetchLoading, formActions } = useOrganizationDetailsEdit({
+  const {
+    organization,
+    isFetchLoading,
+    isLoadingConfig,
+    formActions,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+    canEdit,
+  } = useOrganizationDetailsEdit({
     saveAction,
     cancelAction,
     readOnly,
@@ -55,16 +64,19 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
   });
 
   return (
-    <GateKeeper isLoading={isFetchLoading} styling={styling}>
+    <GateKeeper isLoading={isFetchLoading || isLoadingConfig} styling={styling}>
       <OrganizationDetailsEditView
         organization={organization}
         schema={schema}
         styling={styling}
         customMessages={customMessages}
-        readOnly={readOnly}
+        canEdit={canEdit}
         hideHeader={hideHeader}
         backButton={backButton}
         formActions={formActions}
+        showThirdPartyAccess={showThirdPartyAccess}
+        isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+        thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
       />
     </GateKeeper>
   );
@@ -80,10 +92,13 @@ function OrganizationDetailsEditView({
   schema,
   styling,
   customMessages,
-  readOnly,
+  canEdit,
   hideHeader,
   backButton,
   formActions,
+  showThirdPartyAccess,
+  isThirdPartyAccessReadOnly,
+  thirdPartyAccessDefaultValue,
 }: OrganizationDetailsEditViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
@@ -118,8 +133,11 @@ function OrganizationDetailsEditView({
             schema={schema?.details}
             customMessages={customMessages?.details}
             styling={styling}
-            readOnly={readOnly}
+            readOnly={!canEdit}
             formActions={formActions}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
           />
         </div>
       </div>

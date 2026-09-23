@@ -78,12 +78,7 @@ const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
               <Copy className="h-3.5 w-3.5" aria-hidden="true" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent
-            side={tooltipSide}
-            align={tooltipAlign}
-            sideOffset={5}
-            className="z-[1000]"
-          >
+          <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5}>
             {tooltipText}
           </TooltipContent>
         </Tooltip>
