@@ -230,11 +230,18 @@ export interface CreateOrganizationInput {
 }
 
 export function createOrganization(input: CreateOrganizationInput): Promise<Organization> {
-  return mgmt<Organization>('POST', 'organizations', input);
+  return createOrRecover(
+    () => mgmt<Organization>('POST', 'organizations', input),
+    () => getOrganizationByName(input.name),
+  );
 }
 
 export function getOrganization(organizationId: string): Promise<Organization> {
   return mgmt<Organization>('GET', `organizations/${organizationId}`);
+}
+
+export function getOrganizationByName(name: string): Promise<Organization> {
+  return mgmt<Organization>('GET', `organizations/name/${name}`);
 }
 
 export function deleteOrganization(organizationId: string): Promise<void> {
