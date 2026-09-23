@@ -177,7 +177,8 @@ export const SamlpProviderForm = React.forwardRef<
       return await form.trigger();
     },
     getData: () => {
-      const rawData = form.getValues();
+      const values = form.getValues();
+      const rawData = { ...values, protocolBinding: values.bindingMethod };
       const schema = createProviderConfigureSchema('samlp');
       const result = schema.safeParse(rawData);
       return result.success ? result.data : rawData;

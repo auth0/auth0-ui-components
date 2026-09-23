@@ -45,6 +45,55 @@ describe('SamlpProviderForm', () => {
       });
     });
 
+    describe('protocolBinding sync', () => {
+      it('should default protocolBinding to HTTP-POST, matching bindingMethod', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        renderWithProviders(<SamlpProviderForm ref={formRef} idpConfig={null} />);
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
+        });
+      });
+
+      it('should mirror an initial HTTP-Redirect bindingMethod into protocolBinding', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        const initialData = {
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          metadataUrl: 'https://example.com/metadata',
+        };
+
+        renderWithProviders(
+          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+        );
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
+        });
+      });
+
+      it('should mirror an initial HTTP-POST bindingMethod into protocolBinding', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        const initialData = {
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          metadataUrl: 'https://example.com/metadata',
+        };
+
+        renderWithProviders(
+          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+        );
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
+        });
+      });
+    });
+
     describe('rendering', () => {
       it('should render binding method field in advanced settings', async () => {
         const user = userEvent.setup();
