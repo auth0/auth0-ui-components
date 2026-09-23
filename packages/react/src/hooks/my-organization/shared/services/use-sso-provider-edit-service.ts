@@ -73,7 +73,8 @@ export function useSsoProviderEditService(
     enabled: !!coreClient && !!idpId,
   });
 
-  const { organization: organizationData } = useOrganizationDetailsEditService({});
+  const { organization: organizationData, isLoading: isOrgLoading } =
+    useOrganizationDetailsEditService({});
 
   /**
    * Provisioning config query - fetches provisioning configuration.
@@ -772,7 +773,7 @@ export function useSsoProviderEditService(
     organization: organizationData,
     isOrganizationBlocked: organizationData.third_party_client_access === 'block',
     provisioningConfig: provisioningQuery.data ?? null,
-    isLoading: providerQuery.isLoading,
+    isLoading: providerQuery.isLoading || isOrgLoading,
     isUpdating: isMutationLoading(updateProviderMutation),
     isEnabling: isMutationLoading(enableProviderMutation),
     isDeleting: isMutationLoading(deleteProviderMutation),
