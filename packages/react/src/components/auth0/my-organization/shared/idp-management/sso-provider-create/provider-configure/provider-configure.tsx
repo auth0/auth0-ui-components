@@ -29,6 +29,9 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       className,
       idpConfig,
       isLoading,
+      styling,
+      schema,
+      ...rest
     },
     ref,
   ) {
@@ -66,6 +69,9 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
             readOnly={readOnly}
             customMessages={{ fields: customMessages.fields }}
             idpConfig={idpConfig}
+            styling={styling}
+            schema={schema}
+            {...rest}
           />
         </Section>
       </div>

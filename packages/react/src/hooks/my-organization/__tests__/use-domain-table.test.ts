@@ -1,11 +1,15 @@
 import { renderHook, act } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useDomainTable } from '../use-domain-table';
 
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { PermissionContext } from '@/providers/permission-provider';
 import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { mockToast } from '@/tests/utils/test-setup';
+import type { UseDomainTableOptions } from '@/types/my-organization/domain-management/domain-table-types';
 
 const mockHandleError = vi.fn();
 
@@ -59,8 +63,27 @@ describe('useDomainTable', () => {
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
   });
 
+  const renderWithGranted = (permissions: string[], options: UseDomainTableOptions) => {
+    const wrapper = ({ children }: React.PropsWithChildren) =>
+      createElement(
+        PermissionContext.Provider,
+        { value: { permissions, isLoading: false } },
+        children,
+      );
+
+    return renderHook(() => useDomainTable(options), { wrapper });
+  };
+
+  const render = (options: UseDomainTableOptions = defaultOptions) =>
+    renderWithGranted(ALL_MY_ORG_PERMISSIONS, options);
+
+  const renderWithPermissions = (
+    permissions: string[],
+    options: UseDomainTableOptions = defaultOptions,
+  ) => renderWithGranted(permissions, options);
+
   it('should return correct initial state', () => {
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     expect(result.current.showCreateModal).toBe(false);
     expect(result.current.showConfigureModal).toBe(false);
@@ -73,7 +96,7 @@ describe('useDomainTable', () => {
   });
 
   it('should show create modal on handleCreateClick', () => {
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.handleCreateClick();
@@ -88,7 +111,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onCreateDomain: mockOnCreateDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleCreate('test.com');
@@ -107,7 +130,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onCreateDomain: mockOnCreateDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleCreate('test.com');
@@ -124,7 +147,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerify(mockDomain);
@@ -140,7 +163,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerify(mockDomain);
@@ -156,7 +179,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerify(mockDomain);
@@ -173,7 +196,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onDeleteDomain: mockOnDeleteDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleDelete(mockDomain);
@@ -191,7 +214,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onDeleteDomain: mockOnDeleteDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleDelete(mockDomain);
@@ -208,7 +231,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onAssociateToProvider: mockOnAssociateToProvider }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleToggleSwitch(mockDomain, mockProvider, true);
@@ -223,7 +246,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onDeleteFromProvider: mockOnDeleteFromProvider }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleToggleSwitch(mockDomain, mockProvider, false);
@@ -239,7 +262,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onAssociateToProvider: mockOnAssociateToProvider }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleToggleSwitch(mockDomain, mockProvider, true);
@@ -257,7 +280,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onDeleteFromProvider: mockOnDeleteFromProvider }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleToggleSwitch(mockDomain, mockProvider, false);
@@ -274,7 +297,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerify(mockDomain);
@@ -290,7 +313,7 @@ describe('useDomainTable', () => {
   });
 
   it('should show verify modal for unverified domain on handleConfigureClick', async () => {
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleConfigureClick(mockDomain);
@@ -306,7 +329,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ fetchProviders: mockFetchProviders }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleConfigureClick(verifiedDomain);
@@ -324,7 +347,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ fetchProviders: mockFetchProviders }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleConfigureClick(verifiedDomain);
@@ -345,7 +368,7 @@ describe('useDomainTable', () => {
       }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerifyClick(mockDomain);
@@ -363,7 +386,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerifyClick(mockDomain);
@@ -379,7 +402,7 @@ describe('useDomainTable', () => {
       createMockDomainTableServiceReturn({ onVerifyDomain: mockOnVerifyDomain }),
     );
 
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     await act(async () => {
       await result.current.handleVerifyClick(mockDomain);
@@ -391,7 +414,7 @@ describe('useDomainTable', () => {
   });
 
   it('should set selected domain, close verify modal, and show delete modal on handleDeleteClick', () => {
-    const { result } = renderHook(() => useDomainTable(defaultOptions));
+    const { result } = render();
 
     act(() => {
       result.current.setShowVerifyModal(true);
@@ -408,7 +431,7 @@ describe('useDomainTable', () => {
 
   describe('pagination', () => {
     it('should return correct initial pagination state', () => {
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       expect(result.current.pagination).toEqual({
         pageSize: 10,
@@ -423,7 +446,7 @@ describe('useDomainTable', () => {
         createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
       );
 
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       act(() => {
         result.current.handleNextPage();
@@ -438,7 +461,7 @@ describe('useDomainTable', () => {
         createMockDomainTableServiceReturn({ nextToken: null }),
       );
 
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       act(() => {
         result.current.handleNextPage();
@@ -453,7 +476,7 @@ describe('useDomainTable', () => {
         createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
       );
 
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       act(() => {
         result.current.handleNextPage();
@@ -474,7 +497,7 @@ describe('useDomainTable', () => {
         createMockDomainTableServiceReturn({ nextToken: 'next-token-123' }),
       );
 
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       act(() => {
         result.current.handleNextPage();
@@ -496,9 +519,174 @@ describe('useDomainTable', () => {
         createMockDomainTableServiceReturn({ nextToken: 'some-token' }),
       );
 
-      const { result } = renderHook(() => useDomainTable(defaultOptions));
+      const { result } = render();
 
       expect(result.current.pagination.hasNextPage).toBe(true);
+    });
+  });
+
+  describe('permission guards', () => {
+    it('should refuse to open the create modal without create:my_org:domains', () => {
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      act(() => {
+        result.current.handleCreateClick();
+      });
+
+      expect(result.current.showCreateModal).toBe(false);
+    });
+
+    it('should open the create modal when create:my_org:domains is granted', () => {
+      const { result } = renderWithPermissions(['create:my_org:domains']);
+
+      act(() => {
+        result.current.handleCreateClick();
+      });
+
+      expect(result.current.showCreateModal).toBe(true);
+    });
+
+    it('should refuse to open the delete modal without delete:my_org:domains', () => {
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      act(() => {
+        result.current.handleDeleteClick(mockDomain);
+      });
+
+      expect(result.current.showDeleteModal).toBe(false);
+    });
+
+    it('should open the delete modal when delete:my_org:domains is granted', () => {
+      const { result } = renderWithPermissions(['delete:my_org:domains']);
+
+      act(() => {
+        result.current.handleDeleteClick(mockDomain);
+      });
+
+      expect(result.current.showDeleteModal).toBe(true);
+    });
+
+    it('should refuse to verify without update:my_org:domains', async () => {
+      const onVerifyDomain = vi.fn().mockResolvedValue(true);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onVerifyDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+
+      expect(onVerifyDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the create submit without create:my_org:domains', async () => {
+      const onCreateDomain = vi.fn().mockResolvedValue(mockDomain);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onCreateDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleCreate('test.com');
+      });
+
+      expect(onCreateDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the verify submit without update:my_org:domains', async () => {
+      const onVerifyDomain = vi.fn().mockResolvedValue(true);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onVerifyDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(onVerifyDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse the delete submit without delete:my_org:domains', async () => {
+      const onDeleteDomain = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onDeleteDomain }),
+      );
+      const { result } = renderWithPermissions(['read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleDelete(mockDomain);
+      });
+
+      expect(onDeleteDomain).not.toHaveBeenCalled();
+    });
+
+    it('should refuse associating a provider without the create provider-domain scope', async () => {
+      const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onAssociateToProvider }),
+      );
+      const { result } = renderWithPermissions(['delete:my_org:identity_providers_domains']);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, true);
+      });
+
+      expect(onAssociateToProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse dissociating a provider without the delete provider-domain scope', async () => {
+      const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onDeleteFromProvider }),
+      );
+      const { result } = renderWithPermissions(['create:my_org:identity_providers_domains']);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, false);
+      });
+
+      expect(onDeleteFromProvider).not.toHaveBeenCalled();
+    });
+
+    it('should still allow each direction when its own scope is granted', async () => {
+      const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+      const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({ onAssociateToProvider, onDeleteFromProvider }),
+      );
+      const { result } = renderWithPermissions([
+        'create:my_org:identity_providers_domains',
+        'delete:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, true);
+      });
+      await act(async () => {
+        await result.current.handleToggleSwitch(verifiedDomain, mockProvider, false);
+      });
+
+      expect(onAssociateToProvider).toHaveBeenCalledTimes(1);
+      expect(onDeleteFromProvider).toHaveBeenCalledTimes(1);
+    });
+
+    it('should refuse every action when readOnly is set, even with the scopes granted', () => {
+      const { result } = renderWithGranted(ALL_MY_ORG_PERMISSIONS, {
+        ...defaultOptions,
+        readOnly: true,
+      });
+
+      act(() => {
+        result.current.handleCreateClick();
+      });
+      act(() => {
+        result.current.handleDeleteClick(mockDomain);
+      });
+
+      expect(result.current.showCreateModal).toBe(false);
+      expect(result.current.showDeleteModal).toBe(false);
     });
   });
 });

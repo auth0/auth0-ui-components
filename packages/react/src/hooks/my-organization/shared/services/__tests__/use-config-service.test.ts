@@ -150,4 +150,89 @@ describe('useConfig', () => {
       expect(mockGet).not.toHaveBeenCalled();
     });
   });
+
+  describe('thirdPartyAccess', () => {
+    it('showThirdPartyAccess is false when third_party_client_access is undefined', async () => {
+      mockGet.mockResolvedValue(createMockConfig());
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.showThirdPartyAccess).toBe(false);
+    });
+
+    it('showThirdPartyAccess is true when third_party_client_access is defined', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'block',
+            allowed_values: ['allow', 'block'],
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.showThirdPartyAccess).toBe(true);
+    });
+
+    it('isThirdPartyAccessReadOnly is true when allowed_values has one item', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'block',
+            allowed_values: ['block'],
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.isThirdPartyAccessReadOnly).toBe(true);
+    });
+
+    it('isThirdPartyAccessReadOnly is false when allowed_values has multiple items', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'block',
+            allowed_values: ['allow', 'block'],
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.isThirdPartyAccessReadOnly).toBe(false);
+    });
+
+    it('thirdPartyAccessDefaultValue uses allowed_values[0] when read-only', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'block',
+            allowed_values: ['allow'],
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.thirdPartyAccessDefaultValue).toBe('allow');
+    });
+
+    it('thirdPartyAccessDefaultValue uses default_value when editable', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'block',
+            allowed_values: ['allow', 'block'],
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.thirdPartyAccessDefaultValue).toBe('block');
+    });
+  });
 });

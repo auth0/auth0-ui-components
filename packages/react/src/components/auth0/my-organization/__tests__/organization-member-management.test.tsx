@@ -291,6 +291,9 @@ describe('OrganizationMemberManagement', () => {
       const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
       await user.type(emailInput, 'test@example.com,');
 
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
+
       const submitButton = screen.getByRole('button', {
         name: /invitation\.create\.submit_button/i,
       });
@@ -359,7 +362,7 @@ describe('OrganizationMemberManagement', () => {
 
     it('should pass revokeInvitationAction callbacks to component', async () => {
       const user = userEvent.setup();
-      const revokeInvitationAction: ComponentAction<MemberInvitation, void> = {
+      const revokeInvitationAction: ComponentAction<MemberInvitation[]> = {
         onBefore: vi.fn().mockReturnValue(true),
         onAfter: vi.fn(),
       };
@@ -532,7 +535,7 @@ describe('OrganizationMemberManagement', () => {
   });
 
   describe('readOnly mode in invitations', () => {
-    it('should not show action buttons in invitations tab when readOnly', async () => {
+    it('should not render the invite button in the invitations tab when readOnly', async () => {
       const user = userEvent.setup();
 
       renderWithProviders(
@@ -701,6 +704,9 @@ describe('OrganizationMemberManagement', () => {
 
       const emailInput = screen.getByPlaceholderText(/invitation\.create\.email_placeholder/i);
       await user.type(emailInput, 'newuser@example.com,');
+
+      await user.click(screen.getByRole('combobox', { name: /connection/i }));
+      await user.click(await screen.findByText('Acme Directory'));
 
       const submitButton = screen.getByRole('button', {
         name: /invitation\.create\.submit_button/i,

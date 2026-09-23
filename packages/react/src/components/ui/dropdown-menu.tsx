@@ -228,7 +228,7 @@ function DropdownMenuSubTrigger({
 function DropdownMenuSubContent({
   className,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
   return (
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"

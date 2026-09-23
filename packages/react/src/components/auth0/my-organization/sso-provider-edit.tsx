@@ -71,6 +71,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     provisioning,
     domains,
     customMessages,
+    readOnly,
     skipProvisioningFetch: hideProvisioningTab && hideAttributeMappings,
     enableProviderAction,
   });
@@ -113,6 +114,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const {
     styling,
     schema,
+    permissions,
     readOnly,
     providerId,
     domains,
@@ -132,6 +134,11 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    isOrganizationBlocked,
     isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
@@ -158,6 +165,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -181,11 +189,18 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 type: 'switch',
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
-                disabled: readOnly || isUpdating || isEnabling || enableProviderAction?.disabled,
+                hidden: readOnly,
+                disabled:
+                  isUpdating ||
+                  isEnabling ||
+                  enableProviderAction?.disabled ||
+                  !permissions.canUpdateProvider,
                 tooltip: {
-                  content: provider?.is_enabled
-                    ? t('header.disable_provider_tooltip_text')
-                    : t('header.enable_provider_tooltip_text'),
+                  content: !permissions.canUpdateProvider
+                    ? tCommon('error.forbidden')
+                    : provider?.is_enabled
+                      ? t('header.disable_provider_tooltip_text')
+                      : t('header.enable_provider_tooltip_text'),
                 },
               },
             ]}
@@ -234,12 +249,23 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               styling={styling}
               formActions={{
                 isLoading: isUpdating,
+                showNext: !readOnly,
+                nextActionTooltip:
+                  !readOnly && !permissions.canUpdateProvider
+                    ? tCommon('error.forbidden')
+                    : undefined,
                 nextAction: {
                   disabled: isUpdating || !provider || isLoading,
                   onClick: updateProvider,
                 },
               }}
+              permissions={permissions}
               readOnly={readOnly}
+              showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+              showCrossAppAccess={showCrossAppAccess}
+              isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+              isOrganizationBlocked={isOrganizationBlocked}
             />
           </TabsContent>
 
@@ -247,6 +273,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             <TabsContent value="provisioning">
               <SsoProvisioningTab
                 provider={provider!}
+                readOnly={readOnly}
                 isProvisioningUpdating={isProvisioningUpdating}
                 isProvisioningDeleting={isProvisioningDeleting}
                 isScimTokensLoading={isScimTokensLoading}
@@ -263,6 +290,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 onDeleteScimToken={deleteScimToken}
                 customMessages={customMessages?.tabs?.provisioning?.content}
                 styling={styling}
+                permissions={permissions}
               />
             </TabsContent>
           )}
@@ -275,6 +303,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               schema={schema?.domains}
               idpId={providerId}
               provider={provider}
+              permissions={permissions}
               readOnly={readOnly}
             />
           </TabsContent>

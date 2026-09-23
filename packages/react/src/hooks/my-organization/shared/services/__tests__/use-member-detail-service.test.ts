@@ -202,7 +202,7 @@ describe('useMemberDetailService', () => {
       expect(mockedShowToast).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
     });
 
-    it('should return aborted when role count exceeds MAX_ROLES_PER_REQUEST', async () => {
+    it('should not abort on role count, since the roles table caps the selection', async () => {
       const manyRoles = Array.from({ length: 51 }, (_, i) =>
         createMockMemberRole({ id: `rol_${i}`, name: `Role ${i}` }),
       );
@@ -213,8 +213,8 @@ describe('useMemberDetailService', () => {
         returnValue = await result.current.removeRolesMutation.mutateAsync(manyRoles);
       });
 
-      expect(returnValue?.aborted).toBe(true);
-      expect(apiService.organization.members.roles.unassign).not.toHaveBeenCalled();
+      expect(returnValue?.aborted).toBe(false);
+      expect(apiService.organization.members.roles.unassign).toHaveBeenCalled();
     });
   });
 });
