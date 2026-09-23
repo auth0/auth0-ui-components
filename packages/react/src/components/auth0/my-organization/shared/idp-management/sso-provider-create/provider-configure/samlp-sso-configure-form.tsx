@@ -166,6 +166,12 @@ export const SamlpProviderForm = React.forwardRef<
     onFormDirty?.(isDirty);
   }, [isDirty, onFormDirty]);
 
+  React.useEffect(() => {
+    form.setValue('callback_url', spMetadataUrls.callback_url);
+    form.setValue('acs_url', spMetadataUrls.acs_url);
+    form.setValue('sp_metadata_url', spMetadataUrls.sp_metadata_url);
+  }, [form, spMetadataUrls]);
+
   React.useImperativeHandle(ref, () => ({
     validate: async () => {
       return await form.trigger();
@@ -178,11 +184,10 @@ export const SamlpProviderForm = React.forwardRef<
     },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
-      if (data) {
-        form.reset(data);
-      } else {
-        form.reset();
-      }
+      form.reset({
+        ...(data ?? form.formState.defaultValues),
+        ...spMetadataUrls,
+      });
     },
   }));
 
