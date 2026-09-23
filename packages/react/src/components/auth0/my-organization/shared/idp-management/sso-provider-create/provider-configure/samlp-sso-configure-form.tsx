@@ -17,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
 import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Accordion,
   AccordionContent,
@@ -45,6 +46,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
@@ -93,6 +95,7 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    connectionName,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -107,6 +110,18 @@ export const SamlpProviderForm = React.forwardRef<
     'idp_management.create_sso_provider.provider_configure',
     customMessages,
   );
+
+  const { coreClient } = useCoreClient();
+
+  const spMetadataUrls = React.useMemo(() => {
+    const domain = coreClient?.getDomain();
+    const connectionParam = connectionName ? `?connection=${connectionName}` : '';
+    return {
+      callback_url: `https://${domain}/login/callback`,
+      acs_url: `https://${domain}/login/callback${connectionParam}`,
+      sp_metadata_url: `https://${domain}/samlp/metadata${connectionParam}`,
+    };
+  }, [coreClient, connectionName]);
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
@@ -137,6 +152,9 @@ export const SamlpProviderForm = React.forwardRef<
           ? { status: crossAppAccessDefaultValue }
           : undefined),
       discovery_url: samlpData?.discovery_url ?? '',
+      callback_url: spMetadataUrls.callback_url,
+      acs_url: spMetadataUrls.acs_url,
+      sp_metadata_url: spMetadataUrls.sp_metadata_url,
     },
   });
 
@@ -147,6 +165,12 @@ export const SamlpProviderForm = React.forwardRef<
   React.useEffect(() => {
     onFormDirty?.(isDirty);
   }, [isDirty, onFormDirty]);
+
+  React.useEffect(() => {
+    form.setValue('callback_url', spMetadataUrls.callback_url);
+    form.setValue('acs_url', spMetadataUrls.acs_url);
+    form.setValue('sp_metadata_url', spMetadataUrls.sp_metadata_url);
+  }, [form, spMetadataUrls]);
 
   React.useImperativeHandle(ref, () => ({
     validate: async () => {
@@ -160,11 +184,10 @@ export const SamlpProviderForm = React.forwardRef<
     },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
-      if (data) {
-        form.reset(data);
-      } else {
-        form.reset();
-      }
+      form.reset({
+        ...(data ?? form.formState.defaultValues),
+        ...spMetadataUrls,
+      });
     },
   }));
 
@@ -474,6 +497,60 @@ export const SamlpProviderForm = React.forwardRef<
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        <FormField
+          control={form.control}
+          name="callback_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.callback_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.callback_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="acs_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.acs_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.acs_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sp_metadata_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.sp_metadata_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.sp_metadata_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
 
         <CommonConfigureFields
           idpConfig={idpConfig}

@@ -82,6 +82,7 @@ export interface ProviderConfigureProps
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
@@ -97,6 +98,7 @@ export interface ProviderConfigureFieldsProps
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
