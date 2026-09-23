@@ -346,6 +346,9 @@ const STRATEGY_BUILDERS = {
         { required: false },
         'Please enter a valid discovery URL',
       ),
+      callback_url: z.string().optional(),
+      acs_url: z.string().optional(),
+      sp_metadata_url: z.string().optional(),
     };
 
     return z.discriminatedUnion('meta_data_source', [

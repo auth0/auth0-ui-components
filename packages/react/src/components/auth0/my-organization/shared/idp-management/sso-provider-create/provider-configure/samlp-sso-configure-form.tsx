@@ -82,34 +82,6 @@ interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'st
   isCrossAppAccessReadOnly?: boolean;
 }
 
-/**
- * Read-only, copyable Service Provider metadata field (Callback / ACS / SP Metadata URL).
- *
- * @param props - Component props.
- * @param props.label - Field label.
- * @param props.helperText - Helper text shown below the field.
- * @param props.value - The read-only URL value rendered in the copyable field.
- * @returns A read-only text field with a copy button.
- * @internal
- */
-function ReadOnlyUrlField({
-  label,
-  helperText,
-  value,
-}: {
-  label: string;
-  helperText: string;
-  value: string;
-}) {
-  return (
-    <div className="grid gap-2">
-      <Label className="text-label font-medium">{label}</Label>
-      <CopyableTextField type="text" readOnly value={value} />
-      <p className="text-muted-foreground text-sm font-normal text-left">{helperText}</p>
-    </div>
-  );
-}
-
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps
@@ -502,22 +474,66 @@ export const SamlpProviderForm = React.forwardRef<
           </AccordionItem>
         </Accordion>
 
-        <ReadOnlyUrlField
-          label={t('fields.samlp.callback_url.label')}
-          helperText={t('fields.samlp.callback_url.helper_text')}
-          value={spMetadataUrls.callback_url}
+        <FormField
+          control={form.control}
+          name="callback_url"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.callback_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField
+                  type="text"
+                  readOnly={true}
+                  value={spMetadataUrls.callback_url}
+                />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.callback_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
         />
 
-        <ReadOnlyUrlField
-          label={t('fields.samlp.acs_url.label')}
-          helperText={t('fields.samlp.acs_url.helper_text')}
-          value={spMetadataUrls.acs_url}
+        <FormField
+          control={form.control}
+          name="acs_url"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.acs_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} value={spMetadataUrls.acs_url} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.acs_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
         />
 
-        <ReadOnlyUrlField
-          label={t('fields.samlp.sp_metadata_url.label')}
-          helperText={t('fields.samlp.sp_metadata_url.helper_text')}
-          value={spMetadataUrls.sp_metadata_url}
+        <FormField
+          control={form.control}
+          name="sp_metadata_url"
+          render={() => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.sp_metadata_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField
+                  type="text"
+                  readOnly={true}
+                  value={spMetadataUrls.sp_metadata_url}
+                />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.sp_metadata_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
         />
 
         <CommonConfigureFields
