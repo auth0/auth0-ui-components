@@ -23,7 +23,7 @@ export function createMockOrganizationDetailsEditView(
     schema: undefined,
     styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     customMessages: {},
-    readOnly: false,
+    canEdit: true,
     hideHeader: false,
     backButton: undefined,
     formActions: {
@@ -33,6 +33,9 @@ export function createMockOrganizationDetailsEditView(
         onClick: () => Promise.resolve(true),
       },
     },
+    showThirdPartyAccess: false,
+    isThirdPartyAccessReadOnly: false,
+    thirdPartyAccessDefaultValue: undefined,
     ...overrides,
   };
 }

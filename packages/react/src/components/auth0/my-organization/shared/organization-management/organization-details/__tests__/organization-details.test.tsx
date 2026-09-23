@@ -40,6 +40,9 @@ const createMockOrganizationDetailsProps = (
         onClick: vi.fn(),
       },
     },
+    showThirdPartyAccess: false,
+    isThirdPartyAccessReadOnly: false,
+    thirdPartyAccessDefaultValue: undefined,
     ...overrides,
   };
 };
@@ -562,6 +565,42 @@ describe('OrganizationDetails', () => {
         const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
         expect(saveButton).toBeDisabled();
       });
+    });
+  });
+
+  describe('when a next-action tooltip is supplied', () => {
+    it('should show it on the disabled save button', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <OrganizationDetails
+          {...createMockOrganizationDetailsProps({
+            readOnly: true,
+            formActions: createMockFormActions({ nextActionTooltip: 'error.forbidden' }),
+          })}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
+      expect(saveButton).toBeDisabled();
+
+      await user.hover(saveButton);
+
+      await waitFor(() => {
+        expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('when no next-action tooltip is supplied', () => {
+    it('should not show a tooltip, even when readOnly disables the button', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <OrganizationDetails {...createMockOrganizationDetailsProps({ readOnly: true })} />,
+      );
+
+      await user.hover(screen.getByRole('button', { name: /submit_button_label/i }));
+
+      expect(screen.queryByText('error.forbidden')).not.toBeInTheDocument();
     });
   });
 });

@@ -7,6 +7,10 @@ import {
   createMockDomain,
   createMockIdentityProviderAssociatedWithDomain,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  ALL_DOMAIN_PERMISSIONS,
+  createDomainPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
@@ -18,6 +22,7 @@ function createMockDomainConfigureProvidersModalProps(
     isOpen: true,
     isLoading: false,
     isLoadingSwitch: false,
+    permissions: ALL_DOMAIN_PERMISSIONS,
     domain: createMockDomain(),
     providers: [
       createMockIdentityProviderAssociatedWithDomain({
@@ -884,6 +889,39 @@ describe('DomainConfigureProvidersModal', () => {
           0,
         );
       });
+    });
+  });
+
+  describe('granted permissions', () => {
+    it('should disable every provider toggle when neither association scope is granted', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['read:my_org:identity_providers']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      screen.getAllByRole('switch').forEach((toggle) => expect(toggle).toBeDisabled());
+    });
+
+    it('should allow associating but not dissociating with only the create scope', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['create:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [associated, unassociated] = screen.getAllByRole('switch');
+      expect(associated).toBeDisabled();
+      expect(unassociated).toBeEnabled();
+    });
+
+    it('should allow dissociating but not associating with only the delete scope', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        permissions: createDomainPermissions(['delete:my_org:identity_providers_domains']),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [associated, unassociated] = screen.getAllByRole('switch');
+      expect(associated).toBeEnabled();
+      expect(unassociated).toBeDisabled();
     });
   });
 });

@@ -8,7 +8,11 @@ import {
   createMockEmptyAuthenticationMethods,
 } from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
-import { createMockInvitation } from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
+import {
+  createMockInvitation,
+  createMockListUserStoresResponse,
+  createMockRoles,
+} from '@/tests/utils/__mocks__/my-organization/member-management/invitation.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 
 const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClient'] => {
@@ -41,7 +45,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
     },
     organization: {
       identityProviders: {
-        list: vi.fn().mockResolvedValue([]),
+        list: vi.fn().mockResolvedValue({ identity_providers: [mockProvider] }),
         get: vi.fn().mockResolvedValue(mockProvider),
         create: vi.fn().mockResolvedValue({}),
         update: vi.fn().mockResolvedValue({}),
@@ -65,6 +69,12 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         get: vi.fn().mockResolvedValue(createMockInvitation()),
         create: vi.fn().mockResolvedValue([createMockInvitation()]),
         delete: vi.fn().mockResolvedValue(undefined),
+        roles: {
+          list: vi.fn().mockResolvedValue({ roles: createMockRoles() }),
+        },
+      },
+      userStores: {
+        list: vi.fn().mockResolvedValue(createMockListUserStoresResponse()),
       },
       roles: {
         list: vi.fn().mockResolvedValue({
@@ -157,6 +167,9 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
       challenge: vi.fn().mockResolvedValue({}),
       verify: vi.fn().mockResolvedValue({}),
     }) as CoreClientInterface['getMFAStepUpApiClient'],
+    getPermissionApiClient: vi.fn().mockReturnValue({
+      getPermissions: vi.fn().mockResolvedValue([]),
+    }) as CoreClientInterface['getPermissionApiClient'],
     isProxyMode: () => false,
     getDomain: () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
   };

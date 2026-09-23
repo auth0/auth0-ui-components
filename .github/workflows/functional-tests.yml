@@ -10,7 +10,6 @@ on:
       - 'examples/react-spa-npm/**'
       - '.github/workflows/functional-tests.yml'
 
-# Cancel outdated runs for the same PR on new pushes.
 concurrency:
   group: functional-tests-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -18,14 +17,9 @@ concurrency:
 jobs:
   functional-tests:
     name: Functional Tests
-    # Skip fork PRs — GitHub strips secrets from them, so the run can't authenticate anyway.
     if: github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
-    # Approval gate. The environment is auto-created with no rules on first run (tests run
-    # immediately); to require approval, add required reviewers to it in Settings → Environments.
     environment: functional-tests
-    # TODO: Remove once the suite is proven stable across several consecutive CI runs
-    continue-on-error: true
     permissions:
       contents: read
     env:
@@ -48,7 +42,6 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          # Pinned to v22.22.3 via functional-tests/.nvmrc
           node-version-file: functional-tests/.nvmrc
           cache: pnpm
 
@@ -58,7 +51,6 @@ jobs:
       - name: Build packages
         run: pnpm turbo run build --filter=@auth0/universal-components-react
 
-      # Pinned Chromium, ffmpeg backs `video: 'retain-on-failure'`.
       - name: Install Playwright browsers
         working-directory: functional-tests
         run: pnpm exec playwright install --with-deps chromium ffmpeg
@@ -72,7 +64,8 @@ jobs:
 
       - name: Run Playwright tests
         working-directory: functional-tests
-        run: pnpm exec playwright test
+        # TODO: remove --pass-with-no-tests in specs pr
+        run: pnpm exec playwright test --pass-with-no-tests
 
       - name: Teardown ephemeral test org
         if: always()

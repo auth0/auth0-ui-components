@@ -11,6 +11,7 @@ import type {
   CreateIdpProvisioningScimTokenResponseContent,
   ProvisioningDeleteTokenModalMessages,
   ProvisioningCreateTokenModalMessages,
+  IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 
 /** CSS classes for ProvisioningManageToken. */
@@ -24,6 +25,8 @@ export interface ProvisioningManageTokenClasses {
 /** Props for ProvisioningManageToken component. */
 export interface ProvisioningManageTokenProps
   extends SharedComponentProps<ProvisioningManageTokenMessages, ProvisioningManageTokenClasses> {
+  permissions: IdpManagementPermissions;
+  readOnly?: boolean;
   isScimTokensLoading: boolean;
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;

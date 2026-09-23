@@ -3,6 +3,11 @@
  * @module sso-provider-create-types
  * @internal
  */
+
+import type { SharedMessages } from '../../../shared/shared-types';
+
+import type { ThirdPartyAccessMessages, CrossAppAccessMessages } from './sso-provider-edit-types';
+
 export interface ProviderSelectMessages {
   title?: string;
   description?: string;
@@ -315,6 +320,8 @@ export interface ProviderConfigureMessages {
   description?: string;
   guided_setup_button_text?: string;
   fields?: ProviderFieldsMessages;
+  third_party_access?: ThirdPartyAccessMessages;
+  cross_app_access?: CrossAppAccessMessages;
 }
 
 /**
@@ -322,7 +329,7 @@ export interface ProviderConfigureMessages {
  */
 export type ProviderConfigureFieldsMessages = Pick<ProviderConfigureMessages, 'fields'>;
 
-export interface SsoProviderCreateMessages {
+export interface SsoProviderCreateMessages extends SharedMessages {
   header?: {
     title?: string;
     back_button_text?: string;

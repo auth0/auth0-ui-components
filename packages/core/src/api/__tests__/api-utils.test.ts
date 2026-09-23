@@ -26,17 +26,43 @@ describe('api-utils', () => {
       vi.unstubAllGlobals();
     });
 
-    it('sets content-type header to application/json', async () => {
+    it('sets content-type header to application/json when body is present', async () => {
       const mockFetch = stubFetch();
       const fetcher = createProxyFetcher({
         telemetry: defaultTelemetry,
         getComponent: mockGetComponent,
       });
 
-      await fetcher('https://example.com/api', { method: 'POST' }, undefined);
+      await fetcher('https://example.com/api', { method: 'POST', body: '{}' }, undefined);
 
       const [, requestInit] = mockFetch.mock.calls[0]!;
       expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('does not set content-type header when there is no body', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBeNull();
+    });
+
+    it('does not set content-type header for DELETE without body', async () => {
+      const mockFetch = stubFetch();
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await fetcher('https://example.com/api/resource/1', { method: 'DELETE' }, undefined);
+
+      const [, requestInit] = mockFetch.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBeNull();
     });
 
     it('sets auth0-scope header when scope array is provided', async () => {
@@ -226,7 +252,7 @@ describe('api-utils', () => {
       expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId });
     });
 
-    it('sets Content-Type header to application/json', async () => {
+    it('sets Content-Type header to application/json when body is present', async () => {
       const config = createSpaConfig();
       const fetcher = createSpaFetcher(
         config,
@@ -235,10 +261,40 @@ describe('api-utils', () => {
         mockGetComponent,
       );
 
-      await fetcher('https://example.com/api', { method: 'POST' }, undefined);
+      await fetcher('https://example.com/api', { method: 'POST', body: '{}' }, undefined);
 
       const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
       expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBe(ContentType.JSON);
+    });
+
+    it('does not set Content-Type header when there is no body', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
+
+      await fetcher('https://example.com/api', { method: 'GET' }, undefined);
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBeNull();
+    });
+
+    it('does not set Content-Type header for DELETE without body', async () => {
+      const config = createSpaConfig();
+      const fetcher = createSpaFetcher(
+        config,
+        '__test_nonce__',
+        defaultTelemetry,
+        mockGetComponent,
+      );
+
+      await fetcher('https://example.com/api/resource/1', { method: 'DELETE' }, undefined);
+
+      const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
+      expect((requestInit?.headers as Headers).get(HeaderName.ContentType)).toBeNull();
     });
 
     it('preserves existing headers from init when adding Content-Type', async () => {
@@ -253,7 +309,7 @@ describe('api-utils', () => {
 
       await fetcher(
         'https://example.com/api',
-        { method: 'POST', headers: customHeaders },
+        { method: 'POST', headers: customHeaders, body: '{}' },
         undefined,
       );
 

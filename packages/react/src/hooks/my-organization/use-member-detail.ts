@@ -3,11 +3,16 @@
  * @module use-member-detail
  */
 
-import { resolveErrorMessage, type Role } from '@auth0/universal-components-core';
+import {
+  getMemberManagementPermissions,
+  resolveErrorMessage,
+  type Role,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { useMemberDetailService } from '@/hooks/my-organization/shared/services/use-member-detail-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
@@ -30,11 +35,18 @@ export function useOrganizationMemberDetail(
     onBack,
     customMessages = {},
     readOnly = false,
-    initialTab = 'details',
+    initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
     removeRolesAction,
   } = options;
+
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = React.useMemo(
+    () => createPermissionResolver(getMemberManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     memberQuery,
@@ -70,7 +82,9 @@ export function useOrganizationMemberDetail(
     }
   }, [memberRolesQuery.isError, memberRolesQuery.error, handleError, t]);
 
-  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(initialTab);
+  const [activeTab, setActiveTab] = React.useState<OrganizationMemberDetailTab>(
+    initialTab ?? 'details',
+  );
   const [modalState, setModalState] = React.useState<MemberDetailModalState>({ type: null });
   const [selectedRoles, setSelectedRoles] = React.useState<Role[]>([]);
 
@@ -86,10 +100,12 @@ export function useOrganizationMemberDetail(
 
   const openModal = React.useCallback(
     (state: MemberDetailModalState) => {
-      if (readOnly && state.type !== null) return;
+      if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
+      if (state.type === 'assignRoles' && !permissions.canAssignRole) return;
+      if (state.type === 'removeRoles' && !permissions.canRemoveRole) return;
       setModalState(state);
     },
-    [readOnly],
+    [permissions],
   );
 
   const closeModal = React.useCallback(() => {
@@ -98,6 +114,7 @@ export function useOrganizationMemberDetail(
 
   const handleRemoveFromOrganizationConfirm = React.useCallback(
     (userId?: string | null, memberName?: string, organizationName?: string) => {
+      if (!permissions.canRemoveFromOrganization) return;
       removeFromOrganizationMutation.mutate(
         { userId, memberName, organizationName },
         {
@@ -108,11 +125,12 @@ export function useOrganizationMemberDetail(
         },
       );
     },
-    [removeFromOrganizationMutation, closeModal, onBack],
+    [permissions, removeFromOrganizationMutation, closeModal, onBack],
   );
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
+      if (!permissions.canAssignRole) return;
       assignRolesMutation.mutate(
         { roleIds, memberRoles, userId },
         {
@@ -123,7 +141,7 @@ export function useOrganizationMemberDetail(
         },
       );
     },
-    [assignRolesMutation, closeModal],
+    [permissions, assignRolesMutation, closeModal],
   );
 
   const handleRemoveRolesCancel = React.useCallback(() => {
@@ -131,7 +149,7 @@ export function useOrganizationMemberDetail(
   }, [closeModal]);
 
   const handleRemoveRolesConfirm = React.useCallback(() => {
-    if (modalState.type !== 'removeRoles') return;
+    if (modalState.type !== 'removeRoles' || !permissions.canRemoveRole) return;
     removeRolesMutation.mutate(modalState.roles, {
       onSuccess: (result) => {
         if (!result?.aborted) {
@@ -140,17 +158,13 @@ export function useOrganizationMemberDetail(
         closeModal();
       },
     });
-  }, [modalState, removeRolesMutation, closeModal]);
+  }, [modalState, permissions, removeRolesMutation, closeModal]);
 
   const member = memberQuery.data ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
   const memberRoles: Role[] = memberRolesQuery.data ?? [];
-  const assignedRoleIds = React.useMemo(() => new Set(memberRoles.map((r) => r.id)), [memberRoles]);
 
-  const searchedRoles: Role[] = React.useMemo(
-    () => (rolesSearchQuery.data ?? []).filter((r) => !assignedRoleIds.has(r.id)),
-    [rolesSearchQuery.data, assignedRoleIds],
-  );
+  const searchedRoles: Role[] = rolesSearchQuery.data ?? [];
 
   const removingRoles = modalState.type === 'removeRoles' ? modalState.roles : [];
 
@@ -160,6 +174,7 @@ export function useOrganizationMemberDetail(
 
   return {
     activeTab,
+    permissions,
     member,
     organizationDisplayName,
     memberRoles,
@@ -169,6 +184,7 @@ export function useOrganizationMemberDetail(
     memberError: memberErrorMessage,
     isFetchingMember: memberQuery.isLoading || memberQuery.isFetching,
     isFetchingMemberRoles: memberRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isLoading: memberQuery.isLoading,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),

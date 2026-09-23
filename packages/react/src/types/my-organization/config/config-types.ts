@@ -16,4 +16,7 @@ export interface UseConfigResult {
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
   isConfigValid: boolean;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }

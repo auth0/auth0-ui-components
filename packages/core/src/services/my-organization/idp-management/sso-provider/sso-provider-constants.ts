@@ -26,3 +26,5 @@ export const STRATEGY_DISPLAY_NAMES: Record<IdpStrategy, string> = {
   [STRATEGIES.SAMLP]: 'Custom SAML',
   [STRATEGIES.WAAD]: 'Entra ID',
 } as const;
+
+export const DISCOVERY_URL_SUFFIX = '/.well-known/openid-configuration';

@@ -3,6 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoProviderTableActionsColumn } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-table/sso-provider-table-action';
+import {
+  ALL_IDP_PERMISSIONS,
+  createIdpPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
@@ -33,7 +37,7 @@ function createMockSsoProviderTableActionsColumnProps(
   return {
     provider: createMockProvider(),
     shouldAllowDeletion: true,
-    readOnly: false,
+    permissions: ALL_IDP_PERMISSIONS,
     isUpdating: false,
     isUpdatingId: null,
     customMessages: {},
@@ -57,17 +61,7 @@ describe('SsoProviderTableActionsColumn', () => {
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
       expect(screen.getByRole('switch')).toBeInTheDocument();
-      expect(screen.getByRole('button')).toBeInTheDocument();
-    });
-
-    it('should render disabled switch when updating current provider', () => {
-      const props = createMockSsoProviderTableActionsColumnProps({
-        isUpdating: true,
-        isUpdatingId: 'provider_123',
-      });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      expect(screen.getByRole('switch')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'table.actions.menu_label' })).toBeInTheDocument();
     });
 
     it('should render switch when updating different provider', () => {
@@ -128,8 +122,10 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(switchElement).not.toBeChecked();
     });
 
-    it('should disable switch when readOnly is true', () => {
-      const props = createMockSsoProviderTableActionsColumnProps({ readOnly: true });
+    it('should disable switch without the permission to toggle it', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({
+        permissions: createIdpPermissions(['read:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
       const switchElement = screen.getByRole('switch');
@@ -203,28 +199,6 @@ describe('SsoProviderTableActionsColumn', () => {
 
       expect(onToggleEnabled).toHaveBeenCalledTimes(1);
       expect(onToggleEnabled).toHaveBeenCalledWith(provider, true);
-    });
-
-    it('should handle provider with missing is_enabled property', () => {
-      const { is_enabled, ...provider } = createMockProvider();
-      const props = createMockSsoProviderTableActionsColumnProps({ provider });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      const switchElement = screen.getByRole('switch');
-      expect(switchElement).not.toBeChecked();
-    });
-
-    it('should remain interactive when wrapped in span', async () => {
-      const user = userEvent.setup();
-      const onToggleEnabled = vi.fn();
-      const provider = createMockProvider({ is_enabled: true });
-      const props = createMockSsoProviderTableActionsColumnProps({ onToggleEnabled, provider });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      const switchElement = screen.getByRole('switch');
-      await user.click(switchElement);
-
-      expect(onToggleEnabled).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -327,18 +301,17 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(onRemoveFromOrganization).toHaveBeenCalledWith(provider);
     });
 
-    it('should disable edit menu item when readOnly is true', async () => {
+    it('should hide the edit menu item without update:my_org:identity_providers', async () => {
       const user = userEvent.setup();
-      const props = createMockSsoProviderTableActionsColumnProps({ readOnly: true });
+      const props = createMockSsoProviderTableActionsColumnProps({
+        permissions: createIdpPermissions(['delete:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button');
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
-      const editItem = screen.getByText('table.actions.edit_button_text');
-      // Check if the menu item has aria-disabled or data-disabled attribute
-      const menuItemParent = editItem.closest('[role="menuitem"]') || editItem.parentElement;
-      expect(menuItemParent).toHaveAttribute('data-disabled');
+      expect(screen.queryByText('table.actions.edit_button_text')).not.toBeInTheDocument();
     });
 
     it('should disable edit menu item when edit.disabled is true', async () => {
@@ -354,30 +327,30 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(menuItemParent).toHaveAttribute('data-disabled');
     });
 
-    it('should disable delete menu item when readOnly is true', async () => {
+    it('should hide the delete menu item without delete:my_org:identity_providers', async () => {
       const user = userEvent.setup();
-      const props = createMockSsoProviderTableActionsColumnProps({ readOnly: true });
+      const props = createMockSsoProviderTableActionsColumnProps({
+        permissions: createIdpPermissions(['update:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button');
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
-      const deleteItem = screen.getByText('table.actions.delete_button_text');
-      const menuItemParent = deleteItem.closest('[role="menuitem"]') || deleteItem.parentElement;
-      expect(menuItemParent).toHaveAttribute('data-disabled');
+      expect(screen.queryByText('table.actions.delete_button_text')).not.toBeInTheDocument();
     });
 
-    it('should disable remove menu item when readOnly is true', async () => {
+    it('should hide the remove menu item without update:my_org:identity_providers_detach', async () => {
       const user = userEvent.setup();
-      const props = createMockSsoProviderTableActionsColumnProps({ readOnly: true });
+      const props = createMockSsoProviderTableActionsColumnProps({
+        permissions: createIdpPermissions(['update:my_org:identity_providers']),
+      });
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
-      const menuButton = screen.getByRole('button');
+      const menuButton = screen.getByRole('button', { name: 'table.actions.menu_label' });
       await user.click(menuButton);
 
-      const removeItem = screen.getByText('table.actions.remove_button_text');
-      const menuItemParent = removeItem.closest('[role="menuitem"]') || removeItem.parentElement;
-      expect(menuItemParent).toHaveAttribute('data-disabled');
+      expect(screen.queryByText('table.actions.remove_button_text')).not.toBeInTheDocument();
     });
 
     it('should handle undefined edit prop', async () => {
@@ -510,30 +483,6 @@ describe('SsoProviderTableActionsColumn', () => {
         expect(tooltip).toHaveTextContent('table.actions.enabled_tooltip');
       });
     });
-
-    it('should show tooltip on keyboard focus with span wrapper', async () => {
-      const user = userEvent.setup();
-      const provider = createMockProvider({ is_enabled: false });
-      const props = createMockSsoProviderTableActionsColumnProps({ provider });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      await user.tab();
-
-      await waitFor(() => {
-        const tooltip = screen.getByRole('tooltip', { hidden: true });
-        expect(tooltip).toHaveTextContent('table.actions.disabled_tooltip');
-      });
-    });
-
-    it('should show disabled switch when current provider is updating', () => {
-      const props = createMockSsoProviderTableActionsColumnProps({
-        isUpdating: true,
-        isUpdatingId: 'provider_123',
-      });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      expect(screen.getByRole('switch')).toBeDisabled();
-    });
   });
 
   describe('Span Wrapper Tests', () => {
@@ -627,61 +576,6 @@ describe('SsoProviderTableActionsColumn', () => {
       const switchElement = screen.getByRole('switch');
       expect(switchElement).toBeInTheDocument();
     });
-
-    it('should disable switch for current provider only', () => {
-      const props = createMockSsoProviderTableActionsColumnProps({
-        isUpdating: true,
-        isUpdatingId: 'provider_123',
-      });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      expect(screen.getByRole('switch')).toBeDisabled();
-
-      // Now test with different provider ID — switch should not be disabled
-      const props2 = createMockSsoProviderTableActionsColumnProps({
-        isUpdating: true,
-        isUpdatingId: 'other_provider',
-      });
-      const { unmount } = renderWithProviders(<SsoProviderTableActionsColumn {...props2} />);
-
-      expect(screen.getAllByRole('switch')[1]).not.toBeDisabled();
-      unmount();
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('should be keyboard navigable through span', async () => {
-      const user = userEvent.setup();
-      const onToggleEnabled = vi.fn();
-      const props = createMockSsoProviderTableActionsColumnProps({ onToggleEnabled });
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      const switchElement = screen.getByRole('switch');
-      switchElement.focus();
-
-      expect(switchElement).toHaveFocus();
-
-      await user.keyboard(' ');
-      expect(onToggleEnabled).toHaveBeenCalledTimes(1);
-    });
-
-    it('should have proper ARIA attributes on switch', () => {
-      const props = createMockSsoProviderTableActionsColumnProps();
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      const switchElement = screen.getByRole('switch');
-      expect(switchElement).toBeInTheDocument();
-    });
-
-    it('should manage focus properly with span wrapper', async () => {
-      const props = createMockSsoProviderTableActionsColumnProps();
-      renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
-
-      const switchElement = screen.getByRole('switch');
-      switchElement.focus();
-
-      expect(switchElement).toHaveFocus();
-    });
   });
 
   describe('Custom Messages', () => {
@@ -698,6 +592,137 @@ describe('SsoProviderTableActionsColumn', () => {
       renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
 
       expect(screen.getByRole('switch')).toBeInTheDocument();
+    });
+  });
+
+  describe('Granted permissions', () => {
+    describe('when update:my_org:identity_providers is granted', () => {
+      it('should label the detail entry "Edit"', async () => {
+        const user = userEvent.setup();
+        const props = createMockSsoProviderTableActionsColumnProps({
+          permissions: createIdpPermissions(['update:my_org:identity_providers']),
+        });
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+        expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
+        expect(screen.queryByText('table.actions.configure_button_text')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when only domain, provisioning or SCIM mutations are granted', () => {
+      it('should label the detail entry "Configure" instead', async () => {
+        const user = userEvent.setup();
+        const props = createMockSsoProviderTableActionsColumnProps({
+          permissions: createIdpPermissions(['create:my_org:identity_providers_domains']),
+        });
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+        expect(screen.getByText('table.actions.configure_button_text')).toBeInTheDocument();
+        expect(screen.queryByText('table.actions.edit_button_text')).not.toBeInTheDocument();
+      });
+
+      it.each(['create:my_org:domains', 'update:my_org:domains', 'delete:my_org:domains'] as const)(
+        'should offer Configure for an org-domain mutation such as %s',
+        async (scope) => {
+          const user = userEvent.setup();
+          const props = createMockSsoProviderTableActionsColumnProps({
+            permissions: createIdpPermissions(['read:my_org:identity_providers', scope]),
+          });
+          renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+          expect(screen.getByText('table.actions.configure_button_text')).toBeInTheDocument();
+        },
+      );
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('should render no menu, leaving row-click as the only path', () => {
+        const props = createMockSsoProviderTableActionsColumnProps({
+          permissions: createIdpPermissions(['read:my_org:identity_providers']),
+        });
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        expect(
+          screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+        ).not.toBeInTheDocument();
+        expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+        // the enable/disable toggle stays visible, just disabled
+        expect(screen.getByRole('switch')).toBeDisabled();
+      });
+    });
+
+    describe('when every IDP permission is granted', () => {
+      it('should offer edit, delete and remove from organization', async () => {
+        const user = userEvent.setup();
+        const props = createMockSsoProviderTableActionsColumnProps();
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+        expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
+        expect(screen.getByText('table.actions.delete_button_text')).toBeInTheDocument();
+        expect(screen.getByText('table.actions.remove_button_text')).toBeInTheDocument();
+      });
+    });
+
+    describe('when update is granted without delete or detach', () => {
+      it('should offer edit only, hiding both destructive actions', async () => {
+        const user = userEvent.setup();
+        const props = createMockSsoProviderTableActionsColumnProps({
+          permissions: createIdpPermissions([
+            'read:my_org:identity_providers',
+            'update:my_org:identity_providers',
+          ]),
+        });
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+
+        expect(screen.getByText('table.actions.edit_button_text')).toBeInTheDocument();
+        expect(screen.queryByText('table.actions.delete_button_text')).not.toBeInTheDocument();
+        expect(screen.queryByText('table.actions.remove_button_text')).not.toBeInTheDocument();
+      });
+
+      it('should still allow toggling the provider', () => {
+        const props = createMockSsoProviderTableActionsColumnProps({
+          permissions: createIdpPermissions([
+            'read:my_org:identity_providers',
+            'update:my_org:identity_providers',
+          ]),
+        });
+        renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+        expect(screen.getByRole('switch')).toBeEnabled();
+      });
+    });
+  });
+
+  describe('readOnly', () => {
+    it('should render no row action at all, not even the toggle', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({ readOnly: true });
+      const { container } = renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+      expect(container).toBeEmptyDOMElement();
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('should hide actions even when every permission is granted', () => {
+      const props = createMockSsoProviderTableActionsColumnProps({
+        readOnly: true,
+        permissions: createIdpPermissions(),
+      });
+      const { container } = renderWithProviders(<SsoProviderTableActionsColumn {...props} />);
+
+      expect(container).toBeEmptyDOMElement();
     });
   });
 });

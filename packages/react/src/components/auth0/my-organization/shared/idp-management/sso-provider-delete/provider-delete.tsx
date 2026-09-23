@@ -7,6 +7,7 @@
 import * as React from 'react';
 
 import { SsoProviderDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete-modal';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -21,6 +22,7 @@ import type { SsoProviderDeleteProps } from '@/types/my-organization/idp-managem
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.permissionDenied - Whether the action is unavailable for lack of a scope
  * @returns JSX element
  */
 export function SsoProviderDelete({
@@ -29,6 +31,7 @@ export function SsoProviderDelete({
   customMessages = {},
   isLoading,
   readOnly,
+  permissionDenied = false,
 }: SsoProviderDeleteProps) {
   const { t } = useTranslator('idp_management.delete_sso_provider', customMessages);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -55,14 +58,15 @@ export function SsoProviderDelete({
               </p>
             </div>
 
-            <Button
-              variant="destructive"
-              onClick={openModal}
-              disabled={readOnly}
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={permissionDenied}
               className="shrink-0"
             >
-              {t('delete_button_label')}
-            </Button>
+              <Button variant="destructive" onClick={openModal} disabled={readOnly}>
+                {t('delete_button_label')}
+              </Button>
+            </PermissionDeniedTooltip>
           </CardContent>
         </Card>
       </div>

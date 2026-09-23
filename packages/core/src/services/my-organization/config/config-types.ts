@@ -10,3 +10,12 @@ export type GetConfigurationResponseContent = MyOrganization.GetConfigurationRes
 export type GetIdpConfigurationResponseContent = MyOrganization.GetIdpConfigurationResponseContent;
 export type IdentityProvidersConfigStrategyBase =
   MyOrganization.IdentityProvidersConfigStrategyBase;
+export type CrossAppAccessResourceAppConfig = MyOrganization.CrossAppAccessResourceAppConfig;
+export type IdentityProviderConfigOidc = MyOrganization.IdentityProviderConfigOidc;
+export type IdentityProviderConfigOkta = MyOrganization.IdentityProviderConfigOkta;
+export type IdentityProviderConfigSamlp = MyOrganization.IdentityProviderConfigSamlp;
+
+export type StrategyWithCrossAppAccess =
+  | IdentityProviderConfigOidc
+  | IdentityProviderConfigOkta
+  | IdentityProviderConfigSamlp;

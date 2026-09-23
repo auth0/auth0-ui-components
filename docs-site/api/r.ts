@@ -3,6 +3,8 @@ import path from 'path';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { resolveWithinBase } from '../src/utils/path-utils';
+
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX = 60;
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -105,7 +107,10 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   const rawVersionParam = req.query.version;
   const versionParam = typeof rawVersionParam === 'string' ? rawVersionParam : undefined;
 
-  const rootFilePath = path.join(basePath, normalizedFileName);
+  const rootFilePath = resolveWithinBase(basePath, normalizedFileName);
+  if (!rootFilePath) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
   if (!versionParam && fs.existsSync(rootFilePath)) {
     try {
       sendJson(res, fs.readFileSync(rootFilePath, 'utf-8'));
@@ -142,13 +147,13 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid version' });
   }
 
-  const baseDir = path.resolve(basePath, versionPath);
-  if (!baseDir.startsWith(basePath + path.sep) && baseDir !== basePath) {
+  const baseDir = resolveWithinBase(basePath, versionPath);
+  if (!baseDir) {
     return res.status(403).json({ error: 'Access denied' });
   }
 
-  const versionedPath = path.resolve(baseDir, normalizedFileName);
-  if (!versionedPath.startsWith(baseDir + path.sep) && versionedPath !== baseDir) {
+  const versionedPath = resolveWithinBase(baseDir, normalizedFileName);
+  if (!versionedPath) {
     return res.status(403).json({ error: 'Access denied' });
   }
 

@@ -22,6 +22,7 @@ export interface OrganizationDetailsClasses {
   OrganizationDetails_FormActions?: string;
   OrganizationDetails_SettingsDetails?: string;
   OrganizationDetails_BrandingDetails?: string;
+  OrganizationDetails_ThirdPartyAccess?: string;
 }
 
 /**
@@ -48,6 +49,9 @@ export interface OrganizationDetailsProps
   organization: OrganizationPrivate;
   isLoading?: boolean;
   formActions: OrganizationDetailsFormActions;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }
 
 export interface BrandingDetailsProps
@@ -59,5 +63,12 @@ export interface BrandingDetailsProps
 export interface SettingsDetailsProps
   extends SharedComponentProps<OrganizationDetailsMessages, OrganizationDetailsClasses> {
   form: UseFormReturn<OrganizationDetailsFormValues>;
+  className?: string;
+}
+
+export interface ThirdPartyAccessDetailsProps
+  extends SharedComponentProps<OrganizationDetailsMessages, OrganizationDetailsClasses> {
+  form: UseFormReturn<OrganizationDetailsFormValues>;
+  isConfigReadOnly?: boolean;
   className?: string;
 }

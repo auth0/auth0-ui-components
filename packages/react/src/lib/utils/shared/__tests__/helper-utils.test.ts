@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { getRelativeTimeLabel } from '../helper-utils';
+import { formatNumber, getRelativeTimeLabel } from '../helper-utils';
 
 const mockT = ((_key: string, vars?: Record<string, unknown>, fallback?: string): string => {
   const template = fallback ?? '';
@@ -170,5 +170,24 @@ describe('helper-utils', () => {
 
       expect(getRelativeTimeLabel(ago(3 * HOUR), translate)).toBe('il y a 3 heures');
     });
+  });
+});
+
+describe('formatNumber', () => {
+  it.each([
+    { num: 0, expected: '0' },
+    { num: 200, expected: '200' },
+    { num: 1000, expected: '1,000' },
+    { num: 5000, expected: '5,000' },
+  ])('formats $num as $expected', ({ num, expected }) => {
+    expect(formatNumber(num, 'en-US')).toBe(expected);
+  });
+
+  it.each([undefined, null, NaN])('falls back to 0 for %s', (num) => {
+    expect(formatNumber(num, 'en-US')).toBe('0');
+  });
+
+  it('groups digits for the given locale', () => {
+    expect(formatNumber(5000, 'de-DE')).toBe('5.000');
   });
 });

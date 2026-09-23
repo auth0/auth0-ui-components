@@ -29,6 +29,7 @@ export function createMockSsoProviderEditServiceReturn(
         logo_url: undefined,
       },
     },
+    isOrganizationBlocked: false,
     provisioningConfig: null,
     isLoading: false,
     isUpdating: false,

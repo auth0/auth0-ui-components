@@ -3,6 +3,8 @@
  * @module sso-provider-edit-types
  * @internal
  */
+
+import type { SharedMessages } from '../../../shared/shared-types';
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
@@ -15,7 +17,7 @@ import type {
   SsoProvideRemoveMessages,
 } from './sso-provider-delete-types';
 
-export interface SsoProviderEditMessages {
+export interface SsoProviderEditMessages extends SharedMessages {
   header?: {
     back_button_text?: string;
     enable_provider_tooltip_text?: string;
@@ -45,7 +47,7 @@ export interface SsoProviderTabMessages {
   description?: string;
 }
 
-export interface AttributeSyncAlertMessages {
+export interface AttributeSyncAlertMessages extends SharedMessages {
   title?: string;
   description?: string;
   sync_button_label?: string;
@@ -59,12 +61,32 @@ export interface AttributeSyncAlertMessages {
   };
 }
 
+export interface ThirdPartyAccessMessages {
+  title?: string;
+  label?: string;
+  helper_text?: string;
+  organization_blocked_helper_text?: string;
+}
+
+export interface CrossAppAccessMessages {
+  title?: string;
+  label?: string;
+  helper_text?: string;
+  domain_verification_text?: string;
+  saml_description?: string;
+  saml_discovery_url_label?: string;
+  saml_discovery_url_placeholder?: string;
+  saml_discovery_url_helper?: string;
+}
+
 export interface SsoProviderDetailsMessages {
   submit_button_label?: string;
   unsaved_changes_text?: string;
   details_fields?: ProviderDetailsMessages;
   configure_fields?: ProviderConfigureFieldsMessages;
   mappings?: SsoProviderAttributeMappingsMessages;
+  third_party_access?: ThirdPartyAccessMessages;
+  cross_app_access?: CrossAppAccessMessages;
 }
 
 export interface SsoProviderNotificationMessages {

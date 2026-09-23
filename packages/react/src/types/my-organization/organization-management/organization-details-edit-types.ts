@@ -6,6 +6,7 @@
 import type {
   BlockComponentSharedProps,
   OrganizationDetailsSchemas,
+  OrganizationDetailsPermissions,
   ComponentAction,
   BackButton,
   OrganizationPrivate,
@@ -61,13 +62,19 @@ export type UseOrganizationDetailsEditServiceOptions = Pick<
 >;
 
 export interface UseOrganizationDetailsEditResult {
+  permissions: OrganizationDetailsPermissions;
+  canEdit: boolean;
   organization: OrganizationPrivate;
   isFetchLoading: boolean;
   isSaveLoading: boolean;
   isInitializing: boolean;
+  isLoadingConfig: boolean;
   formActions: OrganizationDetailsFormActions;
   fetchOrgDetails: () => Promise<void>;
   updateOrgDetails: (data: OrganizationPrivate) => Promise<boolean>;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }
 
 export interface OrganizationDetailsEditViewProps {
@@ -75,8 +82,11 @@ export interface OrganizationDetailsEditViewProps {
   schema: Partial<OrganizationDetailsEditSchemas> | undefined;
   styling: ComponentStyling<OrganizationDetailsClasses>;
   customMessages: OrganizationDetailsEditProps['customMessages'];
-  readOnly: OrganizationDetailsEditProps['readOnly'];
+  canEdit: boolean;
   hideHeader: boolean;
   backButton?: OrganizationEditBackButton;
   formActions: OrganizationDetailsFormActions;
+  showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
+  thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
 }

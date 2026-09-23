@@ -4,18 +4,24 @@
  */
 
 import type { Role } from '@auth0/universal-components-core';
-import { type MemberInvitation } from '@auth0/universal-components-core';
+import {
+  getMemberManagementPermissions,
+  type MemberInvitation,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useMemberManagementService } from '@/hooks/my-organization/shared/services/use-member-management-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { usePermissions } from '@/hooks/shared/use-permissions';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ROLES_PREFETCH_THRESHOLD } from '@/lib/constants/my-organization/member-management/member-management-constants';
+import { formatMemberCount } from '@/lib/utils/my-organization/member-management/member-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
+  ConnectionOption,
   CreateInvitationInput,
-  IdentityProviderOption,
 } from '@/types/my-organization/member-management/organization-invitation-table-types';
 import type {
   ActiveTab,
@@ -46,7 +52,13 @@ export function useOrganizationMemberManagement(
     removeFromOrganizationAction,
   } = options;
 
-  const { t } = useTranslator('member_management', customMessages);
+  const { t, currentLanguage: locale } = useTranslator('member_management', customMessages);
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = React.useMemo(
+    () => createPermissionResolver(getMemberManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const [activeTab, setActiveTab] = React.useState<ActiveTab>('members');
 
@@ -81,14 +93,18 @@ export function useOrganizationMemberManagement(
   } = useCheckpointPagination<MemberManagementFilterState>();
 
   const [modalState, setModalState] = React.useState<MemberManagementModalState>({ type: null });
+  const [selectedInvitations, setSelectedInvitations] = React.useState<MemberInvitation[]>([]);
   const detailsRequestIdRef = React.useRef(0);
 
+  const invitationRolesId =
+    modalState.type === 'details' ? (modalState.invitation.id ?? null) : null;
   const selectedMemberForRoles = modalState.type === 'assignRole' ? modalState.member : null;
   const selectedMemberRolesCount = selectedMemberForRoles?.roles?.length ?? 0;
 
   const {
     providersQuery,
-    rolesQuery,
+    userStoresQuery,
+    invitationRolesQuery,
     rolesSearchQuery,
     setRoleSearchTerm,
     enableRoleSearch,
@@ -125,6 +141,7 @@ export function useOrganizationMemberManagement(
     },
     assignRolesAction,
     removeFromOrganizationAction,
+    invitationRolesId,
     deferRoleSearch: true,
   });
 
@@ -134,19 +151,42 @@ export function useOrganizationMemberManagement(
     }
   }, [modalState.type, enableRoleSearch]);
 
-  const availableProviders: IdentityProviderOption[] = providersQuery.data ?? [];
-  const availableRoles = rolesQuery.data ?? [];
+  useQueryErrorToast(invitationRolesQuery, t('invitation.error.fetch_roles_failed'));
+
+  React.useEffect(() => {
+    setSelectedInvitations([]);
+  }, [activeTab, invitationFilters, invitationSortConfig]);
+
+  const availableConnections: ConnectionOption[] = React.useMemo(
+    () => [...(providersQuery.data ?? []), ...(userStoresQuery.data ?? [])],
+    [providersQuery.data, userStoresQuery.data],
+  );
+
+  const isLoadingConnections = providersQuery.isLoading || userStoresQuery.isLoading;
+  const hasConnectionsError = providersQuery.isError || userStoresQuery.isError;
+  const hasNoConnections =
+    !isLoadingConnections && !hasConnectionsError && availableConnections.length === 0;
+
+  const invitationRoles = invitationRolesQuery.data ?? [];
   const searchedRoles = rolesSearchQuery.data ?? [];
   const currentInvitations = invitationsQuery.data?.invitations ?? [];
   const currentMembers = membersQuery.data?.members ?? [];
   const invitationNextToken = invitationsQuery.data?.next ?? null;
   const memberNextToken = membersQuery.data?.next ?? null;
   const organizationDisplayName = organizationQuery.data?.display_name ?? '';
+  const invitationTotal = invitationsQuery.data?.total;
+  const memberTotal = membersQuery.data?.total;
+  const invitationTotalIsCapped = invitationsQuery.data?.totalIsCapped;
+  const memberTotalIsCapped = membersQuery.data?.totalIsCapped;
 
   const openModal = React.useCallback(
     async (state: MemberManagementModalState) => {
-      if (state.type === 'create' && readOnly) return;
-      if ((state.type === 'revoke' || state.type === 'revokeResend') && readOnly) return;
+      if (state.type === 'create' && !permissions.canInvite) return;
+      if (state.type === 'revoke' && !permissions.canRevokeInvitation) return;
+      if (state.type === 'revokeResend' && !permissions.canResendInvitation) return;
+      if (state.type === 'assignRole' && !permissions.canAssignRole) return;
+      if (state.type === 'removeFromOrganization' && !permissions.canRemoveFromOrganization) return;
+      if (state.type === 'bulkRevoke' && !permissions.canRevokeInvitation) return;
       setModalState(state);
 
       if (state.type === 'details') {
@@ -163,7 +203,7 @@ export function useOrganizationMemberManagement(
         }
       }
     },
-    [readOnly, fetchInvitationDetails, t],
+    [permissions, fetchInvitationDetails, t],
   );
 
   const closeModal = React.useCallback(() => {
@@ -172,26 +212,44 @@ export function useOrganizationMemberManagement(
 
   const handleCreateSubmit = React.useCallback(
     (data: CreateInvitationInput) => {
+      if (!permissions.canInvite) return;
       createInvitationMutation.mutate(data, {
         onSuccess: () => closeModal(),
       });
     },
-    [createInvitationMutation, closeModal],
+    [permissions, createInvitationMutation, closeModal],
   );
 
   const handleRevokeConfirm = React.useCallback(() => {
-    if (modalState.type !== 'revoke') return;
-    revokeInvitationMutation.mutate(modalState.invitation, {
-      onSuccess: () => closeModal(),
+    const invitations =
+      modalState.type === 'revoke'
+        ? [modalState.invitation]
+        : modalState.type === 'bulkRevoke'
+          ? modalState.invitations
+          : [];
+    if (invitations.length === 0 || !permissions.canRevokeInvitation) return;
+    revokeInvitationMutation.mutate(invitations, {
+      onSuccess: () => {
+        setSelectedInvitations([]);
+        closeModal();
+      },
     });
-  }, [modalState, revokeInvitationMutation, closeModal]);
+  }, [modalState, permissions, revokeInvitationMutation, closeModal]);
 
   const handleRevokeResendConfirm = React.useCallback(() => {
-    if (modalState.type !== 'revokeResend') return;
+    if (modalState.type !== 'revokeResend' || !permissions.canResendInvitation) return;
     resendInvitationMutation.mutate(modalState.invitation, {
       onSuccess: () => closeModal(),
     });
-  }, [modalState, resendInvitationMutation, closeModal]);
+  }, [modalState, permissions, resendInvitationMutation, closeModal]);
+
+  const handleBulkRevokeClick = React.useCallback(
+    (invitations: MemberInvitation[]) => {
+      if (readOnly || invitations.length === 0) return;
+      openModal({ type: 'bulkRevoke', invitations });
+    },
+    [readOnly, openModal],
+  );
 
   const handleCopyUrl = React.useCallback(async (invitation: MemberInvitation) => {
     if (!invitation.invitation_url) return;
@@ -207,6 +265,7 @@ export function useOrganizationMemberManagement(
 
   const handleAssignRolesSubmit = React.useCallback(
     (roleIds: string[], memberRoles: Role[], userId?: string | null) => {
+      if (!permissions.canAssignRole) return;
       assignRolesMutation.mutate(
         { roleIds, memberRoles, userId },
         {
@@ -217,11 +276,12 @@ export function useOrganizationMemberManagement(
         },
       );
     },
-    [assignRolesMutation, closeModal],
+    [permissions, assignRolesMutation, closeModal],
   );
 
   const handleRemoveFromOrganizationConfirm = React.useCallback(
     (userId?: string | null, memberName?: string, organizationName?: string) => {
+      if (!permissions.canRemoveFromOrganization) return;
       removeFromOrganizationMutation.mutate(
         { userId, memberName, organizationName },
         {
@@ -231,7 +291,7 @@ export function useOrganizationMemberManagement(
         },
       );
     },
-    [removeFromOrganizationMutation, closeModal],
+    [permissions, removeFromOrganizationMutation, closeModal],
   );
 
   const handleNextPage = React.useCallback(() => {
@@ -285,16 +345,19 @@ export function useOrganizationMemberManagement(
 
   return {
     activeTab,
-    availableRoles,
+    permissions,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,
-    availableProviders,
+    availableConnections,
+    isLoadingConnections,
+    hasNoConnections,
 
     invitations: currentInvitations,
     members: currentMembers,
     organizationDisplayName: organizationDisplayName,
     isInitialLoading: membersQuery.isLoading,
     isFetchingInvitations: invitationsQuery.isFetching,
+    isLoadingInvitations: invitationsQuery.isLoading,
     isFetchingMembers: membersQuery.isFetching,
     isMembersStale: membersQuery.isStale,
     isInvitationsStale: invitationsQuery.isStale,
@@ -302,7 +365,9 @@ export function useOrganizationMemberManagement(
     invitationsUpdatedAt: invitationsQuery.dataUpdatedAt,
     refetchMembers: membersQuery.refetch,
     refetchInvitations: invitationsQuery.refetch,
-    isFetchingAvailableRoles: rolesQuery.isLoading || rolesQuery.isFetching,
+    invitationRoles,
+    isFetchingInvitationRoles: invitationRolesQuery.isLoading,
+    isSearchingRoles: rolesSearchQuery.isFetching,
     isRemovingFromOrganization: isMutationLoading(removeFromOrganizationMutation),
     isAssigningRoles: isMutationLoading(assignRolesMutation),
     isLoadingMemberRoles: memberRolesQuery.isLoading,
@@ -310,15 +375,20 @@ export function useOrganizationMemberManagement(
     isCreatingInvitation: isMutationLoading(createInvitationMutation),
     isRevokingInvitation: isMutationLoading(revokeInvitationMutation),
     isResendingInvitation: isMutationLoading(resendInvitationMutation),
+    selectedInvitations,
     invitationPagination: {
       pageSize: invitationPageSize,
       currentPage: invitationCurrentPage,
+      totalItems: invitationTotal,
+      totalItemsDisplay: formatMemberCount(invitationTotal, invitationTotalIsCapped, t, locale),
       hasNextPage: !!invitationNextToken,
       hasPreviousPage: invitationHasPreviousPage,
     },
     memberPagination: {
       pageSize: memberPageSize,
       currentPage: memberCurrentPage,
+      totalItems: memberTotal,
+      totalItemsDisplay: formatMemberCount(memberTotal, memberTotalIsCapped, t, locale),
       hasNextPage: !!memberNextToken,
       hasPreviousPage: memberHasPreviousPage,
     },
@@ -331,9 +401,11 @@ export function useOrganizationMemberManagement(
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange: setSelectedInvitations,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleNextPage,
     handlePreviousPage,

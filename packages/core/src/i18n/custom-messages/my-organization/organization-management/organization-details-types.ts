@@ -3,7 +3,9 @@
  * @module organization-details-types
  * @internal
  */
-export interface OrganizationDetailsMessages {
+
+import type { SharedMessages } from '../../shared/shared-types';
+export interface OrganizationDetailsMessages extends SharedMessages {
   sections?: {
     settings?: {
       title?: string;
@@ -19,6 +21,19 @@ export interface OrganizationDetailsMessages {
           placeholder?: string;
           helper_text?: string;
           error?: string;
+        };
+        third_party_client_access?: {
+          label?: string;
+          options?: {
+            block?: {
+              label?: string;
+              helper_text?: string;
+            };
+            allow?: {
+              label?: string;
+              helper_text?: string;
+            };
+          };
         };
       };
     };

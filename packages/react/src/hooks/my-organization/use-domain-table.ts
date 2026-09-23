@@ -4,13 +4,18 @@
  * @module use-domain-table
  */
 
-import { type Domain, type IdpKnownResponse } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import {
+  getDomainManagementPermissions,
+  type Domain,
+  type IdpKnownResponse,
+} from '@auth0/universal-components-core';
+import { useCallback, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
@@ -25,6 +30,7 @@ import type {
  * @returns Combined data, loading states, UI state, and handlers.
  */
 export function useDomainTable({
+  readOnly = false,
   createAction,
   deleteAction,
   verifyAction,
@@ -34,6 +40,12 @@ export function useDomainTable({
 }: UseDomainTableOptions): UseDomainTableReturn {
   const { t } = useTranslator('domain_management', customMessages);
   const handleError = useErrorHandler();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getDomainManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
 
   const {
     pageSize,
@@ -88,6 +100,7 @@ export function useDomainTable({
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
+      if (!permissions.canCreateDomain) return;
       try {
         const newDomain = await onCreateDomain({ domain: domainUrl });
         showToast({
@@ -105,11 +118,12 @@ export function useDomainTable({
         });
       }
     },
-    [onCreateDomain, t, handleError],
+    [permissions, onCreateDomain, t, handleError],
   );
 
   const handleVerify = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       try {
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
@@ -131,11 +145,12 @@ export function useDomainTable({
         });
       }
     },
-    [onVerifyDomain, t, handleError],
+    [permissions, onVerifyDomain, t, handleError],
   );
 
   const handleDelete = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
       try {
         await onDeleteDomain(domain);
         showToast({
@@ -152,11 +167,17 @@ export function useDomainTable({
         });
       }
     },
-    [onDeleteDomain, t, handleError],
+    [permissions, onDeleteDomain, t, handleError],
   );
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
+      if (
+        newCheckedValue ? !permissions.canAssociateProvider : !permissions.canDissociateProvider
+      ) {
+        return;
+      }
+
       if (newCheckedValue) {
         try {
           await onAssociateToProvider(domain, provider);
@@ -189,7 +210,7 @@ export function useDomainTable({
         }
       }
     },
-    [onAssociateToProvider, onDeleteFromProvider, t, handleError],
+    [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -198,8 +219,9 @@ export function useDomainTable({
   }, []);
 
   const handleCreateClick = useCallback(() => {
+    if (!permissions.canCreateDomain) return;
     setShowCreateModal(true);
-  }, []);
+  }, [permissions]);
 
   const handleConfigureClick = useCallback(
     async (domain: Domain) => {
@@ -222,6 +244,7 @@ export function useDomainTable({
 
   const handleVerifyClick = useCallback(
     async (domain: Domain) => {
+      if (!permissions.canVerifyDomain) return;
       setSelectedDomain(domain);
       try {
         const isVerified = await onVerifyDomain(domain);
@@ -248,14 +271,18 @@ export function useDomainTable({
         });
       }
     },
-    [onVerifyDomain, fetchProviders, t, handleError],
+    [permissions, onVerifyDomain, fetchProviders, t, handleError],
   );
 
-  const handleDeleteClick = useCallback((domain: Domain) => {
-    setSelectedDomain(domain);
-    setShowVerifyModal(false);
-    setShowDeleteModal(true);
-  }, []);
+  const handleDeleteClick = useCallback(
+    (domain: Domain) => {
+      if (!permissions.canDeleteDomain) return;
+      setSelectedDomain(domain);
+      setShowVerifyModal(false);
+      setShowDeleteModal(true);
+    },
+    [permissions],
+  );
 
   const handleNextPage = useCallback(() => {
     if (nextToken) {
@@ -275,6 +302,8 @@ export function useDomainTable({
   );
 
   return {
+    permissions,
+
     // Data
     domains,
     providers,

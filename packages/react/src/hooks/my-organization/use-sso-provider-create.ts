@@ -4,11 +4,13 @@
  * @module use-sso-provider-create
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { getIdpManagementPermissions } from '@auth0/universal-components-core';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
+import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
   FormState,
   ProviderConfigureHandle,
@@ -28,20 +30,39 @@ export type { UseSsoProviderCreateResult };
 export function useSsoProviderCreate({
   createAction,
   customMessages = {},
+  readOnly = false,
   onNext,
   onPrevious,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
-  const { createProvider, isCreating } = useSsoProviderCreateService({
+  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
     createAction,
     customMessages,
   });
 
   const [formData, setFormData] = useState<FormState>({});
-  const { strategy, details, configure } = formData;
+  const { strategy, details } = formData;
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
-  const { isLoadingConfig, filteredStrategies } = useConfig();
-  const { isLoadingIdpConfig, idpConfig } = useIdpConfig();
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
+  const {
+    isLoadingConfig,
+    filteredStrategies,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+  } = useConfig();
+  const {
+    isLoadingIdpConfig,
+    idpConfig,
+    showCrossAppAccess,
+    isCrossAppAccessReadOnly,
+    getCrossAppAccessDefaultValue,
+  } = useIdpConfig();
 
   const createStepActions = useCallback(
     (
@@ -72,15 +93,17 @@ export function useSsoProviderCreate({
   );
 
   const handleCreate = useCallback(async () => {
+    if (!permissions.canCreateProvider) return;
     const finalConfigureData = configureRef.current?.getData();
     await createProvider({
       strategy: strategy!,
       ...details!,
       ...finalConfigureData,
     });
-  }, [strategy, details, configure, createProvider]);
+  }, [permissions, strategy, details, createProvider]);
 
   return {
+    permissions,
     formData,
     setFormData,
     createStepActions,
@@ -92,5 +115,12 @@ export function useSsoProviderCreate({
     filteredStrategies,
     isLoadingIdpConfig,
     idpConfig,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    thirdPartyAccessDefaultValue,
+    showCrossAppAccess: showCrossAppAccess(strategy),
+    isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
+    getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
+    isOrganizationBlocked,
   };
 }

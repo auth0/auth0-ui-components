@@ -15,6 +15,21 @@ type SpyableModule = {
   [K in string]: (...args: never[]) => unknown;
 };
 
+/**
+ * Used in useTranslator mocks to support customMessages overrides in tests.
+ * @param overrides - Nested overrides object to search within
+ * @param key - Dot-separated key path (e.g. "error.forbidden")
+ * @returns The resolved string value, or undefined if not found
+ */
+export const lookupTranslationOverride = (overrides: unknown, key: string): string | undefined =>
+  key
+    .split('.')
+    .reduce<unknown>(
+      (value, part) =>
+        value && typeof value === 'object' ? (value as Record<string, unknown>)[part] : undefined,
+      overrides,
+    ) as string | undefined;
+
 export const createMockUseCoreClient = (coreClient: CoreClientInterface | null = null) => ({
   coreClient,
 });

@@ -97,7 +97,11 @@ export async function checkDashboardClientChanges(
     clientToCheck.my_organization_configuration.user_attribute_profile_id !==
       userAttributeProfileId ||
     clientToCheck.my_organization_configuration.invitation_landing_client_id !==
-      clientToCheck.client_id
+      clientToCheck.client_id ||
+    !clientToCheck.my_organization_configuration.third_party_client_access ||
+    clientToCheck.my_organization_configuration.third_party_client_access.default_value !== "block" ||
+    JSON.stringify([...(clientToCheck.my_organization_configuration.third_party_client_access.allowed_values || [])].sort()) !==
+      JSON.stringify(["allow", "block"])
   )
 
   // Organization settings only needed if MyOrg is enabled
@@ -416,6 +420,10 @@ export async function applyDashboardClientChanges(
             "oidc",
             "samlp",
           ],
+          third_party_client_access: {                                                          
+            default_value: "block",                                                             
+            allowed_values: ["block", "allow"]                                                           
+          }
         }
       }
 
@@ -445,6 +453,10 @@ export async function applyDashboardClientChanges(
               "oidc",
               "samlp",
             ],
+            third_party_client_access: {                                                          
+              default_value: "block",                                                             
+              allowed_values: ["block", "allow"]                                                           
+            }
           },
         })
       }
@@ -524,6 +536,10 @@ export async function applyDashboardClientChanges(
             "oidc",
             "samlp",
           ],
+          third_party_client_access: {
+            default_value: "block",
+            allowed_values: ["block", "allow"]
+          }
         }
       }
 

@@ -780,7 +780,8 @@ Use these JSDoc tags for documentation:
 - ❌ Type casting (`as`) unless there is no other option
 - ❌ Using linter/tsc skip annotations (`// @ts-ignore`, `// eslint-disable`) unless there is no other option
 - ❌ Defining custom types for API request/response shapes when the SDK already exports them — always re-export SDK types via `type Alias = SDK.Type`
-  ❌ Creating internal barrel files (index.ts with export \* from './x') in source subdirectories — export symbols directly from their leaf files instead; barrels break tree-shaking and hide where a symbol actually lives
+- ❌ Creating internal barrel files (index.ts with export \* from './x') in source subdirectories — export symbols directly from their leaf files instead; barrels break tree-shaking and hide where a symbol actually lives
+- ❌ Defining component prop interfaces inside component files — all types should live in the `types/` directory for consistency and reusability
 
 ---
 

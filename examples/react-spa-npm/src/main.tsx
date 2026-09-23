@@ -19,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
           redirect_uri: window.location.origin,
           // Omitted from the authorize request when undefined
           organization: config.auth0.organization,
+          audience: `https://${config.auth0.domain}/my-org/`,
         }}
         useMrrt={true}
         cacheLocation="localstorage"
