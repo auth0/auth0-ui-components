@@ -9,7 +9,7 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -381,7 +381,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -390,7 +390,7 @@
       "title": "Passkey management component.",
       "description": "A block component for user passkey management.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -637,7 +637,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -646,7 +646,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -1059,7 +1059,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -1068,7 +1068,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -1411,7 +1411,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -1420,7 +1420,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -1790,7 +1790,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -1799,7 +1799,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -2246,7 +2246,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -2255,7 +2255,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -2670,6 +2670,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -2742,7 +2747,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -2751,7 +2756,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -3384,6 +3389,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/shared/constants.ts",
           "type": "registry:component",
           "target": "lib/constants/shared/constants.ts"
@@ -3436,7 +3446,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     },
     {
@@ -3445,7 +3455,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.4.0",
+        "@auth0/universal-components-core@3.4.1",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3804,7 +3814,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.4.0"
+        "coreVersion": "3.4.1"
       }
     }
   ]
