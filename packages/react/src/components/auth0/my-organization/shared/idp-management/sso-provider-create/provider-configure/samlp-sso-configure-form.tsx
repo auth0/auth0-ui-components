@@ -188,7 +188,10 @@ export const SamlpProviderForm = React.forwardRef<
     validate: async () => {
       return await form.trigger();
     },
-    getData: () => form.getValues(),
+    getData: () => {
+      const values = form.getValues();
+      return { ...values, protocolBinding: values.bindingMethod };
+    },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
       if (data) {
