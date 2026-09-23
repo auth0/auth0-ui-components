@@ -2,10 +2,6 @@ import type { Domain, IdpKnownResponse } from '@auth0/universal-components-core'
 import { vi } from 'vitest';
 
 import type { UseSsoDomainTabReturn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
-import type {
-  SsoProviderCreateHandlerProps,
-  SsoProviderCreateLogicProps,
-} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export const createMockSsoDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain-1',
@@ -36,44 +32,6 @@ export const createMockSsoProvider = (overrides?: Partial<IdpKnownResponse>): Id
     },
     ...overrides,
   }) as IdpKnownResponse;
-
-export function createMockSsoProviderCreateLogic(
-  overrides: Partial<SsoProviderCreateLogicProps> = {},
-): SsoProviderCreateLogicProps {
-  return {
-    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    customMessages: {},
-    backButton: undefined,
-    isCreating: false,
-    strategy: undefined,
-    details: undefined,
-    configure: undefined,
-    isLoadingConfig: false,
-    filteredStrategies: [],
-    isLoadingIdpConfig: false,
-    idpConfig: undefined,
-    formData: {},
-    ...overrides,
-  };
-}
-
-export function createMockSsoProviderCreateHandler(
-  overrides: Partial<SsoProviderCreateHandlerProps> = {},
-): SsoProviderCreateHandlerProps {
-  return {
-    onNext: vi.fn(),
-    onPrevious: vi.fn(),
-    setFormData: vi.fn(),
-    detailsRef: { current: null },
-    configureRef: { current: null },
-    handleCreate: vi.fn(),
-    createStepActions: () => ({
-      onNextAction: vi.fn(),
-      onPreviousAction: vi.fn(),
-    }),
-    ...overrides,
-  };
-}
 
 export function createMockSsoDomainTabReturn(
   overrides: Partial<UseSsoDomainTabReturn> = {},

@@ -76,6 +76,7 @@ export interface SsoProviderTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
@@ -110,6 +111,7 @@ export interface SsoProviderDetailsProps
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
