@@ -175,6 +175,19 @@ describe('useSsoDomainTabService', () => {
         }),
       ).rejects.toThrow(BusinessError);
     });
+
+    it('should reject when coreClient is unavailable', async () => {
+      setupMockUseCoreClientNull(useCoreClientModule);
+
+      const { wrapper } = createTestQueryClientWrapper();
+      const { result } = renderHook(() => useSsoDomainTabService('idp-1'), { wrapper });
+
+      await expect(
+        act(async () => {
+          await result.current.createDomain({ domain: 'newdomain.com' });
+        }),
+      ).rejects.toThrow(BusinessError);
+    });
   });
 
   describe('domain verification', () => {

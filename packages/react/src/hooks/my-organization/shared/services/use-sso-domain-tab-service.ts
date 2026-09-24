@@ -82,7 +82,7 @@ export function useSsoDomainTabService(
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
       if (!coreClient) {
-        return {} as Domain;
+        throw new BusinessError({ message: t('general_error') });
       }
 
       if (domains?.createAction?.onBefore) {
@@ -96,7 +96,7 @@ export function useSsoDomainTabService(
         .getMyOrganizationApiClient()
         .organization.domains.create(data);
 
-      domains?.createAction?.onAfter?.(result);
+      await domains?.createAction?.onAfter?.(result);
 
       return result;
     },
