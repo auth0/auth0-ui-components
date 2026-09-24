@@ -14,6 +14,7 @@ import type {
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
+import type { SsoDomainCreateAction } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain_abc123xyz456',
@@ -114,7 +115,7 @@ export const createMockDomainTableProps = (
   ...overrides,
 });
 
-export const createMockCreateAction = (): ComponentAction<Domain> => ({
+export const createMockCreateAction = (): SsoDomainCreateAction => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
