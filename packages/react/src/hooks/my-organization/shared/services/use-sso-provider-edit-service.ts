@@ -19,6 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
@@ -57,6 +58,7 @@ export function useSsoProviderEditService(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
+  const { idpConfig } = useIdpConfig();
 
   /**
    * Provider query - fetches the identity provider details.
@@ -119,10 +121,17 @@ export function useSsoProviderEditService(
         }
       }
 
-      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI({
-        strategy: provider.strategy,
-        ...data,
-      });
+      const apiRequestData: UpdateIdentityProviderRequestContent = SsoProviderMappers.updateToAPI(
+        {
+          strategy: provider.strategy,
+          ...data,
+        },
+        {
+          canSetShowAsButton: idpConfig?.organization?.can_set_show_as_button,
+          canSetAssignMembershipOnLogin:
+            idpConfig?.organization?.can_set_assign_membership_on_login,
+        },
+      );
 
       const result = await coreClient!
         .getMyOrganizationApiClient()
