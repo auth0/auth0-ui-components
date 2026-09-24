@@ -9,13 +9,18 @@ import {
   getComponentStyles,
   getStatusCode,
   isMfaRequiredError,
+  type MfaRequiredError,
+  normalizeMfaRequiredError,
 } from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 
+import { MfaWizard } from './mfa-step-up/mfa-wizard';
+
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -30,32 +35,57 @@ interface GateKeeperProps {
 
 /**
  * Blocking error fallback with retry button.
- * Shown for 5xx errors and dismissed MFA errors.
+ * Shown for 5xx errors.
  *
  * @param props - Component props.
  * @param props.onRetry - Retry handler.
  * @returns Error fallback element.
  * @internal
  */
-function ErrorFallback({ onRetry, isMfa }: { onRetry: () => void; isMfa?: boolean }) {
+function ErrorFallback({ onRetry }: { onRetry: () => void }) {
   const { t } = useTranslator('gate_keeper');
-  const key = isMfa ? 'mfa_error' : 'fallback';
 
   return (
     <Card className="text-center">
       <CardContent className="flex flex-col items-center gap-2">
-        <CardTitle>{t(`${key}.title`)}</CardTitle>
-        <CardDescription>{t(`${key}.description`)}</CardDescription>
+        <CardTitle>{t('fallback.title')}</CardTitle>
+        <CardDescription>{t('fallback.description')}</CardDescription>
       </CardContent>
-      {!isMfa && (
-        <CardFooter className="justify-center">
-          <Button variant="primary" size="default" onClick={onRetry}>
-            <RefreshCcw className="size-4" />
-            {t('fallback.retry')}
-          </Button>
-        </CardFooter>
-      )}
+      <CardFooter className="justify-center">
+        <Button variant="primary" size="default" onClick={onRetry}>
+          <RefreshCcw className="size-4" />
+          {t('fallback.retry')}
+        </Button>
+      </CardFooter>
     </Card>
+  );
+}
+
+/**
+ * MFA step-up dialog.
+ *
+ * @param props - Component props.
+ * @param props.error - MFA error containing the token and challenge details.
+ * @param props.onComplete - Callback when MFA is completed successfully; triggers a retry.
+ * @param props.onClose - Callback when the dialog is dismissed without completing.
+ * @returns MFA dialog element.
+ * @internal
+ */
+function MfaDialog({
+  error,
+  onComplete,
+  onClose,
+}: {
+  error: MfaRequiredError;
+  onComplete: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent>
+        <MfaWizard error={error} onComplete={onComplete} onCancel={onClose} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -64,7 +94,7 @@ function ErrorFallback({ onRetry, isMfa }: { onRetry: () => void; isMfa?: boolea
  * children without unmounting them, preserving any in-progress form state.
  * - Loading → spinner (blocks children)
  * - MFA required error → MFA step-up dialog overlaid on children
- * - 5xx error or dismissed MFA → blocking error fallback with retry
+ * - 5xx error → blocking error fallback with retry
  * - No error → children
  *
  * @param props - Component props.
@@ -91,6 +121,7 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   }, [onRetry]);
 
   const isMfaStepUp = isMfaRequiredError(error);
+  const mfaError = isMfaStepUp ? normalizeMfaRequiredError(error) : null;
   const statusCode = getStatusCode(error);
   const isSystemError = !!error && !!statusCode && (statusCode >= 500 || statusCode === 429);
 
@@ -112,13 +143,18 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
     );
   }
 
-  if (isSystemError || isMfaStepUp) {
+  if (isSystemError) {
     return (
       <StyledScope style={styles.variables}>
-        <ErrorFallback onRetry={handleRetry} isMfa={isMfaStepUp} />
+        <ErrorFallback onRetry={handleRetry} />
       </StyledScope>
     );
   }
 
-  return <StyledScope style={styles.variables}>{children}</StyledScope>;
+  return (
+    <StyledScope style={styles.variables}>
+      {children}
+      {mfaError && <MfaDialog error={mfaError} onComplete={handleRetry} onClose={handleRetry} />}
+    </StyledScope>
+  );
 }
