@@ -444,7 +444,10 @@ describe('SsoProviderMappers', () => {
         client_secret: 'new_secret',
       };
 
-      const result = SsoProviderMappers.updateToAPI(updateData);
+      const result = SsoProviderMappers.updateToAPI(updateData, {
+        canSetShowAsButton: true,
+        canSetAssignMembershipOnLogin: true,
+      });
 
       expect(result).toEqual({
         display_name: 'Updated Display',
@@ -472,7 +475,12 @@ describe('SsoProviderMappers', () => {
         it(`should include only ${field} in the request`, () => {
           const updateData = { [field]: value };
 
-          const result = SsoProviderMappers.updateToAPI(updateData);
+          const flags = {
+            canSetShowAsButton: field === 'show_as_button',
+            canSetAssignMembershipOnLogin: field === 'assign_membership_on_login',
+          };
+
+          const result = SsoProviderMappers.updateToAPI(updateData, flags);
 
           expect(result).toEqual({ [field]: value });
         });
@@ -564,7 +572,10 @@ describe('SsoProviderMappers', () => {
           assign_membership_on_login: false,
         };
 
-        const result = SsoProviderMappers.updateToAPI(updateData);
+        const result = SsoProviderMappers.updateToAPI(updateData, {
+          canSetShowAsButton: true,
+          canSetAssignMembershipOnLogin: true,
+        });
 
         expect(result).toEqual({
           is_enabled: false,
@@ -691,6 +702,72 @@ describe('SsoProviderMappers', () => {
           cross_app_access_resource_app: { status: 'enabled' },
           use_for_third_party_client_access: true,
         });
+      });
+    });
+  });
+
+  describe('configurable field gating', () => {
+    const baseCreate = {
+      strategy: STRATEGIES.OKTA as IdpStrategy,
+      name: 'Provider',
+      display_name: 'Display',
+      show_as_button: false,
+      assign_membership_on_login: false,
+      options: { domain: 'example.okta.com', client_id: 'id', client_secret: 'secret' },
+    };
+
+    describe('createToAPI', () => {
+      it('omits show_as_button when canSetShowAsButton is false', () => {
+        const result = SsoProviderMappers.createToAPI(baseCreate, {
+          canSetShowAsButton: false,
+          canSetAssignMembershipOnLogin: false,
+        });
+        expect(result).not.toHaveProperty('show_as_button');
+        expect(result).not.toHaveProperty('assign_membership_on_login');
+      });
+
+      it('omits both fields when no flags are provided', () => {
+        const result = SsoProviderMappers.createToAPI(baseCreate);
+        expect(result).not.toHaveProperty('show_as_button');
+        expect(result).not.toHaveProperty('assign_membership_on_login');
+      });
+
+      it('includes fields (even when false) when flags are true', () => {
+        const result = SsoProviderMappers.createToAPI(baseCreate, {
+          canSetShowAsButton: true,
+          canSetAssignMembershipOnLogin: true,
+        });
+        expect(result.show_as_button).toBe(false);
+        expect(result.assign_membership_on_login).toBe(false);
+      });
+    });
+
+    describe('updateToAPI', () => {
+      it('omits show_as_button when canSetShowAsButton is false', () => {
+        const result = SsoProviderMappers.updateToAPI(
+          { show_as_button: false, assign_membership_on_login: false },
+          { canSetShowAsButton: false, canSetAssignMembershipOnLogin: false },
+        );
+        expect(result).not.toHaveProperty('show_as_button');
+        expect(result).not.toHaveProperty('assign_membership_on_login');
+      });
+
+      it('omits both fields when no flags are provided', () => {
+        const result = SsoProviderMappers.updateToAPI({
+          show_as_button: false,
+          assign_membership_on_login: true,
+        });
+        expect(result).not.toHaveProperty('show_as_button');
+        expect(result).not.toHaveProperty('assign_membership_on_login');
+      });
+
+      it('includes fields when flags are true', () => {
+        const result = SsoProviderMappers.updateToAPI(
+          { show_as_button: false, assign_membership_on_login: true },
+          { canSetShowAsButton: true, canSetAssignMembershipOnLogin: true },
+        );
+        expect(result.show_as_button).toBe(false);
+        expect(result.assign_membership_on_login).toBe(true);
       });
     });
   });

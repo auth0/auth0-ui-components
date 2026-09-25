@@ -6,16 +6,19 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
 vi.mock('@/hooks/shared/use-core-client');
 vi.mock('@/hooks/shared/use-translator');
 vi.mock('@/components/auth0/shared/toast');
 vi.mock('@/hooks/shared/use-error-handler');
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service');
 
 describe('useSsoProviderCreateService', () => {
   const mockCreate = vi.fn();
@@ -63,6 +66,7 @@ describe('useSsoProviderCreateService', () => {
     (useTranslator as Mock).mockReturnValue({ t: mockT });
     mockHandleError = vi.fn();
     (useErrorHandler as Mock).mockReturnValue(mockHandleError);
+    vi.mocked(useIdpConfig).mockReturnValue(createMockUseIdpConfig());
   });
 
   const renderUseSsoProviderCreateService = (
@@ -456,6 +460,36 @@ describe('useSsoProviderCreateService', () => {
             assign_membership_on_login: true,
           }),
         );
+      });
+    });
+
+    it('omits show_as_button and assign_membership_on_login when can_set_* is false', async () => {
+      vi.mocked(useIdpConfig).mockReturnValue(
+        createMockUseIdpConfig({
+          idpConfig: {
+            strategies: {},
+            organization: {
+              can_set_show_as_button: false,
+              can_set_assign_membership_on_login: false,
+            },
+          } as never,
+        }),
+      );
+
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+
+      await result.current.createProvider({
+        ...baseProviderData,
+        show_as_button: false,
+        assign_membership_on_login: false,
+      });
+
+      await waitFor(() => {
+        const payload = mockCreate.mock.calls[0]![0];
+        expect(payload).not.toHaveProperty('show_as_button');
+        expect(payload).not.toHaveProperty('assign_membership_on_login');
       });
     });
   });
