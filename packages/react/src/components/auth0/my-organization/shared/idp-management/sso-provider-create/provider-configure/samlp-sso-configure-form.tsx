@@ -96,6 +96,7 @@ export const SamlpProviderForm = React.forwardRef<
     onFormDirty,
     idpConfig,
     connectionName,
+    resolveSamlMetadata,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -122,6 +123,14 @@ export const SamlpProviderForm = React.forwardRef<
       sp_metadata_url: `https://${domain}/samlp/metadata${connectionParam}`,
     };
   }, [coreClient, connectionName]);
+
+  const spIssuerUrn = React.useMemo(() => {
+    if (!connectionName) return '';
+    if (resolveSamlMetadata) return resolveSamlMetadata({ connectionName }).entityId;
+    const domain = coreClient?.getDomain();
+    const tenant = domain?.split('.')[0] ?? '';
+    return `urn:auth0:${tenant}:${connectionName}`;
+  }, [resolveSamlMetadata, connectionName, coreClient]);
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
@@ -552,6 +561,18 @@ export const SamlpProviderForm = React.forwardRef<
             </FormItem>
           )}
         />
+
+        <div className="grid gap-2">
+          <Label htmlFor="sp_issuer_urn" className="text-label font-medium">
+            {t('fields.samlp.sp_issuer_urn.label')}
+          </Label>
+          <CopyableTextField id="sp_issuer_urn" type="text" readOnly={true} value={spIssuerUrn} />
+          <p
+            className={cn('text-muted-foreground text-sm', 'text-paragraph font-normal text-left')}
+          >
+            {t('fields.samlp.sp_issuer_urn.helper_text')}
+          </p>
+        </div>
 
         <CommonConfigureFields
           idpConfig={idpConfig}

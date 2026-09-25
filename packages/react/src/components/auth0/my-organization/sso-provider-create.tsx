@@ -46,6 +46,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     },
     onNext,
     onPrevious,
+    resolveSamlMetadata,
   } = props;
 
   const ssoProviderCreate = useSsoProviderCreate({
@@ -69,6 +70,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
         backButton={backButton}
         onNext={onNext}
         onPrevious={onPrevious}
+        resolveSamlMetadata={resolveSamlMetadata}
       />
     </GateKeeper>
   );
@@ -99,6 +101,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     isCrossAppAccessReadOnly,
     crossAppAccessDefaultValue,
     isOrganizationBlocked,
+    resolveSamlMetadata,
     detailsRef,
     configureRef,
     onNext,
@@ -176,6 +179,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               crossAppAccessDefaultValue={crossAppAccessDefaultValue}
               isOrganizationBlocked={isOrganizationBlocked}
+              resolveSamlMetadata={resolveSamlMetadata}
               styling={styling}
             />
           ) : null,
@@ -201,6 +205,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       isCrossAppAccessReadOnly,
       crossAppAccessDefaultValue,
       isOrganizationBlocked,
+      resolveSamlMetadata,
     ],
   );
 

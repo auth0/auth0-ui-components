@@ -584,6 +584,10 @@
             "sp_metadata_url": {
               "label": "SP Metadata URL",
               "helper_text": "Some SAML identity providers can accept importing metadata directly using this URL."
+            },
+            "sp_issuer_urn": {
+              "label": "SP Issuer URN",
+              "helper_text": "Use this as the SP Entity ID (Issuer) in your SAML identity provider."
             }
           },
           "adfs": {
