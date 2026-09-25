@@ -29,11 +29,14 @@ export const DEFAULT_CACHE_CONFIG: Readonly<Required<QueryCacheConfig>> = {
   refetchOnWindowFocus: false,
 };
 
+/** The `QueryRetryConfig` branch that carries the retry sub-configs. */
+type EnabledRetryConfig = Extract<QueryRetryConfig, { enabled?: true }>;
+
 /** Fully-resolved retry configuration (no optional fields). */
 export type ResolvedRetryConfig = {
   enabled: boolean;
-  queries: Required<NonNullable<QueryRetryConfig['queries']>>;
-  mutations: Required<NonNullable<QueryRetryConfig['mutations']>>;
+  queries: Required<NonNullable<EnabledRetryConfig['queries']>>;
+  mutations: Required<NonNullable<EnabledRetryConfig['mutations']>>;
 };
 
 /** Default retry configuration. */
@@ -82,15 +85,18 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
  * @internal
  */
 export function resolveRetryConfig(userConfig?: QueryRetryConfig): ResolvedRetryConfig {
+  const queries = userConfig && 'queries' in userConfig ? userConfig.queries : undefined;
+  const mutations = userConfig && 'mutations' in userConfig ? userConfig.mutations : undefined;
+
   return {
     enabled: userConfig?.enabled ?? DEFAULT_RETRY_CONFIG.enabled,
     queries: {
       ...DEFAULT_RETRY_CONFIG.queries,
-      ...userConfig?.queries,
+      ...queries,
     },
     mutations: {
       ...DEFAULT_RETRY_CONFIG.mutations,
-      ...userConfig?.mutations,
+      ...mutations,
     },
   };
 }
