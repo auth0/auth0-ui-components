@@ -33,6 +33,7 @@ export function createMyAccountClient(
       domain: config.domain ?? '',
       baseUrl: new URL(MY_ACCOUNT_PROXY_PATH, config.proxyUrl).href,
       telemetry: false, // We handle telemetry in our custom fetcher
+      maxRetries: 0, // Retries are handled by TanStack Query, not the SDK
       fetcher: createProxyFetcher({
         customFetcher: config.fetcher,
         telemetry,
@@ -44,6 +45,7 @@ export function createMyAccountClient(
   return new MyAccountClient({
     domain: config.domain,
     telemetry: false, // We handle telemetry in our custom fetcher
+    maxRetries: 0, // Retries are handled by TanStack Query, not the SDK
     fetcher: createSpaFetcher(config, MY_ACCOUNT_DPOP_NONCE_ID, telemetry, getComponent),
   });
 }
