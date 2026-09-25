@@ -128,7 +128,7 @@ export const SsoProviderMappers = {
    * Transforms form data to API request format for creating SSO providers.
    * Filters out form-specific fields and includes only strategy-valid API fields.
    * @param data - The data object to process
-   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is exactly true.
+   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is set (true).
    * @returns API request payload for provider creation
    */
   createToAPI(
@@ -154,8 +154,8 @@ export const SsoProviderMappers = {
       strategy,
       name: name.trim(),
       display_name,
-      ...(flags.canSetShowAsButton === true ? { show_as_button } : {}),
-      ...(flags.canSetAssignMembershipOnLogin === true ? { assign_membership_on_login } : {}),
+      ...(flags.canSetShowAsButton ? { show_as_button } : {}),
+      ...(flags.canSetAssignMembershipOnLogin ? { assign_membership_on_login } : {}),
       use_for_third_party_client_access,
       cross_app_access_resource_app,
       options: getValidOptionsForStrategy(strategy, options),
@@ -166,7 +166,7 @@ export const SsoProviderMappers = {
    * Transforms form data to API request format for updating SSO providers.
    * Only includes fields that have been modified and are valid for the strategy.
    * @param data - The data object to process
-   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is exactly true.
+   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is set (true).
    * @returns API request payload for provider update
    */
   updateToAPI(
@@ -193,10 +193,10 @@ export const SsoProviderMappers = {
     if (is_enabled !== undefined) {
       updateRequest.is_enabled = is_enabled;
     }
-    if (flags.canSetShowAsButton === true && show_as_button !== undefined) {
+    if (flags.canSetShowAsButton && show_as_button !== undefined) {
       updateRequest.show_as_button = show_as_button;
     }
-    if (flags.canSetAssignMembershipOnLogin === true && assign_membership_on_login !== undefined) {
+    if (flags.canSetAssignMembershipOnLogin && assign_membership_on_login !== undefined) {
       updateRequest.assign_membership_on_login = assign_membership_on_login;
     }
     if (use_for_third_party_client_access !== undefined) {
