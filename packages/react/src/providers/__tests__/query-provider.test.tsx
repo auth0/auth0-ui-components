@@ -93,19 +93,20 @@ describe('resolveRetryConfig', () => {
     expect(config.queries).toEqual(DEFAULT_RETRY_CONFIG.queries);
   });
 
-  it('should disable all retries when enabled is false', () => {
+  it('should set enabled to false while preserving default counts', () => {
     const config = resolveRetryConfig({ enabled: false });
 
     expect(config.enabled).toBe(false);
-    expect(config.queries.maxRetries).toBe(0);
-    expect(config.mutations.maxRetries).toBe(0);
+    expect(config.queries.maxRetries).toBe(DEFAULT_RETRY_CONFIG.queries.maxRetries);
+    expect(config.mutations.maxRetries).toBe(DEFAULT_RETRY_CONFIG.mutations.maxRetries);
   });
 
-  it('should override enabled false when explicit retry counts are also provided', () => {
+  it('should preserve explicit counts alongside enabled false', () => {
     const config = resolveRetryConfig({ enabled: false, queries: { maxRetries: 3 } });
 
-    expect(config.queries.maxRetries).toBe(0);
-    expect(config.mutations.maxRetries).toBe(0);
+    expect(config.enabled).toBe(false);
+    expect(config.queries.maxRetries).toBe(3);
+    expect(config.mutations.maxRetries).toBe(DEFAULT_RETRY_CONFIG.mutations.maxRetries);
   });
 });
 

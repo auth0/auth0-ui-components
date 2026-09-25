@@ -82,10 +82,8 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
  * @internal
  */
 export function resolveRetryConfig(userConfig?: QueryRetryConfig): ResolvedRetryConfig {
-  const enabled = userConfig?.enabled ?? DEFAULT_RETRY_CONFIG.enabled;
-
-  const merged: ResolvedRetryConfig = {
-    enabled,
+  return {
+    enabled: userConfig?.enabled ?? DEFAULT_RETRY_CONFIG.enabled,
     queries: {
       ...DEFAULT_RETRY_CONFIG.queries,
       ...userConfig?.queries,
@@ -95,16 +93,6 @@ export function resolveRetryConfig(userConfig?: QueryRetryConfig): ResolvedRetry
       ...userConfig?.mutations,
     },
   };
-
-  if (!enabled) {
-    return {
-      ...merged,
-      queries: { ...merged.queries, maxRetries: 0 },
-      mutations: { ...merged.mutations, maxRetries: 0 },
-    };
-  }
-
-  return merged;
 }
 
 /**
@@ -170,7 +158,9 @@ function createQueryClient(
         ...({ cacheTime: cacheConfig.cacheTime } as object),
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
         retry: (failureCount, error) =>
-          !isMfaRequiredError(error) && failureCount < retryConfig.queries.maxRetries,
+          retryConfig.enabled &&
+          !isMfaRequiredError(error) &&
+          failureCount < retryConfig.queries.maxRetries,
         retryDelay: (attemptIndex: number) =>
           Math.min(
             1000 * retryConfig.queries.backoffMultiplier ** attemptIndex,
@@ -180,7 +170,9 @@ function createQueryClient(
       },
       mutations: {
         retry: (failureCount, error) =>
-          !isMfaRequiredError(error) && failureCount < retryConfig.mutations.maxRetries,
+          retryConfig.enabled &&
+          !isMfaRequiredError(error) &&
+          failureCount < retryConfig.mutations.maxRetries,
       },
     },
   });
