@@ -177,6 +177,7 @@ export function useOrganizationMemberDetail(
     permissions,
     member,
     organizationDisplayName,
+    isLoadingOrganization: organizationQuery.isLoading,
     memberRoles,
     searchedRoles,
     onRoleSearch: setRoleSearchTerm,

@@ -195,6 +195,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   permissions: ALL_MEMBER_PERMISSIONS,
   member: createMockMember(),
   organizationDisplayName: 'Test Org',
+  isLoadingOrganization: false,
   memberRoles: createMockMemberRoles(),
   searchedRoles: createMockAvailableRoles(),
   onRoleSearch: vi.fn(),

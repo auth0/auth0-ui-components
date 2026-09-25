@@ -176,6 +176,7 @@ export function OrganizationInvitationTable({
     onSortChange,
     onRowClick: onView,
     rowClickLabel: (index: number) => t('data_table.view_row', { index: index + 1 }),
+    getRowId: (invitation: MemberInvitation) => invitation.id!,
   };
 
   const tableProps: DataTableProps<MemberInvitation> = selectionEnabled
@@ -188,7 +189,6 @@ export function OrganizationInvitationTable({
         },
         selectedRows: selectedInvitations,
         onSelectedRowsChange: onSelectedInvitationsChange,
-        getRowId: (invitation: MemberInvitation) => invitation.id!,
         maxSelectionAllowed: MAX_INVITATIONS_PER_REQUEST,
         maxSelectionAllowedMessage: t('invitation.bulk_revoke.max_selection_message'),
       }
