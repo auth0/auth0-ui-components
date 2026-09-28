@@ -57,8 +57,10 @@ interface SsoProviderEditComposition {
   props: SsoProviderEditProps;
 }
 
-const [SsoProviderEditContext, useSsoProviderEditContext] =
-  createComponentContext<SsoProviderEditComposition>('SsoProviderEdit');
+const [SsoProviderEditContext, useSsoProviderEditContext, parts] =
+  createComponentContext<SsoProviderEditComposition>('SsoProviderEdit', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<SsoProviderEditProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -168,7 +170,9 @@ function Root({
   return (
     <SsoProviderEditContext.Provider value={composition}>
       <GateKeeper isLoading={isLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </SsoProviderEditContext.Provider>
   );
@@ -244,6 +248,7 @@ SsoProviderEditHeader.displayName = 'SsoProviderEdit.Header';
  */
 function Content() {
   const { model, props } = useSsoProviderEditContext();
+  parts.useRegisterPart('Content');
   return (
     <SsoProviderEditView
       {...model}

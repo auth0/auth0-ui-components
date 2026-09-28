@@ -56,8 +56,10 @@ interface UserMFAManagementComposition {
   props: UserMFAManagementProps;
 }
 
-const [UserMFAManagementContext, useUserMFAManagementContext] =
-  createComponentContext<UserMFAManagementComposition>('UserMFAManagement');
+const [UserMFAManagementContext, useUserMFAManagementContext, parts] =
+  createComponentContext<UserMFAManagementComposition>('UserMFAManagement', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<UserMFAManagementProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -165,7 +167,9 @@ function Root({
   return (
     <UserMFAManagementContext.Provider value={composition}>
       <GateKeeper isLoading={model.isLoadingFactors} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </UserMFAManagementContext.Provider>
   );
@@ -212,6 +216,7 @@ UserMFAManagementHeader.displayName = 'UserMFAManagement.Header';
  */
 function Content() {
   const { model, props } = useUserMFAManagementContext();
+  parts.useRegisterPart('Content');
   return (
     <UserMFAManagementView
       {...model}

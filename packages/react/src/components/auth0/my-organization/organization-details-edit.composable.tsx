@@ -52,8 +52,10 @@ interface OrganizationDetailsEditComposition {
   props: OrganizationDetailsEditProps;
 }
 
-const [OrganizationDetailsEditContext, useOrganizationDetailsEditContext] =
-  createComponentContext<OrganizationDetailsEditComposition>('OrganizationDetailsEdit');
+const [OrganizationDetailsEditContext, useOrganizationDetailsEditContext, parts] =
+  createComponentContext<OrganizationDetailsEditComposition>('OrganizationDetailsEdit', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<OrganizationDetailsEditProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -141,7 +143,9 @@ function Root({
   return (
     <OrganizationDetailsEditContext.Provider value={composition}>
       <GateKeeper isLoading={model.isFetchLoading || model.isLoadingConfig} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </OrganizationDetailsEditContext.Provider>
   );
@@ -198,6 +202,7 @@ OrganizationDetailsEditHeader.displayName = 'OrganizationDetailsEdit.Header';
  */
 function Content() {
   const { model, props } = useOrganizationDetailsEditContext();
+  parts.useRegisterPart('Content');
   return (
     <OrganizationDetailsEditView
       organization={model.organization}

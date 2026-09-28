@@ -65,8 +65,10 @@ interface SsoProviderCreateComposition {
   props: SsoProviderCreateProps;
 }
 
-const [SsoProviderCreateContext, useSsoProviderCreateContext] =
-  createComponentContext<SsoProviderCreateComposition>('SsoProviderCreate');
+const [SsoProviderCreateContext, useSsoProviderCreateContext, parts] =
+  createComponentContext<SsoProviderCreateComposition>('SsoProviderCreate', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<SsoProviderCreateProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -158,7 +160,9 @@ function Root({
   return (
     <SsoProviderCreateContext.Provider value={composition}>
       <GateKeeper styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </SsoProviderCreateContext.Provider>
   );
@@ -177,6 +181,7 @@ Root.displayName = 'SsoProviderCreate.Root';
  */
 function Content() {
   const { model, props } = useSsoProviderCreateContext();
+  parts.useRegisterPart('Content');
   const { strategy, details, configure } = model.formData;
 
   return (

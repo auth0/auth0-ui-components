@@ -55,8 +55,10 @@ interface OrganizationMemberDetailComposition {
   props: OrganizationMemberDetailProps;
 }
 
-const [OrganizationMemberDetailContext, useOrganizationMemberDetailContext] =
-  createComponentContext<OrganizationMemberDetailComposition>('OrganizationMemberDetail');
+const [OrganizationMemberDetailContext, useOrganizationMemberDetailContext, parts] =
+  createComponentContext<OrganizationMemberDetailComposition>('OrganizationMemberDetail', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<OrganizationMemberDetailProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -155,7 +157,9 @@ function Root({
   return (
     <OrganizationMemberDetailContext.Provider value={composition}>
       <GateKeeper isLoading={model.isLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </OrganizationMemberDetailContext.Provider>
   );
@@ -175,6 +179,7 @@ Root.displayName = 'OrganizationMemberDetail.Root';
  */
 function Content() {
   const { model, props } = useOrganizationMemberDetailContext();
+  parts.useRegisterPart('Content');
   return (
     <OrganizationMemberDetailView
       {...model}

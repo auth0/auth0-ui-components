@@ -47,8 +47,10 @@ interface DomainTableComposition {
   props: DomainTableProps;
 }
 
-const [DomainTableContext, useDomainTableContext] =
-  createComponentContext<DomainTableComposition>('DomainTable');
+const [DomainTableContext, useDomainTableContext, parts] =
+  createComponentContext<DomainTableComposition>('DomainTable', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<DomainTableProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -147,7 +149,9 @@ function Root({
   return (
     <DomainTableContext.Provider value={composition}>
       <GateKeeper isLoading={model.isFetching} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </DomainTableContext.Provider>
   );
@@ -278,6 +282,7 @@ Refresh.displayName = 'DomainTable.Refresh';
  */
 function Content() {
   const { model, props } = useDomainTableContext();
+  parts.useRegisterPart('Content');
   return (
     <DomainTableView
       domainTable={model}

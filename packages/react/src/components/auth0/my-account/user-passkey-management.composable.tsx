@@ -54,8 +54,10 @@ interface UserPasskeyManagementComposition {
   props: UserPasskeyManagementProps;
 }
 
-const [UserPasskeyManagementContext, useUserPasskeyManagementContext] =
-  createComponentContext<UserPasskeyManagementComposition>('UserPasskeyManagement');
+const [UserPasskeyManagementContext, useUserPasskeyManagementContext, parts] =
+  createComponentContext<UserPasskeyManagementComposition>('UserPasskeyManagement', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<UserPasskeyManagementProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -143,7 +145,9 @@ function Root({
   return (
     <UserPasskeyManagementContext.Provider value={composition}>
       <GateKeeper isLoading={model.isLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </UserPasskeyManagementContext.Provider>
   );
@@ -248,6 +252,7 @@ UserPasskeyManagementHeader.displayName = 'UserPasskeyManagement.Header';
  */
 function Content() {
   const { model, props } = useUserPasskeyManagementContext();
+  parts.useRegisterPart('Content');
   return (
     <UserPasskeyManagementView
       {...model}

@@ -46,8 +46,10 @@ interface OrganizationMemberManagementComposition {
   props: OrganizationMemberManagementProps;
 }
 
-const [OrganizationMemberManagementContext, useOrganizationMemberManagementContext] =
-  createComponentContext<OrganizationMemberManagementComposition>('OrganizationMemberManagement');
+const [OrganizationMemberManagementContext, useOrganizationMemberManagementContext, parts] =
+  createComponentContext<OrganizationMemberManagementComposition>('OrganizationMemberManagement', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<OrganizationMemberManagementProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -143,7 +145,9 @@ function Root({
   return (
     <OrganizationMemberManagementContext.Provider value={composition}>
       <GateKeeper isLoading={model.isInitialLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </OrganizationMemberManagementContext.Provider>
   );
@@ -300,6 +304,7 @@ Refresh.displayName = 'OrganizationMemberManagement.Refresh';
  */
 function Content() {
   const { model, props } = useOrganizationMemberManagementContext();
+  parts.useRegisterPart('Content');
   return (
     <OrganizationMemberManagementView
       {...model}
