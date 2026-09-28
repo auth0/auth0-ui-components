@@ -192,6 +192,12 @@ function SsoProviderEditHeader({ className }: SsoProviderEditHeaderProps) {
   const { model, props } = useSsoProviderEditContext();
   const { t } = useTranslator('idp_management.edit_sso_provider', props.customMessages);
 
+  // Reused as both the switch's accessible name and its tooltip, so the toggle
+  // is never an unlabeled control for assistive tech.
+  const toggleLabel = model.provider?.is_enabled
+    ? t('header.disable_provider_tooltip_text')
+    : t('header.enable_provider_tooltip_text');
+
   return (
     <Header
       title={model.provider?.display_name || model.provider?.name || ''}
@@ -205,6 +211,7 @@ function SsoProviderEditHeader({ className }: SsoProviderEditHeaderProps) {
       actions={[
         {
           type: 'switch',
+          'aria-label': toggleLabel,
           checked: model.provider?.is_enabled ?? false,
           onCheckedChange: model.handleToggleProvider,
           disabled:
@@ -213,9 +220,7 @@ function SsoProviderEditHeader({ className }: SsoProviderEditHeaderProps) {
             model.isEnabling ||
             props.enableProviderAction?.disabled,
           tooltip: {
-            content: model.provider?.is_enabled
-              ? t('header.disable_provider_tooltip_text')
-              : t('header.enable_provider_tooltip_text'),
+            content: toggleLabel,
           },
         },
       ]}

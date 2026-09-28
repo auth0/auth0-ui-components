@@ -184,7 +184,12 @@ function AddAction({ render }: UserPasskeyManagementAddActionProps) {
     // The host element owns its own label/content; we only wire behavior.
     // `mergeRenderProp` returns null for an invalid `render` (Fragment/string/
     // array); fall through to the default button in that case.
-    const merged = mergeRenderProp(render, { type: 'button', disabled, onClick });
+    const merged = mergeRenderProp(render, {
+      type: 'button',
+      disabled,
+      'aria-busy': disabled,
+      onClick,
+    });
     if (merged) return merged;
   }
 

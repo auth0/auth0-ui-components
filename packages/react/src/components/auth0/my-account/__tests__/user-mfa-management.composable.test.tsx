@@ -104,9 +104,9 @@ describe('UserMFAManagement — composability', () => {
       expect(screen.getByTestId('host-panel')).toBeInTheDocument();
 
       // Parts share one model provided by Root: a duplicated model would render a
-      // second header. The Header part renders the only banner/title; Content
+      // second header. The Header part renders the only heading/title; Content
       // suppresses its own header (hideHeader).
-      expect(screen.getAllByRole('banner')).toHaveLength(1);
+      expect(screen.getAllByRole('heading', { name: 'header.title' })).toHaveLength(1);
       expect(screen.getAllByText('header.title')).toHaveLength(1);
 
       // Content is wired to the shared model and renders the factor cards.

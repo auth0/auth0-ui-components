@@ -59,6 +59,12 @@ export interface HeaderProps {
   actionSlot?: React.ReactNode;
   isLoading?: boolean;
   className?: string;
+  /**
+   * Heading level for the title. Defaults to `2`: this is a section header
+   * embedded in a host page, so it must not emit an `<h1>` (the host owns the
+   * single page-level `<h1>`). Hosts can override to fit their heading outline.
+   */
+  headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip }) => (
@@ -72,7 +78,7 @@ const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip }) => (
   </>
 );
 
-const ButtonAction: React.FC<ButtonActionProps> = ({
+const ButtonAction: React.FC<ButtonActionProps & { busy?: boolean }> = ({
   icon: Icon,
   className,
   label,
@@ -80,32 +86,41 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
   disabled,
   variant,
   size,
+  busy,
 }) => (
   <Button
     onClick={onClick}
-    disabled={disabled}
+    disabled={disabled || busy}
+    aria-busy={busy || undefined}
     variant={variant}
     size={size}
     className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
     aria-label={label}
   >
-    {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
+    {busy ? (
+      <Spinner className="h-4 w-4 flex-shrink-0" />
+    ) : (
+      Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+    )}
     <span className="truncate">{label}</span>
   </Button>
 );
 
-const SwitchAction: React.FC<SwitchActionProps> = ({
+const SwitchAction: React.FC<SwitchActionProps & { busy?: boolean }> = ({
   className,
   'aria-label': ariaLabel,
   checked,
   onCheckedChange,
   disabled,
+  busy,
 }) => (
   <div className={cn('flex items-center gap-2', className)}>
+    {busy && <Spinner className="h-4 w-4 flex-shrink-0" />}
     <Switch
       checked={checked}
       onCheckedChange={onCheckedChange}
-      disabled={disabled}
+      disabled={disabled || busy}
+      aria-busy={busy || undefined}
       aria-label={ariaLabel}
     />
   </div>
@@ -116,24 +131,36 @@ export const Header = React.forwardRef<
   HeaderProps & React.HTMLAttributes<HTMLDivElement>
 >(
   (
-    { title, description, backButton, actions, actionSlot, isLoading, className, ...props },
+    {
+      title,
+      description,
+      backButton,
+      actions,
+      actionSlot,
+      isLoading,
+      className,
+      headingLevel = 2,
+      ...props
+    },
     ref,
   ) => {
     const BackIcon = backButton?.icon || ArrowLeft;
+    const HeadingTag = `h${headingLevel}` as React.ElementType;
 
     const renderAction = (action: ActionProps, index: number) => {
       const key = `action-${index}`;
-      if (isLoading) {
-        return <Spinner key={`spinner-${key}`} className="w-4 h-4" />;
-      }
       if (action.hidden) {
         return null;
       }
+      // While loading, keep the control mounted and mark it busy/disabled rather
+      // than swapping it for a bare spinner — swapping unmounts a focused control
+      // (focus is lost to <body>) and never announces the busy state.
+      const busy = Boolean(isLoading);
       const actionElement =
         action.type === 'switch' ? (
-          <SwitchAction key={key} {...action} />
+          <SwitchAction key={key} {...action} busy={busy} />
         ) : (
-          <ButtonAction key={key} {...action} />
+          <ButtonAction key={key} {...action} busy={busy} />
         );
       if (action.tooltip) {
         return (
@@ -144,13 +171,10 @@ export const Header = React.forwardRef<
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn('w-full mb-8', className)}
-        role="banner"
-        aria-label={title ? `${title} header` : 'Header'}
-        {...props}
-      >
+      // Intentionally not a `banner` landmark: this is a section header embedded
+      // in a host page, and `banner` must be reserved for the app shell (one per
+      // page). The heading below provides the navigable structure.
+      <div ref={ref} className={cn('w-full mb-8', className)} {...props}>
         {backButton && (
           <Button
             variant="link"
@@ -167,13 +191,13 @@ export const Header = React.forwardRef<
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col min-w-0 flex-1">
             {title && (
-              <h1
+              <HeadingTag
                 className={cn(
                   'text-primary font-bold leading-tight break-words text-left text-page-header mb-0',
                 )}
               >
                 {title}
-              </h1>
+              </HeadingTag>
             )}
             {description && (
               <p
