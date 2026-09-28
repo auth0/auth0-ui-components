@@ -45,12 +45,12 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { createComponentContext, mergeRenderProp } from '@/lib/composability';
 import type {
   UserPasskeyManagementProps,
-  UseUserPasskeyReturn,
+  UseUserPasskeyResult,
 } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 /** Value shared from `Root` to every compound part. */
 interface UserPasskeyManagementComposition {
-  model: UseUserPasskeyReturn;
+  model: UseUserPasskeyResult;
   props: UserPasskeyManagementProps;
 }
 

@@ -131,7 +131,7 @@ export interface UseDomainTableServiceReturn {
 }
 
 /** Return type for the public domain table hook. */
-export interface UseDomainTableReturn {
+export interface UseDomainTableResult {
   permissions: DomainManagementPermissions;
 
   // Data
@@ -184,9 +184,15 @@ export interface UseDomainTableReturn {
   handlePageSizeChange: (pageSize: number) => void;
 }
 
+/**
+ * @deprecated Use {@link UseDomainTableResult} instead. This alias is kept for
+ * one release and will be removed in the next major version.
+ */
+export type UseDomainTableReturn = UseDomainTableResult;
+
 /** Props for the DomainTableView presentational component. @internal */
 export interface DomainTableViewProps {
-  domainTable: UseDomainTableReturn;
+  domainTable: UseDomainTableResult;
   schema: DomainTableProps['schema'];
   styling: DomainTableProps['styling'];
   hideHeader: DomainTableProps['hideHeader'];

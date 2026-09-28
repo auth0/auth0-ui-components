@@ -38,12 +38,12 @@ import { createComponentContext, mergeRenderProp } from '@/lib/composability';
 import { cn } from '@/lib/utils';
 import type {
   DomainTableProps,
-  UseDomainTableReturn,
+  UseDomainTableResult,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 /** Value shared from `Root` to every compound part. */
 interface DomainTableComposition {
-  model: UseDomainTableReturn;
+  model: UseDomainTableResult;
   props: DomainTableProps;
 }
 

@@ -33,7 +33,7 @@ import type {
   FactorToDelete,
   OtpData,
   UseUserMFAOptions,
-  UseUserMFAReturn,
+  UseUserMFAResult,
 } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
 const EMPTY_SESSION = { authSession: '', authenticationMethodId: '' };
@@ -61,7 +61,7 @@ export function useUserMFA({
   customMessages = {},
   enrollAction,
   deleteAction,
-}: UseUserMFAOptions = {}): UseUserMFAReturn {
+}: UseUserMFAOptions = {}): UseUserMFAResult {
   const { t } = useTranslator('user_mfa_management', customMessages);
   const handleError = useErrorHandler();
   const { factorsQuery, enrollMutation, deleteMutation, verifyMutation } =

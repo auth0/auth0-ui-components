@@ -12,7 +12,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyOptions,
-  UseUserPasskeyReturn,
+  UseUserPasskeyResult,
 } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 type ActiveModal = { mode: 'revoke'; passkey: Passkey } | null;
@@ -27,7 +27,7 @@ export function useUserPasskey({
   addAction,
   revokeAction,
   onFetch,
-}: UseUserPasskeyOptions): UseUserPasskeyReturn {
+}: UseUserPasskeyOptions): UseUserPasskeyResult {
   const { t } = useTranslator('passkey', customMessages);
   const handleError = useErrorHandler();
 

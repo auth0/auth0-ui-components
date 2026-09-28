@@ -139,7 +139,7 @@ export interface UseSsoProviderEditServiceReturn {
   onRemoveConfirm: () => Promise<void>;
 }
 
-export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceReturn {
+export interface UseSsoProviderEditResult extends UseSsoProviderEditServiceReturn {
   permissions: IdpManagementPermissions;
   shouldAllowDeletion: boolean;
   isLoadingConfig: boolean;
@@ -152,6 +152,12 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
+
+/**
+ * @deprecated Use {@link UseSsoProviderEditResult} instead. This alias is kept
+ * for one release and will be removed in the next major version.
+ */
+export type UseSsoProviderEditReturn = UseSsoProviderEditResult;
 
 export interface SsoProviderAttributeMappingsProps
   extends SharedComponentProps<SsoProviderAttributeMappingsMessages> {
@@ -173,7 +179,7 @@ export interface SsoProviderAttributeSyncAlertProps {
 }
 
 export interface SsoProviderEditViewProps
-  extends UseSsoProviderEditReturn,
+  extends UseSsoProviderEditResult,
     Pick<
       SsoProviderEditProps,
       | 'styling'

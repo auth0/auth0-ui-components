@@ -20,7 +20,7 @@ import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderTableOptions,
-  UseSsoProviderTableReturn,
+  UseSsoProviderTableResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export { ssoProviderQueryKeys };
@@ -39,7 +39,7 @@ export function useSsoProviderTable({
   deleteAction,
   deleteFromOrganizationAction,
   enableProviderAction,
-}: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
+}: UseSsoProviderTableOptions): UseSsoProviderTableResult {
   const { t } = useTranslator(
     'idp_management.notifications',
     customMessages as Record<string, unknown>,

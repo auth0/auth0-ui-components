@@ -84,7 +84,7 @@ export interface UseSsoProviderTableOptions {
 }
 
 /** useSsoProviderTable hook result. */
-export interface UseSsoProviderTableReturn {
+export interface UseSsoProviderTableResult {
   permissions: IdpManagementPermissions;
   providers: IdpKnownResponse[];
   organization: OrganizationPrivate | null;
@@ -123,6 +123,12 @@ export interface UseSsoProviderTableReturn {
   setSelectedIdp: React.Dispatch<React.SetStateAction<IdpKnownResponse | null>>;
 }
 
+/**
+ * @deprecated Use {@link UseSsoProviderTableResult} instead. This alias is kept
+ * for one release and will be removed in the next major version.
+ */
+export type UseSsoProviderTableReturn = UseSsoProviderTableResult;
+
 /** Props for SsoProviderTable actions column. */
 export interface SsoProviderTableActionsColumnProps
   extends SharedComponentProps<
@@ -146,7 +152,7 @@ export interface SsoProviderTableActionsColumnProps
   onDelete: (provider: IdpKnownResponse) => void;
   onRemoveFromOrganization: (provider: IdpKnownResponse) => void;
 }
-export interface SsoProviderTableViewProps extends UseSsoProviderTableReturn {
+export interface SsoProviderTableViewProps extends UseSsoProviderTableResult {
   styling: SsoProviderTableProps['styling'];
   customMessages: SsoProviderTableProps['customMessages'];
   readOnly: SsoProviderTableProps['readOnly'];

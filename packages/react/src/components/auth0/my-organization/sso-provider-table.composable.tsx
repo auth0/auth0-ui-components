@@ -38,12 +38,12 @@ import { createComponentContext, mergeRenderProp } from '@/lib/composability';
 import { cn } from '@/lib/utils';
 import type {
   SsoProviderTableProps,
-  UseSsoProviderTableReturn,
+  UseSsoProviderTableResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 /** Value shared from `Root` to every compound part. */
 interface SsoProviderTableComposition {
-  model: UseSsoProviderTableReturn;
+  model: UseSsoProviderTableResult;
   props: SsoProviderTableProps;
 }
 

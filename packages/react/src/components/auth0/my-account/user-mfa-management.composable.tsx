@@ -47,12 +47,12 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { createComponentContext } from '@/lib/composability';
 import type {
   UserMFAManagementProps,
-  UseUserMFAReturn,
+  UseUserMFAResult,
 } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
 /** Value shared from `Root` to every compound part. */
 interface UserMFAManagementComposition {
-  model: UseUserMFAReturn;
+  model: UseUserMFAResult;
   props: UserMFAManagementProps;
 }
 

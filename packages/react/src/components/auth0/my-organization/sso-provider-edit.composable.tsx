@@ -47,12 +47,12 @@ import { createComponentContext } from '@/lib/composability';
 import { cn } from '@/lib/utils';
 import type {
   SsoProviderEditProps,
-  UseSsoProviderEditReturn,
+  UseSsoProviderEditResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 /** Value shared from `Root` to every compound part. */
 interface SsoProviderEditComposition {
-  model: UseSsoProviderEditReturn;
+  model: UseSsoProviderEditResult;
   /** Normalized props (defaults applied) shared with every part. */
   props: SsoProviderEditProps;
 }

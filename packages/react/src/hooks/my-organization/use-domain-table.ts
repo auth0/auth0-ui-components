@@ -20,7 +20,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
   UseDomainTableOptions,
-  UseDomainTableReturn,
+  UseDomainTableResult,
 } from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
@@ -37,7 +37,7 @@ export function useDomainTable({
   associateToProviderAction,
   deleteFromProviderAction,
   customMessages,
-}: UseDomainTableOptions): UseDomainTableReturn {
+}: UseDomainTableOptions): UseDomainTableResult {
   const { t } = useTranslator('domain_management', customMessages);
   const handleError = useErrorHandler();
   const { createPermissionResolver } = usePermissions();

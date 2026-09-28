@@ -13,7 +13,7 @@ import { useSsoProviderEditService } from '@/hooks/my-organization/shared/servic
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
   UseSsoProviderEditOptions,
-  UseSsoProviderEditReturn,
+  UseSsoProviderEditResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 /**
@@ -50,7 +50,7 @@ export function useSsoProviderEdit(
     readOnly = false,
     enableProviderAction,
   }: Partial<UseSsoProviderEditOptions> = {},
-): UseSsoProviderEditReturn {
+): UseSsoProviderEditResult {
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
