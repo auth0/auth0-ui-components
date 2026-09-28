@@ -40,6 +40,7 @@ import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { createComponentContext } from '@/lib/composability';
+import { cn } from '@/lib/utils';
 import type {
   OrganizationDetailsEditProps,
   UseOrganizationDetailsEditResult,
@@ -171,7 +172,9 @@ function OrganizationDetailsEditHeader({ className }: OrganizationDetailsEditHea
   const organizationName = model.organization.display_name || model.organization.name || '';
 
   return (
-    <div className={className}>
+    // `mb-8` mirrors the Tier-1 view's header wrapper so the default anatomy has
+    // identical header→content spacing; `cn` lets a host override it via className.
+    <div className={cn('mb-8', className)}>
       <Header
         title={t('header.title', { organizationName })}
         backButton={

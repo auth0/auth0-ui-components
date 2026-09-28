@@ -8,10 +8,17 @@
  * reliably forward refs or accept arbitrary DOM props.
  *
  * Merge rules:
- * - Behavioral props (`disabled`, `type`, `aria-*`, `ref`) — component wins.
+ * - `disabled` — disabled when EITHER the host element or the component sets it
+ *   (union, not "component wins": a host that passes `disabled` is honored).
+ * - Other behavioral props (`type`, `aria-*`, `ref`) — component wins.
  * - `onClick` — chained: the host handler runs first; the component action is
- *   skipped when the host calls `event.preventDefault()` or when `disabled`.
+ *   skipped when the host calls `event.preventDefault()` or when disabled.
  * - Everything else (`className`, `data-*`, children, ...) — host wins.
+ *
+ * The host `render` must be a single, valid, non-Fragment element (Fragments
+ * silently drop the injected behavioral props → a dead button; strings/arrays
+ * throw in `cloneElement`). Invalid input warns and returns `null` so the
+ * caller falls back to its own default element.
  *
  * @module render-prop
  * @internal
@@ -34,26 +41,41 @@ export interface RenderPropOwnProps {
  *
  * @param render - Host-supplied element used to replace the default leaf.
  * @param ownProps - Behavioral props owned by the compound part.
- * @returns The cloned element with merged props.
+ * @returns The cloned element with merged props, or `null` when `render` is not
+ *   a single valid non-Fragment element (caller should render its default).
  */
 export function mergeRenderProp(
   render: React.ReactElement,
   ownProps: RenderPropOwnProps,
-): React.ReactElement {
+): React.ReactElement | null {
+  if (!React.isValidElement(render) || render.type === React.Fragment) {
+    console.warn(
+      '🚨 [Auth0 Components Warning]: The `render` prop must be a single valid ' +
+        'host element (not a Fragment, string, number, or array). Falling back to ' +
+        'the default action. Wrap multiple nodes in one element, e.g. ' +
+        '`render={<button><Icon />Add</button>}`.',
+    );
+    return null;
+  }
+
   const hostProps = (render.props ?? {}) as RenderPropOwnProps;
   const { onClick: ownOnClick, disabled: ownDisabled, ...restOwnProps } = ownProps;
   const hostOnClick = hostProps.onClick;
 
+  // Disabled if EITHER side sets it. Host elements (Link, custom buttons) may
+  // not honor a native `disabled`, so gate the component action on this too.
+  const mergedDisabled = Boolean(ownDisabled) || Boolean(hostProps.disabled);
+
   const mergedOnClick = (event: React.MouseEvent<HTMLElement>) => {
     hostOnClick?.(event);
-    if (!event.defaultPrevented && !ownDisabled) {
+    if (!event.defaultPrevented && !mergedDisabled) {
       ownOnClick?.(event);
     }
   };
 
   return React.cloneElement(render, {
     ...restOwnProps,
-    disabled: ownDisabled ?? hostProps.disabled,
+    disabled: mergedDisabled,
     onClick: mergedOnClick,
   } as Partial<unknown> & React.Attributes);
 }
