@@ -29,10 +29,10 @@
  *    stays inside `Content`.
  * 3. **No `RefreshIndicator`.** This is a creation wizard, not a data table —
  *    there is no stale/refetch surface, hence no `Refresh` part or `hideRefresh`.
- * 4. **Structured `{ logic, handlers }` bundles.** The view consumes two typed
- *    bundles rather than a flat prop spread, so `Content` reconstructs
- *    `ssoProviderCreateLogicProps` and `ssoProviderCreateHandlerProps` exactly
- *    as the container does before rendering the view.
+ * 4. **Flat model spread.** The view consumes the model result spread flat
+ *    (plus `strategy` / `details` / `configure` from `formData` and the styling /
+ *    back-button / navigation props), so `Content` mirrors the Tier-1 container's
+ *    view render exactly.
  *
  * Therefore this layer offers only **structural wrapping (`Root` / `Content` /
  * `DefaultLayout`)** plus the **Tier-4 model hook** — no `Header`,
@@ -55,8 +55,6 @@ import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { createComponentContext } from '@/lib/composability';
 import type {
-  SsoProviderCreateHandlerProps,
-  SsoProviderCreateLogicProps,
   SsoProviderCreateProps,
   UseSsoProviderCreateResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -105,6 +103,7 @@ function Root({
   readOnly = false,
   onNext,
   onPrevious,
+  resolveSamlMetadata,
   customMessages = EMPTY_CUSTOM_MESSAGES,
   styling = DEFAULT_STYLING,
 }: SsoProviderCreateRootProps) {
@@ -137,6 +136,7 @@ function Root({
         readOnly,
         onNext,
         onPrevious,
+        resolveSamlMetadata,
         customMessages,
         styling,
       },
@@ -149,6 +149,7 @@ function Root({
       readOnly,
       onNext,
       onPrevious,
+      resolveSamlMetadata,
       customMessages,
       styling,
     ],
@@ -176,61 +177,20 @@ Root.displayName = 'SsoProviderCreate.Root';
  */
 function Content() {
   const { model, props } = useSsoProviderCreateContext();
-
-  const {
-    formData,
-    detailsRef,
-    configureRef,
-    setFormData,
-    handleCreate,
-    createStepActions,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    showThirdPartyAccess,
-    showCrossAppAccess,
-    isCrossAppAccessReadOnly,
-    isOrganizationBlocked,
-  } = model;
-
-  const { onNext, onPrevious, backButton } = props;
-  const { strategy, details, configure } = formData;
-
-  const ssoProviderCreateLogicProps: SsoProviderCreateLogicProps = {
-    formData,
-    strategy,
-    details,
-    configure,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    showThirdPartyAccess,
-    showCrossAppAccess,
-    isCrossAppAccessReadOnly,
-    isOrganizationBlocked,
-    styling: props.styling ?? DEFAULT_STYLING,
-    customMessages: props.customMessages,
-    backButton,
-  };
-
-  const ssoProviderCreateHandlerProps: SsoProviderCreateHandlerProps = {
-    onNext,
-    onPrevious,
-    setFormData,
-    detailsRef,
-    configureRef,
-    handleCreate,
-    createStepActions,
-  };
+  const { strategy, details, configure } = model.formData;
 
   return (
     <SsoProviderCreateView
-      logic={ssoProviderCreateLogicProps}
-      handlers={ssoProviderCreateHandlerProps}
+      {...model}
+      strategy={strategy}
+      details={details}
+      configure={configure}
+      styling={props.styling ?? DEFAULT_STYLING}
+      customMessages={props.customMessages}
+      backButton={props.backButton}
+      onNext={props.onNext}
+      onPrevious={props.onPrevious}
+      resolveSamlMetadata={props.resolveSamlMetadata}
     />
   );
 }

@@ -202,6 +202,7 @@ describe('SsoCrossAppAccessSection', () => {
           <SsoCrossAppAccessSection
             {...createMockCrossAppAccessSamlProps({
               discoveryUrl: '',
+              onChange: mockOnChange,
             })}
           />,
         );

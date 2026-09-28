@@ -5,6 +5,7 @@
  */
 
 import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
+import { initializePermissionClient } from '@core/services/permissions/permission-api-service';
 
 import type { TelemetryComponentGetter, TelemetryConfig } from '../api/telemetry';
 import { createI18nService } from '../i18n/i18n-service';
@@ -54,6 +55,9 @@ export async function createCoreClient(
       getMFAStepUpApiClient: function () {
         throw new Error('Function not implemented.');
       },
+      getPermissionApiClient: function () {
+        throw new Error('Function not implemented.');
+      },
       getDomain: function (): string | undefined {
         return undefined;
       },
@@ -66,6 +70,7 @@ export async function createCoreClient(
   const myAccountApiClient = createMyAccountClient(authConfig, telemetry, getComponent);
 
   const mfaApiClient = initializeMfaStepUpClient(authConfig);
+  const permissionApiClient = initializePermissionClient(authConfig);
 
   return {
     auth: authDetails,
@@ -94,5 +99,7 @@ export async function createCoreClient(
     },
 
     getMFAStepUpApiClient: () => mfaApiClient,
+
+    getPermissionApiClient: () => permissionApiClient,
   };
 }

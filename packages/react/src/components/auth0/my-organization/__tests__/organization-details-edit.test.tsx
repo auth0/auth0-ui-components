@@ -169,7 +169,7 @@ describe('OrganizationDetailsEdit', () => {
 
   describe('readOnly', () => {
     describe('when is true', () => {
-      it('should disable inputs and buttons', async () => {
+      it('should make inputs read-only and hide both actions', async () => {
         renderWithProviders(
           <OrganizationDetailsEdit
             {...createMockOrganizationDetailsEditProps({ readOnly: true })}
@@ -178,10 +178,13 @@ describe('OrganizationDetailsEdit', () => {
 
         const displayNameInput = await waitForComponentToLoad();
 
-        const saveButton = screen.getByRole('button', { name: /submit_button_label/i });
-        expect(saveButton).toBeDisabled();
-
         expect(displayNameInput).toHaveAttribute('readonly');
+        expect(
+          screen.queryByRole('button', { name: /submit_button_label/i }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /cancel_button_label/i }),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -611,6 +614,66 @@ describe('OrganizationDetailsEdit', () => {
 
         // Form should still have the modified value
         expect(displayNameInput).toHaveValue('New Name');
+      });
+    });
+  });
+
+  describe('Granted permissions', () => {
+    describe('when update:my_org:details is granted', () => {
+      it('should render an editable form with the save action visible', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+          { permissions: ['read:my_org:details', 'update:my_org:details'] },
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+
+        expect(displayNameInput).not.toHaveAttribute('readonly');
+        expect(screen.getByRole('button', { name: /submit_button_label/i })).toBeInTheDocument();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('should keep the save action visible but disabled, unlike readOnly', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+          { permissions: ['read:my_org:details'] },
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+
+        expect(displayNameInput).toHaveAttribute('readonly');
+        expect(screen.getByRole('button', { name: /submit_button_label/i })).toBeDisabled();
+      });
+
+      it('should explain why the save action is unavailable', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+          { permissions: ['read:my_org:details'] },
+        );
+
+        await waitForComponentToLoad();
+
+        await user.hover(screen.getByRole('button', { name: /submit_button_label/i }));
+
+        await waitFor(() => {
+          expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+        });
+      });
+    });
+
+    describe('when no permissions are granted', () => {
+      it('should keep the form read-only', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+          { permissions: [] },
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+
+        expect(displayNameInput).toHaveAttribute('readonly');
+        expect(screen.getByRole('button', { name: /submit_button_label/i })).toBeDisabled();
       });
     });
   });

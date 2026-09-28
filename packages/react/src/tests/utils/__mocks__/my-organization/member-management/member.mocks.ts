@@ -1,6 +1,7 @@
 import type { OrgMember, Role } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { ALL_MEMBER_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
   MemberDetailDangerZoneProps,
   MemberDetailModalState,
@@ -27,6 +28,7 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
     family_name: 'Lovelace',
     roles: [{ id: 'role_admin', name: 'Admin' }],
     picture: undefined,
+    access_level: 'full',
     ...overrides,
   }) as OrgMember;
 
@@ -48,6 +50,7 @@ export const createMockMemberActionsColumnProps = (
   overrides: Partial<OrganizationMemberTableActionsColumnProps> = {},
 ): OrganizationMemberTableActionsColumnProps => ({
   member: createMockMember(),
+  permissions: ALL_MEMBER_PERMISSIONS,
   onViewDetails: vi.fn(),
   onAssignRole: vi.fn(),
   onRemoveFromOrganization: vi.fn(),
@@ -69,6 +72,7 @@ export const createMockMemberTableProps = (
   filters: {},
   sortConfig: { key: null, direction: 'asc' },
   availableRoles: [],
+  permissions: ALL_MEMBER_PERMISSIONS,
   onView: vi.fn(),
   onAssignRole: vi.fn(),
   onRemoveFromOrganization: vi.fn(),
@@ -188,6 +192,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   },
   customMessages: {},
   activeTab: 'details',
+  permissions: ALL_MEMBER_PERMISSIONS,
   member: createMockMember(),
   organizationDisplayName: 'Test Org',
   memberRoles: createMockMemberRoles(),
@@ -196,6 +201,7 @@ export const createMockOrganizationMemberDetailViewProps = (
   selectedRoles: [],
   isFetchingMember: false,
   isFetchingMemberRoles: false,
+  isSearchingRoles: false,
   isLoading: false,
   memberError: null,
   isRemovingFromOrganization: false,

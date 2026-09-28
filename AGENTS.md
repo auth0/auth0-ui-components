@@ -8,22 +8,22 @@
 
 ## Quick Commands
 
-| Task                  | Command             |
-| --------------------- | ------------------- |
-| Install               | `pnpm install`      |
-| Build all             | `pnpm build`        |
-| Build docs            | `pnpm build:docs`   |
-| Build shadcn registry | `pnpm build:shadcn` |
-| Test all              | `pnpm test`         |
-| Test core only        | `pnpm test:core`    |
-| Test react only       | `pnpm test:react`   |
-| Test watch mode       | `pnpm test:watch`   |
-| Lint                  | `pnpm lint`         |
-| Lint + fix            | `pnpm lint:fix`     |
-| Format                | `pnpm format`       |
-| Format check          | `pnpm format:check` |
-| Dev docs site         | `pnpm dev:docs`     |
-| Conventional commit   | `pnpm commit`       |
+| Task                     | Command                  |
+| ------------------------ | ------------------------ |
+| Install                  | `pnpm install`           |
+| Build all                | `pnpm build`             |
+| Build docs               | `pnpm build:docs`        |
+| Generate shadcn registry | `pnpm registry:generate` |
+| Test all                 | `pnpm test`              |
+| Test core only           | `pnpm test:core`         |
+| Test react only          | `pnpm test:react`        |
+| Test watch mode          | `pnpm test:watch`        |
+| Lint                     | `pnpm lint`              |
+| Lint + fix               | `pnpm lint:fix`          |
+| Format                   | `pnpm format`            |
+| Format check             | `pnpm format:check`      |
+| Dev docs site            | `pnpm dev:docs`          |
+| Conventional commit      | `pnpm commit`            |
 
 ---
 
@@ -171,8 +171,7 @@ auth0-ui-components/
 │
 ├── docs-site/                       # Documentation site (Vite + React)
 │   ├── src/                         # Source files
-│   ├── public/                      # Static assets & shadcn registry output
-│   └── api/                         # API routes
+│   └── public/                      # Static assets
 │
 ├── docs-api/                        # API documentation (TypeDoc output)
 │
@@ -558,8 +557,8 @@ pnpm build
 cd packages/core && pnpm build
 cd packages/react && pnpm build
 
-# Build shadcn registry
-pnpm build:shadcn
+# Generate shadcn registry
+pnpm registry:generate
 ```
 
 ---
@@ -630,20 +629,20 @@ Pattern: `{type}/{description}` (e.g., `feat/UIC-531-tooltip-for-toggle-action`)
 Components can be installed via shadcn CLI:
 
 ```bash
-npx shadcn@latest add https://auth0-ui-components.vercel.app/r/my-organization/organization-details-edit.json
+npx shadcn@latest add @auth0/react/my-organization/organization-details-edit
 ```
 
 ### Registry Configuration
 
-- **Source:** `packages/react/registry.json`
-- **Build command:** `pnpm build:shadcn`
-- **Output:** `docs-site/public/r/`
+- **Source:** `packages/react/registry.json` (generated from component source)
+- **Generate command:** `pnpm registry:generate`
+- **Distribution:** GitHub registry (`auth0/auth0-ui-components`)
 
 ### Adding to Registry
 
-1. Update `packages/react/registry.json`
-2. Run `pnpm build:shadcn`
-3. Registry files copied to `docs-site/public/r/`
+1. Add the component under `packages/react/src`
+2. Run `pnpm registry:generate` to regenerate `packages/react/registry.json`
+3. Commit the updated `registry.json`
 
 **Important:** Do not add `index` files to `registry.json` - only add individual component files.
 

@@ -178,20 +178,26 @@ describe('SsoProviderEdit', () => {
         });
       });
 
-      it('should disable form save button', async () => {
+      it('should not render the form save button', async () => {
         renderWithProviders(
           <SsoProviderEdit {...createMockSsoProviderEditProps({ readOnly: true })} />,
         );
 
         await waitForComponentToLoad();
 
-        // The save/submit button should be disabled
-        const saveButton = screen.queryByRole('button', {
-          name: /submit_button_label/i,
-        });
+        expect(
+          screen.queryByRole('button', { name: /submit_button_label/i }),
+        ).not.toBeInTheDocument();
+      });
 
-        expect(saveButton).toBeInTheDocument();
-        expect(saveButton).toBeDisabled();
+      it('should not render the enable/disable provider toggle', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ readOnly: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
       });
     });
 

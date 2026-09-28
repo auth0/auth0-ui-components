@@ -7,6 +7,7 @@
 import {
   createProviderConfigureSchema,
   type SamlpConfigureFormValues,
+  type SamlpConfigureFormInput,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
@@ -16,6 +17,7 @@ import { useForm } from 'react-hook-form';
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
 import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
+import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Accordion,
   AccordionContent,
@@ -44,8 +46,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { TextField } from '@/components/ui/text-field';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -91,9 +95,13 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    connectionName,
+    resolveSamlMetadata,
     showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
     isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
     isOrganizationBlocked = false,
     styling,
   },
@@ -104,32 +112,58 @@ export const SamlpProviderForm = React.forwardRef<
     customMessages,
   );
 
+  const { coreClient } = useCoreClient();
+
+  const spMetadataUrls = React.useMemo(() => {
+    const domain = coreClient?.getDomain();
+    const connectionParam = connectionName ? `?connection=${connectionName}` : '';
+    return {
+      callback_url: `https://${domain}/login/callback`,
+      acs_url: `https://${domain}/login/callback${connectionParam}`,
+      sp_metadata_url: `https://${domain}/samlp/metadata${connectionParam}`,
+    };
+  }, [coreClient, connectionName]);
+
+  const spIssuerUrn = React.useMemo(() => {
+    if (!connectionName) return '';
+    if (resolveSamlMetadata) return resolveSamlMetadata({ connectionName }).entityId;
+    const domain = coreClient?.getDomain();
+    const tenant = domain?.split('.')[0] ?? '';
+    return `urn:auth0:${tenant}:${connectionName}`;
+  }, [resolveSamlMetadata, connectionName, coreClient]);
+
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-  const samlpData = initialData as SamlpConfigureFormValues | undefined;
+  const samlpData = initialData as SamlpConfigureFormInput | undefined;
+  const hasSignInEndpoint = Boolean(samlpData?.signInEndpoint);
+  const defaultMetaDataSource =
+    samlpData?.meta_data_source ?? (hasSignInEndpoint ? 'meta_data_file' : 'meta_data_url');
 
   const form = useForm<SamlpConfigureFormValues>({
     resolver: zodResolver(createProviderConfigureSchema('samlp')),
     mode: FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues: {
-      meta_data_source: samlpData?.meta_data_source || 'meta_data_url',
+      meta_data_source: defaultMetaDataSource,
       metadataUrl: samlpData?.metadataUrl || '',
-      single_sign_on_login_url: samlpData?.single_sign_on_login_url || '',
-      cert: samlpData?.cert || '',
+      signInEndpoint: samlpData?.signInEndpoint || '',
+      signingCert: samlpData?.signingCert || '',
       signSAMLRequest: samlpData?.signSAMLRequest || false,
       signatureAlgorithm: samlpData?.signatureAlgorithm || 'rsa-sha256',
       digestAlgorithm: samlpData?.digestAlgorithm || 'sha256',
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
-      use_for_third_party_client_access:
-        (samlpData as { use_for_third_party_client_access?: boolean })
-          ?.use_for_third_party_client_access ?? false,
+      use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
       cross_app_access_resource_app:
-        (samlpData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-          ?.cross_app_access_resource_app ?? undefined,
-      discovery_url: (samlpData as { discovery_url?: string })?.discovery_url ?? '',
+        samlpData?.cross_app_access_resource_app ??
+        (crossAppAccessDefaultValue !== undefined
+          ? { status: crossAppAccessDefaultValue }
+          : undefined),
+      discovery_url: samlpData?.discovery_url ?? '',
+      callback_url: spMetadataUrls.callback_url,
+      acs_url: spMetadataUrls.acs_url,
+      sp_metadata_url: spMetadataUrls.sp_metadata_url,
     },
   });
 
@@ -141,18 +175,29 @@ export const SamlpProviderForm = React.forwardRef<
     onFormDirty?.(isDirty);
   }, [isDirty, onFormDirty]);
 
+  React.useEffect(() => {
+    form.setValue('callback_url', spMetadataUrls.callback_url);
+    form.setValue('acs_url', spMetadataUrls.acs_url);
+    form.setValue('sp_metadata_url', spMetadataUrls.sp_metadata_url);
+  }, [form, spMetadataUrls]);
+
   React.useImperativeHandle(ref, () => ({
     validate: async () => {
       return await form.trigger();
     },
-    getData: () => form.getValues(),
+    getData: () => {
+      const values = form.getValues();
+      const rawData = { ...values, protocolBinding: values.bindingMethod };
+      const schema = createProviderConfigureSchema('samlp');
+      const result = schema.safeParse(rawData);
+      return result.success ? result.data : rawData;
+    },
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
-      if (data) {
-        form.reset(data);
-      } else {
-        form.reset();
-      }
+      form.reset({
+        ...(data ?? form.formState.defaultValues),
+        ...spMetadataUrls,
+      });
     },
   }));
 
@@ -168,10 +213,12 @@ export const SamlpProviderForm = React.forwardRef<
     if (file) {
       try {
         const content = await file.text();
-        form.setValue('cert', content);
+        form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
       } catch (error) {
         console.error('Error reading file:', error);
       }
+    } else {
+      form.setValue('signingCert', '', { shouldDirty: true, shouldValidate: true });
     }
   };
 
@@ -212,38 +259,40 @@ export const SamlpProviderForm = React.forwardRef<
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="metadataUrl"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.samlp.meta_data_url.label')}
-              </FormLabel>
-              <FormControl>
-                <TextField
-                  type="url"
-                  placeholder={t('fields.samlp.meta_data_url.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  aria-required={true}
-                  aria-invalid={Boolean(fieldState.error)}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.samlp.meta_data_url.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        {!showMetadataFileField && (
+          <FormField
+            control={form.control}
+            name="metadataUrl"
+            render={({ field, fieldState }) => (
+              <FormItem>
+                <FormLabel className="text-label font-medium">
+                  {t('fields.samlp.meta_data_url.label')}
+                </FormLabel>
+                <FormControl>
+                  <TextField
+                    type="url"
+                    placeholder={t('fields.samlp.meta_data_url.placeholder')}
+                    error={Boolean(fieldState.error)}
+                    readOnly={readOnly}
+                    aria-required={true}
+                    aria-invalid={Boolean(fieldState.error)}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage role="alert" className="text-left text-paragraph" />
+                <FormDescription className="text-paragraph font-normal text-left">
+                  {t('fields.samlp.meta_data_url.helper_text')}
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        )}
 
         {showMetadataFileField && (
           <>
             <FormField
               control={form.control}
-              name="single_sign_on_login_url"
+              name="signInEndpoint"
               render={({ field, fieldState }) => (
                 <FormItem>
                   <FormLabel className="text-label font-medium">
@@ -269,7 +318,7 @@ export const SamlpProviderForm = React.forwardRef<
             />
             <FormField
               control={form.control}
-              name="cert"
+              name="signingCert"
               render={() => (
                 <FormItem>
                   <FormLabel className="text-label font-medium">
@@ -278,7 +327,7 @@ export const SamlpProviderForm = React.forwardRef<
                   <FormControl>
                     <div className="space-y-3">
                       <FileUpload
-                        accept=".pem"
+                        accept={ALLOWED_CERT_EXTENSIONS.join(',')}
                         onChange={handleFileUpload}
                         value={uploadedFiles}
                         maxFiles={1}
@@ -358,7 +407,11 @@ export const SamlpProviderForm = React.forwardRef<
                         <FormLabel className="text-label font-medium">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm.label')}
                         </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          disabled={readOnly}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue
@@ -389,7 +442,11 @@ export const SamlpProviderForm = React.forwardRef<
                         <FormLabel className="text-label font-medium">
                           {t('fields.samlp.advanced_settings.sign_request_algorithm_digest.label')}
                         </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value || ''}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ''}
+                          disabled={readOnly}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue
@@ -421,7 +478,11 @@ export const SamlpProviderForm = React.forwardRef<
                     <FormLabel className="text-label font-medium">
                       {t('fields.samlp.advanced_settings.request_protocol_binding.label')}
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || ''}
+                      disabled={readOnly}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue
@@ -447,6 +508,72 @@ export const SamlpProviderForm = React.forwardRef<
           </AccordionItem>
         </Accordion>
 
+        <FormField
+          control={form.control}
+          name="callback_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.callback_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.callback_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="acs_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.acs_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.acs_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sp_metadata_url"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-label font-medium">
+                {t('fields.samlp.sp_metadata_url.label')}
+              </FormLabel>
+              <FormControl>
+                <CopyableTextField type="text" readOnly={true} {...field} />
+              </FormControl>
+              <FormDescription className="text-paragraph font-normal text-left">
+                {t('fields.samlp.sp_metadata_url.helper_text')}
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+
+        <div className="grid gap-2">
+          <Label htmlFor="sp_issuer_urn" className="text-label font-medium">
+            {t('fields.samlp.sp_issuer_urn.label')}
+          </Label>
+          <CopyableTextField id="sp_issuer_urn" type="text" readOnly={true} value={spIssuerUrn} />
+          <p
+            className={cn('text-muted-foreground text-sm', 'text-paragraph font-normal text-left')}
+          >
+            {t('fields.samlp.sp_issuer_urn.helper_text')}
+          </p>
+        </div>
+
         <CommonConfigureFields
           idpConfig={idpConfig}
           readOnly={readOnly}
@@ -461,7 +588,7 @@ export const SamlpProviderForm = React.forwardRef<
               <SsoThirdPartyAccessSection
                 checked={field.value ?? false}
                 onChange={field.onChange}
-                readOnly={readOnly}
+                readOnly={readOnly || isThirdPartyAccessReadOnly}
                 isOrganizationBlocked={isOrganizationBlocked}
                 className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
               />

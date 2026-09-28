@@ -40,7 +40,9 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
   const fetchFn = config.customFetcher;
   return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
-    headers.set(HeaderName.ContentType, ContentType.JSON);
+    if (init?.body) {
+      headers.set(HeaderName.ContentType, ContentType.JSON);
+    }
     if (authParams?.scope?.length) {
       headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
     }
@@ -80,7 +82,9 @@ export function createSpaFetcher(
   const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId });
   return (url, init, authParams) => {
     const headers = new Headers(init?.headers);
-    headers.set(HeaderName.ContentType, ContentType.JSON);
+    if (init?.body) {
+      headers.set(HeaderName.ContentType, ContentType.JSON);
+    }
     if (telemetry.enabled) {
       headers.set(
         HeaderName.Auth0Client,

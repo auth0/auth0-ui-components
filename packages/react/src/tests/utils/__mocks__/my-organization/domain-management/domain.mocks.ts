@@ -6,12 +6,15 @@ import type {
 } from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
+import { ALL_DOMAIN_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import type {
+  DomainTableActionsColumnProps,
   DomainTableProps,
   UseDomainTableReturn,
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
+import type { SsoDomainCreateAction } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
   id: 'domain_abc123xyz456',
@@ -82,6 +85,17 @@ export const createMockIdentityProviderWithoutProvisioning = (
   } as IdpKnownResponse;
 };
 
+export const createMockDomainActionsColumnProps = (
+  overrides: Partial<DomainTableActionsColumnProps> = {},
+): DomainTableActionsColumnProps => ({
+  domain: createMockDomain(),
+  permissions: ALL_DOMAIN_PERMISSIONS,
+  onConfigure: vi.fn(),
+  onVerify: vi.fn(),
+  onDelete: vi.fn(),
+  ...overrides,
+});
+
 export const createMockDomainTableProps = (
   overrides?: Partial<DomainTableProps>,
 ): DomainTableProps => ({
@@ -101,7 +115,7 @@ export const createMockDomainTableProps = (
   ...overrides,
 });
 
-export const createMockCreateAction = (): ComponentAction<Domain> => ({
+export const createMockCreateAction = (): SsoDomainCreateAction => ({
   disabled: false,
   onBefore: vi.fn(() => true),
   onAfter: vi.fn(),
@@ -122,6 +136,7 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
 export const createMockDomainTableReturn = (
   overrides: Partial<UseDomainTableReturn> = {},
 ): UseDomainTableReturn => ({
+  permissions: ALL_DOMAIN_PERMISSIONS,
   domains: [createMockDomain(), createMockVerifiedDomain()],
   providers: [],
   isCreating: false,

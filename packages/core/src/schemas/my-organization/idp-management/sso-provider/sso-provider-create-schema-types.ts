@@ -267,7 +267,7 @@ export interface ProviderConfigureSchema {
       required?: boolean;
       errorMessage?: string;
     };
-    single_sign_on_login_url?: {
+    signInEndpoint?: {
       required?: boolean;
       errorMessage?: string;
     };
@@ -310,7 +310,7 @@ export interface ProviderConfigureSchema {
       maxLength?: number;
       required?: boolean;
     };
-    cert?: {
+    signingCert?: {
       regex?: RegExp;
       errorMessage?: string;
       minLength?: number;

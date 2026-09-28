@@ -4,6 +4,7 @@
  */
 
 import type {
+  IdpManagementPermissions,
   SharedComponentProps,
   ProviderSelectMessages,
   ProviderDetailsMessages,
@@ -81,10 +82,21 @@ export interface ProviderConfigureProps
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -94,11 +106,22 @@ export interface ProviderConfigureFieldsProps
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -115,11 +138,20 @@ export interface SsoProviderCreateProps
   backButton?: SsoProviderCreateBackButton;
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface UseSsoProviderCreateOptions {
   createAction?: SsoProviderCreateProps['createAction'];
   customMessages?: SsoProviderCreateProps['customMessages'];
+  readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
 export interface UseSsoProviderCreateServiceReturn {
@@ -134,6 +166,7 @@ export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOpt
 }
 
 export interface UseSsoProviderCreateResult {
+  permissions: IdpManagementPermissions;
   formData: FormState;
   setFormData: React.Dispatch<React.SetStateAction<FormState>>;
   detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
@@ -151,6 +184,7 @@ export interface UseSsoProviderCreateResult {
   isCrossAppAccessReadOnly: boolean;
   getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
   isOrganizationBlocked: boolean;
+  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
@@ -166,42 +200,13 @@ export type FormState = {
   configure?: ProviderConfigureFormValues | null;
 };
 
-export type SsoProviderCreateViewProps = {
-  logic: SsoProviderCreateLogicProps;
-  handlers: SsoProviderCreateHandlerProps;
-};
-
-export interface SsoProviderCreateLogicProps {
-  formData: FormState;
+export interface SsoProviderCreateViewProps
+  extends UseSsoProviderCreateResult,
+    Pick<
+      SsoProviderCreateProps,
+      'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious' | 'resolveSamlMetadata'
+    > {
   strategy?: IdpStrategy;
   details?: ProviderDetailsFormValues | null;
   configure?: ProviderConfigureFormValues | null;
-  isCreating: boolean;
-  isLoadingConfig: boolean;
-  filteredStrategies: IdpStrategy[];
-  isLoadingIdpConfig: boolean;
-  idpConfig?: GetIdpConfigurationResponseContent | null;
-  showThirdPartyAccess?: boolean;
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-  isOrganizationBlocked?: boolean;
-  styling?: SsoProviderCreateProps['styling'];
-  customMessages?: SsoProviderCreateProps['customMessages'];
-  backButton?: SsoProviderCreateProps['backButton'];
-}
-
-export interface SsoProviderCreateHandlerProps {
-  onNext: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  onPrevious: ((stepId: string, values: Partial<SsoProviderFormValues>) => boolean) | undefined;
-  setFormData: React.Dispatch<React.SetStateAction<FormState>>;
-  detailsRef: React.RefObject<ProviderDetailsFormHandle | null>;
-  configureRef: React.RefObject<ProviderConfigureHandle | null>;
-  handleCreate: () => Promise<void>;
-  createStepActions: (
-    stepId: 'provider_details' | 'provider_configure',
-    ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,
-  ) => {
-    onNextAction: () => Promise<boolean>;
-    onPreviousAction: () => Promise<boolean>;
-  };
 }

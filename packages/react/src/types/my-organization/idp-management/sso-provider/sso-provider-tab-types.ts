@@ -4,6 +4,7 @@
  */
 
 import type {
+  IdpManagementPermissions,
   SharedComponentProps,
   IdpKnownResponse,
   OrganizationPrivate,
@@ -59,6 +60,7 @@ export interface SsoProviderTabProps
     SsoProviderTabSchemas
   > {
   formActions: SsoProviderDetailsFormActions;
+  permissions: IdpManagementPermissions;
   idpConfig: GetIdpConfigurationResponseContent | null;
   shouldAllowDeletion: boolean;
   hideDeleteProvider?: boolean;
@@ -74,6 +76,7 @@ export interface SsoProviderTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
@@ -108,9 +111,18 @@ export interface SsoProviderDetailsProps
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
   showThirdPartyAccess?: boolean;
+  isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ThirdPartyAccessSectionProps {

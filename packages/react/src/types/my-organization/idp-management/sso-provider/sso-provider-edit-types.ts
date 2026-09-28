@@ -22,6 +22,7 @@ import type {
   IdpStrategy,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
+  IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -139,12 +140,14 @@ export interface UseSsoProviderEditServiceReturn {
 }
 
 export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceReturn {
+  permissions: IdpManagementPermissions;
   shouldAllowDeletion: boolean;
   isLoadingConfig: boolean;
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
   showThirdPartyAccess: boolean;
+  isThirdPartyAccessReadOnly: boolean;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
@@ -165,6 +168,8 @@ export interface SsoProviderAttributeSyncAlertProps {
   onSync?: () => void | Promise<void>;
   isSyncing?: boolean;
   customMessages?: Partial<AttributeSyncAlertMessages>;
+  canSync?: boolean;
+  permissionDenied?: boolean;
 }
 
 export interface SsoProviderEditViewProps

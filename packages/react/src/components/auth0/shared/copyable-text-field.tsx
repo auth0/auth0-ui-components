@@ -66,7 +66,7 @@ const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldPr
             <Copy className="h-4 w-4" aria-hidden="true" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5} className="z-[1000]">
+        <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5}>
           {tooltipText}
         </TooltipContent>
       </Tooltip>

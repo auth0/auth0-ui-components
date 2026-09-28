@@ -17,6 +17,7 @@ createRoot(document.getElementById('root')!).render(
         clientId={config.auth0.clientId}
         authorizationParams={{
           redirect_uri: window.location.origin,
+          audience: `https://${config.auth0.domain}/my-org/`,
         }}
         useMrrt={true}
         cacheLocation="localstorage"

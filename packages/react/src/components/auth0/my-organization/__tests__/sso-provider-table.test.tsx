@@ -170,13 +170,22 @@ describe('SsoProviderTable', () => {
 
   describe('readOnly', () => {
     describe('when is true', () => {
-      it('should disable action buttons', async () => {
+      it('should not render the create button', async () => {
         renderTable({ readOnly: true });
 
         await waitForComponentToLoad();
 
-        const createButton = screen.getByRole('button', { name: /create/i });
-        expect(createButton).toBeDisabled();
+        expect(screen.queryByRole('button', { name: /create/i })).not.toBeInTheDocument();
+      });
+
+      it('should not render any row action, including the toggle', async () => {
+        renderTable({ readOnly: true });
+
+        await waitForComponentToLoad();
+        await screen.findByText(mockProvider.name!);
+
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /menu/i })).not.toBeInTheDocument();
       });
     });
 
@@ -255,14 +264,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -282,14 +284,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -310,14 +305,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const editMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.edit_button_text/i,
@@ -334,8 +322,7 @@ describe('SsoProviderTable', () => {
   describe('deleteAction', () => {
     describe('deleteAction.disabled', () => {
       describe('when is true', () => {
-        it('should disable delete button in the dropdown when readOnly is true', async () => {
-          const user = userEvent.setup();
+        it('should render no row actions menu when readOnly is true', async () => {
           const mockDeleteAction = createMockDeleteAction();
           mockDeleteAction.disabled = true;
 
@@ -347,19 +334,9 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
-
-          const deleteMenuItem = screen.getByRole('menuitem', {
-            name: /table.actions.delete_button_text/i,
-          });
-          expect(deleteMenuItem).toHaveAttribute('aria-disabled', 'true');
+          expect(
+            screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -374,14 +351,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
@@ -404,14 +374,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
@@ -438,14 +401,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const deleteMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.delete_button_text/i,
@@ -472,14 +428,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const deleteMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.delete_button_text/i,
@@ -510,8 +459,7 @@ describe('SsoProviderTable', () => {
   describe('deleteFromOrganizationAction', () => {
     describe('deleteFromOrganizationAction.disabled', () => {
       describe('when is true', () => {
-        it('should disable remove from organization button when readOnly is true', async () => {
-          const user = userEvent.setup();
+        it('should render no row actions menu when readOnly is true', async () => {
           const mockDeleteFromOrganizationAction = createMockDeleteFromOrganizationAction();
           mockDeleteFromOrganizationAction.disabled = true;
 
@@ -523,19 +471,9 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
-
-          const removeMenuItem = screen.getByRole('menuitem', {
-            name: /table.actions.remove_button_text/i,
-          });
-          expect(removeMenuItem).toHaveAttribute('aria-disabled', 'true');
+          expect(
+            screen.queryByRole('button', { name: 'table.actions.menu_label' }),
+          ).not.toBeInTheDocument();
         });
       });
 
@@ -552,14 +490,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
@@ -584,14 +515,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
@@ -620,14 +544,7 @@ describe('SsoProviderTable', () => {
             await waitForComponentToLoad();
             await screen.findByText(mockProvider.name!);
 
-            const actionButtons = screen.getAllByRole('button');
-            const rowActionButton = actionButtons.find(
-              (btn) =>
-                btn.querySelector('svg.lucide-more-horizontal') ||
-                btn.className.includes('rounded-xl'),
-            );
-            expect(rowActionButton).toBeDefined();
-            await user.click(rowActionButton!);
+            await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
             const removeMenuItem = screen.getByRole('menuitem', {
               name: /table.actions.remove_button_text/i,
@@ -656,14 +573,7 @@ describe('SsoProviderTable', () => {
           await waitForComponentToLoad();
           await screen.findByText(mockProvider.name!);
 
-          const actionButtons = screen.getAllByRole('button');
-          const rowActionButton = actionButtons.find(
-            (btn) =>
-              btn.querySelector('svg.lucide-more-horizontal') ||
-              btn.className.includes('rounded-xl'),
-          );
-          expect(rowActionButton).toBeDefined();
-          await user.click(rowActionButton!);
+          await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
           const removeMenuItem = screen.getByRole('menuitem', {
             name: /table.actions.remove_button_text/i,
@@ -762,7 +672,7 @@ describe('SsoProviderTable', () => {
         expect(enableProviderAction.onAfter).not.toHaveBeenCalled();
       });
 
-      it('should disable toggle switch when readOnly is true', async () => {
+      it('should not render the toggle switch when readOnly is true', async () => {
         const enableProviderAction = {
           disabled: false,
           onBefore: vi.fn(() => true),
@@ -774,9 +684,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const toggleSwitch = screen.getByRole('switch');
-        expect(toggleSwitch).toBeInTheDocument();
-        expect(toggleSwitch).toBeDisabled();
+        expect(screen.queryByRole('switch')).not.toBeInTheDocument();
       });
     });
   });
@@ -885,13 +793,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
@@ -908,13 +810,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.delete_button_text/i }),
@@ -933,13 +829,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),
@@ -956,13 +846,7 @@ describe('SsoProviderTable', () => {
         await waitForComponentToLoad();
         await screen.findByText(mockProvider.name!);
 
-        const actionButtons = screen.getAllByRole('button');
-        const rowActionButton = actionButtons.find(
-          (btn) =>
-            btn.querySelector('svg.lucide-more-horizontal') || btn.className.includes('rounded-xl'),
-        );
-        expect(rowActionButton).toBeDefined();
-        await user.click(rowActionButton!);
+        await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
         expect(
           screen.queryByRole('menuitem', { name: /table.actions.remove_button_text/i }),

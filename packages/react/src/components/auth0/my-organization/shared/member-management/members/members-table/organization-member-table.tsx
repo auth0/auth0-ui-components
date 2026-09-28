@@ -55,6 +55,7 @@ export function OrganizationMemberTable({
   customMessages = {},
   availableRoles,
   sortConfig,
+  permissions,
   className,
   onSortChange,
   onView,
@@ -176,6 +177,7 @@ export function OrganizationMemberTable({
         render: (member) => (
           <OrganizationMemberTableActionsColumn
             member={member}
+            permissions={permissions}
             onViewDetails={onView}
             onAssignRole={onAssignRole}
             onRemoveFromOrganization={onRemoveFromOrganization}
@@ -183,7 +185,21 @@ export function OrganizationMemberTable({
         ),
       },
     ],
-    [t, onView, onAssignRole, onRemoveFromOrganization, renderName, renderRoles, renderLastLogin],
+    [
+      t,
+      permissions,
+      onView,
+      onAssignRole,
+      onRemoveFromOrganization,
+      renderName,
+      renderRoles,
+      renderLastLogin,
+    ],
+  );
+
+  const handleRowClick = React.useCallback(
+    (member: OrgMember) => onView?.({ userId: member.user_id ?? '' }),
+    [onView],
   );
 
   return (
@@ -203,6 +219,8 @@ export function OrganizationMemberTable({
         emptyState={{ title: t('member.table.empty_message') }}
         sortConfig={sortConfig}
         onSortChange={onSortChange}
+        onRowClick={handleRowClick}
+        rowClickLabel={(index) => t('data_table.view_row', { index: index + 1 })}
       />
 
       {!loading && (members.length > 0 || pagination.hasPreviousPage) && (
@@ -213,6 +231,7 @@ export function OrganizationMemberTable({
               pageSize: pagination.pageSize,
               currentPage: pagination.currentPage,
               totalItems: pagination.totalItems,
+              totalItemsDisplay: pagination.totalItemsDisplay,
               hasNextPage: pagination.hasNextPage,
               hasPreviousPage: pagination.hasPreviousPage,
             }}

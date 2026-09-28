@@ -28,12 +28,16 @@ export { OrganizationMemberDetail } from './components/auth0/my-organization/org
 export { OrganizationDetailsEditView } from './components/auth0/my-organization/organization-details-edit';
 export { OrganizationDetailsEdit } from './components/auth0/my-organization/organization-details-edit.composable';
 
+// Providers
+export { PermissionProvider } from './providers/permission-provider';
+
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';
 export { useTranslator } from './hooks/shared/use-translator';
 export { useTheme } from './hooks/shared/use-theme';
 export { useCoreClientInitialization } from './hooks/shared/use-core-client-initialization';
 export { useErrorHandler } from './hooks/shared/use-error-handler';
+export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
@@ -95,3 +99,4 @@ export * from './types/my-organization/member-management/organization-invitation
 export * from './types/my-organization/member-management/organization-member-management-types';
 export * from './types/my-organization/member-management/organization-member-detail-types';
 export * from './types/my-organization/member-management/organization-member-table-types';
+export * from './types/permissions/permissions-types';

@@ -26,6 +26,7 @@ import {
 } from '@/components/auth0/my-organization/domain-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
@@ -172,8 +173,12 @@ function CreateAction({ render }: DomainTableCreateActionProps) {
   const { t } = useTranslator('domain_management', props.customMessages);
 
   const label = t('domain_table.header.create_button_text');
+  const canCreate = model.permissions.canCreateDomain;
   const disabled =
-    Boolean(props.createAction?.disabled) || Boolean(props.readOnly) || model.isFetching;
+    Boolean(props.createAction?.disabled) ||
+    Boolean(props.readOnly) ||
+    model.isFetching ||
+    !canCreate;
   const onClick = () => model.handleCreateClick();
 
   if (render) {
@@ -185,16 +190,18 @@ function CreateAction({ render }: DomainTableCreateActionProps) {
   }
 
   return (
-    <Button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      className="flex items-center gap-2 w-full sm:w-auto sm:min-w-fit"
-    >
-      <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-      <span className="truncate">{label}</span>
-    </Button>
+    <PermissionDeniedTooltip enabled={!canCreate} customMessages={props.customMessages}>
+      <Button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className="flex items-center gap-2 w-full sm:w-auto sm:min-w-fit"
+      >
+        <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        <span className="truncate">{label}</span>
+      </Button>
+    </PermissionDeniedTooltip>
   );
 }
 

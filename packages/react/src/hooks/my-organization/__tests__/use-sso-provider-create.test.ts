@@ -1,7 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
+import { createElement } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useSsoProviderCreate } from '../use-sso-provider-create';
+
+import { PermissionContext } from '@/providers/permission-provider';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 
 const mockUseConfig = vi.fn(() => ({
   isLoadingConfig: false,
@@ -12,6 +16,7 @@ const mockUseConfig = vi.fn(() => ({
 vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: () => mockUseConfig(),
 }));
+
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     isLoadingIdpConfig: false,
@@ -21,6 +26,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
     getCrossAppAccessDefaultValue: vi.fn(() => undefined),
   }),
 }));
+
 const mockCreateProvider = vi.fn();
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
@@ -42,12 +48,25 @@ describe('useSsoProviderCreate - logic behavior', () => {
     });
   });
 
+  const wrapperFor =
+    (permissions: string[]) =>
+    ({ children }: React.PropsWithChildren) =>
+      createElement(
+        PermissionContext.Provider,
+        { value: { permissions, isLoading: false } },
+        children,
+      );
+
+  const grantAll = { wrapper: wrapperFor(ALL_MY_ORG_PERMISSIONS) };
+
   it('should initialize formData and refs', () => {
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        onNext: mockOnNext,
-        onPrevious: mockOnPrevious,
-      }),
+    const { result } = renderHook(
+      () =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      grantAll,
     );
     expect(result.current.formData).toEqual({});
     expect(result.current.detailsRef.current).toBeNull();
@@ -55,11 +74,13 @@ describe('useSsoProviderCreate - logic behavior', () => {
   });
 
   it('should update formData via setFormData', () => {
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        onNext: mockOnNext,
-        onPrevious: mockOnPrevious,
-      }),
+    const { result } = renderHook(
+      () =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      grantAll,
     );
     act(() => {
       result.current.setFormData({
@@ -75,11 +96,13 @@ describe('useSsoProviderCreate - logic behavior', () => {
   });
 
   it('should call createProvider with merged data on handleCreate', async () => {
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        onNext: mockOnNext,
-        onPrevious: mockOnPrevious,
-      }),
+    const { result } = renderHook(
+      () =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      grantAll,
     );
     act(() => {
       result.current.setFormData({
@@ -104,11 +127,13 @@ describe('useSsoProviderCreate - logic behavior', () => {
   });
 
   it('createStepActions calls onNext and onPrevious handlers', async () => {
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        onNext: mockOnNext,
-        onPrevious: mockOnPrevious,
-      }),
+    const { result } = renderHook(
+      () =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      grantAll,
     );
     const ref = {
       current: {
@@ -134,11 +159,13 @@ describe('useSsoProviderCreate - logic behavior', () => {
   });
 
   it('createStepActions returns false if validation fails', async () => {
-    const { result } = renderHook(() =>
-      useSsoProviderCreate({
-        onNext: mockOnNext,
-        onPrevious: mockOnPrevious,
-      }),
+    const { result } = renderHook(
+      () =>
+        useSsoProviderCreate({
+          onNext: mockOnNext,
+          onPrevious: mockOnPrevious,
+        }),
+      grantAll,
     );
     const ref = {
       current: {
@@ -154,6 +181,30 @@ describe('useSsoProviderCreate - logic behavior', () => {
     expect(nextResult).toBe(false);
     expect(ref.current.validate).toHaveBeenCalled();
     expect(mockOnNext).not.toHaveBeenCalled();
+  });
+
+  describe('permission guards', () => {
+    it('should refuse to create a provider without create:my_org:identity_providers', async () => {
+      const { result } = renderHook(() => useSsoProviderCreate({}), {
+        wrapper: wrapperFor(['read:my_org:identity_providers']),
+      });
+
+      await act(async () => {
+        await result.current.handleCreate();
+      });
+
+      expect(mockCreateProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to create a provider when readOnly is set', async () => {
+      const { result } = renderHook(() => useSsoProviderCreate({ readOnly: true }), grantAll);
+
+      await act(async () => {
+        await result.current.handleCreate();
+      });
+
+      expect(mockCreateProvider).not.toHaveBeenCalled();
+    });
   });
 
   describe('showThirdPartyAccess', () => {

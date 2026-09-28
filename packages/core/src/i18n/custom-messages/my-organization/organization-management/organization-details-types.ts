@@ -3,7 +3,9 @@
  * @module organization-details-types
  * @internal
  */
-export interface OrganizationDetailsMessages {
+
+import type { SharedMessages } from '../../shared/shared-types';
+export interface OrganizationDetailsMessages extends SharedMessages {
   sections?: {
     settings?: {
       title?: string;

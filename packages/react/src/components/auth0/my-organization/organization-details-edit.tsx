@@ -55,6 +55,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     thirdPartyAccessDefaultValue,
+    canEdit,
   } = useOrganizationDetailsEdit({
     saveAction,
     cancelAction,
@@ -69,7 +70,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
         schema={schema}
         styling={styling}
         customMessages={customMessages}
-        readOnly={readOnly}
+        canEdit={canEdit}
         hideHeader={hideHeader}
         backButton={backButton}
         formActions={formActions}
@@ -91,7 +92,7 @@ function OrganizationDetailsEditView({
   schema,
   styling,
   customMessages,
-  readOnly,
+  canEdit,
   hideHeader,
   backButton,
   formActions,
@@ -132,7 +133,7 @@ function OrganizationDetailsEditView({
             schema={schema?.details}
             customMessages={customMessages?.details}
             styling={styling}
-            readOnly={readOnly}
+            readOnly={!canEdit}
             formActions={formActions}
             showThirdPartyAccess={showThirdPartyAccess}
             isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}

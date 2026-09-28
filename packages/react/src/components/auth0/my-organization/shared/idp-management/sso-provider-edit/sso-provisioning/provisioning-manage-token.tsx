@@ -16,6 +16,7 @@ import * as React from 'react';
 
 import { ProvisioningCreateTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal';
 import { ProvisioningDeleteTokenModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-token/provisioning-delete-token-modal';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -48,6 +49,7 @@ const TOKEN_STATUS = {
  * @param props.onListScimTokens - Callback to list SCIM tokens
  * @param props.onCreateScimToken - Callback to create a SCIM token
  * @param props.onDeleteScimToken - Callback to delete a SCIM token
+ * @param props.permissions - What the current user is allowed to do
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.customMessages - Custom translation messages to override defaults
  * @returns JSX element
@@ -59,6 +61,8 @@ export function ProvisioningManageToken({
   onListScimTokens,
   onCreateScimToken,
   onDeleteScimToken,
+  permissions,
+  readOnly = false,
   styling = {
     variables: {
       common: {},
@@ -95,7 +99,8 @@ export function ProvisioningManageToken({
     [styling, isDarkMode],
   );
 
-  const canGenerateToken = scimTokens.length < MAX_TOKENS;
+  const isAtTokenLimit = scimTokens.length >= MAX_TOKENS;
+  const canGenerateToken = !isAtTokenLimit && permissions.canCreateScimToken;
 
   const getTokenStatus = (
     token: IdpScimTokenBase,
@@ -163,26 +168,31 @@ export function ProvisioningManageToken({
             {t('description')}
           </CardDescription>
           <CardAction>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span>
-                  <Button
-                    type="button"
-                    onClick={handleGenerateToken}
-                    disabled={!canGenerateToken || isScimTokenCreating}
-                    title={undefined}
-                  >
-                    {isScimTokenCreating ? (
-                      <Spinner className="w-4 h-4 mr-2" />
-                    ) : (
-                      <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
-                    )}
-                    {t('generate_button_label')}
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              {!canGenerateToken && <TooltipContent>{t('max_tokens_tooltip')}</TooltipContent>}
-            </Tooltip>
+            <PermissionDeniedTooltip
+              customMessages={customMessages}
+              enabled={!readOnly && !isAtTokenLimit && !permissions.canCreateScimToken}
+            >
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      type="button"
+                      onClick={handleGenerateToken}
+                      disabled={!canGenerateToken || isScimTokenCreating}
+                      title={undefined}
+                    >
+                      {isScimTokenCreating ? (
+                        <Spinner className="w-4 h-4 mr-2" />
+                      ) : (
+                        <Plus className="w-4 h-4 mr-2" aria-hidden="true" />
+                      )}
+                      {t('generate_button_label')}
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                {isAtTokenLimit && <TooltipContent>{t('max_tokens_tooltip')}</TooltipContent>}
+              </Tooltip>
+            </PermissionDeniedTooltip>
           </CardAction>
         </CardHeader>
 
@@ -213,22 +223,27 @@ export function ProvisioningManageToken({
                     <Badge variant={status.variant} className="shrink-0">
                       {t(`token_item.status_${status.labelKey}`)}
                     </Badge>
-                    <Button
-                      variant="destructive"
-                      size="default"
-                      type="button"
-                      onClick={() => handleDeleteClick(token.token_id)}
-                      disabled={isScimTokenDeleting}
-                      aria-label={`${t('token_item.delete_button_label')} ${token.token_id}`}
-                      className="shrink-0"
+                    <PermissionDeniedTooltip
+                      customMessages={customMessages}
+                      enabled={!readOnly && !permissions.canDeleteScimToken}
                     >
-                      {isScimTokenDeleting ? (
-                        <Spinner className="w-4 h-4 mr-2" />
-                      ) : (
-                        <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
-                      )}
-                      {t('token_item.delete_button_label')}
-                    </Button>
+                      <Button
+                        variant="destructive"
+                        size="default"
+                        type="button"
+                        onClick={() => handleDeleteClick(token.token_id)}
+                        disabled={isScimTokenDeleting || !permissions.canDeleteScimToken}
+                        aria-label={`${t('token_item.delete_button_label')} ${token.token_id}`}
+                        className="shrink-0"
+                      >
+                        {isScimTokenDeleting ? (
+                          <Spinner className="w-4 h-4 mr-2" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" aria-hidden="true" />
+                        )}
+                        {t('token_item.delete_button_label')}
+                      </Button>
+                    </PermissionDeniedTooltip>
                   </div>
                 </div>
               );

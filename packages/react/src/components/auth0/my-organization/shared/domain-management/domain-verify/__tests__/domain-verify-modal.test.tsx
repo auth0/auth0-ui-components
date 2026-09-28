@@ -4,6 +4,10 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import {
+  ALL_DOMAIN_PERMISSIONS,
+  createDomainPermissions,
+} from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import type { DomainVerifyModalProps } from '@/types/my-organization/domain-management/domain-verify-types';
@@ -18,6 +22,7 @@ const createMockDomainVerifyModalProps = (
   customMessages: {},
   isOpen: true,
   isLoading: false,
+  permissions: ALL_DOMAIN_PERMISSIONS,
   domain: createMockDomain(),
   error: undefined,
   onClose: vi.fn(),
@@ -398,6 +403,92 @@ describe('DomainVerifyModal', () => {
         expect(
           screen.getByRole('button', { name: /actions\.done_button_text/i }),
         ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Granted permissions', () => {
+    const verifyButton = () => screen.getByRole('button', { name: /actions\.verify_button_text/i });
+    const deleteButton = () => screen.getByRole('button', { name: /actions\.delete_button_text/i });
+
+    describe('when both domain permissions are granted', () => {
+      it('should enable verify and delete', async () => {
+        renderWithProviders(<DomainVerifyModal {...createMockDomainVerifyModalProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(verifyButton()).toBeEnabled();
+        expect(deleteButton()).toBeEnabled();
+      });
+    });
+
+    describe('when update:my_org:domains is granted without delete', () => {
+      it('should enable verify but keep delete visible and disabled', async () => {
+        renderWithProviders(
+          <DomainVerifyModal
+            {...createMockDomainVerifyModalProps({
+              permissions: createDomainPermissions(['update:my_org:domains']),
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(verifyButton()).toBeEnabled();
+        expect(deleteButton()).toBeDisabled();
+      });
+    });
+
+    describe('when delete:my_org:domains is granted without update', () => {
+      it('should enable delete but keep verify visible and disabled', async () => {
+        renderWithProviders(
+          <DomainVerifyModal
+            {...createMockDomainVerifyModalProps({
+              permissions: createDomainPermissions(['delete:my_org:domains']),
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(deleteButton()).toBeEnabled();
+        expect(verifyButton()).toBeDisabled();
+      });
+    });
+
+    describe('when only read permissions are granted', () => {
+      it('should keep both actions visible but disabled, leaving the record readable', async () => {
+        renderWithProviders(
+          <DomainVerifyModal
+            {...createMockDomainVerifyModalProps({
+              permissions: createDomainPermissions(['read:my_org:domains']),
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(verifyButton()).toBeDisabled();
+        expect(deleteButton()).toBeDisabled();
+      });
+
+      it('should not invoke onVerify when the disabled action is clicked', async () => {
+        const user = userEvent.setup();
+        const onVerify = vi.fn();
+        renderWithProviders(
+          <DomainVerifyModal
+            {...createMockDomainVerifyModalProps({
+              onVerify,
+              permissions: createDomainPermissions(['read:my_org:domains']),
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        await user.click(verifyButton());
+
+        expect(onVerify).not.toHaveBeenCalled();
       });
     });
   });

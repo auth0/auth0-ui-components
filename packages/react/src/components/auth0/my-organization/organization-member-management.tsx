@@ -8,12 +8,13 @@ import {
   type MemberInvitation,
   type OrgMember,
 } from '@auth0/universal-components-core';
-import { Plus } from 'lucide-react';
+import { Loader, Plus } from 'lucide-react';
 import * as React from 'react';
 
 import { GateKeeper } from '../shared/gate-keeper/gate-keeper';
 
 import { OrganizationInvitationDetailsModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-details/organization-invitation-details-modal';
+import { OrganizationInvitationBulkRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-bulk-revoke-modal';
 import { OrganizationInvitationRevokeModal } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-revoke/organization-invitation-revoke-modal';
 import { OrganizationInvitationTable } from '@/components/auth0/my-organization/shared/member-management/invitations/invitation-table/organization-invitation-table';
 import { MemberRemoveFromOrganizationModal } from '@/components/auth0/my-organization/shared/member-management/members/member-danger-zone/member-remove-from-organization-modal';
@@ -45,30 +46,36 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     customMessages,
     hideHeader,
     hideRefresh,
-    readOnly,
     activeTab,
+    permissions,
     members,
     invitations,
     organizationDisplayName,
     isFetchingInvitations,
+    isLoadingInvitations,
     isFetchingMembers,
+    isSearchingRoles,
     isMembersStale,
     isInvitationsStale,
     isCreatingInvitation,
     isRevokingInvitation,
     isResendingInvitation,
+    selectedInvitations,
     invitationPagination,
     memberPagination,
     invitationSortConfig,
     memberSortConfig,
     isAssigningRoles,
     isRemovingFromOrganization,
+    invitationRoles,
+    isFetchingInvitationRoles,
     isLoadingMemberRoles,
     memberRoles,
-    availableRoles,
     searchedRoles,
     onRoleSearch,
-    availableProviders,
+    availableConnections,
+    isLoadingConnections,
+    hasNoConnections,
     modalState,
     membersUpdatedAt,
     invitationsUpdatedAt,
@@ -77,9 +84,11 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     setActiveTab,
     openModal,
     closeModal,
+    onSelectedInvitationsChange,
     handleCreateSubmit,
     handleRevokeConfirm,
     handleRevokeResendConfirm,
+    handleBulkRevokeClick,
     handleCopyUrl,
     handleSortChange,
     handleNextPage,
@@ -89,6 +98,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     handleViewMemberDetails,
     handleAssignRolesSubmit,
     handleRemoveFromOrganizationConfirm,
+    readOnly,
   } = props;
 
   const selectedInvitation =
@@ -103,8 +113,11 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
       ? modalState.member
       : null;
 
+  const invitationsToBulkRevoke = modalState.type === 'bulkRevoke' ? modalState.invitations : [];
+
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('member_management', customMessages);
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -141,12 +154,14 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
   const refreshState =
     activeTab === 'members'
       ? {
+          disabled: !permissions.canListMembers,
           isStale: isMembersStale,
           isFetching: isFetchingMembers,
           lastUpdatedAt: membersUpdatedAt || undefined,
           onRefresh: refetchMembers,
         }
       : {
+          disabled: !permissions.canListInvitations,
           isStale: isInvitationsStale,
           isFetching: isFetchingInvitations,
           lastUpdatedAt: invitationsUpdatedAt || undefined,
@@ -168,8 +183,14 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
                         type: 'button',
                         label: t('invite_button'),
                         onClick: () => openModal({ type: 'create' }),
-                        icon: Plus,
-                        disabled: readOnly,
+                        icon: isLoadingConnections ? Loader : Plus,
+                        disabled:
+                          isLoadingConnections || !permissions.canInvite || hasNoConnections,
+                        ...(!permissions.canInvite
+                          ? { tooltip: { content: tCommon('error.forbidden') } }
+                          : hasNoConnections
+                            ? { tooltip: { content: t('invite_button_disabled_tooltip') } }
+                            : {}),
                       },
                     ]
                   : []
@@ -195,9 +216,11 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
             </TabsList>
             {!hideRefresh && (
               <RefreshIndicator
+                disabled={refreshState.disabled}
                 isStale={refreshState.isStale}
                 isFetching={refreshState.isFetching}
                 lastUpdatedAt={refreshState.lastUpdatedAt}
+                customMessages={customMessages}
                 onRefresh={refreshState.onRefresh}
               />
             )}
@@ -211,6 +234,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
               pagination={memberPagination}
               pageSizeOptions={pageSizeOptions}
               sortConfig={memberSortConfig}
+              permissions={permissions}
               className={currentStyles.classes?.['OrganizationMemberTab-table']}
               onView={handleViewMemberDetails}
               onAssignRole={handleAssignRoleClick}
@@ -226,17 +250,21 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="invitations">
             <OrganizationInvitationTable
               invitations={invitations}
-              loading={isFetchingInvitations}
+              loading={isLoadingInvitations}
               customMessages={customMessages?.invitation}
               pagination={invitationPagination}
               pageSizeOptions={pageSizeOptions}
+              permissions={permissions}
               readOnly={readOnly}
+              selectedInvitations={selectedInvitations}
               sortConfig={invitationSortConfig}
               onSortChange={handleSortChange}
               onView={handleViewInvitation}
               onCopyUrl={handleCopyUrl}
-              onRevokeAndResend={readOnly ? undefined : handleRevokeResendClick}
-              onRevoke={readOnly ? undefined : handleRevokeClick}
+              onRevokeAndResend={handleRevokeResendClick}
+              onRevoke={handleRevokeClick}
+              onSelectedInvitationsChange={onSelectedInvitationsChange}
+              onBulkRevoke={handleBulkRevokeClick}
               onNextPage={handleNextPage}
               onPreviousPage={handlePreviousPage}
               onPageSizeChange={handlePageSizeChange}
@@ -249,9 +277,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
         <OrganizationInvitationCreateModal
           isOpen={modalState.type === 'create'}
           isLoading={isCreatingInvitation}
+          isSearchingRoles={isSearchingRoles}
           customMessages={customMessages?.invitation}
           availableRoles={searchedRoles}
-          availableProviders={availableProviders}
+          availableConnections={availableConnections}
           style={currentStyles.variables}
           onClose={closeModal}
           onCreate={handleCreateSubmit}
@@ -265,8 +294,10 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           isRevoking={isRevokingInvitation}
           isResending={isResendingInvitation}
           customMessages={customMessages?.invitation}
-          availableRoles={availableRoles}
-          availableProviders={availableProviders}
+          permissions={permissions}
+          roles={invitationRoles}
+          isLoadingRoles={isFetchingInvitationRoles}
+          availableConnections={availableConnections}
           readOnly={readOnly}
           style={currentStyles.variables}
           onClose={closeModal}
@@ -299,10 +330,22 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           className={currentStyles.classes?.['OrganizationInvitationTab-revokeResendModal']}
         />
 
+        <OrganizationInvitationBulkRevokeModal
+          invitations={invitationsToBulkRevoke}
+          isOpen={modalState.type === 'bulkRevoke'}
+          isLoading={isRevokingInvitation}
+          customMessages={customMessages?.invitation}
+          style={currentStyles.variables}
+          onClose={closeModal}
+          onConfirm={handleRevokeConfirm}
+          className={currentStyles.classes?.['OrganizationInvitationTab-bulkRevokeModal']}
+        />
+
         <OrganizationMemberAssignRolesModal
           selectedMember={selectedMember}
           isOpen={modalState.type === 'assignRole'}
           isLoading={isAssigningRoles}
+          isSearchingRoles={isSearchingRoles}
           isLoadingRoles={isLoadingMemberRoles}
           availableRoles={searchedRoles}
           assignedRoles={memberRoles ?? selectedMember?.roles ?? []}

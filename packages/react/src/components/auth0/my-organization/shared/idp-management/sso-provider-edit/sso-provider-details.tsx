@@ -47,9 +47,11 @@ export function SsoProviderDetails({
     classes: {},
   },
   showThirdPartyAccess = false,
+  isThirdPartyAccessReadOnly = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
+  resolveSamlMetadata,
 }: SsoProviderDetailsProps) {
   const { t } = useTranslator('idp_management.sso_provider_details', customMessages);
   const { isDarkMode } = useTheme();
@@ -130,6 +132,7 @@ export function SsoProviderDetails({
           ref={providerConfigureRef}
           strategy={provider.strategy}
           initialData={{ ...provider, ...provider.options }}
+          connectionName={provider.name ?? undefined}
           readOnly={readOnly}
           idpConfig={idpConfig}
           mode="edit"
@@ -137,9 +140,11 @@ export function SsoProviderDetails({
           className={currentStyles.classes?.['ProviderConfigure-root']}
           onFormDirty={setIsConfigureDirty}
           showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
           showCrossAppAccess={showCrossAppAccess}
           isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           isOrganizationBlocked={isOrganizationBlocked}
+          resolveSamlMetadata={resolveSamlMetadata}
           styling={styling}
         />
       </div>
@@ -173,7 +178,9 @@ export function SsoProviderDetails({
             type: 'button',
             onClick: handleSave,
           }}
+          showNext={formActions?.showNext}
           showPrevious={false}
+          nextActionTooltip={formActions?.nextActionTooltip}
           align={formActions?.align}
           className={currentStyles.classes?.['SsoProviderDetails-FormActions']}
         />

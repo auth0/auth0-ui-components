@@ -7,6 +7,7 @@
 import {
   createProviderConfigureSchema,
   type AdfsConfigureFormValues,
+  type AdfsConfigureFormInput,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
@@ -54,7 +55,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
 
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-    const adfsData = initialData as AdfsConfigureFormValues | undefined;
+    const adfsData = initialData as AdfsConfigureFormInput | undefined;
 
     const form = useForm<AdfsConfigureFormValues>({
       resolver: zodResolver(createProviderConfigureSchema('adfs')),
@@ -80,7 +81,12 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       validate: async () => {
         return await form.trigger();
       },
-      getData: () => form.getValues(),
+      getData: () => {
+        const rawData = form.getValues();
+        const schema = createProviderConfigureSchema('adfs');
+        const result = schema.safeParse(rawData);
+        return result.success ? result.data : rawData;
+      },
       isDirty: () => form.formState.isDirty,
       reset: (data) => {
         if (data) {
@@ -101,10 +107,12 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       if (file) {
         try {
           const content = await file.text();
-          form.setValue('fedMetadataXml', content);
+          form.setValue('fedMetadataXml', content, { shouldDirty: true, shouldValidate: true });
         } catch (error) {
           console.error('Error reading file:', error);
         }
+      } else {
+        form.setValue('fedMetadataXml', '', { shouldDirty: true, shouldValidate: true });
       }
     };
 

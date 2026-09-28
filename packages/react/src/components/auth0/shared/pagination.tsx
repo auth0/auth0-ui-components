@@ -39,7 +39,7 @@ function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>) 
   return (
     <ul
       data-slot="pagination-content"
-      className={cn('flex flex-row items-center gap-1', className)}
+      className={cn('flex flex-row items-center gap-1 list-none m-0 p-0', className)}
       {...props}
     />
   );
@@ -47,11 +47,18 @@ function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>) 
 
 /**
  * Single pagination item wrapper.
- * @param props - Component props
+ * @param props - Component props.
+ * @param props.className - Optional CSS class name for styling
  * @returns JSX element
  */
-function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
-  return <li data-slot="pagination-item" {...props} />;
+function PaginationItem({ className, ...props }: React.ComponentProps<'li'>) {
+  return (
+    <li
+      data-slot="pagination-item"
+      className={cn('m-0 p-0 before:content-none', className)}
+      {...props}
+    />
+  );
 }
 
 type PaginationLinkProps = {
@@ -78,6 +85,7 @@ function PaginationLink({ className, isActive, size = 'icon', ...props }: Pagina
           variant: isActive ? 'outline' : 'ghost',
           size,
         }),
+        'no-underline border-b-0',
         className,
       )}
       {...props}

@@ -3,13 +3,18 @@
  * @module domain-verify-types
  */
 
-import type { DomainVerifyMessages, Domain } from '@auth0/universal-components-core';
+import type {
+  DomainManagementPermissions,
+  DomainVerifyMessages,
+  Domain,
+} from '@auth0/universal-components-core';
 
 /** Props for DomainVerifyModal. */
 export interface DomainVerifyModalProps {
   translatorKey?: string;
   isOpen: boolean;
   isLoading?: boolean;
+  permissions: Pick<DomainManagementPermissions, 'canVerifyDomain' | 'canDeleteDomain'>;
   domain: Domain | null;
   error?: string;
   onClose: () => void;

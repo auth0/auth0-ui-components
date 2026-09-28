@@ -204,7 +204,7 @@ function Content() {
       schema={props.schema}
       styling={props.styling ?? DEFAULT_STYLING}
       customMessages={props.customMessages}
-      readOnly={props.readOnly}
+      canEdit={model.canEdit}
       hideHeader
       backButton={props.backButton}
       formActions={model.formActions}
