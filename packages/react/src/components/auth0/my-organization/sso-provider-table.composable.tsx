@@ -47,8 +47,10 @@ interface SsoProviderTableComposition {
   props: SsoProviderTableProps;
 }
 
-const [SsoProviderTableContext, useSsoProviderTableContext] =
-  createComponentContext<SsoProviderTableComposition>('SsoProviderTable');
+const [SsoProviderTableContext, useSsoProviderTableContext, parts] =
+  createComponentContext<SsoProviderTableComposition>('SsoProviderTable', {
+    requiredParts: ['Content'],
+  });
 
 const DEFAULT_STYLING: NonNullable<SsoProviderTableProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -148,7 +150,9 @@ function Root({
   return (
     <SsoProviderTableContext.Provider value={composition}>
       <GateKeeper isLoading={model.isLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>{children}</StyledScope>
+        <StyledScope style={currentStyles.variables}>
+          <parts.Boundary>{children}</parts.Boundary>
+        </StyledScope>
       </GateKeeper>
     </SsoProviderTableContext.Provider>
   );
@@ -280,6 +284,7 @@ Refresh.displayName = 'SsoProviderTable.Refresh';
  */
 function Content() {
   const { model, props } = useSsoProviderTableContext();
+  parts.useRegisterPart('Content');
   return (
     <SsoProviderTableView
       {...model}

@@ -191,4 +191,35 @@ describe('SsoProviderTable — composability', () => {
       consoleError.mockRestore();
     });
   });
+
+  describe('dev-mode required-part warning', () => {
+    it('warns, naming Content, when Root is composed without it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+      renderWithProviders(
+        <SsoProviderTable.Root {...createProps()}>
+          <SsoProviderTable.Header />
+        </SsoProviderTable.Root>,
+        { queryClient },
+      );
+      await waitForLoad();
+
+      await waitFor(() => expect(warn).toHaveBeenCalled());
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('<SsoProviderTable.Content>'));
+    });
+
+    it('does not warn for DefaultLayout, which renders Content', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+      renderWithProviders(
+        <SsoProviderTable.Root {...createProps()}>
+          <SsoProviderTable.DefaultLayout />
+        </SsoProviderTable.Root>,
+        { queryClient },
+      );
+      await waitForLoad();
+
+      expect(warn).not.toHaveBeenCalled();
+    });
+  });
 });
