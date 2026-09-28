@@ -65,6 +65,13 @@ const DEFAULT_STYLING: NonNullable<SsoProviderEditProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<SsoProviderEditProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link SsoProviderEditProps} plus children. */
 export interface SsoProviderEditRootProps extends SsoProviderEditProps {
   children?: React.ReactNode;
@@ -76,24 +83,25 @@ export interface SsoProviderEditRootProps extends SsoProviderEditProps {
  * @param props - {@link SsoProviderEditRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: SsoProviderEditRootProps) {
+function Root({
+  children,
+  providerId,
+  sso,
+  provisioning,
+  domains,
+  backButton,
+  schema,
+  hideHeader = false,
+  hideProvisioningTab = false,
+  hideDeleteProvider = false,
+  hideRemoveFromOrganization = false,
+  hideAttributeMappings = false,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  readOnly = false,
+  enableProviderAction,
+}: SsoProviderEditRootProps) {
   useTelemetry('sso-edit-configuration');
-
-  const {
-    providerId,
-    sso,
-    provisioning,
-    domains,
-    hideHeader = false,
-    hideProvisioningTab = false,
-    hideDeleteProvider = false,
-    hideRemoveFromOrganization = false,
-    hideAttributeMappings = false,
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    readOnly = false,
-    enableProviderAction,
-  } = props;
 
   const model = useSsoProviderEdit(providerId, {
     sso,
@@ -112,11 +120,20 @@ function Root({ children, ...props }: SsoProviderEditRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not a `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<SsoProviderEditComposition>(
     () => ({
       model,
       props: {
-        ...props,
+        providerId,
+        sso,
+        provisioning,
+        domains,
+        backButton,
+        schema,
         styling,
         readOnly,
         customMessages,
@@ -125,11 +142,17 @@ function Root({ children, ...props }: SsoProviderEditRootProps) {
         hideDeleteProvider,
         hideRemoveFromOrganization,
         hideAttributeMappings,
+        enableProviderAction,
       },
     }),
     [
       model,
-      props,
+      providerId,
+      sso,
+      provisioning,
+      domains,
+      backButton,
+      schema,
       styling,
       readOnly,
       customMessages,
@@ -138,6 +161,7 @@ function Root({ children, ...props }: SsoProviderEditRootProps) {
       hideDeleteProvider,
       hideRemoveFromOrganization,
       hideAttributeMappings,
+      enableProviderAction,
     ],
   );
 
@@ -241,9 +265,10 @@ Content.displayName = 'SsoProviderEdit.Content';
  * @returns The default layout subtree.
  */
 function DefaultLayout() {
+  const { props } = useSsoProviderEditContext();
   return (
     <>
-      <SsoProviderEditHeader />
+      {!props.hideHeader && <SsoProviderEditHeader />}
       <Content />
     </>
   );

@@ -5,7 +5,7 @@
  */
 
 import type { IdpId } from '@auth0/universal-components-core';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
@@ -63,16 +63,30 @@ export function useSsoProviderEdit(
     [service.provider?.strategy, service.enableProvider],
   );
 
-  return {
-    ...service,
-    shouldAllowDeletion,
-    isLoadingConfig,
-    idpConfig,
-    isLoadingIdpConfig,
-    showProvisioningTab,
-    handleToggleProvider,
-    showThirdPartyAccess,
-    showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
-    isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
-  };
+  return useMemo(
+    () => ({
+      ...service,
+      shouldAllowDeletion,
+      isLoadingConfig,
+      idpConfig,
+      isLoadingIdpConfig,
+      showProvisioningTab,
+      handleToggleProvider,
+      showThirdPartyAccess,
+      showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
+      isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
+    }),
+    [
+      service,
+      shouldAllowDeletion,
+      isLoadingConfig,
+      idpConfig,
+      isLoadingIdpConfig,
+      showProvisioningTab,
+      handleToggleProvider,
+      showThirdPartyAccess,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+    ],
+  );
 }

@@ -63,6 +63,13 @@ const DEFAULT_STYLING: NonNullable<OrganizationMemberDetailProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<OrganizationMemberDetailProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link OrganizationMemberDetailProps} plus children. */
 export interface OrganizationMemberDetailRootProps extends OrganizationMemberDetailProps {
   children?: React.ReactNode;
@@ -78,18 +85,20 @@ export interface OrganizationMemberDetailRootProps extends OrganizationMemberDet
  * @param props - {@link OrganizationMemberDetailRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: OrganizationMemberDetailRootProps) {
-  const {
-    userId,
-    onBack,
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    initialTab,
-    removeFromOrganizationAction,
-    assignRolesAction,
-    removeRolesAction,
-  } = props;
-
+function Root({
+  children,
+  userId,
+  onBack,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  schema,
+  readOnly,
+  hideHeader,
+  initialTab,
+  removeFromOrganizationAction,
+  assignRolesAction,
+  removeRolesAction,
+}: OrganizationMemberDetailRootProps) {
   const model = useOrganizationMemberDetail({
     userId,
     onBack,
@@ -106,9 +115,41 @@ function Root({ children, ...props }: OrganizationMemberDetailRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<OrganizationMemberDetailComposition>(
-    () => ({ model, props: { ...props, styling, customMessages } }),
-    [model, props, styling, customMessages],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        readOnly,
+        userId,
+        onBack,
+        hideHeader,
+        initialTab,
+        removeFromOrganizationAction,
+        assignRolesAction,
+        removeRolesAction,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      readOnly,
+      userId,
+      onBack,
+      hideHeader,
+      initialTab,
+      removeFromOrganizationAction,
+      assignRolesAction,
+      removeRolesAction,
+    ],
   );
 
   return (

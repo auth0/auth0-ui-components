@@ -54,6 +54,13 @@ const DEFAULT_STYLING: NonNullable<SsoProviderTableProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<SsoProviderTableProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link SsoProviderTableProps} plus children. */
 export interface SsoProviderTableRootProps extends SsoProviderTableProps {
   children?: React.ReactNode;
@@ -65,19 +72,22 @@ export interface SsoProviderTableRootProps extends SsoProviderTableProps {
  * @param props - {@link SsoProviderTableRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: SsoProviderTableRootProps) {
+function Root({
+  children,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  readOnly = false,
+  hideHeader,
+  hideDeleteProvider,
+  hideRemoveFromOrganization,
+  schema,
+  createAction,
+  editAction,
+  deleteAction,
+  deleteFromOrganizationAction,
+  enableProviderAction,
+}: SsoProviderTableRootProps) {
   useTelemetry('sso-table-configuration');
-
-  const {
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    readOnly = false,
-    createAction,
-    editAction,
-    deleteAction,
-    deleteFromOrganizationAction,
-    enableProviderAction,
-  } = props;
 
   const model = useSsoProviderTable({
     readOnly,
@@ -95,9 +105,43 @@ function Root({ children, ...props }: SsoProviderTableRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<SsoProviderTableComposition>(
-    () => ({ model, props: { ...props, styling, readOnly, customMessages } }),
-    [model, props, styling, readOnly, customMessages],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        readOnly,
+        hideHeader,
+        hideDeleteProvider,
+        hideRemoveFromOrganization,
+        createAction,
+        editAction,
+        deleteAction,
+        deleteFromOrganizationAction,
+        enableProviderAction,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      readOnly,
+      hideHeader,
+      hideDeleteProvider,
+      hideRemoveFromOrganization,
+      createAction,
+      editAction,
+      deleteAction,
+      deleteFromOrganizationAction,
+      enableProviderAction,
+    ],
   );
 
   return (
@@ -257,9 +301,10 @@ Content.displayName = 'SsoProviderTable.Content';
  * @returns The default layout subtree.
  */
 function DefaultLayout({ children }: { children?: React.ReactNode }) {
+  const { props } = useSsoProviderTableContext();
   return (
     <>
-      <SsoProviderTableHeader action={children} />
+      {!props.hideHeader && <SsoProviderTableHeader action={children} />}
       <Refresh />
       <Content />
     </>

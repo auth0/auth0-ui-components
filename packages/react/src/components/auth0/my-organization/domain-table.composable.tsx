@@ -54,6 +54,13 @@ const DEFAULT_STYLING: NonNullable<DomainTableProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<DomainTableProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link DomainTableProps} plus children. */
 export interface DomainTableRootProps extends DomainTableProps {
   children?: React.ReactNode;
@@ -65,19 +72,22 @@ export interface DomainTableRootProps extends DomainTableProps {
  * @param props - {@link DomainTableRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: DomainTableRootProps) {
+function Root({
+  children,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  readOnly = false,
+  schema,
+  hideHeader,
+  createAction,
+  verifyAction,
+  deleteAction,
+  associateToProviderAction,
+  deleteFromProviderAction,
+  onOpenProvider,
+  onCreateProvider,
+}: DomainTableRootProps) {
   useTelemetry('domain-management');
-
-  const {
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    readOnly = false,
-    createAction,
-    verifyAction,
-    deleteAction,
-    associateToProviderAction,
-    deleteFromProviderAction,
-  } = props;
 
   const model = useDomainTable({
     createAction,
@@ -94,9 +104,43 @@ function Root({ children, ...props }: DomainTableRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<DomainTableComposition>(
-    () => ({ model, props: { ...props, styling, readOnly, customMessages } }),
-    [model, props, styling, readOnly, customMessages],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        readOnly,
+        hideHeader,
+        createAction,
+        verifyAction,
+        deleteAction,
+        associateToProviderAction,
+        deleteFromProviderAction,
+        onOpenProvider,
+        onCreateProvider,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      readOnly,
+      hideHeader,
+      createAction,
+      verifyAction,
+      deleteAction,
+      associateToProviderAction,
+      deleteFromProviderAction,
+      onOpenProvider,
+      onCreateProvider,
+    ],
   );
 
   return (
@@ -251,9 +295,10 @@ Content.displayName = 'DomainTable.Content';
  * @returns The default layout subtree.
  */
 function DefaultLayout({ children }: { children?: React.ReactNode }) {
+  const { props } = useDomainTableContext();
   return (
     <>
-      <DomainTableHeader action={children} />
+      {!props.hideHeader && <DomainTableHeader action={children} />}
       <Refresh />
       <Content />
     </>

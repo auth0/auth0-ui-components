@@ -53,6 +53,13 @@ const DEFAULT_STYLING: NonNullable<OrganizationMemberManagementProps['styling']>
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<OrganizationMemberManagementProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link OrganizationMemberManagementProps} plus children. */
 export interface OrganizationMemberManagementRootProps extends OrganizationMemberManagementProps {
   children?: React.ReactNode;
@@ -64,19 +71,20 @@ export interface OrganizationMemberManagementRootProps extends OrganizationMembe
  * @param props - {@link OrganizationMemberManagementRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: OrganizationMemberManagementRootProps) {
-  const {
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    readOnly = false,
-    createInvitationAction,
-    revokeInvitationAction,
-    resendInvitationAction,
-    viewMemberDetailsAction,
-    assignRolesAction,
-    removeFromOrganizationAction,
-  } = props;
-
+function Root({
+  children,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  readOnly = false,
+  schema,
+  hideHeader,
+  createInvitationAction,
+  revokeInvitationAction,
+  resendInvitationAction,
+  viewMemberDetailsAction,
+  assignRolesAction,
+  removeFromOrganizationAction,
+}: OrganizationMemberManagementRootProps) {
   const model = useOrganizationMemberManagement({
     customMessages,
     readOnly,
@@ -94,9 +102,41 @@ function Root({ children, ...props }: OrganizationMemberManagementRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<OrganizationMemberManagementComposition>(
-    () => ({ model, props: { ...props, styling, readOnly, customMessages } }),
-    [model, props, styling, readOnly, customMessages],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        readOnly,
+        hideHeader,
+        createInvitationAction,
+        revokeInvitationAction,
+        resendInvitationAction,
+        viewMemberDetailsAction,
+        assignRolesAction,
+        removeFromOrganizationAction,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      readOnly,
+      hideHeader,
+      createInvitationAction,
+      revokeInvitationAction,
+      resendInvitationAction,
+      viewMemberDetailsAction,
+      assignRolesAction,
+      removeFromOrganizationAction,
+    ],
   );
 
   return (

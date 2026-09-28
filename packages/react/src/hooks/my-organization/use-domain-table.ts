@@ -5,7 +5,7 @@
  */
 
 import { type Domain, type IdpKnownResponse } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
@@ -274,55 +274,96 @@ export function useDomainTable({
     [changePageSize],
   );
 
-  return {
-    // Data
-    domains,
-    providers,
+  return useMemo(
+    () => ({
+      // Data
+      domains,
+      providers,
 
-    // Loading states
-    isFetching,
-    isRefetchingDomains,
-    isDomainsStale,
-    domainsUpdatedAt,
-    isCreating,
-    isDeleting,
-    isVerifying,
-    isLoadingProviders,
-    // Pagination
-    pagination: {
+      // Loading states
+      isFetching,
+      isRefetchingDomains,
+      isDomainsStale,
+      domainsUpdatedAt,
+      isCreating,
+      isDeleting,
+      isVerifying,
+      isLoadingProviders,
+      // Pagination
+      pagination: {
+        pageSize,
+        currentPage,
+        hasNextPage: !!nextToken,
+        hasPreviousPage,
+      },
+
+      // Modal state
+      showCreateModal,
+      showConfigureModal,
+      showVerifyModal,
+      showDeleteModal,
+      verifyError,
+      selectedDomain,
+
+      // State setters
+      setShowCreateModal,
+      setShowConfigureModal,
+      setShowVerifyModal,
+      setShowDeleteModal,
+
+      // Handlers
+      refetchDomains,
+      handleCreate,
+      handleVerify,
+      handleDelete,
+      handleToggleSwitch,
+      handleCloseVerifyModal,
+      handleCreateClick,
+      handleConfigureClick,
+      handleVerifyClick,
+      handleDeleteClick,
+      handleNextPage,
+      handlePreviousPage,
+      handlePageSizeChange,
+    }),
+    [
+      domains,
+      providers,
+      isFetching,
+      isRefetchingDomains,
+      isDomainsStale,
+      domainsUpdatedAt,
+      isCreating,
+      isDeleting,
+      isVerifying,
+      isLoadingProviders,
       pageSize,
       currentPage,
-      hasNextPage: !!nextToken,
+      nextToken,
       hasPreviousPage,
-    },
-
-    // Modal state
-    showCreateModal,
-    showConfigureModal,
-    showVerifyModal,
-    showDeleteModal,
-    verifyError,
-    selectedDomain,
-
-    // State setters
-    setShowCreateModal,
-    setShowConfigureModal,
-    setShowVerifyModal,
-    setShowDeleteModal,
-
-    // Handlers
-    refetchDomains,
-    handleCreate,
-    handleVerify,
-    handleDelete,
-    handleToggleSwitch,
-    handleCloseVerifyModal,
-    handleCreateClick,
-    handleConfigureClick,
-    handleVerifyClick,
-    handleDeleteClick,
-    handleNextPage,
-    handlePreviousPage,
-    handlePageSizeChange,
-  };
+      showCreateModal,
+      showConfigureModal,
+      showVerifyModal,
+      showDeleteModal,
+      verifyError,
+      selectedDomain,
+      setShowCreateModal,
+      setShowConfigureModal,
+      setShowVerifyModal,
+      setShowDeleteModal,
+      refetchDomains,
+      handleCreate,
+      handleVerify,
+      handleDelete,
+      handleToggleSwitch,
+      handleCloseVerifyModal,
+      handleCreateClick,
+      handleConfigureClick,
+      handleVerifyClick,
+      handleDeleteClick,
+      handleNextPage,
+      handlePreviousPage,
+      handlePageSizeChange,
+    ],
+  );
 }

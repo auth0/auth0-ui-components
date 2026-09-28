@@ -64,6 +64,20 @@ const DEFAULT_STYLING: NonNullable<UserMFAManagementProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<UserMFAManagementProps['customMessages']> = {};
+
+/**
+ * Stable default for `factorConfig`. Hoisted for the same reason as
+ * {@link EMPTY_CUSTOM_MESSAGES}: an inline `{}` default would be a fresh object
+ * each render and defeat the composition memo (and the model hook's memos).
+ */
+const EMPTY_FACTOR_CONFIG: NonNullable<UserMFAManagementProps['factorConfig']> = {};
+
 /** Props for {@link Root}. Mirrors {@link UserMFAManagementProps} plus children. */
 export interface UserMFAManagementRootProps extends UserMFAManagementProps {
   children?: React.ReactNode;
@@ -79,19 +93,21 @@ export interface UserMFAManagementRootProps extends UserMFAManagementProps {
  * @param props - {@link UserMFAManagementRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: UserMFAManagementRootProps) {
+function Root({
+  children,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  schema,
+  hideHeader,
+  showActiveOnly = false,
+  disableEnroll,
+  disableDelete = false,
+  readOnly = false,
+  factorConfig = EMPTY_FACTOR_CONFIG,
+  enrollAction,
+  deleteAction,
+}: UserMFAManagementRootProps) {
   useTelemetry('user-mfa-management');
-
-  const {
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    showActiveOnly = false,
-    disableDelete = false,
-    readOnly = false,
-    factorConfig = {},
-    enrollAction,
-    deleteAction,
-  } = props;
 
   const model = useUserMFA({
     showActiveOnly,
@@ -109,9 +125,41 @@ function Root({ children, ...props }: UserMFAManagementRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<UserMFAManagementComposition>(
-    () => ({ model, props: { ...props, styling, customMessages } }),
-    [model, props, styling, customMessages],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        hideHeader,
+        showActiveOnly,
+        disableEnroll,
+        disableDelete,
+        readOnly,
+        factorConfig,
+        enrollAction,
+        deleteAction,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      hideHeader,
+      showActiveOnly,
+      disableEnroll,
+      disableDelete,
+      readOnly,
+      factorConfig,
+      enrollAction,
+      deleteAction,
+    ],
   );
 
   return (
@@ -200,9 +248,10 @@ Content.displayName = 'UserMFAManagement.Content';
  * @returns The default layout subtree.
  */
 function DefaultLayout() {
+  const { props } = useUserMFAManagementContext();
   return (
     <>
-      <UserMFAManagementHeader />
+      {!props.hideHeader && <UserMFAManagementHeader />}
       <Content />
     </>
   );

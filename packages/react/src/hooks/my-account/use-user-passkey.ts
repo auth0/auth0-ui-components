@@ -3,7 +3,7 @@
  * @module use-user-passkey
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
@@ -91,19 +91,36 @@ export function useUserPasskey({
     }
   }, [currentPasskey, revokeAction, revokeMutation, t, handleError]);
 
-  return {
-    passkeys: passkeysQuery.data ?? [],
-    isLoading: passkeysQuery.isLoading,
-    isEnrolling: enrollMutation.isPending,
-    isRevoking: revokeMutation.isPending,
-    disableAdd,
-    disableRevoke,
-    readOnly,
-    isRevokeModalOpen,
-    currentPasskey,
-    setIsRevokeModalOpen: closeModal,
-    handleAddPasskey,
-    handleRevokePasskey,
-    handleConfirmRevoke,
-  };
+  return useMemo(
+    () => ({
+      passkeys: passkeysQuery.data ?? [],
+      isLoading: passkeysQuery.isLoading,
+      isEnrolling: enrollMutation.isPending,
+      isRevoking: revokeMutation.isPending,
+      disableAdd,
+      disableRevoke,
+      readOnly,
+      isRevokeModalOpen,
+      currentPasskey,
+      setIsRevokeModalOpen: closeModal,
+      handleAddPasskey,
+      handleRevokePasskey,
+      handleConfirmRevoke,
+    }),
+    [
+      passkeysQuery.data,
+      passkeysQuery.isLoading,
+      enrollMutation.isPending,
+      revokeMutation.isPending,
+      disableAdd,
+      disableRevoke,
+      readOnly,
+      isRevokeModalOpen,
+      currentPasskey,
+      closeModal,
+      handleAddPasskey,
+      handleRevokePasskey,
+      handleConfirmRevoke,
+    ],
+  );
 }

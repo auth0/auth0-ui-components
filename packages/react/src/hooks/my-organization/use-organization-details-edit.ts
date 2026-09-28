@@ -65,17 +65,32 @@ export function useOrganizationDetailsEdit({
     ],
   );
 
-  return {
-    organization: service.organization,
-    isFetchLoading: service.isFetchLoading,
-    isSaveLoading: service.isSaveLoading,
-    isInitializing: service.isInitializing,
-    isLoadingConfig,
-    formActions,
-    fetchOrgDetails: service.fetchOrgDetails,
-    updateOrgDetails: service.updateOrgDetails,
-    showThirdPartyAccess,
-    isThirdPartyAccessReadOnly,
-    thirdPartyAccessDefaultValue,
-  };
+  return useMemo(
+    () => ({
+      organization: service.organization,
+      isFetchLoading: service.isFetchLoading,
+      isSaveLoading: service.isSaveLoading,
+      isInitializing: service.isInitializing,
+      isLoadingConfig,
+      formActions,
+      fetchOrgDetails: service.fetchOrgDetails,
+      updateOrgDetails: service.updateOrgDetails,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      thirdPartyAccessDefaultValue,
+    }),
+    [
+      service.organization,
+      service.isFetchLoading,
+      service.isSaveLoading,
+      service.isInitializing,
+      isLoadingConfig,
+      formActions,
+      service.fetchOrgDetails,
+      service.updateOrgDetails,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      thirdPartyAccessDefaultValue,
+    ],
+  );
 }

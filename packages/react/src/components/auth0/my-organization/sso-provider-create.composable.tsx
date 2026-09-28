@@ -75,6 +75,13 @@ const DEFAULT_STYLING: NonNullable<SsoProviderCreateProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<SsoProviderCreateProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link SsoProviderCreateProps} plus children. */
 export interface SsoProviderCreateRootProps extends SsoProviderCreateProps {
   children?: React.ReactNode;
@@ -90,16 +97,18 @@ export interface SsoProviderCreateRootProps extends SsoProviderCreateProps {
  * @param props - {@link SsoProviderCreateRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: SsoProviderCreateRootProps) {
+function Root({
+  children,
+  createAction,
+  backButton,
+  schema,
+  readOnly = false,
+  onNext,
+  onPrevious,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+}: SsoProviderCreateRootProps) {
   useTelemetry('sso-create-configuration');
-
-  const {
-    createAction,
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    onNext,
-    onPrevious,
-  } = props;
 
   const model = useSsoProviderCreate({
     createAction,
@@ -114,9 +123,35 @@ function Root({ children, ...props }: SsoProviderCreateRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not a `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<SsoProviderCreateComposition>(
-    () => ({ model, props: { ...props, styling, customMessages } }),
-    [model, props, styling, customMessages],
+    () => ({
+      model,
+      props: {
+        createAction,
+        backButton,
+        schema,
+        readOnly,
+        onNext,
+        onPrevious,
+        customMessages,
+        styling,
+      },
+    }),
+    [
+      model,
+      createAction,
+      backButton,
+      schema,
+      readOnly,
+      onNext,
+      onPrevious,
+      customMessages,
+      styling,
+    ],
   );
 
   return (

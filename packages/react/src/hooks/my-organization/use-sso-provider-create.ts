@@ -4,7 +4,7 @@
  * @module use-sso-provider-create
  */
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
@@ -92,24 +92,47 @@ export function useSsoProviderCreate({
     });
   }, [strategy, details, createProvider]);
 
-  return {
-    formData,
-    setFormData,
-    createStepActions,
-    handleCreate,
-    detailsRef,
-    configureRef,
-    isCreating,
-    isLoadingConfig,
-    filteredStrategies,
-    isLoadingIdpConfig,
-    idpConfig,
-    showThirdPartyAccess,
-    isThirdPartyAccessReadOnly,
-    thirdPartyAccessDefaultValue,
-    showCrossAppAccess: showCrossAppAccess(strategy),
-    isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
-    getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
-    isOrganizationBlocked,
-  };
+  return useMemo(
+    () => ({
+      formData,
+      setFormData,
+      createStepActions,
+      handleCreate,
+      detailsRef,
+      configureRef,
+      isCreating,
+      isLoadingConfig,
+      filteredStrategies,
+      isLoadingIdpConfig,
+      idpConfig,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      thirdPartyAccessDefaultValue,
+      showCrossAppAccess: showCrossAppAccess(strategy),
+      isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
+      getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
+      isOrganizationBlocked,
+    }),
+    [
+      formData,
+      setFormData,
+      createStepActions,
+      handleCreate,
+      detailsRef,
+      configureRef,
+      isCreating,
+      isLoadingConfig,
+      filteredStrategies,
+      isLoadingIdpConfig,
+      idpConfig,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      thirdPartyAccessDefaultValue,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+      getCrossAppAccessDefaultValue,
+      strategy,
+      isOrganizationBlocked,
+    ],
+  );
 }

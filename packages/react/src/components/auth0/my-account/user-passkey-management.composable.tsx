@@ -62,6 +62,13 @@ const DEFAULT_STYLING: NonNullable<UserPasskeyManagementProps['styling']> = {
   classes: {},
 };
 
+/**
+ * Stable default for `customMessages`. Hoisted to module scope so an omitted
+ * prop yields the same reference every render (an inline `{}` would allocate a
+ * fresh object each render and defeat the composition memo + translator memo).
+ */
+const EMPTY_CUSTOM_MESSAGES: NonNullable<UserPasskeyManagementProps['customMessages']> = {};
+
 /** Props for {@link Root}. Mirrors {@link UserPasskeyManagementProps} plus children. */
 export interface UserPasskeyManagementRootProps extends UserPasskeyManagementProps {
   children?: React.ReactNode;
@@ -73,17 +80,19 @@ export interface UserPasskeyManagementRootProps extends UserPasskeyManagementPro
  * @param props - {@link UserPasskeyManagementRootProps}
  * @returns The provider-wrapped subtree.
  */
-function Root({ children, ...props }: UserPasskeyManagementRootProps) {
+function Root({
+  children,
+  customMessages = EMPTY_CUSTOM_MESSAGES,
+  styling = DEFAULT_STYLING,
+  hideHeader = false,
+  schema,
+  readOnly,
+  isLoading,
+  addAction,
+  revokeAction,
+  onFetch,
+}: UserPasskeyManagementRootProps) {
   useTelemetry('user-passkey-management');
-
-  const {
-    customMessages = {},
-    styling = DEFAULT_STYLING,
-    hideHeader = false,
-    addAction,
-    revokeAction,
-    onFetch,
-  } = props;
 
   const model = useUserPasskey({
     customMessages,
@@ -98,9 +107,37 @@ function Root({ children, ...props }: UserPasskeyManagementRootProps) {
     [styling, isDarkMode],
   );
 
+  // Key the composition on concrete prop fields, not the `props` container: a
+  // rest-spread (`{ ...props }`) allocates a new object every render and would
+  // defeat this memo. With `model` now memoized in the hook, the context value
+  // is stable across renders unless a real input changes.
   const composition = React.useMemo<UserPasskeyManagementComposition>(
-    () => ({ model, props: { ...props, styling, customMessages, hideHeader } }),
-    [model, props, styling, customMessages, hideHeader],
+    () => ({
+      model,
+      props: {
+        styling,
+        customMessages,
+        schema,
+        readOnly,
+        hideHeader,
+        isLoading,
+        addAction,
+        revokeAction,
+        onFetch,
+      },
+    }),
+    [
+      model,
+      styling,
+      customMessages,
+      schema,
+      readOnly,
+      hideHeader,
+      isLoading,
+      addAction,
+      revokeAction,
+      onFetch,
+    ],
   );
 
   return (

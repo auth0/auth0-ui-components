@@ -6,7 +6,7 @@
 
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { ssoProviderQueryKeys } from '@auth0/universal-components-core';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
@@ -206,41 +206,74 @@ export function useSsoProviderTable({
     [onRemoveConfirm, organization?.display_name, t, handleError],
   );
 
-  return {
-    providers,
-    organization,
+  return useMemo(
+    () => ({
+      providers,
+      organization,
 
-    isLoading,
-    isViewLoading,
-    isRefetchingProviders,
-    isProvidersStale,
-    providersUpdatedAt,
-    isDeleting,
-    isRemoving,
-    isUpdating,
-    isUpdatingId,
+      isLoading,
+      isViewLoading,
+      isRefetchingProviders,
+      isProvidersStale,
+      providersUpdatedAt,
+      isDeleting,
+      isRemoving,
+      isUpdating,
+      isUpdatingId,
 
-    shouldAllowDeletion,
-    shouldHideCreate,
+      shouldAllowDeletion,
+      shouldHideCreate,
 
-    showDeleteModal,
-    showRemoveModal,
-    selectedIdp,
+      showDeleteModal,
+      showRemoveModal,
+      selectedIdp,
 
-    refetchProviders,
-    fetchProviders,
-    fetchOrganizationDetails: handleFetchOrganizationDetails,
+      refetchProviders,
+      fetchProviders,
+      fetchOrganizationDetails: handleFetchOrganizationDetails,
 
-    handleCreate,
-    handleEdit,
-    handleDelete,
-    handleDeleteFromOrganization,
-    handleToggleEnabled,
-    handleDeleteConfirm,
-    handleRemoveConfirm,
+      handleCreate,
+      handleEdit,
+      handleDelete,
+      handleDeleteFromOrganization,
+      handleToggleEnabled,
+      handleDeleteConfirm,
+      handleRemoveConfirm,
 
-    setShowDeleteModal,
-    setShowRemoveModal,
-    setSelectedIdp,
-  };
+      setShowDeleteModal,
+      setShowRemoveModal,
+      setSelectedIdp,
+    }),
+    [
+      providers,
+      organization,
+      isLoading,
+      isViewLoading,
+      isRefetchingProviders,
+      isProvidersStale,
+      providersUpdatedAt,
+      isDeleting,
+      isRemoving,
+      isUpdating,
+      isUpdatingId,
+      shouldAllowDeletion,
+      shouldHideCreate,
+      showDeleteModal,
+      showRemoveModal,
+      selectedIdp,
+      refetchProviders,
+      fetchProviders,
+      handleFetchOrganizationDetails,
+      handleCreate,
+      handleEdit,
+      handleDelete,
+      handleDeleteFromOrganization,
+      handleToggleEnabled,
+      handleDeleteConfirm,
+      handleRemoveConfirm,
+      setShowDeleteModal,
+      setShowRemoveModal,
+      setSelectedIdp,
+    ],
+  );
 }
