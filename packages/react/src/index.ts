@@ -2,6 +2,22 @@
  * Unified entry point for Auth0 UI components, hooks & types.
  */
 
+// Deprecated bare hook aliases are re-declared as local `const` exports (in the
+// hook sections below) rather than `export { useX } from '...'`. tsup's dts
+// bundler drops the JSDoc from re-export statements, so a `@deprecated` on a bare
+// re-export never reaches consumers' `.d.ts`. A local `const` is emitted as its
+// own declaration and carries the tag through. Each canonical `useXModel` alias
+// re-exports the same impl binding and stays non-deprecated.
+import { useUserMFA as useUserMFAImpl } from './hooks/my-account/use-user-mfa';
+import { useUserPasskey as useUserPasskeyImpl } from './hooks/my-account/use-user-passkey';
+import { useDomainTable as useDomainTableImpl } from './hooks/my-organization/use-domain-table';
+import { useOrganizationMemberDetail as useOrganizationMemberDetailImpl } from './hooks/my-organization/use-member-detail';
+import { useOrganizationDetailsEdit as useOrganizationDetailsEditImpl } from './hooks/my-organization/use-organization-details-edit';
+import { useOrganizationMemberManagement as useOrganizationMemberManagementImpl } from './hooks/my-organization/use-organization-member-management';
+import { useSsoProviderCreate as useSsoProviderCreateImpl } from './hooks/my-organization/use-sso-provider-create';
+import { useSsoProviderEdit as useSsoProviderEditImpl } from './hooks/my-organization/use-sso-provider-edit';
+import { useSsoProviderTable as useSsoProviderTableImpl } from './hooks/my-organization/use-sso-provider-table';
+
 // Components
 //
 // Composability: each block component below is re-exported from its
@@ -40,34 +56,42 @@ export { useErrorHandler } from './hooks/shared/use-error-handler';
 export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
-export { useUserMFA } from './hooks/my-account/use-user-mfa';
-export { useUserPasskey } from './hooks/my-account/use-user-passkey';
+/** @deprecated Use {@link useUserMFAModel} instead; the bare alias is removed next major. */
+export const useUserMFA = useUserMFAImpl;
+/** @deprecated Use {@link useUserPasskeyModel} instead; the bare alias is removed next major. */
+export const useUserPasskey = useUserPasskeyImpl;
 // Tier-4 headless aliases — stable public names for the model hooks.
-export { useUserMFA as useUserMFAModel } from './hooks/my-account/use-user-mfa';
-export { useUserPasskey as useUserPasskeyModel } from './hooks/my-account/use-user-passkey';
+export { useUserMFAImpl as useUserMFAModel, useUserPasskeyImpl as useUserPasskeyModel };
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
 export { useIdpConfig } from './hooks/my-organization/shared/services/use-idp-config-service';
-export { useOrganizationDetailsEdit } from './hooks/my-organization/use-organization-details-edit';
-export { useOrganizationDetailsEdit as useOrganizationDetailsEditModel } from './hooks/my-organization/use-organization-details-edit';
-export { useDomainTable } from './hooks/my-organization/use-domain-table';
-export { useDomainTable as useDomainTableModel } from './hooks/my-organization/use-domain-table';
+/** @deprecated Use {@link useOrganizationDetailsEditModel} instead; the bare alias is removed next major. */
+export const useOrganizationDetailsEdit = useOrganizationDetailsEditImpl;
+export { useOrganizationDetailsEditImpl as useOrganizationDetailsEditModel };
+/** @deprecated Use {@link useDomainTableModel} instead; the bare alias is removed next major. */
+export const useDomainTable = useDomainTableImpl;
+export { useDomainTableImpl as useDomainTableModel };
 export { useProviderFormMode } from './hooks/my-organization/use-provider-form-mode';
 export { useSsoDomainTab } from './hooks/my-organization/use-sso-domain-tab';
-export { useSsoProviderCreate } from './hooks/my-organization/use-sso-provider-create';
-export { useSsoProviderCreate as useSsoProviderCreateModel } from './hooks/my-organization/use-sso-provider-create';
-export { useSsoProviderEdit } from './hooks/my-organization/use-sso-provider-edit';
-export { useSsoProviderEdit as useSsoProviderEditModel } from './hooks/my-organization/use-sso-provider-edit';
-export { useSsoProviderTable } from './hooks/my-organization/use-sso-provider-table';
+/** @deprecated Use {@link useSsoProviderCreateModel} instead; the bare alias is removed next major. */
+export const useSsoProviderCreate = useSsoProviderCreateImpl;
+export { useSsoProviderCreateImpl as useSsoProviderCreateModel };
+/** @deprecated Use {@link useSsoProviderEditModel} instead; the bare alias is removed next major. */
+export const useSsoProviderEdit = useSsoProviderEditImpl;
+export { useSsoProviderEditImpl as useSsoProviderEditModel };
+/** @deprecated Use {@link useSsoProviderTableModel} instead; the bare alias is removed next major. */
+export const useSsoProviderTable = useSsoProviderTableImpl;
 // Tier-4 headless alias — stable public name for the model hook.
-export { useSsoProviderTable as useSsoProviderTableModel } from './hooks/my-organization/use-sso-provider-table';
+export { useSsoProviderTableImpl as useSsoProviderTableModel };
 
 // Member Management hooks
-export { useOrganizationMemberManagement } from './hooks/my-organization/use-organization-member-management';
-export { useOrganizationMemberManagement as useOrganizationMemberManagementModel } from './hooks/my-organization/use-organization-member-management';
-export { useOrganizationMemberDetail } from './hooks/my-organization/use-member-detail';
-export { useOrganizationMemberDetail as useOrganizationMemberDetailModel } from './hooks/my-organization/use-member-detail';
+/** @deprecated Use {@link useOrganizationMemberManagementModel} instead; the bare alias is removed next major. */
+export const useOrganizationMemberManagement = useOrganizationMemberManagementImpl;
+export { useOrganizationMemberManagementImpl as useOrganizationMemberManagementModel };
+/** @deprecated Use {@link useOrganizationMemberDetailModel} instead; the bare alias is removed next major. */
+export const useOrganizationMemberDetail = useOrganizationMemberDetailImpl;
+export { useOrganizationMemberDetailImpl as useOrganizationMemberDetailModel };
 
 // Auth types
 export * from './types/auth-types';
