@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
@@ -56,6 +57,7 @@ export function useSsoProviderCreateService({
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
   const { organization } = useOrganizationDetailsEditService({});
+  const { idpConfig } = useIdpConfig();
 
   const createProviderMutation = useMutation({
     mutationFn: async (
@@ -87,8 +89,14 @@ export function useSsoProviderCreateService({
         options: configOptions,
       };
 
-      const apiRequestData: CreateIdentityProviderRequestContent =
-        SsoProviderMappers.createToAPI(formData);
+      const apiRequestData: CreateIdentityProviderRequestContent = SsoProviderMappers.createToAPI(
+        formData,
+        {
+          canSetShowAsButton: idpConfig?.organization?.can_set_show_as_button,
+          canSetAssignMembershipOnLogin:
+            idpConfig?.organization?.can_set_assign_membership_on_login,
+        },
+      );
 
       const result: IdpKnownResponse = await coreClient
         .getMyOrganizationApiClient()

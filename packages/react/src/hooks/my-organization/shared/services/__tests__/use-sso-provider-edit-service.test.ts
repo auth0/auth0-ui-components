@@ -6,14 +6,18 @@ import type {
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
 
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
 import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
 import { setupMockUseCoreClient, setupMockUseCoreClientNull } from '@/tests/utils/test-utilities';
+
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service');
 
 const { mockedShowToast } = mockToast();
 
@@ -86,6 +90,7 @@ describe('useSsoProviderEditService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useIdpConfig).mockReturnValue(createMockUseIdpConfig());
     mockOrgClient.organization.identityProviders.get = mockGet;
     mockOrgClient.organization.identityProviders.update = mockUpdate;
     mockOrgClient.organization.identityProviders.delete = mockDelete;
@@ -490,6 +495,41 @@ describe('useSsoProviderEditService', () => {
       });
       expect(result.current.provider).toEqual(updatedProvider);
       expect(result.current.isUpdating).toBe(false);
+    });
+  });
+
+  it('omits show_as_button and assign_membership_on_login from the update payload when can_set_* is false', async () => {
+    vi.mocked(useIdpConfig).mockReturnValue(
+      createMockUseIdpConfig({
+        idpConfig: {
+          strategies: {},
+          organization: {
+            can_set_show_as_button: false,
+            can_set_assign_membership_on_login: false,
+          },
+        } as never,
+      }),
+    );
+
+    mockUpdate.mockResolvedValue({ ...mockProvider, display_name: 'Updated' });
+
+    const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+    await waitFor(() => {
+      expect(result.current.provider).toEqual(mockProvider);
+    });
+
+    await result.current.updateProvider({
+      display_name: 'Updated',
+      strategy: mockProvider.strategy,
+      show_as_button: false,
+      assign_membership_on_login: false,
+    });
+
+    await waitFor(() => {
+      const payload = mockUpdate.mock.calls[0]![1];
+      expect(payload).not.toHaveProperty('show_as_button');
+      expect(payload).not.toHaveProperty('assign_membership_on_login');
     });
   });
 
