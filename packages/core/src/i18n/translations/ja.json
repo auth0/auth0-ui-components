@@ -637,6 +637,10 @@
             "sp_metadata_url": {
               "label": "SP メタデータ URL",
               "helper_text": "一部の SAML ID プロバイダーは、この URL を使用してメタデータを直接インポートできます。"
+            },
+            "sp_issuer_urn": {
+              "label": "SP 発行者 URN",
+              "helper_text": "この値を SAML ID プロバイダーの SP エンティティ ID（発行者）として使用してください。"
             }
           }
         }

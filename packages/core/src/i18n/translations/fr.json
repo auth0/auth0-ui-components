@@ -518,6 +518,10 @@
             "sp_metadata_url": {
               "label": "URL des métadonnées SP",
               "helper_text": "Certains fournisseurs d'identité SAML peuvent importer les métadonnées directement à l'aide de cette URL."
+            },
+            "sp_issuer_urn": {
+              "label": "URN d'émetteur SP",
+              "helper_text": "Utilisez cette valeur comme ID d'entité SP (émetteur) dans votre fournisseur d'identité SAML."
             }
           },
           "adfs": {

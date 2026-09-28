@@ -246,8 +246,8 @@ describe('SamlpProviderForm', () => {
         <SamlpProviderForm idpConfig={null} connectionName="my-saml-connection" />,
       );
 
-      // One copy button per field (CopyableTextField's aria-label resolves to the "copy" key).
-      expect(screen.getAllByLabelText('copy')).toHaveLength(3);
+      // One copy button per field — now 4 fields including SP Issuer URN.
+      expect(screen.getAllByLabelText('copy')).toHaveLength(4);
 
       const callbackInput = screen.getByDisplayValue(
         'https://test-domain.auth0.com/login/callback',
@@ -346,6 +346,57 @@ describe('SamlpProviderForm', () => {
         expect(data.sp_metadata_url).toBe(
           'https://test-domain.auth0.com/samlp/metadata?connection=my-saml-connection',
         );
+      });
+    });
+
+    it('should render SP Issuer URN label and helper text', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />);
+
+      expect(screen.getByText('fields.samlp.sp_issuer_urn.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_issuer_urn.helper_text')).toBeInTheDocument();
+    });
+
+    it('should compute URN fallback from domain when resolveSamlMetadata is not provided', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />, {
+        authDetails: { domain: 'staff0.auth0.com' },
+      });
+
+      expect(screen.getByDisplayValue('urn:auth0:staff0:my-conn')).toBeInTheDocument();
+    });
+
+    it('should use resolveSamlMetadata when provided', () => {
+      const resolveSamlMetadata = vi.fn().mockReturnValue({ entityId: 'urn:auth0:acme:my-conn' });
+
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          connectionName="my-conn"
+          resolveSamlMetadata={resolveSamlMetadata}
+        />,
+      );
+
+      expect(screen.getByDisplayValue('urn:auth0:acme:my-conn')).toBeInTheDocument();
+      expect(resolveSamlMetadata).toHaveBeenCalledWith({ connectionName: 'my-conn' });
+    });
+
+    it('should display an empty SP Issuer URN when connectionName is absent', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      // URN field renders but its value is empty without a connectionName.
+      expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
+    });
+
+    it('should not include sp_issuer_urn in formRef.getData() payload', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+
+      renderWithProviders(
+        <SamlpProviderForm ref={formRef} idpConfig={null} connectionName="my-conn" />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData() as Record<string, unknown>;
+        expect(data).toBeDefined();
+        expect(data.sp_issuer_urn).toBeUndefined();
       });
     });
   });
