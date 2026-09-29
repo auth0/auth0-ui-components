@@ -42,4 +42,5 @@ export type Auth0ComponentProviderProps = (
   retryConfig?: QueryRetryConfig;
   previewMode?: boolean;
   telemetry?: boolean;
+  skipGating?: boolean;
 };

@@ -1,3 +1,4 @@
+import { createPermissionResolver } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -107,6 +108,36 @@ describe('PermissionProvider', () => {
       );
 
       consoleWarnSpy.mockRestore();
+    });
+  });
+
+  describe('when skipGating is true', () => {
+    it('skips the fetch and grants all permission flags', async () => {
+      const mockCoreClient = createMockCoreClient();
+      const mockGetPermissions = vi.fn().mockResolvedValue(['read:my_org:members']);
+      mockCoreClient.getPermissionApiClient = vi.fn().mockReturnValue({
+        getPermissions: mockGetPermissions,
+      });
+      mockUseCoreClient.mockReturnValue({ coreClient: mockCoreClient });
+
+      const wrapper = ({ children }: React.PropsWithChildren) => (
+        <PermissionProvider isAuthenticated skipGating>
+          {children}
+        </PermissionProvider>
+      );
+      const { result } = renderHook(() => usePermissions(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(mockGetPermissions).not.toHaveBeenCalled();
+      expect(result.current.permissions).toEqual([]);
+
+      const { canCreate } = result.current.createPermissionResolver(
+        createPermissionResolver({ canCreate: ['create:my_org:member_invitations'] } as const),
+      );
+      expect(canCreate).toBe(true);
     });
   });
 

@@ -51,6 +51,24 @@ describe('createPermissionResolver', () => {
     });
   });
 
+  describe('when skipGating is true', () => {
+    it('grants everything regardless of granted scopes', () => {
+      expect(resolve([], { skipGating: true })).toEqual({
+        canCreate: true,
+        canResend: true,
+        canShowMenu: true,
+      });
+    });
+
+    it('takes precedence over readOnly', () => {
+      expect(resolve([], { skipGating: true, readOnly: true })).toEqual({
+        canCreate: true,
+        canResend: true,
+        canShowMenu: true,
+      });
+    });
+  });
+
   describe('with no scopes and no options', () => {
     it('denies everything', () => {
       expect(resolve([])).toEqual({
