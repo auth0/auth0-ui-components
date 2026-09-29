@@ -51,9 +51,9 @@ describe('createPermissionResolver', () => {
     });
   });
 
-  describe('when skipGating is true', () => {
+  describe('when disablePermissionEnforcement is true', () => {
     it('grants everything regardless of granted scopes', () => {
-      expect(resolve([], { skipGating: true })).toEqual({
+      expect(resolve([], { disablePermissionEnforcement: true })).toEqual({
         canCreate: true,
         canResend: true,
         canShowMenu: true,
@@ -61,7 +61,7 @@ describe('createPermissionResolver', () => {
     });
 
     it('takes precedence over readOnly', () => {
-      expect(resolve([], { skipGating: true, readOnly: true })).toEqual({
+      expect(resolve([], { disablePermissionEnforcement: true, readOnly: true })).toEqual({
         canCreate: true,
         canResend: true,
         canShowMenu: true,

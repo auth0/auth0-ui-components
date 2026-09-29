@@ -111,7 +111,7 @@ describe('PermissionProvider', () => {
     });
   });
 
-  describe('when skipGating is true', () => {
+  describe('when disablePermissionEnforcement is true', () => {
     it('skips the fetch and grants all permission flags', async () => {
       const mockCoreClient = createMockCoreClient();
       const mockGetPermissions = vi.fn().mockResolvedValue(['read:my_org:members']);
@@ -121,7 +121,7 @@ describe('PermissionProvider', () => {
       mockUseCoreClient.mockReturnValue({ coreClient: mockCoreClient });
 
       const wrapper = ({ children }: React.PropsWithChildren) => (
-        <PermissionProvider isAuthenticated skipGating>
+        <PermissionProvider isAuthenticated disablePermissionEnforcement>
           {children}
         </PermissionProvider>
       );

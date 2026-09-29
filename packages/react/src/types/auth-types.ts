@@ -42,5 +42,6 @@ export type Auth0ComponentProviderProps = (
   retryConfig?: QueryRetryConfig;
   previewMode?: boolean;
   telemetry?: boolean;
-  skipGating?: boolean;
+  /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */
+  disablePermissionEnforcement?: boolean;
 };

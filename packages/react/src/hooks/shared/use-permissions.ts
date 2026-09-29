@@ -22,7 +22,10 @@ export function usePermissions(): UsePermissionsResult {
       permissions,
       isLoading: context?.isLoading ?? false,
       createPermissionResolver: (resolver, options) =>
-        resolver(permissions, { ...options, skipGating: context?.skipGating }),
+        resolver(permissions, {
+          ...options,
+          disablePermissionEnforcement: context?.disablePermissionEnforcement,
+        }),
     };
   }, [context]);
 }
