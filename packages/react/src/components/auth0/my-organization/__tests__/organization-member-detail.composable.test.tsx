@@ -61,6 +61,7 @@ describe('OrganizationMemberDetail — composability', () => {
     it('renders host panel plus a single detail instance sharing one model', async () => {
       renderWithProviders(
         <OrganizationMemberDetail.Root {...createMockOrganizationMemberDetailProps()}>
+          <OrganizationMemberDetail.Header />
           <div data-testid="host-panel">Host guidance</div>
           <OrganizationMemberDetail.Content />
         </OrganizationMemberDetail.Root>,
@@ -69,10 +70,24 @@ describe('OrganizationMemberDetail — composability', () => {
       await waitForComponentToLoad();
 
       expect(screen.getByTestId('host-panel')).toBeInTheDocument();
-      // A duplicated model would render a second header/back button. Parts read
-      // the single model provided by Root via context.
+      // A duplicated model (or a header leaking from Content) would render a
+      // second header/back button. The single Header part reads the one model
+      // provided by Root via context; Content suppresses the view's own header.
       expect(screen.getAllByText('member.detail.back_button')).toHaveLength(1);
       expect(screen.getByRole('heading', { name: mockMember.name! })).toBeInTheDocument();
+    });
+
+    it('suppresses the built-in header when Content is composed without Header', async () => {
+      renderWithProviders(
+        <OrganizationMemberDetail.Root {...createMockOrganizationMemberDetailProps()}>
+          <OrganizationMemberDetail.Content />
+        </OrganizationMemberDetail.Root>,
+      );
+
+      // Tabs render (Content is present); the avatar/back header does not.
+      await screen.findByText('member.detail.tabs.details');
+      expect(screen.queryByText('member.detail.back_button')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: mockMember.name! })).not.toBeInTheDocument();
     });
   });
 

@@ -1,33 +1,28 @@
 /**
  * Progressive-composability layer for {@link OrganizationMemberDetail}.
  *
- * Adds compound sub-components (`Root`, `DefaultLayout`, `Content`) on top of
- * the existing container/view split, with zero breaking changes to the Tier-1
- * default usage (`<OrganizationMemberDetail {...props} />`).
+ * Adds compound sub-components (`Root`, `DefaultLayout`, `Header`, `Content`) on
+ * top of the existing container/view split, with zero breaking changes to the
+ * Tier-1 default usage (`<OrganizationMemberDetail {...props} />`).
  *
  * Tiers:
  * - Tier 1 (default): `<OrganizationMemberDetail {...props} />`
- * - Tier 3 (structural): `Root` + `Content`, sharing one model via context, so
- *   hosts can interleave their own UI around the detail.
+ * - Tier 3 (structural): compose `Header` / `Content` freely, sharing one model
+ *   via context, so hosts can interleave their own UI around the detail.
  * - Tier 4 (headless): `useOrganizationMemberDetailModel(options)` — see index re-export.
  *
- * HURDLE — why there is no Tier-2 action part and no `Header`/`Refresh` parts:
- * Unlike the {@link SsoProviderTable} pilot, this component does NOT use the
- * shared {@link Header} with a separable action region. It renders a LOCAL,
- * name-driven avatar/back-button header inside {@link OrganizationMemberDetailView}
- * (see `Header` in `organization-member-detail.tsx`). Consequences:
- * - There is no shared-Header action slot to replace, so no `Header` part.
- * - `hideHeader` on the props type is not honored by the view, so it is not
- *   surfaced here.
- * - There is no refresh/last-updated affordance, so no `Refresh` part and no
- *   `hideRefresh`.
- * - The primary actions (remove-from-organization, assign-roles, remove-roles)
- *   are buried inside the tab subcomponents and are triggered via the model's
- *   `openModal`, not via header buttons. They cannot be cleanly decomposed into
- *   Tier-2 render-prop parts.
- * As a result this layer is intentionally headless-leaning: it offers Root/Content
- * structural wrapping (Tier 3) for interleaving host UI, and the Tier-4 model hook
- * for full control. Finer-grained composition requires the Tier-4 hook.
+ * HURDLE — why there is no Tier-2 action part and no `Refresh` part:
+ * Unlike single-action tables, this component's primary actions
+ * (remove-from-organization, assign-roles, remove-roles) are buried inside the
+ * tab subcomponents and are triggered via the model's `openModal`, not via
+ * header buttons — they cannot be cleanly decomposed into Tier-2 render-prop
+ * parts. There is also no refresh/last-updated affordance, so no `Refresh` part
+ * and no `hideRefresh`. Hosts needing finer-grained control use the Tier-4 hook.
+ *
+ * The `Header` here is NOT the shared title/description {@link Header}: it wraps
+ * the component's own name-driven avatar/back-button header
+ * ({@link OrganizationMemberDetailHeader}), which the base view now renders
+ * behind a `hideHeader` gate so composition can own it as a standalone part.
  *
  * @module organization-member-detail.composable
  */
@@ -37,6 +32,7 @@ import * as React from 'react';
 
 import {
   OrganizationMemberDetail as OrganizationMemberDetailDefault,
+  OrganizationMemberDetailHeader,
   OrganizationMemberDetailView,
 } from '@/components/auth0/my-organization/organization-member-detail';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
@@ -168,13 +164,35 @@ function Root({
 Root.displayName = 'OrganizationMemberDetail.Root';
 
 /**
- * The full member detail body (local header + tabs + modals). Reuses the
- * existing view with an EXACT replication of the Tier-1 container's prop
- * pass-through (spread of the shared model plus `styling` and `customMessages`).
+ * The member's avatar/back-button header (name + user-id badge). Wraps the base
+ * {@link OrganizationMemberDetailHeader}, driven entirely by the shared model, so
+ * Tier-3 hosts can position it independently of the tabs body.
  *
- * The view owns its local avatar/back-button header, so `Content` renders the
- * complete detail including that header — there is no separate `Header` part
- * (see the module HURDLE note).
+ * This is NOT the shared title/description header used by table components —
+ * it is this component's own data-driven header, so it takes no `action`/copy
+ * props.
+ * @returns The member detail header element.
+ */
+function Header() {
+  const { model, props } = useOrganizationMemberDetailContext();
+  return (
+    <OrganizationMemberDetailHeader
+      member={model.member}
+      styling={props.styling ?? DEFAULT_STYLING}
+      customMessages={props.customMessages}
+      handleBack={model.handleBack}
+    />
+  );
+}
+
+Header.displayName = 'OrganizationMemberDetail.Header';
+
+/**
+ * The member detail body (tabs + modals). Reuses the existing view with its
+ * built-in header suppressed (`hideHeader`), since the header is owned by the
+ * {@link Header} part in composition. Prop pass-through otherwise mirrors the
+ * Tier-1 container exactly (spread of the shared model plus `styling` and
+ * `customMessages`).
  * @returns The member detail content.
  */
 function Content() {
@@ -185,6 +203,7 @@ function Content() {
       {...model}
       styling={props.styling ?? DEFAULT_STYLING}
       customMessages={props.customMessages}
+      hideHeader
     />
   );
 }
@@ -192,13 +211,19 @@ function Content() {
 Content.displayName = 'OrganizationMemberDetail.Content';
 
 /**
- * The default anatomy: just the full detail content. Wrapping in
- * `Root` + `DefaultLayout` reproduces the Tier-1 visual output exactly, so hosts
- * can opt into composition incrementally.
+ * The default anatomy: header → content. Wrapping in `Root` + `DefaultLayout`
+ * reproduces the Tier-1 visual output exactly, so hosts can opt into composition
+ * incrementally. `hideHeader` suppresses the header, mirroring the Tier-1 prop.
  * @returns The default layout subtree.
  */
 function DefaultLayout() {
-  return <Content />;
+  const { props } = useOrganizationMemberDetailContext();
+  return (
+    <>
+      {!props.hideHeader && <Header />}
+      <Content />
+    </>
+  );
 }
 
 DefaultLayout.displayName = 'OrganizationMemberDetail.DefaultLayout';
@@ -207,16 +232,17 @@ DefaultLayout.displayName = 'OrganizationMemberDetail.DefaultLayout';
  * Organization member detail with progressive composability.
  *
  * Callable directly for the Tier-1 default (`<OrganizationMemberDetail {...props} />`),
- * and exposes `Root`/`Content` for structural (Tier 3) composition — interleaving
- * host UI around the detail. For fully headless (Tier 4) usage, see
+ * and exposes `Root`/`Header`/`Content` for structural (Tier 3) composition —
+ * interleaving host UI around the detail. For fully headless (Tier 4) usage, see
  * `useOrganizationMemberDetailModel`.
  *
- * This component has no shared-Header action region and no refresh affordance,
- * so it offers no Tier-2 render-prop parts (see the module HURDLE note).
+ * There is no header action region and no refresh affordance, so it offers no
+ * Tier-2 render-prop parts (see the module HURDLE note).
  *
  * @example Tier 3 — structural layout with host UI interleaved
  * ```tsx
  * <OrganizationMemberDetail.Root {...props}>
+ *   <OrganizationMemberDetail.Header />
  *   <HostBreadcrumbs />
  *   <OrganizationMemberDetail.Content />
  * </OrganizationMemberDetail.Root>
@@ -225,6 +251,7 @@ DefaultLayout.displayName = 'OrganizationMemberDetail.DefaultLayout';
 const OrganizationMemberDetail = Object.assign(OrganizationMemberDetailDefault, {
   Root,
   DefaultLayout,
+  Header,
   Content,
 });
 
@@ -232,6 +259,7 @@ export {
   OrganizationMemberDetail,
   Root,
   DefaultLayout,
+  Header,
   Content,
   useOrganizationMemberDetailContext,
 };

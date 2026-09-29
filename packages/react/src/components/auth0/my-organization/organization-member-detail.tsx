@@ -29,11 +29,15 @@ import type {
 } from '@/types/my-organization/member-management/organization-member-detail-types';
 
 /**
- * Member detail header component.
+ * Member detail header component: back button + avatar + name/user-id badge.
+ *
+ * Exported so the composability layer can render it as a standalone
+ * `OrganizationMemberDetail.Header` part (Tier-3). The view still renders it
+ * inline by default; composition suppresses that copy via `hideHeader`.
  * @param props - Component props containing state and handlers
  * @returns The rendered header element
  */
-function Header({
+export function OrganizationMemberDetailHeader({
   member,
   styling,
   customMessages,
@@ -100,6 +104,7 @@ export function OrganizationMemberDetailView(
     closeModal,
     openModal,
     readOnly,
+    hideHeader,
     handleRemoveFromOrganizationConfirm,
   } = props;
 
@@ -154,12 +159,14 @@ export function OrganizationMemberDetailView(
   return (
     <StyledScope style={currentStyles.variables}>
       <div className={currentStyles.classes?.['OrganizationMemberDetail-root']}>
-        <Header
-          member={props.member}
-          styling={styling}
-          customMessages={customMessages}
-          handleBack={props.handleBack}
-        />
+        {!hideHeader && (
+          <OrganizationMemberDetailHeader
+            member={props.member}
+            styling={styling}
+            customMessages={customMessages}
+            handleBack={props.handleBack}
+          />
+        )}
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as 'details' | 'roles')}

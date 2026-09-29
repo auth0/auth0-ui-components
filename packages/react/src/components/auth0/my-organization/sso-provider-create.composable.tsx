@@ -23,10 +23,13 @@
  *    button we could wire a host element into (as `CreateAction` does for the
  *    table). Navigation and submission are internal to the wizard step model,
  *    so there is **no Tier-2 action part** here.
- * 2. **No `Header` part / no `hideHeader`.** The view always renders its own
- *    `<Header>` (title + optional back button) and exposes no `hideHeader` flag,
- *    so the header cannot be lifted out or suppressed independently. Header copy
- *    stays inside `Content`.
+ * 2. **No `Header` part / no `hideHeader` — intentional exception.** The view
+ *    always renders its own `<Header>` (title + optional back button) and exposes
+ *    no `hideHeader` flag, so the header cannot be lifted out or suppressed
+ *    independently. Header copy stays inside `Content`. This is a deliberate
+ *    exception to the header-parity other components have: the wizard owns its
+ *    own Next/Previous chrome, so a standalone `Header` part would be a hollow
+ *    slot with no navigation behind it — misleading rather than useful.
  * 3. **No `RefreshIndicator`.** This is a creation wizard, not a data table —
  *    there is no stale/refetch surface, hence no `Refresh` part or `hideRefresh`.
  * 4. **Flat model spread.** The view consumes the model result spread flat
