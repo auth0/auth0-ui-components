@@ -65,6 +65,7 @@ export function SsoProviderTab({
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
+  connectionNamePrefix,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -111,6 +112,7 @@ export function SsoProviderTab({
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
+              connectionNamePrefix={connectionNamePrefix}
             />
           )}
         </CardContent>

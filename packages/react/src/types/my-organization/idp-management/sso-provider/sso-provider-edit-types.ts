@@ -90,6 +90,7 @@ export interface SsoProviderEditProps
   domains?: SsoDomainsTabEditProps;
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
+  connectionNamePrefix?: string;
 }
 
 /** useSsoProviderEdit options. */
@@ -189,6 +190,7 @@ export interface SsoProviderEditViewProps
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'
       | 'enableProviderAction'
+      | 'connectionNamePrefix'
     > {
   showProvisioningTab: boolean;
 }

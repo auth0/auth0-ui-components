@@ -80,6 +80,7 @@ export interface SsoProviderTabProps
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
+  connectionNamePrefix?: string;
 }
 
 export interface ProviderDetailsClasses
@@ -115,6 +116,7 @@ export interface SsoProviderDetailsProps
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
+  connectionNamePrefix?: string;
   /**
    * Optional resolver for SAML Service Provider metadata.
    *

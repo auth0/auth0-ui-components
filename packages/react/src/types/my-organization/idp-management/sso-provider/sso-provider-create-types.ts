@@ -83,6 +83,7 @@ export interface ProviderConfigureProps
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
   connectionName?: string;
+  connectionNamePrefix?: string;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
@@ -107,6 +108,7 @@ export interface ProviderConfigureFieldsProps
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
   connectionName?: string;
+  connectionNamePrefix?: string;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
@@ -138,6 +140,7 @@ export interface SsoProviderCreateProps
   backButton?: SsoProviderCreateBackButton;
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
+  connectionNamePrefix?: string;
   /**
    * Optional resolver for SAML Service Provider metadata.
    *
@@ -204,7 +207,13 @@ export interface SsoProviderCreateViewProps
   extends UseSsoProviderCreateResult,
     Pick<
       SsoProviderCreateProps,
-      'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious' | 'resolveSamlMetadata'
+      | 'styling'
+      | 'customMessages'
+      | 'backButton'
+      | 'onNext'
+      | 'onPrevious'
+      | 'resolveSamlMetadata'
+      | 'connectionNamePrefix'
     > {
   strategy?: IdpStrategy;
   details?: ProviderDetailsFormValues | null;
