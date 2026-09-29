@@ -31,7 +31,7 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for SPAs. Wraps components with required contexts.
- * @param props - Provider configuration including domain, mode, authContext, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, and children.
+ * @param props - Provider configuration including domain, mode, authContext, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, disablePermissionEnforcement, and children.
  * @returns Provider component tree
  */
 export const Auth0ComponentProvider = (
@@ -56,6 +56,7 @@ export const Auth0ComponentProvider = (
     children,
     authContext,
     telemetry: telemetryEnabled = true,
+    disablePermissionEnforcement = false,
   } = props;
   const mergedToastSettings = useToastProvider(toastSettings);
 
@@ -146,7 +147,12 @@ export const Auth0ComponentProvider = (
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
             <QueryProvider cacheConfig={cacheConfig} retryConfig={retryConfig}>
-              <PermissionProvider isAuthenticated={isAuthenticated}>{children}</PermissionProvider>
+              <PermissionProvider
+                isAuthenticated={isAuthenticated}
+                disablePermissionEnforcement={disablePermissionEnforcement}
+              >
+                {children}
+              </PermissionProvider>
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (
