@@ -47,6 +47,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     onNext,
     onPrevious,
     resolveSamlMetadata,
+    connectionNamePrefix,
   } = props;
 
   const ssoProviderCreate = useSsoProviderCreate({
@@ -71,6 +72,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
         onNext={onNext}
         onPrevious={onPrevious}
         resolveSamlMetadata={resolveSamlMetadata}
+        connectionNamePrefix={connectionNamePrefix}
       />
     </GateKeeper>
   );
@@ -102,6 +104,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     crossAppAccessDefaultValue,
     isOrganizationBlocked,
     resolveSamlMetadata,
+    connectionNamePrefix,
     detailsRef,
     configureRef,
     onNext,
@@ -170,6 +173,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               isLoading={isLoadingIdpConfig}
               initialData={configure ?? undefined}
               connectionName={details?.name}
+              connectionNamePrefix={connectionNamePrefix}
               customMessages={customMessages?.provider_configure}
               idpConfig={idpConfig ?? null}
               className={currentStyles?.classes?.['ProviderConfigure-root']}
@@ -206,6 +210,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       crossAppAccessDefaultValue,
       isOrganizationBlocked,
       resolveSamlMetadata,
+      connectionNamePrefix,
     ],
   );
 

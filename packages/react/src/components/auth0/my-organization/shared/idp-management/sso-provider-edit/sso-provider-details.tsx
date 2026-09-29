@@ -51,6 +51,7 @@ export function SsoProviderDetails({
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
+  connectionNamePrefix,
   resolveSamlMetadata,
 }: SsoProviderDetailsProps) {
   const { t } = useTranslator('idp_management.sso_provider_details', customMessages);
@@ -133,6 +134,7 @@ export function SsoProviderDetails({
           strategy={provider.strategy}
           initialData={{ ...provider, ...provider.options }}
           connectionName={provider.name ?? undefined}
+          connectionNamePrefix={connectionNamePrefix}
           readOnly={readOnly}
           idpConfig={idpConfig}
           mode="edit"

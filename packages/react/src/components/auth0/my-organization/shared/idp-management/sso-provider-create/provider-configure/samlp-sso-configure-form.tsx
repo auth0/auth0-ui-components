@@ -95,7 +95,8 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
-    connectionName,
+    connectionName: connectionNameProp,
+    connectionNamePrefix,
     resolveSamlMetadata,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
@@ -107,6 +108,11 @@ export const SamlpProviderForm = React.forwardRef<
   },
   ref,
 ) {
+  const connectionName =
+    connectionNamePrefix && connectionNameProp
+      ? `${connectionNamePrefix}-${connectionNameProp}`
+      : connectionNameProp;
+
   const { t } = useTranslator(
     'idp_management.create_sso_provider.provider_configure',
     customMessages,

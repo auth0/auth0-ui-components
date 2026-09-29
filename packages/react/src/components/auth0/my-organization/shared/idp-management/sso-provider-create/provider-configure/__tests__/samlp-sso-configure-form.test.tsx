@@ -386,6 +386,23 @@ describe('SamlpProviderForm', () => {
       expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
     });
 
+    it('should prepend connectionNamePrefix to connectionName in URLs and SP Issuer URN', () => {
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          connectionName="MyConnection"
+          connectionNamePrefix="teams-abc123"
+        />,
+        { authDetails: { domain: 'staff0.auth0.com' } },
+      );
+
+      expect(
+        screen.getByDisplayValue(
+          'https://staff0.auth0.com/login/callback?connection=teams-abc123-MyConnection',
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('should not include sp_issuer_urn in formRef.getData() payload', async () => {
       const formRef = React.createRef<SamlpConfigureFormHandle>();
 

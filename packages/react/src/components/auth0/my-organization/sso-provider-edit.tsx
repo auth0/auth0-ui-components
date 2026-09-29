@@ -64,6 +64,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     schema,
     readOnly = false,
     enableProviderAction,
+    connectionNamePrefix,
   } = props;
 
   const ssoProviderEdit = useSsoProviderEdit(providerId, {
@@ -99,6 +100,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideAttributeMappings={hideAttributeMappings}
         enableProviderAction={enableProviderAction}
+        connectionNamePrefix={connectionNamePrefix}
       />
     </GateKeeper>
   );
@@ -149,6 +151,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
     enableProviderAction,
+    connectionNamePrefix,
     updateProvider,
     listScimTokens,
     syncSsoAttributes,
@@ -266,6 +269,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
+              connectionNamePrefix={connectionNamePrefix}
             />
           </TabsContent>
 
