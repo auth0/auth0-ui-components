@@ -125,6 +125,47 @@ describe('UserPasskeyManagement — composability', () => {
     });
   });
 
+  describe('AddAction auto-detection', () => {
+    it('suppresses the in-card Add when a standalone AddAction is mounted', async () => {
+      mockCoreClient.getMyAccountApiClient().authenticationMethods.list = vi
+        .fn()
+        .mockResolvedValue({ authentication_methods: [] });
+
+      renderWithProviders(
+        <UserPasskeyManagement.Root>
+          <UserPasskeyManagement.AddAction />
+          <UserPasskeyManagement.Content />
+        </UserPasskeyManagement.Root>,
+      );
+
+      await screen.findByText('no_passkeys');
+      // AddAction registers on mount → Content drops its in-card Add, leaving
+      // exactly one trigger (the standalone one).
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: 'add_passkey' })).toHaveLength(1),
+      );
+    });
+
+    it('keeps both Add controls when forceInCardAddButton opts out', async () => {
+      mockCoreClient.getMyAccountApiClient().authenticationMethods.list = vi
+        .fn()
+        .mockResolvedValue({ authentication_methods: [] });
+
+      renderWithProviders(
+        <UserPasskeyManagement.Root>
+          <UserPasskeyManagement.AddAction />
+          <UserPasskeyManagement.Content forceInCardAddButton />
+        </UserPasskeyManagement.Root>,
+      );
+
+      await screen.findByText('no_passkeys');
+      // Escape hatch: the in-card Add stays, so both triggers render.
+      await waitFor(() =>
+        expect(screen.getAllByRole('button', { name: 'add_passkey' })).toHaveLength(2),
+      );
+    });
+  });
+
   describe('context safety', () => {
     it('throws when a compound part is rendered outside Root', () => {
       const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});

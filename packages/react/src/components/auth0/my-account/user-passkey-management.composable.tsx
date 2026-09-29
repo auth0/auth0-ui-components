@@ -19,9 +19,11 @@
  * `CardAction`), not in the section header. So `DefaultLayout` keeps the Add
  * button where it natively renders (inside `Content`); the standalone
  * `AddAction` part exists for Tier-3 custom layouts where the host positions the
- * trigger themselves. Rendering `AddAction` alongside the default `Content` will
- * surface TWO add controls — hosts composing their own structure should pass
- * `hideHeader`-style discipline and avoid duplicating the trigger.
+ * trigger themselves. To avoid two Add controls, a mounted `AddAction`
+ * auto-registers with `Root`, and `Content` reads that and suppresses its
+ * in-card Add — so composing `AddAction` alongside `Content` yields exactly one
+ * trigger, no manual flag required. Hosts that genuinely want both can opt out
+ * via `<Content forceInCardAddButton />`.
  *
  * @module user-passkey-management.composable
  */
@@ -58,6 +60,21 @@ const [UserPasskeyManagementContext, useUserPasskeyManagementContext, parts] =
   createComponentContext<UserPasskeyManagementComposition>('UserPasskeyManagement', {
     requiredParts: ['Content'],
   });
+
+/**
+ * Stable `register` callback for a mounted {@link AddAction}. Kept in its own
+ * context (separate from {@link AddActionPresenceContext}) so `AddAction`'s
+ * registration effect depends only on this stable identity and never re-runs
+ * when the presence flag flips.
+ */
+const AddActionRegisterContext = React.createContext<(() => () => void) | null>(null);
+
+/**
+ * Whether at least one standalone {@link AddAction} is currently mounted. Read by
+ * {@link Content} to auto-suppress the view's in-card Add and avoid rendering two
+ * Add controls in Tier-3 layouts.
+ */
+const AddActionPresenceContext = React.createContext<boolean>(false);
 
 const DEFAULT_STYLING: NonNullable<UserPasskeyManagementProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
@@ -109,6 +126,15 @@ function Root({
     [styling, isDarkMode],
   );
 
+  // Track how many standalone AddAction parts are mounted so Content can drop its
+  // in-card Add when the host has positioned its own trigger. `register` is
+  // stable (functional setState), so AddAction's effect never re-fires.
+  const [externalAddCount, setExternalAddCount] = React.useState(0);
+  const registerAddAction = React.useCallback(() => {
+    setExternalAddCount((count) => count + 1);
+    return () => setExternalAddCount((count) => Math.max(0, count - 1));
+  }, []);
+
   // Key the composition on concrete prop fields, not the `props` container: a
   // rest-spread (`{ ...props }`) allocates a new object every render and would
   // defeat this memo. With `model` now memoized in the hook, the context value
@@ -144,11 +170,15 @@ function Root({
 
   return (
     <UserPasskeyManagementContext.Provider value={composition}>
-      <GateKeeper isLoading={model.isLoading} styling={styling}>
-        <StyledScope style={currentStyles.variables}>
-          <parts.Boundary>{children}</parts.Boundary>
-        </StyledScope>
-      </GateKeeper>
+      <AddActionRegisterContext.Provider value={registerAddAction}>
+        <AddActionPresenceContext.Provider value={externalAddCount > 0}>
+          <GateKeeper isLoading={model.isLoading} styling={styling}>
+            <StyledScope style={currentStyles.variables}>
+              <parts.Boundary>{children}</parts.Boundary>
+            </StyledScope>
+          </GateKeeper>
+        </AddActionPresenceContext.Provider>
+      </AddActionRegisterContext.Provider>
     </UserPasskeyManagementContext.Provider>
   );
 }
@@ -175,6 +205,15 @@ export interface UserPasskeyManagementAddActionProps {
 function AddAction({ render }: UserPasskeyManagementAddActionProps) {
   const { model, props } = useUserPasskeyManagementContext();
   const { t } = useTranslator('passkey', props.customMessages);
+
+  // Announce this trigger to Root so Content drops its duplicate in-card Add.
+  // Only register when actually visible (skipped while adding is disabled, where
+  // the in-card Add is hidden too, so there is nothing to de-duplicate).
+  const register = React.useContext(AddActionRegisterContext);
+  React.useEffect(() => {
+    if (model.disableAdd) return;
+    return register?.();
+  }, [register, model.disableAdd]);
 
   if (model.disableAdd) {
     return null;
@@ -244,21 +283,40 @@ function UserPasskeyManagementHeader({ action, className }: UserPasskeyManagemen
 
 UserPasskeyManagementHeader.displayName = 'UserPasskeyManagement.Header';
 
+/** Props for {@link Content}. */
+export interface UserPasskeyManagementContentProps {
+  /**
+   * Escape hatch: force the in-card Add button to render even when a standalone
+   * {@link AddAction} is also mounted. Rarely needed — by default `Content`
+   * auto-suppresses its in-card Add whenever an `AddAction` is present, so the
+   * two do not both render. Set this to keep both (e.g. a host that deliberately
+   * wants a second trigger).
+   */
+  forceInCardAddButton?: boolean;
+}
+
 /**
  * The passkey body (list / empty state + native Add control + revoke modal).
  * Reuses the existing view with its header suppressed, since the header is owned
  * by the {@link UserPasskeyManagementHeader} part in composition.
+ *
+ * Auto-suppresses its in-card Add button when a standalone {@link AddAction} is
+ * mounted (detected via context), so a Tier-3 layout that positions its own Add
+ * trigger does not surface two. Pass `forceInCardAddButton` to opt out.
+ * @param props - {@link UserPasskeyManagementContentProps}
  * @returns The passkey content.
  */
-function Content() {
+function Content({ forceInCardAddButton = false }: UserPasskeyManagementContentProps = {}) {
   const { model, props } = useUserPasskeyManagementContext();
   parts.useRegisterPart('Content');
+  const hasExternalAddAction = React.useContext(AddActionPresenceContext);
   return (
     <UserPasskeyManagementView
       {...model}
       styling={props.styling ?? DEFAULT_STYLING}
       customMessages={props.customMessages}
       hideHeader
+      hideAddButton={hasExternalAddAction && !forceInCardAddButton}
     />
   );
 }

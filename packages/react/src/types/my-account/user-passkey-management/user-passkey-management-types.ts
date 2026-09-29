@@ -53,6 +53,13 @@ export interface UserPasskeyManagementViewProps {
   customMessages: UserPasskeyManagementProps['customMessages'];
   hideHeader: boolean;
   disableAdd: boolean;
+  /**
+   * Suppress the in-card Add button independently of `disableAdd`. Defaults to
+   * `false` (Tier-1 renders it). The composability layer sets this to `true` when
+   * a standalone `UserPasskeyManagement.AddAction` is mounted, so the two Add
+   * controls do not both render.
+   */
+  hideAddButton?: boolean;
   disableRevoke: boolean;
   isRevokeModalOpen: boolean;
   currentPasskey: Passkey | null;
