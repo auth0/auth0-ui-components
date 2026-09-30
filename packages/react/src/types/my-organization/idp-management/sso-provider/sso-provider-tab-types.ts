@@ -81,6 +81,7 @@ export interface SsoProviderTabProps
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
   connectionNamePrefix?: string;
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ProviderDetailsClasses

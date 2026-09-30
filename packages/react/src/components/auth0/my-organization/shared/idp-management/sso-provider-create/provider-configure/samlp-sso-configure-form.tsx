@@ -133,9 +133,8 @@ export const SamlpProviderForm = React.forwardRef<
   const spIssuerUrn = React.useMemo(() => {
     if (!connectionName) return '';
     if (resolveSamlMetadata) return resolveSamlMetadata({ connectionName }).entityId;
-    const domain = coreClient?.getDomain();
-    const tenant = domain?.split('.')[0] ?? '';
-    return `urn:auth0:${tenant}:${connectionName}`;
+    const tenant = coreClient?.getDomain()?.split('.')[0];
+    return tenant ? `urn:auth0:${tenant}:${connectionName}` : '';
   }, [resolveSamlMetadata, connectionName, coreClient]);
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);

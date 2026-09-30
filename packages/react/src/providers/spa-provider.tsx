@@ -40,6 +40,7 @@ export const Auth0ComponentProvider = (
   const {
     i18n,
     previewMode,
+    domain,
     themeSettings = {
       theme: 'default',
       mode: 'light',
@@ -89,8 +90,9 @@ export const Auth0ComponentProvider = (
     () => ({
       contextInterface: resolvedAuthContext,
       previewMode,
+      domain,
     }),
-    [resolvedAuthContext, previewMode],
+    [resolvedAuthContext, previewMode, domain],
   );
 
   const telemetry = React.useMemo<TelemetryConfig>(
