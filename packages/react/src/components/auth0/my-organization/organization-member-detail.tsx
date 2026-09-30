@@ -254,6 +254,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     readOnly = false,
+    hideHeader = false,
     initialTab,
     removeFromOrganizationAction,
     assignRolesAction,
@@ -278,6 +279,7 @@ export function OrganizationMemberDetail(props: OrganizationMemberDetailProps) {
         styling={styling}
         readOnly={readOnly}
         customMessages={customMessages}
+        hideHeader={hideHeader}
       />
     </GateKeeper>
   );

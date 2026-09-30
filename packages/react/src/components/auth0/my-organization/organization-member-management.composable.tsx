@@ -331,7 +331,7 @@ function DefaultLayout({ children }: { children?: React.ReactNode }) {
   const { model, props } = useOrganizationMemberManagementContext();
   return (
     <>
-      <OrganizationMemberManagementHeader action={children} />
+      {!props.hideHeader && <OrganizationMemberManagementHeader action={children} />}
       <OrganizationMemberManagementView
         {...model}
         styling={props.styling ?? DEFAULT_STYLING}

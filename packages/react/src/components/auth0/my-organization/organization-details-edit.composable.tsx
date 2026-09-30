@@ -229,9 +229,10 @@ Content.displayName = 'OrganizationDetailsEdit.Content';
  * @returns The default layout subtree.
  */
 function DefaultLayout() {
+  const { props } = useOrganizationDetailsEditContext();
   return (
     <>
-      <OrganizationDetailsEditHeader />
+      {!props.hideHeader && <OrganizationDetailsEditHeader />}
       <Content />
     </>
   );
