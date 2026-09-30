@@ -91,6 +91,7 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 /** useSsoProviderEdit options. */
@@ -191,6 +192,7 @@ export interface SsoProviderEditViewProps
       | 'hideAttributeMappings'
       | 'enableProviderAction'
       | 'connectionNamePrefix'
+      | 'resolveSamlMetadata'
     > {
   showProvisioningTab: boolean;
 }

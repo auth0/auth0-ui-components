@@ -18,6 +18,7 @@ export type Auth0ComponentProviderProps = (
       mode?: 'direct';
       authContext?: AuthDetails['contextInterface'];
       proxyConfig?: never;
+      domain?: string;
     }
   | {
       mode: 'proxy';

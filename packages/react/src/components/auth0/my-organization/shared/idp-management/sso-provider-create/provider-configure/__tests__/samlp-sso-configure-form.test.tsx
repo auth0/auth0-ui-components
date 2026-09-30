@@ -5,6 +5,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { SamlpConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
 import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -383,6 +384,17 @@ describe('SamlpProviderForm', () => {
       renderWithProviders(<SamlpProviderForm idpConfig={null} />);
 
       // URN field renders but its value is empty without a connectionName.
+      expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
+    });
+
+    it('should display an empty SP Issuer URN when domain is not configured', () => {
+      const noDomainClient = { ...createMockCoreClient(), getDomain: () => undefined };
+
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />, {
+        coreClient: noDomainClient,
+      });
+
+      // connectionName present but getDomain() returns undefined — URN must be empty, not urn:auth0::my-conn.
       expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
     });
 

@@ -59,7 +59,7 @@ export async function createCoreClient(
         throw new Error('Function not implemented.');
       },
       getDomain: function (): string | undefined {
-        return undefined;
+        return authDetails.domain;
       },
     };
   }
