@@ -165,7 +165,9 @@ export interface UseOrganizationMemberManagementResult {
 
   invitations: MemberInvitation[];
   organizationDisplayName?: string;
+  isLoadingOrganization: boolean;
   isInitialLoading: boolean;
+  isLoadingMembers: boolean;
   isFetchingInvitations: boolean;
   isLoadingInvitations: boolean;
   isFetchingMembers: boolean;
