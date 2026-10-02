@@ -20,7 +20,7 @@ import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   UseSsoProviderTableOptions,
-  UseSsoProviderTableReturn,
+  UseSsoProviderTableResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 export { ssoProviderQueryKeys };
@@ -39,7 +39,7 @@ export function useSsoProviderTable({
   deleteAction,
   deleteFromOrganizationAction,
   enableProviderAction,
-}: UseSsoProviderTableOptions): UseSsoProviderTableReturn {
+}: UseSsoProviderTableOptions): UseSsoProviderTableResult {
   const { t } = useTranslator(
     'idp_management.notifications',
     customMessages as Record<string, unknown>,
@@ -221,42 +221,76 @@ export function useSsoProviderTable({
     [onRemoveConfirm, organization?.display_name, t, handleError],
   );
 
-  return {
-    permissions,
-    providers,
-    organization,
+  return useMemo(
+    () => ({
+      permissions,
+      providers,
+      organization,
 
-    isLoading,
-    isViewLoading,
-    isRefetchingProviders,
-    isProvidersStale,
-    providersUpdatedAt,
-    isDeleting,
-    isRemoving,
-    isUpdating,
-    isUpdatingId,
+      isLoading,
+      isViewLoading,
+      isRefetchingProviders,
+      isProvidersStale,
+      providersUpdatedAt,
+      isDeleting,
+      isRemoving,
+      isUpdating,
+      isUpdatingId,
 
-    shouldAllowDeletion,
-    shouldHideCreate,
+      shouldAllowDeletion,
+      shouldHideCreate,
 
-    showDeleteModal,
-    showRemoveModal,
-    selectedIdp,
+      showDeleteModal,
+      showRemoveModal,
+      selectedIdp,
 
-    refetchProviders,
-    fetchProviders,
-    fetchOrganizationDetails: handleFetchOrganizationDetails,
+      refetchProviders,
+      fetchProviders,
+      fetchOrganizationDetails: handleFetchOrganizationDetails,
 
-    handleCreate,
-    handleEdit,
-    handleDelete,
-    handleDeleteFromOrganization,
-    handleToggleEnabled,
-    handleDeleteConfirm,
-    handleRemoveConfirm,
+      handleCreate,
+      handleEdit,
+      handleDelete,
+      handleDeleteFromOrganization,
+      handleToggleEnabled,
+      handleDeleteConfirm,
+      handleRemoveConfirm,
 
-    setShowDeleteModal,
-    setShowRemoveModal,
-    setSelectedIdp,
-  };
+      setShowDeleteModal,
+      setShowRemoveModal,
+      setSelectedIdp,
+    }),
+    [
+      permissions,
+      providers,
+      organization,
+      isLoading,
+      isViewLoading,
+      isRefetchingProviders,
+      isProvidersStale,
+      providersUpdatedAt,
+      isDeleting,
+      isRemoving,
+      isUpdating,
+      isUpdatingId,
+      shouldAllowDeletion,
+      shouldHideCreate,
+      showDeleteModal,
+      showRemoveModal,
+      selectedIdp,
+      refetchProviders,
+      fetchProviders,
+      handleFetchOrganizationDetails,
+      handleCreate,
+      handleEdit,
+      handleDelete,
+      handleDeleteFromOrganization,
+      handleToggleEnabled,
+      handleDeleteConfirm,
+      handleRemoveConfirm,
+      setShowDeleteModal,
+      setShowRemoveModal,
+      setSelectedIdp,
+    ],
+  );
 }

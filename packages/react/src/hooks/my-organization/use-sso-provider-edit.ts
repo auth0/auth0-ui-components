@@ -13,7 +13,7 @@ import { useSsoProviderEditService } from '@/hooks/my-organization/shared/servic
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
   UseSsoProviderEditOptions,
-  UseSsoProviderEditReturn,
+  UseSsoProviderEditResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 /**
@@ -50,7 +50,7 @@ export function useSsoProviderEdit(
     readOnly = false,
     enableProviderAction,
   }: Partial<UseSsoProviderEditOptions> = {},
-): UseSsoProviderEditReturn {
+): UseSsoProviderEditResult {
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
@@ -123,27 +123,52 @@ export function useSsoProviderEdit(
     service.deleteScimToken,
   );
 
-  return {
-    ...service,
-    updateProvider,
-    syncSsoAttributes,
-    onDeleteConfirm,
-    onRemoveConfirm,
-    createProvisioning,
-    deleteProvisioning,
-    syncProvisioningAttributes,
-    createScimToken,
-    deleteScimToken,
-    permissions,
-    shouldAllowDeletion,
-    isLoadingConfig,
-    idpConfig,
-    isLoadingIdpConfig,
-    showProvisioningTab,
-    handleToggleProvider,
-    showThirdPartyAccess,
-    isThirdPartyAccessReadOnly,
-    showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
-    isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
-  };
+  return useMemo(
+    () => ({
+      ...service,
+      updateProvider,
+      syncSsoAttributes,
+      onDeleteConfirm,
+      onRemoveConfirm,
+      createProvisioning,
+      deleteProvisioning,
+      syncProvisioningAttributes,
+      createScimToken,
+      deleteScimToken,
+      permissions,
+      shouldAllowDeletion,
+      isLoadingConfig,
+      idpConfig,
+      isLoadingIdpConfig,
+      showProvisioningTab,
+      handleToggleProvider,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
+      isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
+    }),
+    [
+      service,
+      updateProvider,
+      syncSsoAttributes,
+      onDeleteConfirm,
+      onRemoveConfirm,
+      createProvisioning,
+      deleteProvisioning,
+      syncProvisioningAttributes,
+      createScimToken,
+      deleteScimToken,
+      permissions,
+      shouldAllowDeletion,
+      isLoadingConfig,
+      idpConfig,
+      isLoadingIdpConfig,
+      showProvisioningTab,
+      handleToggleProvider,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+    ],
+  );
 }
