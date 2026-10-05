@@ -11,12 +11,12 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const textFieldVariants = cva(
-  "bg-input aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive relative box-border inline-flex w-full shrink-0 cursor-text items-center justify-center gap-2 overflow-hidden rounded-2xl text-sm transition-[color,box-shadow] duration-150 ease-in-out outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "bg-input aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive relative box-border inline-flex w-full shrink-0 cursor-text items-center justify-center gap-2 overflow-hidden rounded-2xl text-sm transition-[background-color,color,box-shadow] duration-150 ease-in-out outline-none disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          'border-border/50 text-input-foreground shadow-input-resting hover:shadow-input-hover hover:border-primary/25 focus-within:border-border focus-within:ring-primary/15 focus-within:ring-4',
+          'border-border/50 text-input-foreground shadow-input-resting hover:shadow-input-hover hover:border-primary/25 focus-within:border-border focus-within:ring-ring focus-within:ring-4',
         error:
           'border-destructive-border/50 text-destructive-foreground shadow-input-destructive-resting hover:shadow-input-destructive-hover hover:border-destructive-border/25 focus-within:ring-destructive-border/15 focus-within:ring-4',
       },
