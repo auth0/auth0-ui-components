@@ -1457,5 +1457,30 @@
         "confirm": "Revoke Passkey"
       }
     }
+  },
+  "connection_group_management": {
+    "header": {
+      "title": "Groups",
+      "description": "Connection-level groups (SCIM/Google Workspace) from this organization's identity providers. Assign roles to a group to automatically grant them to all group members."
+    },
+    "table": {
+      "empty_message": "You do not have any groups.",
+      "columns": {
+        "name": "Name",
+        "source": "Source",
+        "assigned_roles": "Assigned roles"
+      },
+      "assigned_roles_overflow": "+${count} more",
+      "assigned_roles_empty": "—",
+      "actions": {
+        "menu_label": "Actions",
+        "assign_roles": "Assign roles",
+        "view_details": "View group"
+      }
+    },
+    "notifications": {
+      "general_error": "Something went wrong. Please try again.",
+      "fetch_groups_error": "Failed to load groups. Please try again."
+    }
   }
 }

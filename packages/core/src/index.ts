@@ -43,6 +43,9 @@ export * from './i18n/custom-messages/my-organization/idp-management/sso-provide
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-table-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
+// i18n custom messages - my-organization connection-group
+export * from './i18n/custom-messages/my-organization/connection-group/connection-group-table-types';
+
 // i18n custom messages - my-organization organization-management
 export * from './i18n/custom-messages/my-organization/organization-management/organization-details-types';
 export * from './i18n/custom-messages/my-organization/organization-management/organization-details-edit-types';

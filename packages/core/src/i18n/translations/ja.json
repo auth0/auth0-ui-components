@@ -1398,5 +1398,30 @@
         "copy_url_failed": "招待URLのコピーに失敗しました。もう一度お試しください。"
       }
     }
+  },
+  "connection_group_management": {
+    "header": {
+      "title": "グループ",
+      "description": "この組織のIDプロバイダーからの接続レベルのグループ（SCIM/Google Workspace）。グループにロールを割り当てると、すべてのグループメンバーに自動的に付与されます。"
+    },
+    "table": {
+      "empty_message": "グループがありません。",
+      "columns": {
+        "name": "名前",
+        "source": "ソース",
+        "assigned_roles": "割り当てられたロール"
+      },
+      "assigned_roles_overflow": "他${count}件",
+      "assigned_roles_empty": "—",
+      "actions": {
+        "menu_label": "アクション",
+        "assign_roles": "ロールを割り当てる",
+        "view_details": "グループを表示"
+      }
+    },
+    "notifications": {
+      "general_error": "問題が発生しました。もう一度お試しください。",
+      "fetch_groups_error": "グループの読み込みに失敗しました。もう一度お試しください。"
+    }
   }
 }

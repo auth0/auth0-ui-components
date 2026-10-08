@@ -23,6 +23,10 @@ export {
   SsoProviderTable,
   SsoProviderTableView,
 } from './components/auth0/my-organization/sso-provider-table';
+export {
+  OrganizationConnectionGroupTable,
+  OrganizationConnectionGroupTableView,
+} from './components/auth0/my-organization/organization-connection-group-table';
 export { DomainTable, DomainTableView } from './components/auth0/my-organization/domain-table';
 export {
   OrganizationMemberManagement,
@@ -62,6 +66,7 @@ export { useSsoDomainTab } from './hooks/my-organization/use-sso-domain-tab';
 export { useSsoProviderCreate } from './hooks/my-organization/use-sso-provider-create';
 export { useSsoProviderEdit } from './hooks/my-organization/use-sso-provider-edit';
 export { useSsoProviderTable } from './hooks/my-organization/use-sso-provider-table';
+export { useOrganizationConnectionGroupTable } from './hooks/my-organization/use-organization-connection-group-table';
 
 // Member Management hooks
 export { useOrganizationMemberManagement } from './hooks/my-organization/use-organization-member-management';
@@ -88,6 +93,7 @@ export * from './types/my-organization/idp-management/sso-provider/sso-provider-
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-table-types';
+export * from './types/my-organization/connection-group/organization-connection-group-table-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';

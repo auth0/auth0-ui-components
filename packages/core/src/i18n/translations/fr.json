@@ -1221,5 +1221,30 @@
         }
       }
     }
+  },
+  "connection_group_management": {
+    "header": {
+      "title": "Groupes",
+      "description": "Groupes au niveau des connexions (SCIM/Google Workspace) provenant des fournisseurs d'identité de cette organisation. Attribuez des rôles à un groupe pour les accorder automatiquement à tous ses membres."
+    },
+    "table": {
+      "empty_message": "Vous n'avez aucun groupe.",
+      "columns": {
+        "name": "Nom",
+        "source": "Source",
+        "assigned_roles": "Rôles attribués"
+      },
+      "assigned_roles_overflow": "+${count} de plus",
+      "assigned_roles_empty": "—",
+      "actions": {
+        "menu_label": "Actions",
+        "assign_roles": "Attribuer des rôles",
+        "view_details": "Afficher le groupe"
+      }
+    },
+    "notifications": {
+      "general_error": "Une erreur s'est produite. Veuillez réessayer.",
+      "fetch_groups_error": "Échec du chargement des groupes. Veuillez réessayer."
+    }
   }
 }
