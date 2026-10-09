@@ -48,6 +48,15 @@ export interface BooleanFieldOptions {
 }
 
 /**
+ * Options for enum field validation.
+ * @internal
+ */
+export interface EnumValidationOptions {
+  required?: boolean;
+  errorMessage?: string;
+}
+
+/**
  * Generic field validation options.
  * @internal
  */
@@ -153,6 +162,23 @@ export const createLogoSchema = (options: LogoValidationOptions = {}) => {
 export const DOMAIN_REGEX =
   /^(?:https?:\/\/)?(?:[\w-]+\.)*[\w-]+(?:\.\w{2,})?(?::\d{1,5})?(?:\/[\w\-./?%&=]*)?$/i;
 
+/** Bare hostname: dot-separated labels, no scheme, port, path, query or trailing slash. */
+export const BARE_DOMAIN_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+$/i;
+
+// Trims whitespace and strips a leading http(s):// so a bare hostname can be validated.
+export const stripDomainProtocol = (value: string): string =>
+  value.trim().replace(/^https?:\/\//i, '');
+
+/** Requires an http(s) protocol and a 2+ character host, rejecting e.g. https://x. */
+export const HTTP_URL_REGEX = /^https?:\/\/[^\s/$.?#]\S+$/i;
+
+/** Requires PEM BEGIN/END CERTIFICATE markers on their own lines with non-empty content between. */
+export const PEM_CERTIFICATE_REGEX =
+  /^\s*-----BEGIN CERTIFICATE-----[ \t]*\r?\n[\s\S]*\S[\s\S]*\r?\n[ \t]*-----END CERTIFICATE-----\s*$/;
+
+/** Matches inline XML content (leading `<`) or an http(s) URL. */
+export const XML_OR_URL_REGEX = /^\s*(?:<|https?:\/\/)/i;
+
 export const createDomainSchema = (options: DomainValidationOptions = {}) => {
   const { required = true, regex, errorMessage } = options;
 
@@ -186,10 +212,30 @@ export const createBooleanSchema = (options: BooleanFieldOptions = {}) => {
   return options.required === false ? schema.optional() : schema;
 };
 
+/**
+ * Creates a Zod enum schema restricted to a fixed set of allowed values.
+ * The default error message lists the allowed values to guide the user.
+ * @internal
+ *
+ * @param values - The allowed values for the enum
+ * @param options - Validation options for the enum schema
+ * @returns Configured Zod enum schema
+ */
+export const createEnumSchema = <const T extends readonly [string, ...string[]]>(
+  values: T,
+  options: EnumValidationOptions = {},
+) => {
+  const { required = true, errorMessage } = options;
+  const message = errorMessage || `Please select a valid option (${values.join(', ')})`;
+  const schema = z.enum(values, { errorMap: () => ({ message }) });
+
+  return required ? schema : schema.optional();
+};
+
 export const COMMON_FIELD_CONFIGS = {
   domain: {
-    defaultError: 'Please enter a valid domain',
-    regex: undefined as RegExp | undefined,
+    defaultError: 'Please enter a valid domain (e.g., company.okta.com)',
+    regex: BARE_DOMAIN_REGEX as RegExp | undefined,
   },
   client_id: {
     defaultError: 'Please enter a valid client ID',
@@ -201,27 +247,27 @@ export const COMMON_FIELD_CONFIGS = {
   },
   icon_url: {
     defaultError: 'Please enter a valid URL',
-    regex: /^https?:\/\/.+/,
+    regex: HTTP_URL_REGEX,
   },
   callback_url: {
     defaultError: 'Please enter a valid URL',
-    regex: /^https?:\/\/.+/,
+    regex: HTTP_URL_REGEX,
   },
   url: {
     defaultError: 'Please enter a valid URL',
-    regex: /^https?:\/\/.+/,
+    regex: HTTP_URL_REGEX,
   },
   certificate: {
-    defaultError: 'Please enter a valid certificate',
-    regex: undefined as RegExp | undefined,
+    defaultError: 'Please enter a valid certificate in PEM format',
+    regex: PEM_CERTIFICATE_REGEX,
   },
   algorithm: {
     defaultError: 'Please enter a valid algorithm',
     regex: undefined as RegExp | undefined,
   },
   metadata: {
-    defaultError: 'Please enter valid metadata',
-    regex: undefined as RegExp | undefined,
+    defaultError: 'Please enter valid XML metadata or a metadata URL',
+    regex: XML_OR_URL_REGEX,
   },
   userIdAttribute: {
     defaultError: 'Please enter a valid user ID attribute',
@@ -243,3 +289,39 @@ export const createFieldSchema = (
     minLength: options.minLength,
     maxLength: options.maxLength,
   });
+
+/**
+ * Creates a domain field schema that strips a leading protocol and whitespace
+ * before validating a bare hostname via the field config's regex. The normalized
+ * value is what the schema outputs, so forms submit the cleaned hostname.
+ * @internal
+ *
+ * @param fieldConfig - The common field config supplying the regex and default error
+ * @param options - Field validation options (only required, regex and errorMessage apply; minLength/maxLength are not used)
+ * @param customError - Fallback error message when options.errorMessage is absent
+ * @returns Zod schema that normalizes then validates a bare domain
+ */
+export const createDomainFieldSchema = (
+  fieldConfig: FieldConfig,
+  options: FieldOptions = {},
+  customError?: string,
+) => {
+  const required = options.required ?? false;
+  const regex = options.regex ?? fieldConfig.regex;
+  const message = options.errorMessage ?? customError ?? fieldConfig.defaultError;
+  const matchesDomain = (val: string) => !regex || regex.test(val);
+
+  if (required) {
+    return z
+      .string()
+      .min(1, message)
+      .transform(stripDomainProtocol)
+      .refine(matchesDomain, { message });
+  }
+
+  return z
+    .string()
+    .optional()
+    .transform((val) => (val ? stripDomainProtocol(val) : val))
+    .refine((val) => !val || matchesDomain(val), { message });
+};
