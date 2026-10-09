@@ -116,6 +116,7 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
     customMessages,
     hideHeader,
     disableAdd,
+    hideAddButton = false,
     disableRevoke,
     isRevokeModalOpen,
     currentPasskey,
@@ -151,7 +152,7 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
             )}
           </CardTitle>
           {!hasPasskeys && <CardDescription>{t('no_passkeys')}</CardDescription>}
-          {!disableAdd && (
+          {!disableAdd && !hideAddButton && (
             <CardAction>
               <Button
                 size="default"

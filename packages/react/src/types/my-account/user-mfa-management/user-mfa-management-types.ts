@@ -104,7 +104,7 @@ export interface UseUserMFAOptions {
 }
 
 /** Return type of useUserMFA hook. */
-export interface UseUserMFAReturn {
+export interface UseUserMFAResult {
   factorsByType: Record<MFAType, Authenticator[]>;
   isLoadingFactors: boolean;
   isEnrolling: boolean;
@@ -132,6 +132,12 @@ export interface UseUserMFAReturn {
   handleConfirmRecoveryCode: () => Promise<void>;
   handleEnterQRPhase: () => Promise<void>;
 }
+
+/**
+ * @deprecated Use {@link UseUserMFAResult} instead. This alias is kept for one
+ * release and will be removed in the next major version.
+ */
+export type UseUserMFAReturn = UseUserMFAResult;
 
 /** Return type of useUserMFAService hook. */
 export interface UseUserMFAServiceReturn {

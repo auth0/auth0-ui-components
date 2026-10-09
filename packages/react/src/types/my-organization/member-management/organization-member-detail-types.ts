@@ -262,6 +262,12 @@ export interface OrganizationMemberDetailProps
 export interface OrganizationMemberDetailViewProps extends UseOrganizationMemberDetailResult {
   styling: OrganizationMemberDetailProps['styling'];
   customMessages: OrganizationMemberDetailProps['customMessages'];
+  /**
+   * Suppress the built-in avatar/back header. Defaults to `false` (Tier-1 renders
+   * it). The composability layer sets this to `true` so its standalone
+   * `OrganizationMemberDetail.Header` part owns the header instead.
+   */
+  hideHeader?: boolean;
 }
 
 export type MemberDetailHeaderProps = Pick<
