@@ -53,10 +53,6 @@ import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-man
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-const SAMLP_HELP_LINKS = {
-  sign_request: 'domain/pem?cert=connection',
-} as const;
-
 const SIGNATURE_ALGORITHMS = [
   { value: 'rsa-sha1', label: 'RSA-SHA1' },
   { value: 'rsa-sha256', label: 'RSA-SHA256' },
@@ -129,6 +125,11 @@ export const SamlpProviderForm = React.forwardRef<
       sp_metadata_url: `https://${domain}/samlp/metadata${connectionParam}`,
     };
   }, [coreClient, connectionName]);
+
+  const signRequestCertUrl = React.useMemo(() => {
+    const domain = coreClient?.getDomain();
+    return `https://${domain}/pem?cert=connection`;
+  }, [coreClient]);
 
   const spIssuerUrn = React.useMemo(() => {
     if (!connectionName) return '';
@@ -385,7 +386,7 @@ export const SamlpProviderForm = React.forwardRef<
                                 link: (children: string) => (
                                   <Link
                                     key="samlp-sign-request-link"
-                                    href={SAMLP_HELP_LINKS.sign_request}
+                                    href={signRequestCertUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                   >
