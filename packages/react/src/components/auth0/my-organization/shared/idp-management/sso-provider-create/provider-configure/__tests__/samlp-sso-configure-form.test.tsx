@@ -140,6 +140,38 @@ describe('SamlpProviderForm', () => {
     });
   });
 
+  describe('sign request certificate link', () => {
+    it('should render the download-certificate link as an absolute URL built from the tenant domain', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://test-domain.auth0.com/pem?cert=connection');
+    });
+
+    it('should use the configured tenant domain for the certificate link', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />, {
+        authDetails: { domain: 'example.auth0.com' },
+      });
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://example.auth0.com/pem?cert=connection');
+    });
+  });
+
   describe('form dirty state', () => {
     it('should call onFormDirty when form becomes dirty', async () => {
       const user = userEvent.setup();
