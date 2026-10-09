@@ -6,6 +6,8 @@
 
 import {
   createBooleanSchema,
+  createDomainFieldSchema,
+  createEnumSchema,
   createFieldSchema,
   COMMON_FIELD_CONFIGS,
   type FieldOptions,
@@ -21,6 +23,18 @@ import type {
   ProviderDetailsSchema,
   SsoProviderSchema,
 } from './sso-provider-create-schema-types';
+
+/** Allowed SAML/PingFederate signature algorithms. */
+export const SIGNATURE_ALGORITHMS = ['rsa-sha1', 'rsa-sha256'] as const;
+
+/** Allowed SAML/PingFederate digest algorithms. */
+export const DIGEST_ALGORITHMS = ['sha1', 'sha256'] as const;
+
+/** Allowed SAML protocol bindings (SAML 2.0 binding URNs). */
+export const PROTOCOL_BINDINGS = [
+  'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+  'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+] as const;
 
 /** @internal */
 interface OktaOptions {
@@ -89,7 +103,7 @@ interface WaadOptions {
 const STRATEGY_BUILDERS = {
   okta: (options: OktaOptions = {}) =>
     z.object({
-      domain: createFieldSchema(
+      domain: createDomainFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
         { ...options.domain, required: true },
         'Please enter a valid Okta domain',
@@ -175,7 +189,7 @@ const STRATEGY_BUILDERS = {
 
   'google-apps': (options: GoogleAppsOptions = {}) =>
     z.object({
-      domain: createFieldSchema(
+      domain: createDomainFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
         { ...options.domain, required: true },
         'Please enter a valid Google Workspace domain',
@@ -257,16 +271,14 @@ const STRATEGY_BUILDERS = {
         { ...options.pingFederateBaseUrl, required: true },
         'Please enter a valid PingFederate base URL',
       ),
-      signatureAlgorithm: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.signatureAlgorithm, required: false },
-        'Please enter a valid signature algorithm',
-      ),
-      digestAlgorithm: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.digestAlgorithm, required: false },
-        'Please enter a valid digest algorithm',
-      ),
+      signatureAlgorithm: createEnumSchema(SIGNATURE_ALGORITHMS, {
+        required: false,
+        errorMessage: options.signatureAlgorithm?.errorMessage,
+      }),
+      digestAlgorithm: createEnumSchema(DIGEST_ALGORITHMS, {
+        required: false,
+        errorMessage: options.digestAlgorithm?.errorMessage,
+      }),
       signSAMLRequest: createBooleanSchema({
         required: false,
         errorMessage:
@@ -310,26 +322,22 @@ const STRATEGY_BUILDERS = {
         errorMessage:
           options.signSAMLRequest?.errorMessage ?? 'SAML request signing option is required',
       }),
-      bindingMethod: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.bindingMethod, required: false },
-        'Please enter a valid binding method',
-      ),
-      signatureAlgorithm: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.signatureAlgorithm, required: false },
-        'Please enter a valid signature algorithm',
-      ),
-      digestAlgorithm: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.digestAlgorithm, required: false },
-        'Please enter a valid digest algorithm',
-      ),
-      protocolBinding: createFieldSchema(
-        COMMON_FIELD_CONFIGS.algorithm,
-        { ...options.protocolBinding, required: false },
-        'Please enter a valid protocol binding',
-      ),
+      bindingMethod: createEnumSchema(PROTOCOL_BINDINGS, {
+        required: false,
+        errorMessage: options.bindingMethod?.errorMessage,
+      }),
+      signatureAlgorithm: createEnumSchema(SIGNATURE_ALGORITHMS, {
+        required: false,
+        errorMessage: options.signatureAlgorithm?.errorMessage,
+      }),
+      digestAlgorithm: createEnumSchema(DIGEST_ALGORITHMS, {
+        required: false,
+        errorMessage: options.digestAlgorithm?.errorMessage,
+      }),
+      protocolBinding: createEnumSchema(PROTOCOL_BINDINGS, {
+        required: false,
+        errorMessage: options.protocolBinding?.errorMessage,
+      }),
       idpInitiated: z
         .object({
           enabled: z.boolean().optional(),
@@ -404,7 +412,7 @@ const STRATEGY_BUILDERS = {
 
   waad: (options: WaadOptions = {}) =>
     z.object({
-      tenant_domain: createFieldSchema(
+      tenant_domain: createDomainFieldSchema(
         COMMON_FIELD_CONFIGS.domain,
         { ...options.tenant_domain, required: true },
         'Please enter a valid Azure AD tenant domain',

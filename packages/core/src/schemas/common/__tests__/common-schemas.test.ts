@@ -5,8 +5,15 @@ import {
   createLogoSchema,
   createDomainSchema,
   createBooleanSchema,
+  createEnumSchema,
   createFieldSchema,
+  createDomainFieldSchema,
+  stripDomainProtocol,
   DOMAIN_REGEX,
+  BARE_DOMAIN_REGEX,
+  HTTP_URL_REGEX,
+  PEM_CERTIFICATE_REGEX,
+  XML_OR_URL_REGEX,
   COMMON_FIELD_CONFIGS,
 } from '../common-schemas';
 
@@ -429,6 +436,225 @@ describe('Common Schemas', () => {
     });
   });
 
+  describe('HTTP_URL_REGEX', () => {
+    describe.each([
+      { input: 'https://example.com', shouldPass: true, description: 'simple https' },
+      { input: 'http://example.com', shouldPass: true, description: 'simple http' },
+      {
+        input: 'https://cdn.example.com/logo.png',
+        shouldPass: true,
+        description: 'subdomain with path',
+      },
+      {
+        input: 'https://example.com:8080/path?q=1#anchor',
+        shouldPass: true,
+        description: 'port, path, query, fragment',
+      },
+      { input: 'https://localhost', shouldPass: true, description: 'localhost' },
+      {
+        input: 'http://localhost:3000/callback',
+        shouldPass: true,
+        description: 'localhost with port and path',
+      },
+      { input: 'https://192.168.1.1', shouldPass: true, description: 'IPv4 address' },
+      {
+        input: 'https://192.168.1.1:8080/api',
+        shouldPass: true,
+        description: 'IPv4 with port and path',
+      },
+      {
+        input: 'https://accounts.google.com/.well-known/openid-configuration',
+        shouldPass: true,
+        description: 'discovery URL',
+      },
+      {
+        input: 'HTTPS://EXAMPLE.COM',
+        shouldPass: true,
+        description: 'uppercase protocol and host',
+      },
+      {
+        input: 'https://my-server.local/callback',
+        shouldPass: true,
+        description: 'dotted local domain',
+      },
+    ])('when input is "$input" ($description)', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(HTTP_URL_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+
+    describe.each([
+      { input: 'https://ab', shouldPass: true, description: 'two-char hostname (allowed)' },
+      { input: 'https://x', shouldPass: false, description: 'single-char hostname' },
+      { input: 'http://x', shouldPass: false, description: 'http single-char hostname' },
+      { input: 'ftp://example.com', shouldPass: false, description: 'ftp protocol' },
+      { input: 'example.com', shouldPass: false, description: 'no protocol' },
+      { input: '', shouldPass: false, description: 'empty string' },
+      { input: 'https://', shouldPass: false, description: 'protocol only' },
+      { input: 'https://example.com path', shouldPass: false, description: 'space in URL' },
+    ])('when input is "$input" ($description)', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(HTTP_URL_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+  });
+
+  describe('PEM_CERTIFICATE_REGEX', () => {
+    const VALID_PEM = `-----BEGIN CERTIFICATE-----
+MIIDXTCCAkWgAwIBAgIJAJC1HiIAZAiUMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
+Kj6NrC+D6KoZ8g0kBz1x3rI8vMhGQ9z4oZ9x4Qw==
+-----END CERTIFICATE-----`;
+
+    describe.each([
+      { input: VALID_PEM, shouldPass: true, description: 'well-formed PEM certificate' },
+      {
+        input: VALID_PEM.replace(/\n/g, '\r\n'),
+        shouldPass: true,
+        description: 'PEM certificate with CRLF line endings',
+      },
+      {
+        input: `${VALID_PEM}\n`,
+        shouldPass: true,
+        description: 'PEM certificate with trailing newline',
+      },
+      {
+        input: `\n${VALID_PEM}`,
+        shouldPass: true,
+        description: 'PEM certificate with a leading blank line',
+      },
+      { input: 'this is not a certificate', shouldPass: false, description: 'plain text' },
+      { input: '', shouldPass: false, description: 'empty string' },
+      {
+        input: '-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----',
+        shouldPass: false,
+        description: 'empty body between markers',
+      },
+      {
+        input: '-----BEGIN CERTIFICATE-----\n   \n-----END CERTIFICATE-----',
+        shouldPass: false,
+        description: 'whitespace-only body',
+      },
+      {
+        input: 'MIIDXTCCAkWgAwIBAgIJAJC1HiIAZAiU',
+        shouldPass: false,
+        description: 'base64 content without markers',
+      },
+      {
+        input: `-----BEGIN CERTIFICATE-----\nMIIDXTCCAkWg`,
+        shouldPass: false,
+        description: 'missing footer',
+      },
+    ])('when input is "$description"', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(PEM_CERTIFICATE_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+  });
+
+  describe('XML_OR_URL_REGEX', () => {
+    describe.each([
+      {
+        input: '<?xml version="1.0" encoding="UTF-8"?><EntityDescriptor/>',
+        shouldPass: true,
+        description: 'XML declaration',
+      },
+      {
+        input: '<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"/>',
+        shouldPass: true,
+        description: 'bare root element',
+      },
+      {
+        input: '  \n<EntityDescriptor/>',
+        shouldPass: true,
+        description: 'XML with leading whitespace',
+      },
+      {
+        input: 'https://idp.example.com/metadata.xml',
+        shouldPass: true,
+        description: 'https metadata URL',
+      },
+      {
+        input: 'http://idp.example.com/metadata.xml',
+        shouldPass: true,
+        description: 'http metadata URL',
+      },
+      { input: 'random text', shouldPass: false, description: 'plain text' },
+      { input: '', shouldPass: false, description: 'empty string' },
+      { input: 'idp.example.com/metadata', shouldPass: false, description: 'URL without protocol' },
+      {
+        input: 'EntityDescriptor',
+        shouldPass: false,
+        description: 'XML name without angle bracket',
+      },
+    ])('when input is "$description"', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(XML_OR_URL_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+  });
+
+  describe('createEnumSchema', () => {
+    const VALUES = ['rsa-sha1', 'rsa-sha256'] as const;
+
+    describe('with default options (required = true)', () => {
+      const schema = createEnumSchema(VALUES);
+
+      it.each(VALUES)('should accept allowed value "%s"', (value) => {
+        expect(schema.safeParse(value).success).toBe(true);
+      });
+
+      it('should reject a value outside the allowed set', () => {
+        expect(schema.safeParse('RS256').success).toBe(false);
+      });
+
+      it('should reject an empty string', () => {
+        expect(schema.safeParse('').success).toBe(false);
+      });
+
+      it('should reject undefined when required', () => {
+        expect(schema.safeParse(undefined).success).toBe(false);
+      });
+
+      it('should list the allowed values in the default error message', () => {
+        const result = schema.safeParse('nope');
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe(
+            'Please select a valid option (rsa-sha1, rsa-sha256)',
+          );
+        }
+      });
+    });
+
+    describe('with required = false (optional)', () => {
+      const schema = createEnumSchema(VALUES, { required: false });
+
+      it('should accept undefined', () => {
+        expect(schema.safeParse(undefined).success).toBe(true);
+      });
+
+      it('should still accept allowed values', () => {
+        expect(schema.safeParse('rsa-sha256').success).toBe(true);
+      });
+
+      it('should still reject disallowed values', () => {
+        expect(schema.safeParse('invalid').success).toBe(false);
+      });
+    });
+
+    describe('with a custom error message', () => {
+      const schema = createEnumSchema(VALUES, { errorMessage: 'Pick a signature algorithm' });
+
+      it('should use the custom message on invalid input', () => {
+        const result = schema.safeParse('invalid');
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe('Pick a signature algorithm');
+        }
+      });
+    });
+  });
+
   describe('createDomainSchema', () => {
     describe('with default options (required = true)', () => {
       const schema = createDomainSchema();
@@ -543,6 +769,156 @@ describe('Common Schemas', () => {
     });
   });
 
+  describe('BARE_DOMAIN_REGEX', () => {
+    describe.each([
+      { input: 'company.okta.com', shouldPass: true, description: 'okta domain' },
+      { input: 'company.oktapreview.com', shouldPass: true, description: 'oktapreview domain' },
+      {
+        input: 'company.okta-emea.com',
+        shouldPass: true,
+        description: 'hyphenated okta-emea label',
+      },
+      { input: 'trial-123.okta.com', shouldPass: true, description: 'hyphen and digits in label' },
+      { input: 'mycompany.onmicrosoft.com', shouldPass: true, description: 'azure tenant domain' },
+      { input: 'example.com', shouldPass: true, description: 'simple two-label domain' },
+      { input: 'deep.sub.example.com', shouldPass: true, description: 'nested subdomains' },
+      { input: 'EXAMPLE.COM', shouldPass: true, description: 'uppercase' },
+    ])('when input is "$input" ($description)', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(BARE_DOMAIN_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+
+    describe.each([
+      { input: '', shouldPass: false, description: 'empty string' },
+      { input: 'company', shouldPass: false, description: 'single label, no dot' },
+      { input: 'https://company.okta.com', shouldPass: false, description: 'with protocol' },
+      { input: 'company.okta.com/admin', shouldPass: false, description: 'with path' },
+      { input: 'company.okta.com:443', shouldPass: false, description: 'with port' },
+      { input: 'company.okta.com/', shouldPass: false, description: 'with trailing slash' },
+      { input: 'company.okta.com?q=1', shouldPass: false, description: 'with query' },
+      { input: 'company .okta.com', shouldPass: false, description: 'with space' },
+      { input: 'example..com', shouldPass: false, description: 'double dots' },
+    ])('when input is "$input" ($description)', ({ input, shouldPass }) => {
+      it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
+        expect(BARE_DOMAIN_REGEX.test(input)).toBe(shouldPass);
+      });
+    });
+  });
+
+  describe('stripDomainProtocol', () => {
+    describe.each([
+      {
+        input: 'https://company.okta.com',
+        expected: 'company.okta.com',
+        description: 'strips https',
+      },
+      {
+        input: 'http://company.okta.com',
+        expected: 'company.okta.com',
+        description: 'strips http',
+      },
+      {
+        input: 'HTTPS://company.okta.com',
+        expected: 'company.okta.com',
+        description: 'strips uppercase protocol',
+      },
+      {
+        input: '  https://company.okta.com  ',
+        expected: 'company.okta.com',
+        description: 'trims then strips',
+      },
+      {
+        input: '  company.okta.com  ',
+        expected: 'company.okta.com',
+        description: 'trims whitespace only',
+      },
+      {
+        input: 'company.okta.com',
+        expected: 'company.okta.com',
+        description: 'leaves bare domain unchanged',
+      },
+    ])('when input is "$input" ($description)', ({ input, expected }) => {
+      it(`should return "${expected}"`, () => {
+        expect(stripDomainProtocol(input)).toBe(expected);
+      });
+    });
+  });
+
+  describe('createDomainFieldSchema', () => {
+    const schema = createDomainFieldSchema(
+      COMMON_FIELD_CONFIGS.domain,
+      { required: true },
+      'Please enter a valid Okta domain',
+    );
+
+    it('should normalize a protocol-prefixed domain and output the bare hostname', () => {
+      const result = schema.safeParse('https://trial-123.okta.com');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toBe('trial-123.okta.com');
+      }
+    });
+
+    it('should trim surrounding whitespace', () => {
+      const result = schema.safeParse('  trial-123.okta.com  ');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toBe('trial-123.okta.com');
+      }
+    });
+
+    it('should accept a bare domain unchanged', () => {
+      const result = schema.safeParse('company.okta.com');
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data).toBe('company.okta.com');
+      }
+    });
+
+    describe.each([
+      { input: 'https://trial-123.okta.com/admin', description: 'protocol domain with path' },
+      { input: 'trial-123.okta.com/admin', description: 'bare domain with path' },
+      { input: 'trial-123.okta.com:443', description: 'with port' },
+      { input: 'trial-123.okta.com/', description: 'with trailing slash' },
+      { input: 'company', description: 'single label' },
+      { input: '', description: 'empty string' },
+    ])('should reject $description ("$input")', ({ input }) => {
+      it('should fail with the provider-specific message', () => {
+        const result = schema.safeParse(input);
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe('Please enter a valid Okta domain');
+        }
+      });
+    });
+
+    it('should use the config default error when no custom message is provided', () => {
+      const defaultSchema = createDomainFieldSchema(COMMON_FIELD_CONFIGS.domain, {
+        required: true,
+      });
+      const result = defaultSchema.safeParse('https://company.okta.com/admin');
+      expect(result.success).toBe(false);
+      if (!result.success && result.error?.errors[0]) {
+        expect(result.error.errors[0].message).toBe(
+          'Please enter a valid domain (e.g., company.okta.com)',
+        );
+      }
+    });
+  });
+
+  describe('COMMON_FIELD_CONFIGS.domain', () => {
+    it('should expose the bare-hostname regex (no longer undefined)', () => {
+      expect(COMMON_FIELD_CONFIGS.domain.regex).toBe(BARE_DOMAIN_REGEX);
+    });
+
+    it('should expose a guiding default error message', () => {
+      expect(COMMON_FIELD_CONFIGS.domain.defaultError).toBe(
+        'Please enter a valid domain (e.g., company.okta.com)',
+      );
+    });
+  });
+
   describe('createBooleanSchema', () => {
     describe('with default options (required)', () => {
       const schema = createBooleanSchema();
@@ -623,7 +999,9 @@ describe('Common Schemas', () => {
   describe('COMMON_FIELD_CONFIGS', () => {
     it('should have domain config', () => {
       expect(COMMON_FIELD_CONFIGS.domain).toBeDefined();
-      expect(COMMON_FIELD_CONFIGS.domain.defaultError).toBe('Please enter a valid domain');
+      expect(COMMON_FIELD_CONFIGS.domain.defaultError).toBe(
+        'Please enter a valid domain (e.g., company.okta.com)',
+      );
     });
 
     it('should have client_id config', () => {
@@ -659,8 +1037,9 @@ describe('Common Schemas', () => {
     it('should have certificate config', () => {
       expect(COMMON_FIELD_CONFIGS.certificate).toBeDefined();
       expect(COMMON_FIELD_CONFIGS.certificate.defaultError).toBe(
-        'Please enter a valid certificate',
+        'Please enter a valid certificate in PEM format',
       );
+      expect(COMMON_FIELD_CONFIGS.certificate.regex).toBe(PEM_CERTIFICATE_REGEX);
     });
 
     it('should have algorithm config', () => {
@@ -670,7 +1049,10 @@ describe('Common Schemas', () => {
 
     it('should have metadata config', () => {
       expect(COMMON_FIELD_CONFIGS.metadata).toBeDefined();
-      expect(COMMON_FIELD_CONFIGS.metadata.defaultError).toBe('Please enter valid metadata');
+      expect(COMMON_FIELD_CONFIGS.metadata.defaultError).toBe(
+        'Please enter valid XML metadata or a metadata URL',
+      );
+      expect(COMMON_FIELD_CONFIGS.metadata.regex).toBe(XML_OR_URL_REGEX);
     });
 
     it('should have userIdAttribute config with regex', () => {
@@ -688,8 +1070,11 @@ describe('Common Schemas', () => {
         { input: 'https://example.com/icon.png', shouldPass: true },
         { input: 'http://example.com/icon.png', shouldPass: true },
         { input: 'https://cdn.example.com/images/icon.svg', shouldPass: true },
+        { input: 'https://localhost/icon.png', shouldPass: true },
         { input: 'ftp://example.com/icon.png', shouldPass: false },
         { input: 'example.com/icon.png', shouldPass: false },
+        { input: 'https://x', shouldPass: false },
+        { input: 'https://ab', shouldPass: true },
       ])('when input is "$input"', ({ input, shouldPass }) => {
         it(`should ${shouldPass ? 'match' : 'not match'}`, () => {
           expect(regex.test(input)).toBe(shouldPass);
@@ -804,7 +1189,7 @@ describe('Common Schemas', () => {
       });
 
       it('should allow setting minLength', () => {
-        const schema = createFieldSchema(COMMON_FIELD_CONFIGS.domain, {
+        const schema = createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
           required: true,
           minLength: 5,
         });
@@ -814,7 +1199,7 @@ describe('Common Schemas', () => {
       });
 
       it('should allow setting maxLength', () => {
-        const schema = createFieldSchema(COMMON_FIELD_CONFIGS.domain, {
+        const schema = createFieldSchema(COMMON_FIELD_CONFIGS.client_id, {
           required: true,
           minLength: 1,
           maxLength: 5,

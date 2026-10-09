@@ -30,13 +30,16 @@ describe('SamlpProviderForm', () => {
 
       it('should preserve initial binding method value with full URN format', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -60,13 +63,16 @@ describe('SamlpProviderForm', () => {
 
       it('should mirror an initial HTTP-Redirect bindingMethod into protocolBinding', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -78,13 +84,16 @@ describe('SamlpProviderForm', () => {
 
       it('should mirror an initial HTTP-POST bindingMethod into protocolBinding', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -305,15 +314,13 @@ describe('SamlpProviderForm', () => {
     });
 
     it('should derive URLs from connectionName in the edit flow (initialData present)', () => {
-      const initialData = {
-        metadataUrl: 'https://idp.example.com/metadata',
-        bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-      };
-
       renderWithProviders(
         <SamlpProviderForm
           idpConfig={null}
-          initialData={initialData}
+          initialData={{
+            metadataUrl: 'https://idp.example.com/metadata',
+            bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          }}
           connectionName="existing-conn"
         />,
       );
