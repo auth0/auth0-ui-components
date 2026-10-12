@@ -662,12 +662,22 @@ Kj6NrC+D6KoZ8g0kBz1x3rI8vMhGQ9z4oZ9x4Qw==
       describe.each([
         { input: 'example.com', shouldPass: true, description: 'simple domain' },
         { input: 'https://example.com', shouldPass: true, description: 'with https' },
-        { input: 'localhost:3000', shouldPass: true, description: 'localhost with port' },
+        { input: 'http://company.okta.com', shouldPass: true, description: 'with http' },
+        { input: 'localhost:3000', shouldPass: false, description: 'localhost with port' },
+        { input: 'example.com/path', shouldPass: false, description: 'with path' },
       ])('when input is "$input" ($description)', ({ input, shouldPass }) => {
         it(`should ${shouldPass ? 'accept' : 'reject'}`, () => {
           const result = schema.safeParse(input);
           expect(result.success).toBe(shouldPass);
         });
+      });
+
+      it('should strip a leading protocol and whitespace, outputting the bare host', () => {
+        const result = schema.safeParse('  https://company.okta.com  ');
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data).toBe('company.okta.com');
+        }
       });
 
       it('should reject empty string', () => {
@@ -1281,10 +1291,10 @@ Kj6NrC+D6KoZ8g0kBz1x3rI8vMhGQ9z4oZ9x4Qw==
         expect(result.success).toBe(true);
       });
 
-      it('should handle IP with port', () => {
+      it('should reject an IP with a port', () => {
         const schema = createDomainSchema();
         const result = schema.safeParse('192.168.1.1:8080');
-        expect(result.success).toBe(true);
+        expect(result.success).toBe(false);
       });
     });
   });

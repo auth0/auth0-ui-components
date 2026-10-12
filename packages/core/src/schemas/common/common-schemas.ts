@@ -125,7 +125,6 @@ export const createLogoSchema = (options: LogoValidationOptions = {}) => {
 
   const message = errorMessage || 'Please enter a valid HTTP';
 
-  // Custom regex validation
   if (regex) {
     return required
       ? z.string().min(1, message).regex(regex, message)
@@ -185,7 +184,6 @@ export const createDomainSchema = (options: DomainValidationOptions = {}) => {
   const message =
     errorMessage || 'Please enter a valid domain (e.g., example.com or https://example.com)';
 
-  // Custom regex validation
   if (regex) {
     return required
       ? z.string().min(1, message).regex(regex, message)
@@ -195,13 +193,15 @@ export const createDomainSchema = (options: DomainValidationOptions = {}) => {
           .refine((val) => !val || regex.test(val), { message });
   }
 
-  // Default domain validation
+  const matchesDomain = (val: string) => BARE_DOMAIN_REGEX.test(val);
+
   return required
-    ? z.string().min(1, message).regex(DOMAIN_REGEX, message)
+    ? z.string().min(1, message).transform(stripDomainProtocol).refine(matchesDomain, { message })
     : z
         .string()
         .optional()
-        .refine((val) => !val || DOMAIN_REGEX.test(val), { message });
+        .transform((val) => (val ? stripDomainProtocol(val) : val))
+        .refine((val) => !val || matchesDomain(val), { message });
 };
 
 export const createBooleanSchema = (options: BooleanFieldOptions = {}) => {
