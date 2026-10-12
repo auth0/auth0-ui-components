@@ -1238,8 +1238,8 @@
       "assigned_roles_empty": "—",
       "actions": {
         "menu_label": "Actions",
-        "assign_roles": "Attribuer des rôles",
-        "view_details": "Afficher le groupe"
+        "view_details": "Afficher les détails",
+        "remove_from_organization": "Supprimer"
       }
     },
     "notifications": {

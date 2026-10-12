@@ -22,7 +22,7 @@ import type {
   ConnectionGroupRole,
   OrganizationConnectionGroupTableProps,
   OrganizationConnectionGroupTableViewProps,
-} from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+} from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 const DEFAULT_MAX_VISIBLE_ROLES = 3;
 
@@ -113,7 +113,7 @@ function OrganizationConnectionGroupTableView({
   hideHeader = false,
   permissions,
   maxVisibleRoles = DEFAULT_MAX_VISIBLE_ROLES,
-  onAssignRoles,
+  onRemoveFromOrganization,
   onViewDetails,
   className,
 }: OrganizationConnectionGroupTableViewProps): React.JSX.Element {
@@ -173,13 +173,13 @@ function OrganizationConnectionGroupTableView({
             group={group}
             permissions={permissions}
             customMessages={customMessages}
-            onAssignRoles={onAssignRoles}
+            onRemoveFromOrganization={onRemoveFromOrganization}
             onViewDetails={onViewDetails}
           />
         ),
       },
     ],
-    [t, maxVisibleRoles, permissions, customMessages, onAssignRoles, onViewDetails],
+    [t, maxVisibleRoles, permissions, customMessages, onRemoveFromOrganization, onViewDetails],
   );
 
   return (
@@ -214,17 +214,17 @@ function OrganizationConnectionGroupTableView({
  * @param props - {@link OrganizationConnectionGroupTableProps}
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.styling - CSS variables and class overrides.
- * @param props.readOnly - Render in read-only mode (hides role-management actions).
+ * @param props.readOnly - Render in read-only mode (hides the remove-from-organization action).
  * @param props.hideHeader - Hide the title/description header.
  * @param props.maxVisibleRoles - Max role names per row before a "+N more" overflow.
- * @param props.assignRolesAction - Lifecycle hooks for the assign-roles action.
- * @param props.viewDetailsAction - Lifecycle hooks for the view-group action.
+ * @param props.removeFromOrganizationAction - Lifecycle hooks for the remove-from-organization action.
+ * @param props.viewDetailsAction - Lifecycle hooks for the view-details action.
  * @returns Connection group table component.
  *
  * @example
  * ```tsx
  * <OrganizationConnectionGroupTable
- *   assignRolesAction={{ onAfter: (group) => navigate(`/groups/${group.id}/roles`) }}
+ *   removeFromOrganizationAction={{ onAfter: (group) => openRemoveDialog(group) }}
  * />
  * ```
  */
@@ -239,14 +239,14 @@ function OrganizationConnectionGroupTable(
     readOnly = false,
     hideHeader = false,
     maxVisibleRoles,
-    assignRolesAction,
+    removeFromOrganizationAction,
     viewDetailsAction,
   } = props;
 
   const table = useOrganizationConnectionGroupTable({
     readOnly,
     customMessages,
-    assignRolesAction,
+    removeFromOrganizationAction,
     viewDetailsAction,
   });
 
@@ -261,7 +261,9 @@ function OrganizationConnectionGroupTable(
         readOnly={readOnly}
         hideHeader={hideHeader}
         maxVisibleRoles={maxVisibleRoles}
-        onAssignRoles={assignRolesAction ? table.handleAssignRoles : undefined}
+        onRemoveFromOrganization={
+          removeFromOrganizationAction ? table.handleRemoveFromOrganization : undefined
+        }
         onViewDetails={viewDetailsAction ? table.handleViewDetails : undefined}
       />
     </GateKeeper>

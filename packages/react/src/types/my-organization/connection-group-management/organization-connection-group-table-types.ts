@@ -59,8 +59,8 @@ export interface ConnectionGroup {
 export interface ConnectionGroupPermissions {
   /** Whether the user can view connection groups. */
   canListGroups: boolean;
-  /** Whether the user can manage roles on a group — gates the actions menu. */
-  canManageGroupRoles: boolean;
+  /** Whether the user can remove a group from the organization. */
+  canRemoveFromOrganization: boolean;
 }
 
 /** CSS classes for OrganizationConnectionGroupTable. */
@@ -79,9 +79,9 @@ export interface OrganizationConnectionGroupTableProps
   hideHeader?: boolean;
   /** Max role names shown per row before collapsing into a "+N more" overflow. Defaults to 3. */
   maxVisibleRoles?: number;
-  /** Fired when the "Assign roles" row action is triggered. */
-  assignRolesAction?: ComponentAction<ConnectionGroup>;
-  /** Fired when the "View group" row action is triggered. */
+  /** Fired when the "Remove" row action is triggered. */
+  removeFromOrganizationAction?: ComponentAction<ConnectionGroup>;
+  /** Fired when the "View Details" row action is triggered. */
   viewDetailsAction?: ComponentAction<ConnectionGroup>;
 }
 
@@ -98,7 +98,7 @@ export interface UseConnectionGroupTableServiceReturn {
 export interface UseOrganizationConnectionGroupTableOptions {
   readOnly?: boolean;
   customMessages?: Partial<OrganizationConnectionGroupTableMessages>;
-  assignRolesAction?: ComponentAction<ConnectionGroup>;
+  removeFromOrganizationAction?: ComponentAction<ConnectionGroup>;
   viewDetailsAction?: ComponentAction<ConnectionGroup>;
 }
 
@@ -109,7 +109,7 @@ export interface UseOrganizationConnectionGroupTableReturn {
   isLoading: boolean;
   isViewLoading: boolean;
   refetchGroups: UseConnectionGroupTableServiceReturn['refetchGroups'];
-  handleAssignRoles: (group: ConnectionGroup) => void;
+  handleRemoveFromOrganization: (group: ConnectionGroup) => void;
   handleViewDetails: (group: ConnectionGroup) => void;
 }
 
@@ -125,7 +125,7 @@ export interface OrganizationConnectionGroupTableViewProps
   permissions: ConnectionGroupPermissions;
   /** Max role names shown per row before collapsing into a "+N more" overflow. Defaults to 3. */
   maxVisibleRoles?: number;
-  onAssignRoles?: (group: ConnectionGroup) => void;
+  onRemoveFromOrganization?: (group: ConnectionGroup) => void;
   onViewDetails?: (group: ConnectionGroup) => void;
   className?: string;
 }
@@ -135,6 +135,6 @@ export interface OrganizationConnectionGroupTableActionsColumnProps {
   group: ConnectionGroup;
   permissions: ConnectionGroupPermissions;
   customMessages?: Partial<OrganizationConnectionGroupTableMessages>;
-  onAssignRoles?: (group: ConnectionGroup) => void;
+  onRemoveFromOrganization?: (group: ConnectionGroup) => void;
   onViewDetails?: (group: ConnectionGroup) => void;
 }

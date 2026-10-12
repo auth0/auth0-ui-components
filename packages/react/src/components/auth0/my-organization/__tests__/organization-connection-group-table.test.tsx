@@ -8,10 +8,10 @@ import {
   createMockConnectionGroup,
   createMockConnectionGroupRole,
   createMockConnectionGroupTableViewProps,
-} from '@/tests/utils/__mocks__/my-organization/connection-group/connection-group-table-mocks';
+} from '@/tests/utils/__mocks__/my-organization/connection-group-management/connection-group.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockToast } from '@/tests/utils/test-setup';
-import type { OrganizationConnectionGroupTableViewProps } from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+import type { OrganizationConnectionGroupTableViewProps } from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 mockToast();
 
@@ -117,13 +117,13 @@ describe('OrganizationConnectionGroupTableView', () => {
   });
 
   describe('row actions', () => {
-    it('should fire onViewDetails and onAssignRoles for the row group', async () => {
+    it('should fire onViewDetails and onRemoveFromOrganization for the row group', async () => {
       const user = userEvent.setup();
       const onViewDetails = vi.fn();
-      const onAssignRoles = vi.fn();
+      const onRemoveFromOrganization = vi.fn();
       const group = createMockConnectionGroup({ id: 'g1', name: 'Engineering' });
 
-      renderView({ groups: [group], onViewDetails, onAssignRoles });
+      renderView({ groups: [group], onViewDetails, onRemoveFromOrganization });
 
       await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
 
@@ -131,25 +131,27 @@ describe('OrganizationConnectionGroupTableView', () => {
       expect(onViewDetails).toHaveBeenCalledWith(group);
 
       await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
-      await user.click(screen.getByRole('menuitem', { name: /table.actions.assign_roles/i }));
-      expect(onAssignRoles).toHaveBeenCalledWith(group);
+      await user.click(
+        screen.getByRole('menuitem', { name: /table.actions.remove_from_organization/i }),
+      );
+      expect(onRemoveFromOrganization).toHaveBeenCalledWith(group);
     });
 
     it('should not render the actions menu when no action handlers are provided', () => {
-      renderView({ onViewDetails: undefined, onAssignRoles: undefined });
+      renderView({ onViewDetails: undefined, onRemoveFromOrganization: undefined });
 
       expect(
         screen.queryByRole('button', { name: 'table.actions.menu_label' }),
       ).not.toBeInTheDocument();
     });
 
-    it('should hide the assign-roles item when role management is not permitted', async () => {
+    it('should hide the remove item when removal is not permitted', async () => {
       const user = userEvent.setup();
 
       renderView({
         permissions: READ_ONLY_CONNECTION_GROUP_PERMISSIONS,
         onViewDetails: vi.fn(),
-        onAssignRoles: vi.fn(),
+        onRemoveFromOrganization: vi.fn(),
       });
 
       await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
@@ -158,7 +160,7 @@ describe('OrganizationConnectionGroupTableView', () => {
         screen.getByRole('menuitem', { name: /table.actions.view_details/i }),
       ).toBeInTheDocument();
       expect(
-        screen.queryByRole('menuitem', { name: /table.actions.assign_roles/i }),
+        screen.queryByRole('menuitem', { name: /table.actions.remove_from_organization/i }),
       ).not.toBeInTheDocument();
     });
   });

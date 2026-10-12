@@ -1474,8 +1474,8 @@
       "assigned_roles_empty": "—",
       "actions": {
         "menu_label": "Actions",
-        "assign_roles": "Assign roles",
-        "view_details": "View group"
+        "view_details": "View Details",
+        "remove_from_organization": "Remove"
       }
     },
     "notifications": {

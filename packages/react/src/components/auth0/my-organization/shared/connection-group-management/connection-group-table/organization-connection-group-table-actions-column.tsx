@@ -4,7 +4,7 @@
  * @internal
  */
 
-import { MoreHorizontal, Eye, ShieldCheck } from 'lucide-react';
+import { MoreHorizontal, Eye, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
 import {
@@ -15,7 +15,7 @@ import {
   DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import type { OrganizationConnectionGroupTableActionsColumnProps } from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+import type { OrganizationConnectionGroupTableActionsColumnProps } from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 /**
  * Renders the actions dropdown for a connection group row.
@@ -26,31 +26,32 @@ import type { OrganizationConnectionGroupTableActionsColumnProps } from '@/types
  * @param props.group - The group the actions apply to.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.customMessages - Custom translation messages to override defaults.
- * @param props.onAssignRoles - Callback fired when the assign-roles action is triggered.
- * @param props.onViewDetails - Callback fired when the view-group action is triggered.
+ * @param props.onRemoveFromOrganization - Callback fired when the remove-from-organization action is triggered.
+ * @param props.onViewDetails - Callback fired when the view-details action is triggered.
  * @returns JSX element, or `null` when no action is available.
  */
 export function OrganizationConnectionGroupTableActionsColumn({
   group,
   permissions,
   customMessages = {},
-  onAssignRoles,
+  onRemoveFromOrganization,
   onViewDetails,
 }: OrganizationConnectionGroupTableActionsColumnProps): React.JSX.Element | null {
   const { t } = useTranslator('connection_group_management', customMessages);
 
   const canViewDetails = !!onViewDetails;
-  const canAssignRoles = permissions.canManageGroupRoles && !!onAssignRoles;
+  const canRemoveFromOrganization =
+    permissions.canRemoveFromOrganization && !!onRemoveFromOrganization;
 
   const handleViewDetails = React.useCallback(() => {
     onViewDetails?.(group);
   }, [group, onViewDetails]);
 
-  const handleAssignRoles = React.useCallback(() => {
-    onAssignRoles?.(group);
-  }, [group, onAssignRoles]);
+  const handleRemoveFromOrganization = React.useCallback(() => {
+    onRemoveFromOrganization?.(group);
+  }, [group, onRemoveFromOrganization]);
 
-  if (!canViewDetails && !canAssignRoles) {
+  if (!canViewDetails && !canRemoveFromOrganization) {
     return null;
   }
 
@@ -72,10 +73,13 @@ export function OrganizationConnectionGroupTableActionsColumn({
               </DropdownMenuItem>
             )}
 
-            {canAssignRoles && (
-              <DropdownMenuItem onClick={handleAssignRoles}>
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                {t('table.actions.assign_roles')}
+            {canRemoveFromOrganization && (
+              <DropdownMenuItem
+                onClick={handleRemoveFromOrganization}
+                className="text-destructive-foreground focus:text-destructive-foreground"
+              >
+                <Trash2 className="mr-2 h-4 w-4 text-destructive-foreground" />
+                {t('table.actions.remove_from_organization')}
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>

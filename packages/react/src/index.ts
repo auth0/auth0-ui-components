@@ -93,7 +93,7 @@ export * from './types/my-organization/idp-management/sso-provider/sso-provider-
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 export * from './types/my-organization/idp-management/sso-provider/sso-provider-table-types';
-export * from './types/my-organization/connection-group/organization-connection-group-table-types';
+export * from './types/my-organization/connection-group-management/organization-connection-group-table-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';

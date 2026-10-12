@@ -11,7 +11,7 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type {
   ConnectionGroup,
   UseConnectionGroupTableServiceReturn,
-} from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+} from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 /**
  * Query keys for connection group data.

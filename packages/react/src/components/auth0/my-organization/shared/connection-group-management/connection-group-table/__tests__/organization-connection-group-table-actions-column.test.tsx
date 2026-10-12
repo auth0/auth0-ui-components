@@ -7,9 +7,9 @@ import {
   ALL_CONNECTION_GROUP_PERMISSIONS,
   READ_ONLY_CONNECTION_GROUP_PERMISSIONS,
   createMockConnectionGroup,
-} from '@/tests/utils/__mocks__/my-organization/connection-group/connection-group-table-mocks';
+} from '@/tests/utils/__mocks__/my-organization/connection-group-management/connection-group.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
-import type { OrganizationConnectionGroupTableActionsColumnProps } from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+import type { OrganizationConnectionGroupTableActionsColumnProps } from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 vi.mock('@/hooks/shared/use-translator', () => ({
   useTranslator: () => ({
@@ -24,7 +24,7 @@ function createProps(
     group: createMockConnectionGroup(),
     permissions: ALL_CONNECTION_GROUP_PERMISSIONS,
     customMessages: {},
-    onAssignRoles: vi.fn(),
+    onRemoveFromOrganization: vi.fn(),
     onViewDetails: vi.fn(),
     ...overrides,
   };
@@ -44,20 +44,20 @@ describe('OrganizationConnectionGroupTableActionsColumn', () => {
   it('should render nothing when no action handlers are provided', () => {
     const { container } = renderWithProviders(
       <OrganizationConnectionGroupTableActionsColumn
-        {...createProps({ onAssignRoles: undefined, onViewDetails: undefined })}
+        {...createProps({ onRemoveFromOrganization: undefined, onViewDetails: undefined })}
       />,
     );
 
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('should render nothing when only assign-roles is wired but role management is denied', () => {
+  it('should render nothing when only remove is wired but removal is denied', () => {
     const { container } = renderWithProviders(
       <OrganizationConnectionGroupTableActionsColumn
         {...createProps({
           permissions: READ_ONLY_CONNECTION_GROUP_PERMISSIONS,
           onViewDetails: undefined,
-          onAssignRoles: vi.fn(),
+          onRemoveFromOrganization: vi.fn(),
         })}
       />,
     );
@@ -80,22 +80,26 @@ describe('OrganizationConnectionGroupTableActionsColumn', () => {
     expect(onViewDetails).toHaveBeenCalledWith(group);
   });
 
-  it('should call onAssignRoles with the group', async () => {
+  it('should call onRemoveFromOrganization with the group', async () => {
     const user = userEvent.setup();
-    const onAssignRoles = vi.fn();
+    const onRemoveFromOrganization = vi.fn();
     const group = createMockConnectionGroup({ id: 'g1' });
 
     renderWithProviders(
-      <OrganizationConnectionGroupTableActionsColumn {...createProps({ group, onAssignRoles })} />,
+      <OrganizationConnectionGroupTableActionsColumn
+        {...createProps({ group, onRemoveFromOrganization })}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
-    await user.click(screen.getByRole('menuitem', { name: /table.actions.assign_roles/i }));
+    await user.click(
+      screen.getByRole('menuitem', { name: /table.actions.remove_from_organization/i }),
+    );
 
-    expect(onAssignRoles).toHaveBeenCalledWith(group);
+    expect(onRemoveFromOrganization).toHaveBeenCalledWith(group);
   });
 
-  it('should not render the assign-roles item when role management is denied', async () => {
+  it('should not render the remove item when removal is denied', async () => {
     const user = userEvent.setup();
 
     renderWithProviders(
@@ -110,7 +114,7 @@ describe('OrganizationConnectionGroupTableActionsColumn', () => {
       screen.getByRole('menuitem', { name: /table.actions.view_details/i }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('menuitem', { name: /table.actions.assign_roles/i }),
+      screen.queryByRole('menuitem', { name: /table.actions.remove_from_organization/i }),
     ).not.toBeInTheDocument();
   });
 });

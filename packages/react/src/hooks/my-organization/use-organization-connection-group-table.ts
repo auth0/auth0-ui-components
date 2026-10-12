@@ -17,7 +17,7 @@ import type {
   ConnectionGroupPermissions,
   UseOrganizationConnectionGroupTableOptions,
   UseOrganizationConnectionGroupTableReturn,
-} from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+} from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 export { connectionGroupQueryKeys };
 
@@ -26,16 +26,16 @@ export { connectionGroupQueryKeys };
  * Consumes the internal service hook and resolves permissions and row-action
  * handlers.
  * @param options - Hook options including readOnly mode, custom messages, and actions.
- * @param options.readOnly - When true, role-management actions are disabled.
+ * @param options.readOnly - When true, the remove-from-organization action is disabled.
  * @param options.customMessages - Custom translation messages.
- * @param options.assignRolesAction - Lifecycle hooks for the assign-roles action.
- * @param options.viewDetailsAction - Lifecycle hooks for the view-group action.
+ * @param options.removeFromOrganizationAction - Lifecycle hooks for the remove-from-organization action.
+ * @param options.viewDetailsAction - Lifecycle hooks for the view-details action.
  * @returns Combined data, loading state, permissions, and handlers.
  */
 export function useOrganizationConnectionGroupTable({
   readOnly = false,
   customMessages = {},
-  assignRolesAction,
+  removeFromOrganizationAction,
   viewDetailsAction,
 }: UseOrganizationConnectionGroupTableOptions = {}): UseOrganizationConnectionGroupTableReturn {
   const { t } = useTranslator(
@@ -49,7 +49,7 @@ export function useOrganizationConnectionGroupTable({
   const permissions = useMemo<ConnectionGroupPermissions>(
     () => ({
       canListGroups: true,
-      canManageGroupRoles: !readOnly,
+      canRemoveFromOrganization: !readOnly,
     }),
     [readOnly],
   );
@@ -69,12 +69,12 @@ export function useOrganizationConnectionGroupTable({
     }
   }, [groupsError, t, handleError]);
 
-  const handleAssignRoles = useCallback(
+  const handleRemoveFromOrganization = useCallback(
     (group: ConnectionGroup) => {
-      if (!permissions.canManageGroupRoles) return;
-      assignRolesAction?.onAfter?.(group);
+      if (!permissions.canRemoveFromOrganization) return;
+      removeFromOrganizationAction?.onAfter?.(group);
     },
-    [permissions, assignRolesAction],
+    [permissions, removeFromOrganizationAction],
   );
 
   const handleViewDetails = useCallback(
@@ -90,7 +90,7 @@ export function useOrganizationConnectionGroupTable({
     isLoading,
     isViewLoading: isLoading,
     refetchGroups,
-    handleAssignRoles,
+    handleRemoveFromOrganization,
     handleViewDetails,
   };
 }

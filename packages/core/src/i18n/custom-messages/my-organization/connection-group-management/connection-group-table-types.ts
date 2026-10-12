@@ -29,7 +29,7 @@ export interface OrganizationConnectionGroupTableMessages extends SharedMessages
     assigned_roles_empty?: string;
     actions?: {
       menu_label?: string;
-      assign_roles?: string;
+      remove_from_organization?: string;
       view_details?: string;
     };
   };

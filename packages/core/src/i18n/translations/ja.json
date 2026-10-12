@@ -1415,8 +1415,8 @@
       "assigned_roles_empty": "—",
       "actions": {
         "menu_label": "アクション",
-        "assign_roles": "ロールを割り当てる",
-        "view_details": "グループを表示"
+        "view_details": "詳細を表示",
+        "remove_from_organization": "削除"
       }
     },
     "notifications": {

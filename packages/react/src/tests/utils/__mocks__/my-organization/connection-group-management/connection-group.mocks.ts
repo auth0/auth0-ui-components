@@ -5,18 +5,18 @@ import type {
   ConnectionGroupPermissions,
   ConnectionGroupRole,
   OrganizationConnectionGroupTableViewProps,
-} from '@/types/my-organization/connection-group/organization-connection-group-table-types';
+} from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
 
 /** Permissions with everything granted. */
 export const ALL_CONNECTION_GROUP_PERMISSIONS: ConnectionGroupPermissions = {
   canListGroups: true,
-  canManageGroupRoles: true,
+  canRemoveFromOrganization: true,
 };
 
-/** Permissions with role management disabled (read-only). */
+/** Permissions with remove-from-organization disabled (read-only). */
 export const READ_ONLY_CONNECTION_GROUP_PERMISSIONS: ConnectionGroupPermissions = {
   canListGroups: true,
-  canManageGroupRoles: false,
+  canRemoveFromOrganization: false,
 };
 
 /**
@@ -69,7 +69,7 @@ export function createMockConnectionGroupTableViewProps(
     readOnly: false,
     hideHeader: false,
     isLoading: false,
-    onAssignRoles: vi.fn(),
+    onRemoveFromOrganization: vi.fn(),
     onViewDetails: vi.fn(),
     ...overrides,
   };
