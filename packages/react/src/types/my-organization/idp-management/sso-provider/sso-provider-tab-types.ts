@@ -80,6 +80,8 @@ export interface SsoProviderTabProps
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
+  connectionNamePrefix?: string;
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ProviderDetailsClasses
@@ -115,6 +117,15 @@ export interface SsoProviderDetailsProps
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
+  connectionNamePrefix?: string;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ThirdPartyAccessSectionProps {

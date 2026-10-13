@@ -1,13 +1,9 @@
 {
   "buildCommand": "echo 'Already built in CI'",
-  "installCommand": "npm install @vercel/node",
+  "installCommand": "",
   "framework": "vite",
   "outputDirectory": "dist",
   "rewrites": [
-    {
-      "source": "/r/:path*",
-      "destination": "/api/r?file=:path*"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

@@ -5,6 +5,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import type { SamlpConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
 import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -41,6 +42,55 @@ describe('SamlpProviderForm', () => {
         await waitFor(() => {
           const data = formRef.current?.getData();
           expect(data?.bindingMethod).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect');
+        });
+      });
+    });
+
+    describe('protocolBinding sync', () => {
+      it('should default protocolBinding to HTTP-POST, matching bindingMethod', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        renderWithProviders(<SamlpProviderForm ref={formRef} idpConfig={null} />);
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
+        });
+      });
+
+      it('should mirror an initial HTTP-Redirect bindingMethod into protocolBinding', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        const initialData = {
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          metadataUrl: 'https://example.com/metadata',
+        };
+
+        renderWithProviders(
+          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+        );
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
+        });
+      });
+
+      it('should mirror an initial HTTP-POST bindingMethod into protocolBinding', async () => {
+        const formRef = React.createRef<SamlpConfigureFormHandle>();
+        const initialData = {
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          metadataUrl: 'https://example.com/metadata',
+        };
+
+        renderWithProviders(
+          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+        );
+
+        await waitFor(() => {
+          const data = formRef.current?.getData();
+          expect(data?.protocolBinding).toBe('urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST');
+          expect(data?.protocolBinding).toBe(data?.bindingMethod);
         });
       });
     });
@@ -87,6 +137,38 @@ describe('SamlpProviderForm', () => {
           screen.getByText('fields.samlp.advanced_settings.sign_request_algorithm_digest.label'),
         ).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('sign request certificate link', () => {
+    it('should render the download-certificate link as an absolute URL built from the tenant domain', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://test-domain.auth0.com/pem?cert=connection');
+    });
+
+    it('should use the configured tenant domain for the certificate link', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />, {
+        authDetails: { domain: 'example.auth0.com' },
+      });
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://example.auth0.com/pem?cert=connection');
     });
   });
 
@@ -177,6 +259,206 @@ describe('SamlpProviderForm', () => {
 
       const checkbox = screen.getByRole('checkbox', { name: 'label' });
       expect(checkbox).toBeDisabled();
+    });
+  });
+
+  describe('SP metadata fields', () => {
+    it('should render all three SP metadata field labels and helper texts', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      expect(screen.getByText('fields.samlp.callback_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.callback_url.helper_text')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.acs_url.helper_text')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_metadata_url.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_metadata_url.helper_text')).toBeInTheDocument();
+    });
+
+    it('should render the SP metadata fields as read-only with copy buttons', () => {
+      renderWithProviders(
+        <SamlpProviderForm idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      // One copy button per field — now 4 fields including SP Issuer URN.
+      expect(screen.getAllByLabelText('copy')).toHaveLength(4);
+
+      const callbackInput = screen.getByDisplayValue(
+        'https://test-domain.auth0.com/login/callback',
+      );
+      expect(callbackInput).toHaveAttribute('readonly');
+    });
+
+    it('should compute URLs from the tenant domain, appending connection param to ACS and metadata', () => {
+      renderWithProviders(
+        <SamlpProviderForm idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      expect(
+        screen.getByDisplayValue('https://test-domain.auth0.com/login/callback'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/login/callback?connection=my-saml-connection',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/samlp/metadata?connection=my-saml-connection',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should use the configured tenant domain when computing URLs', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="acme" />, {
+        authDetails: { domain: 'example.auth0.com' },
+      });
+
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/login/callback'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/login/callback?connection=acme'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('https://example.auth0.com/samlp/metadata?connection=acme'),
+      ).toBeInTheDocument();
+    });
+
+    it('should omit the connection param when connectionName is not provided', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      // Callback and ACS collapse to the same value without a connection param.
+      expect(
+        screen.getAllByDisplayValue('https://test-domain.auth0.com/login/callback'),
+      ).toHaveLength(2);
+      expect(
+        screen.getByDisplayValue('https://test-domain.auth0.com/samlp/metadata'),
+      ).toBeInTheDocument();
+    });
+
+    it('should derive URLs from connectionName in the edit flow (initialData present)', () => {
+      const initialData = {
+        metadataUrl: 'https://idp.example.com/metadata',
+        bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+      };
+
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          initialData={initialData}
+          connectionName="existing-conn"
+        />,
+      );
+
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/login/callback?connection=existing-conn',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(
+          'https://test-domain.auth0.com/samlp/metadata?connection=existing-conn',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should expose the derived SP metadata URLs in the form data', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+
+      renderWithProviders(
+        <SamlpProviderForm ref={formRef} idpConfig={null} connectionName="my-saml-connection" />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData() as Record<string, unknown>;
+        expect(data).toBeDefined();
+        expect(data.callback_url).toBe('https://test-domain.auth0.com/login/callback');
+        expect(data.acs_url).toBe(
+          'https://test-domain.auth0.com/login/callback?connection=my-saml-connection',
+        );
+        expect(data.sp_metadata_url).toBe(
+          'https://test-domain.auth0.com/samlp/metadata?connection=my-saml-connection',
+        );
+      });
+    });
+
+    it('should render SP Issuer URN label and helper text', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />);
+
+      expect(screen.getByText('fields.samlp.sp_issuer_urn.label')).toBeInTheDocument();
+      expect(screen.getByText('fields.samlp.sp_issuer_urn.helper_text')).toBeInTheDocument();
+    });
+
+    it('should compute URN fallback from domain when resolveSamlMetadata is not provided', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />, {
+        authDetails: { domain: 'staff0.auth0.com' },
+      });
+
+      expect(screen.getByDisplayValue('urn:auth0:staff0:my-conn')).toBeInTheDocument();
+    });
+
+    it('should use resolveSamlMetadata when provided', () => {
+      const resolveSamlMetadata = vi.fn().mockReturnValue({ entityId: 'urn:auth0:acme:my-conn' });
+
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          connectionName="my-conn"
+          resolveSamlMetadata={resolveSamlMetadata}
+        />,
+      );
+
+      expect(screen.getByDisplayValue('urn:auth0:acme:my-conn')).toBeInTheDocument();
+      expect(resolveSamlMetadata).toHaveBeenCalledWith({ connectionName: 'my-conn' });
+    });
+
+    it('should display an empty SP Issuer URN when connectionName is absent', () => {
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      // URN field renders but its value is empty without a connectionName.
+      expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
+    });
+
+    it('should display an empty SP Issuer URN when domain is not configured', () => {
+      const noDomainClient = { ...createMockCoreClient(), getDomain: () => undefined };
+
+      renderWithProviders(<SamlpProviderForm idpConfig={null} connectionName="my-conn" />, {
+        coreClient: noDomainClient,
+      });
+
+      // connectionName present but getDomain() returns undefined — URN must be empty, not urn:auth0::my-conn.
+      expect(screen.queryByDisplayValue(/^urn:auth0:/)).not.toBeInTheDocument();
+    });
+
+    it('should prepend connectionNamePrefix to connectionName in URLs and SP Issuer URN', () => {
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          connectionName="MyConnection"
+          connectionNamePrefix="teams-abc123"
+        />,
+        { authDetails: { domain: 'staff0.auth0.com' } },
+      );
+
+      expect(
+        screen.getByDisplayValue(
+          'https://staff0.auth0.com/login/callback?connection=teams-abc123-MyConnection',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should not include sp_issuer_urn in formRef.getData() payload', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+
+      renderWithProviders(
+        <SamlpProviderForm ref={formRef} idpConfig={null} connectionName="my-conn" />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData() as Record<string, unknown>;
+        expect(data).toBeDefined();
+        expect(data.sp_issuer_urn).toBeUndefined();
+      });
     });
   });
 });

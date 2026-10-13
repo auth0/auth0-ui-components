@@ -51,6 +51,24 @@ describe('createPermissionResolver', () => {
     });
   });
 
+  describe('when disablePermissionEnforcement is true', () => {
+    it('grants everything regardless of granted scopes', () => {
+      expect(resolve([], { disablePermissionEnforcement: true })).toEqual({
+        canCreate: true,
+        canResend: true,
+        canShowMenu: true,
+      });
+    });
+
+    it('takes precedence over readOnly', () => {
+      expect(resolve([], { disablePermissionEnforcement: true, readOnly: true })).toEqual({
+        canCreate: true,
+        canResend: true,
+        canShowMenu: true,
+      });
+    });
+  });
+
   describe('with no scopes and no options', () => {
     it('denies everything', () => {
       expect(resolve([])).toEqual({

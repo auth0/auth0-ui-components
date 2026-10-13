@@ -21,7 +21,11 @@ export function usePermissions(): UsePermissionsResult {
     return {
       permissions,
       isLoading: context?.isLoading ?? false,
-      createPermissionResolver: (resolver, options) => resolver(permissions, options),
+      createPermissionResolver: (resolver, options) =>
+        resolver(permissions, {
+          ...options,
+          disablePermissionEnforcement: context?.disablePermissionEnforcement,
+        }),
     };
   }, [context]);
 }

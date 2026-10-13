@@ -7,7 +7,9 @@ import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 import {
   QueryProvider,
   resolveCacheConfig,
+  resolveRetryConfig,
   DEFAULT_CACHE_CONFIG,
+  DEFAULT_RETRY_CONFIG,
 } from '@/providers/query-provider';
 
 describe('resolveCacheConfig', () => {
@@ -65,6 +67,49 @@ describe('resolveCacheConfig', () => {
     const config = resolveCacheConfig(userConfig);
 
     expect(config.gcTime).toBe(60000);
+  });
+});
+
+describe('resolveRetryConfig', () => {
+  it('should return default config when no user config provided', () => {
+    const config = resolveRetryConfig();
+
+    expect(config).toEqual(DEFAULT_RETRY_CONFIG);
+  });
+
+  it('should merge query config with defaults while preserving backoff/delay', () => {
+    const config = resolveRetryConfig({ queries: { maxRetries: 0 } });
+
+    expect(config.queries.maxRetries).toBe(0);
+    expect(config.queries.maxRetryDelay).toBe(DEFAULT_RETRY_CONFIG.queries.maxRetryDelay);
+    expect(config.queries.backoffMultiplier).toBe(DEFAULT_RETRY_CONFIG.queries.backoffMultiplier);
+    expect(config.mutations.maxRetries).toBe(DEFAULT_RETRY_CONFIG.mutations.maxRetries);
+  });
+
+  it('should merge mutation config with defaults', () => {
+    const config = resolveRetryConfig({ mutations: { maxRetries: 5 } });
+
+    expect(config.mutations.maxRetries).toBe(5);
+    expect(config.queries).toEqual(DEFAULT_RETRY_CONFIG.queries);
+  });
+
+  it('should set enabled to false while preserving default counts', () => {
+    const config = resolveRetryConfig({ enabled: false });
+
+    expect(config.enabled).toBe(false);
+    expect(config.queries.maxRetries).toBe(DEFAULT_RETRY_CONFIG.queries.maxRetries);
+    expect(config.mutations.maxRetries).toBe(DEFAULT_RETRY_CONFIG.mutations.maxRetries);
+  });
+
+  it('should preserve explicit zero counts without disabling', () => {
+    const config = resolveRetryConfig({
+      queries: { maxRetries: 0 },
+      mutations: { maxRetries: 0 },
+    });
+
+    expect(config.enabled).toBe(true);
+    expect(config.queries.maxRetries).toBe(0);
+    expect(config.mutations.maxRetries).toBe(0);
   });
 });
 
@@ -179,6 +224,54 @@ describe('QueryProvider', () => {
     expect((retryFn as Function)(1, new Error('server error'))).toBe(false);
     const mfaError = Object.assign(new Error('mfa'), { error: 'mfa_required' });
     expect((retryFn as Function)(0, mfaError)).toBe(false);
+  });
+
+  it('should disable query and mutation retries when retryConfig is disabled', () => {
+    const { result } = renderHook(() => useQueryClient(), {
+      wrapper: ({ children }) => (
+        <QueryProvider retryConfig={{ enabled: false }}>{children}</QueryProvider>
+      ),
+    });
+
+    const defaultOptions = result.current.getDefaultOptions();
+
+    const queryRetry = defaultOptions.queries?.retry as (
+      failureCount: number,
+      error: unknown,
+    ) => boolean;
+    const mutationRetry = defaultOptions.mutations?.retry as (
+      failureCount: number,
+      error: unknown,
+    ) => boolean;
+
+    expect(queryRetry(0, new Error('test'))).toBe(false);
+    expect(mutationRetry(0, new Error('test'))).toBe(false);
+  });
+
+  it('should honor custom retry counts from retryConfig', () => {
+    const { result } = renderHook(() => useQueryClient(), {
+      wrapper: ({ children }) => (
+        <QueryProvider retryConfig={{ queries: { maxRetries: 1 }, mutations: { maxRetries: 2 } }}>
+          {children}
+        </QueryProvider>
+      ),
+    });
+
+    const defaultOptions = result.current.getDefaultOptions();
+
+    const queryRetry = defaultOptions.queries?.retry as (
+      failureCount: number,
+      error: unknown,
+    ) => boolean;
+    const mutationRetry = defaultOptions.mutations?.retry as (
+      failureCount: number,
+      error: unknown,
+    ) => boolean;
+
+    expect(queryRetry(0, new Error('test'))).toBe(true);
+    expect(queryRetry(1, new Error('test'))).toBe(false);
+    expect(mutationRetry(1, new Error('test'))).toBe(true);
+    expect(mutationRetry(2, new Error('test'))).toBe(false);
   });
 });
 
