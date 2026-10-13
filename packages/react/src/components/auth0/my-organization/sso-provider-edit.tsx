@@ -64,6 +64,8 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     schema,
     readOnly = false,
     enableProviderAction,
+    connectionNamePrefix,
+    resolveSamlMetadata,
   } = props;
 
   const ssoProviderEdit = useSsoProviderEdit(providerId, {
@@ -99,6 +101,8 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideAttributeMappings={hideAttributeMappings}
         enableProviderAction={enableProviderAction}
+        connectionNamePrefix={connectionNamePrefix}
+        resolveSamlMetadata={resolveSamlMetadata}
       />
     </GateKeeper>
   );
@@ -149,6 +153,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hasSsoAttributeSyncWarning,
     hasProvisioningAttributeSyncWarning,
     enableProviderAction,
+    connectionNamePrefix,
     updateProvider,
     listScimTokens,
     syncSsoAttributes,
@@ -160,6 +165,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     createScimToken,
     deleteScimToken,
     syncProvisioningAttributes,
+    resolveSamlMetadata,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -266,6 +272,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
+              connectionNamePrefix={connectionNamePrefix}
+              resolveSamlMetadata={resolveSamlMetadata}
             />
           </TabsContent>
 

@@ -13,11 +13,13 @@ import type {
 export interface PermissionContextValue {
   permissions: string[];
   isLoading: boolean;
+  disablePermissionEnforcement?: boolean;
 }
 
 export interface PermissionProviderProps {
   children: React.ReactNode;
   isAuthenticated?: boolean;
+  disablePermissionEnforcement?: boolean;
 }
 
 /** Return type for usePermissions hook */
