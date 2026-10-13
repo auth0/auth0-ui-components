@@ -4,11 +4,7 @@ import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { OrganizationConnectionGroupTableActionsColumn } from '@/components/auth0/my-organization/shared/connection-group-management/connection-group-table/organization-connection-group-table-actions-column';
-import {
-  DataTable,
-  type Column,
-  type DataTableSortConfig,
-} from '@/components/auth0/shared/data-table';
+import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
@@ -19,7 +15,6 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   ConnectionGroup,
-  ConnectionGroupRole,
   OrganizationConnectionGroupTableProps,
   OrganizationConnectionGroupTableViewProps,
 } from '@/types/my-organization/connection-group-management/organization-connection-group-table-types';
@@ -30,74 +25,6 @@ const DEFAULT_STYLING = {
   variables: { common: {}, light: {}, dark: {} },
   classes: {},
 };
-
-/**
- * Renders a group's assigned roles as comma-separated text, collapsing any
- * roles beyond `maxVisible` into a tooltip-backed "+N more" indicator.
- * @param props - Component props.
- * @param props.roles - Roles assigned to the group.
- * @param props.maxVisible - Max role names to show before collapsing.
- * @param props.overflowLabel - Builds the "+N more" label from the overflow count.
- * @param props.emptyLabel - Shown when the group has no roles.
- * @returns JSX element.
- * @internal
- */
-function AssignedRolesCell({
-  roles,
-  maxVisible,
-  overflowLabel,
-  emptyLabel,
-}: {
-  roles: ConnectionGroupRole[];
-  maxVisible: number;
-  overflowLabel: (count: number) => string;
-  emptyLabel: string;
-}): React.JSX.Element {
-  if (roles.length === 0) {
-    return <span className="text-muted-foreground">{emptyLabel}</span>;
-  }
-
-  const visibleText = roles
-    .slice(0, maxVisible)
-    .map((role) => role.name)
-    .join(', ');
-  const overflowCount = roles.length - Math.min(roles.length, maxVisible);
-
-  if (overflowCount <= 0) {
-    return <span className="text-muted-foreground truncate">{visibleText}</span>;
-  }
-
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
-      <span className="truncate">{visibleText}</span>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span className="shrink-0 cursor-default underline decoration-dotted">
-            {overflowLabel(overflowCount)}
-          </span>
-        </TooltipTrigger>
-        <TooltipContent>{roles.map((role) => role.name).join(', ')}</TooltipContent>
-      </Tooltip>
-    </span>
-  );
-}
-
-/**
- * Sorts groups by name. Name is the only sortable column (per design), so any
- * other sort key is a no-op.
- * @param groups - The groups to sort.
- * @param sortConfig - The active sort key and direction.
- * @returns A new sorted array, or the original when no sort is active.
- * @internal
- */
-function sortGroups(groups: ConnectionGroup[], sortConfig: DataTableSortConfig): ConnectionGroup[] {
-  if (sortConfig.key !== 'name') {
-    return groups;
-  }
-
-  const direction = sortConfig.direction === 'asc' ? 1 : -1;
-  return [...groups].sort((a, b) => a.name.localeCompare(b.name) * direction);
-}
 
 /**
  * Internal connection group table view component.
@@ -124,12 +51,45 @@ function OrganizationConnectionGroupTableView({
     [styling, isDarkMode],
   );
 
-  const [sortConfig, setSortConfig] = React.useState<DataTableSortConfig>({
-    key: null,
-    direction: 'asc',
-  });
+  const renderRoles = React.useCallback(
+    (group: ConnectionGroup) => {
+      const roles = group.assignedRoles;
 
-  const sortedGroups = React.useMemo(() => sortGroups(groups, sortConfig), [groups, sortConfig]);
+      if (roles.length === 0) {
+        return <span className="text-muted-foreground">{t('table.assigned_roles_empty')}</span>;
+      }
+
+      const visibleRoleNames = roles
+        .slice(0, maxVisibleRoles)
+        .map((role) => role.name)
+        .join(', ');
+      const remainingCount = roles.length - maxVisibleRoles;
+
+      if (remainingCount <= 0) {
+        return <span className="text-muted-foreground truncate">{visibleRoleNames}</span>;
+      }
+
+      return (
+        <span className="inline-flex min-w-0 items-center gap-1 text-muted-foreground">
+          <span className="truncate">{visibleRoleNames}</span>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="shrink-0 cursor-default underline decoration-dotted">
+                {t('table.assigned_roles_overflow', { count: remainingCount })}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {roles
+                .slice(maxVisibleRoles)
+                .map((role) => role.name)
+                .join(', ')}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+      );
+    },
+    [t, maxVisibleRoles],
+  );
 
   const columns: Column<ConnectionGroup>[] = React.useMemo(
     () => [
@@ -154,14 +114,7 @@ function OrganizationConnectionGroupTableView({
         title: t('table.columns.assigned_roles'),
         width: '36%',
         enableSorting: false,
-        render: (group) => (
-          <AssignedRolesCell
-            roles={group.assignedRoles}
-            maxVisible={maxVisibleRoles}
-            overflowLabel={(count) => t('table.assigned_roles_overflow', { count })}
-            emptyLabel={t('table.assigned_roles_empty')}
-          />
-        ),
+        render: renderRoles,
       },
       {
         type: 'actions',
@@ -179,7 +132,7 @@ function OrganizationConnectionGroupTableView({
         ),
       },
     ],
-    [t, maxVisibleRoles, permissions, customMessages, onRemoveFromOrganization, onViewDetails],
+    [t, renderRoles, permissions, customMessages, onRemoveFromOrganization, onViewDetails],
   );
 
   return (
@@ -193,9 +146,7 @@ function OrganizationConnectionGroupTableView({
       <DataTable
         loading={isLoading}
         columns={columns}
-        data={sortedGroups}
-        sortConfig={sortConfig}
-        onSortChange={setSortConfig}
+        data={groups}
         emptyState={{ title: t('table.empty_message') }}
         className={className ?? currentStyles.classes?.['OrganizationConnectionGroupTable-table']}
       />
