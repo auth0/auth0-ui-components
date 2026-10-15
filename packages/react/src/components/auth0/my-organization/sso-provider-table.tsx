@@ -99,6 +99,7 @@ function SsoProviderTableView({
   permissions,
   readOnly,
   hideHeader,
+  hideRefresh,
   hideDeleteProvider,
   hideRemoveFromOrganization,
   providers,
@@ -227,21 +228,23 @@ function SsoProviderTableView({
         </div>
       )}
 
-      <div
-        className={cn(
-          'flex justify-end mb-8',
-          currentStyles.classes?.['SsoProviderTable-tableActions'],
-        )}
-      >
-        <RefreshIndicator
-          disabled={!permissions.canListProviders}
-          isStale={isProvidersStale}
-          isFetching={isRefetchingProviders}
-          lastUpdatedAt={providersUpdatedAt || undefined}
-          customMessages={customMessages}
-          onRefresh={refetchProviders}
-        />
-      </div>
+      {!hideRefresh && (
+        <div
+          className={cn(
+            'flex justify-end mb-8',
+            currentStyles.classes?.['SsoProviderTable-tableActions'],
+          )}
+        >
+          <RefreshIndicator
+            disabled={!permissions.canListProviders}
+            isStale={isProvidersStale}
+            isFetching={isRefetchingProviders}
+            lastUpdatedAt={providersUpdatedAt || undefined}
+            customMessages={customMessages}
+            onRefresh={refetchProviders}
+          />
+        </div>
+      )}
 
       <DataTable
         loading={isViewLoading}

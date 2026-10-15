@@ -10,7 +10,7 @@ import { ALL_DOMAIN_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/perm
 import type {
   DomainTableActionsColumnProps,
   DomainTableProps,
-  UseDomainTableReturn,
+  UseDomainTableResult,
   UseDomainTableServiceOptions,
   UseDomainTableServiceReturn,
 } from '@/types/my-organization/domain-management/domain-table-types';
@@ -134,8 +134,8 @@ export const createMockDeleteAction = (): ComponentAction<Domain> => ({
 });
 
 export const createMockDomainTableReturn = (
-  overrides: Partial<UseDomainTableReturn> = {},
-): UseDomainTableReturn => ({
+  overrides: Partial<UseDomainTableResult> = {},
+): UseDomainTableResult => ({
   permissions: ALL_DOMAIN_PERMISSIONS,
   domains: [createMockDomain(), createMockVerifiedDomain()],
   providers: [],

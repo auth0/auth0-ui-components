@@ -177,6 +177,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     [styling, isDarkMode],
   );
 
+  // Reused as both the switch's accessible name and its tooltip, so the toggle
+  // is never an unlabeled control for assistive tech.
+  const toggleLabel = provider?.is_enabled
+    ? t('header.disable_provider_tooltip_text')
+    : t('header.enable_provider_tooltip_text');
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className="w-full overflow-y-auto">
@@ -193,6 +199,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             actions={[
               {
                 type: 'switch',
+                'aria-label': toggleLabel,
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
                 hidden: readOnly,
@@ -204,9 +211,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 tooltip: {
                   content: !permissions.canUpdateProvider
                     ? tCommon('error.forbidden')
-                    : provider?.is_enabled
-                      ? t('header.disable_provider_tooltip_text')
-                      : t('header.enable_provider_tooltip_text'),
+                    : toggleLabel,
                 },
               },
             ]}

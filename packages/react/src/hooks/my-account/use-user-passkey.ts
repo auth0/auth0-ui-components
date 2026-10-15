@@ -3,7 +3,7 @@
  * @module use-user-passkey
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useUserPasskeyService } from '@/hooks/my-account/shared/services/use-user-passkey-service';
@@ -12,7 +12,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import type {
   Passkey,
   UseUserPasskeyOptions,
-  UseUserPasskeyReturn,
+  UseUserPasskeyResult,
 } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
 type ActiveModal = { mode: 'revoke'; passkey: Passkey } | null;
@@ -27,7 +27,7 @@ export function useUserPasskey({
   addAction,
   revokeAction,
   onFetch,
-}: UseUserPasskeyOptions): UseUserPasskeyReturn {
+}: UseUserPasskeyOptions): UseUserPasskeyResult {
   const { t } = useTranslator('passkey', customMessages);
   const handleError = useErrorHandler();
 
@@ -91,19 +91,36 @@ export function useUserPasskey({
     }
   }, [currentPasskey, revokeAction, revokeMutation, t, handleError]);
 
-  return {
-    passkeys: passkeysQuery.data ?? [],
-    isLoading: passkeysQuery.isLoading,
-    isEnrolling: enrollMutation.isPending,
-    isRevoking: revokeMutation.isPending,
-    disableAdd,
-    disableRevoke,
-    readOnly,
-    isRevokeModalOpen,
-    currentPasskey,
-    setIsRevokeModalOpen: closeModal,
-    handleAddPasskey,
-    handleRevokePasskey,
-    handleConfirmRevoke,
-  };
+  return useMemo(
+    () => ({
+      passkeys: passkeysQuery.data ?? [],
+      isLoading: passkeysQuery.isLoading,
+      isEnrolling: enrollMutation.isPending,
+      isRevoking: revokeMutation.isPending,
+      disableAdd,
+      disableRevoke,
+      readOnly,
+      isRevokeModalOpen,
+      currentPasskey,
+      setIsRevokeModalOpen: closeModal,
+      handleAddPasskey,
+      handleRevokePasskey,
+      handleConfirmRevoke,
+    }),
+    [
+      passkeysQuery.data,
+      passkeysQuery.isLoading,
+      enrollMutation.isPending,
+      revokeMutation.isPending,
+      disableAdd,
+      disableRevoke,
+      readOnly,
+      isRevokeModalOpen,
+      currentPasskey,
+      closeModal,
+      handleAddPasskey,
+      handleRevokePasskey,
+      handleConfirmRevoke,
+    ],
+  );
 }
