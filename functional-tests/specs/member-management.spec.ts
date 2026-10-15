@@ -8,6 +8,7 @@ import {
   createUser,
   deleteInvitation,
   deleteUser,
+  findConnectionIdByName,
   findRoleIdByName,
   getOrganization,
   listOrgInvitations,
@@ -27,6 +28,16 @@ const route = reactSpaNpmApp.routes.memberManagement;
 const connectionName = process.env.FT_CONNECTION_NAME ?? 'Universal-Components-Demo';
 
 testUnauthenticatedRedirect(route, (page) => new MemberManagementPage(page).membersTab);
+
+async function seedInvitation(email: string, roles?: string[]) {
+  return createInvitation(org.orgId, {
+    email,
+    inviterName: 'FT Setup',
+    clientId: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
+    connectionId: await findConnectionIdByName(connectionName),
+    roles,
+  });
+}
 
 function uniqueEmail(label: string): string {
   return `ft-${label}-${Date.now()}@example.com`;
@@ -85,8 +96,11 @@ test.describe('Refresh button', () => {
     await waitForOrgMember(org.orgId, user.user_id);
 
     await expect(memberManagement.memberRow(email)).toBeHidden();
-    await memberManagement.refreshButton.click();
-    await expect(memberManagement.memberRow(email)).toBeVisible();
+    // The My Org API can trail the Management API by a moment, so one refresh may return the old list.
+    await expect(async () => {
+      await memberManagement.refreshButton.click();
+      await expect(memberManagement.memberRow(email)).toBeVisible({ timeout: 3_000 });
+    }).toPass({ timeout: POLL_TIMEOUT_MS });
   });
 });
 
@@ -131,12 +145,7 @@ test.describe('View invitation details', () => {
   test('shows the real invitation and copies its accept URL from the modal', async ({ page }) => {
     const email = uniqueEmail('details');
     const adminRoleId = await findRoleIdByName(process.env.FT_ADMIN_ROLE_NAME ?? 'admin');
-    const invitation = await createInvitation(org.orgId, {
-      email,
-      inviterName: 'FT Setup',
-      clientId: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
-      roles: [adminRoleId],
-    });
+    const invitation = await seedInvitation(email, [adminRoleId]);
     await waitForOrgInvitation(org.orgId, email);
 
     const memberManagement = new MemberManagementPage(page);
@@ -276,11 +285,7 @@ test.describe('Revoke invitation', () => {
     page,
   }) => {
     const email = uniqueEmail('revoke');
-    const invitation = await createInvitation(org.orgId, {
-      email,
-      inviterName: 'FT Setup',
-      clientId: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
-    });
+    const invitation = await seedInvitation(email);
     await waitForOrgInvitation(org.orgId, email);
 
     const memberManagement = new MemberManagementPage(page);
@@ -317,11 +322,7 @@ test.describe('Revoke and resend invitation', () => {
     page,
   }) => {
     const email = uniqueEmail('revoke-resend');
-    const invitation = await createInvitation(org.orgId, {
-      email,
-      inviterName: 'FT Setup',
-      clientId: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
-    });
+    const invitation = await seedInvitation(email);
     await waitForOrgInvitation(org.orgId, email);
 
     const memberManagement = new MemberManagementPage(page);

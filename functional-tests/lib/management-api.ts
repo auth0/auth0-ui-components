@@ -535,13 +535,20 @@ export interface Invitation {
 
 export function createInvitation(
   organizationId: string,
-  input: { email: string; inviterName: string; clientId: string; roles?: string[] },
+  input: {
+    email: string;
+    inviterName: string;
+    clientId: string;
+    roles?: string[];
+    connectionId?: string;
+  },
 ): Promise<Invitation> {
   return mgmt<Invitation>('POST', `organizations/${organizationId}/invitations`, {
     inviter: { name: input.inviterName },
     invitee: { email: input.email },
     client_id: input.clientId,
     ...(input.roles ? { roles: input.roles } : {}),
+    ...(input.connectionId ? { connection_id: input.connectionId } : {}),
   });
 }
 
