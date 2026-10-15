@@ -18,6 +18,12 @@ import {
   type WaadConfigureFormValues,
 } from '../sso-provider-create-schema';
 
+/** A structurally valid PEM certificate for use in schema fixtures. */
+const VALID_PEM_CERT = `-----BEGIN CERTIFICATE-----
+MIIDXTCCAkWgAwIBAgIJAJC1HiIAZAiUMA0GCSqGSIb3DQEBBQUAMEUxCzAJBgNV
+Kj6NrC+D6KoZ8g0kBz1x3rI8vMhGQ9z4oZ9x4Qw==
+-----END CERTIFICATE-----`;
+
 describe('SSO Provider Create Schema', () => {
   describe('providerSelectionSchema', () => {
     describe.each([
@@ -338,6 +344,30 @@ describe('SSO Provider Create Schema', () => {
         });
         expect(result.success).toBe(false);
       });
+
+      it('should strip the protocol and submit the normalized domain', () => {
+        const schema = createProviderConfigureSchema('okta');
+        const result = schema.safeParse({
+          ...validOktaConfig,
+          domain: 'https://trial-123.okta.com',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.domain).toBe('trial-123.okta.com');
+        }
+      });
+
+      it('should reject a domain with a path', () => {
+        const schema = createProviderConfigureSchema('okta');
+        const result = schema.safeParse({
+          ...validOktaConfig,
+          domain: 'https://trial-123.okta.com/admin',
+        });
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe('Please enter a valid Okta domain');
+        }
+      });
     });
 
     describe('ADFS strategy', () => {
@@ -358,6 +388,24 @@ describe('SSO Provider Create Schema', () => {
           fedMetadataXml: '<xml>metadata</xml>',
         });
         expect(result.success).toBe(true);
+      });
+
+      it('should accept a metadata URL for fedMetadataXml', () => {
+        const schema = createProviderConfigureSchema('adfs');
+        const result = schema.safeParse({
+          meta_data_source: 'meta_data_file',
+          fedMetadataXml: 'https://idp.example.com/metadata.xml',
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject non-XML, non-URL fedMetadataXml', () => {
+        const schema = createProviderConfigureSchema('adfs');
+        const result = schema.safeParse({
+          meta_data_source: 'meta_data_file',
+          fedMetadataXml: 'this is not metadata',
+        });
+        expect(result.success).toBe(false);
       });
 
       it('should reject meta_data_url source without adfs_server', () => {
@@ -422,6 +470,32 @@ describe('SSO Provider Create Schema', () => {
         const { client_secret, ...withoutClientSecret } = validGoogleConfig;
         const result = schema.safeParse(withoutClientSecret);
         expect(result.success).toBe(false);
+      });
+
+      it('should strip the protocol and submit the normalized domain', () => {
+        const schema = createProviderConfigureSchema('google-apps');
+        const result = schema.safeParse({
+          ...validGoogleConfig,
+          domain: 'https://mycompany.com',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.domain).toBe('mycompany.com');
+        }
+      });
+
+      it('should reject a domain with a path', () => {
+        const schema = createProviderConfigureSchema('google-apps');
+        const result = schema.safeParse({
+          ...validGoogleConfig,
+          domain: 'https://mycompany.com/path',
+        });
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe(
+            'Please enter a valid Google Workspace domain',
+          );
+        }
       });
     });
 
@@ -495,8 +569,8 @@ describe('SSO Provider Create Schema', () => {
         signatureAlgorithm: 'rsa-sha256',
         digestAlgorithm: 'sha256',
         signSAMLRequest: true,
-        signingCert: 'MIIC...certificate...',
-        cert: 'MIIC...cert...',
+        signingCert: VALID_PEM_CERT,
+        cert: VALID_PEM_CERT,
         icon_url: 'https://example.com/icon.png',
         show_as_button: true,
       };
@@ -528,6 +602,33 @@ describe('SSO Provider Create Schema', () => {
         expect(result.success).toBe(true);
       });
 
+      it('should reject an invalid signatureAlgorithm', () => {
+        const schema = createProviderConfigureSchema('pingfederate');
+        const result = schema.safeParse({ ...validPingConfig, signatureAlgorithm: 'RS256' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject an invalid digestAlgorithm', () => {
+        const schema = createProviderConfigureSchema('pingfederate');
+        const result = schema.safeParse({ ...validPingConfig, digestAlgorithm: 'SHA512' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject a non-PEM signingCert', () => {
+        const schema = createProviderConfigureSchema('pingfederate');
+        const result = schema.safeParse({
+          ...validPingConfig,
+          signingCert: 'this is not a certificate',
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject a non-PEM cert', () => {
+        const schema = createProviderConfigureSchema('pingfederate');
+        const result = schema.safeParse({ ...validPingConfig, cert: 'not-a-cert' });
+        expect(result.success).toBe(false);
+      });
+
       it('should accept optional idpInitiated configuration', () => {
         const schema = createProviderConfigureSchema('pingfederate');
         const result = schema.safeParse({
@@ -550,9 +651,9 @@ describe('SSO Provider Create Schema', () => {
         digestAlgorithm: 'sha256',
         protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         signSAMLRequest: true,
-        bindingMethod: 'POST',
+        bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         metadataUrl: 'https://idp.example.com/metadata',
-        signingCert: 'MIIC...certificate...',
+        signingCert: VALID_PEM_CERT,
         signInEndpoint: 'https://idp.example.com/sso',
         icon_url: 'https://example.com/icon.png',
         show_as_button: true,
@@ -561,6 +662,40 @@ describe('SSO Provider Create Schema', () => {
       it('should accept valid SAMLP configuration', () => {
         const schema = createProviderConfigureSchema('samlp');
         const result = schema.safeParse(validSamlUrlInput);
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject an invalid signatureAlgorithm', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const result = schema.safeParse({ ...validSamlUrlInput, signatureAlgorithm: 'RS256' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject an invalid digestAlgorithm', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const result = schema.safeParse({ ...validSamlUrlInput, digestAlgorithm: 'SHA512' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject an invalid bindingMethod', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const result = schema.safeParse({ ...validSamlUrlInput, bindingMethod: 'POST' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject an invalid protocolBinding', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const result = schema.safeParse({ ...validSamlUrlInput, protocolBinding: 'HTTP-POST' });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept the HTTP-Redirect binding', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const result = schema.safeParse({
+          ...validSamlUrlInput,
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+          protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+        });
         expect(result.success).toBe(true);
       });
 
@@ -601,7 +736,39 @@ describe('SSO Provider Create Schema', () => {
           digestAlgorithm: 'sha256',
           protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
           signSAMLRequest: true,
-          bindingMethod: 'POST',
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        };
+        const result = schema.safeParse(fileConfig);
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept a valid PEM signingCert for meta_data_file', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const fileConfig = {
+          meta_data_source: 'meta_data_file' as const,
+          signInEndpoint: 'https://idp.example.com/sso',
+          signingCert: VALID_PEM_CERT,
+          signatureAlgorithm: 'rsa-sha256' as const,
+          digestAlgorithm: 'sha256' as const,
+          protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          signSAMLRequest: true,
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+        };
+        const result = schema.safeParse(fileConfig);
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject a non-PEM signingCert for meta_data_file', () => {
+        const schema = createProviderConfigureSchema('samlp');
+        const fileConfig = {
+          meta_data_source: 'meta_data_file' as const,
+          signInEndpoint: 'https://idp.example.com/sso',
+          signingCert: 'this is not a certificate',
+          signatureAlgorithm: 'rsa-sha256' as const,
+          digestAlgorithm: 'sha256' as const,
+          protocolBinding: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          signSAMLRequest: true,
+          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         };
         const result = schema.safeParse(fileConfig);
         expect(result.success).toBe(false);
@@ -717,6 +884,32 @@ describe('SSO Provider Create Schema', () => {
         const { callback_url, ...withoutCallbackUrl } = validWaadConfig;
         const result = schema.safeParse(withoutCallbackUrl);
         expect(result.success).toBe(true);
+      });
+
+      it('should strip the protocol and submit the normalized tenant_domain', () => {
+        const schema = createProviderConfigureSchema('waad');
+        const result = schema.safeParse({
+          ...validWaadConfig,
+          tenant_domain: 'https://mycompany.onmicrosoft.com',
+        });
+        expect(result.success).toBe(true);
+        if (result.success) {
+          expect(result.data.tenant_domain).toBe('mycompany.onmicrosoft.com');
+        }
+      });
+
+      it('should reject a tenant_domain with a path', () => {
+        const schema = createProviderConfigureSchema('waad');
+        const result = schema.safeParse({
+          ...validWaadConfig,
+          tenant_domain: 'https://mycompany.onmicrosoft.com/path',
+        });
+        expect(result.success).toBe(false);
+        if (!result.success && result.error?.errors[0]) {
+          expect(result.error.errors[0].message).toBe(
+            'Please enter a valid Azure AD tenant domain',
+          );
+        }
       });
     });
 
