@@ -25,6 +25,7 @@ export interface WizardStep {
   id: string;
   title: string;
   description?: string;
+  /** Called as a plain function, not rendered as a component, so it must not use hooks. */
   content: (props: StepProps) => React.ReactNode;
   actions?: StepFormActions;
 }
