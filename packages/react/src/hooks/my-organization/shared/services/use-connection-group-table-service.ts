@@ -23,6 +23,7 @@ import type {
 export const connectionGroupQueryKeys = {
   all: ['connection-groups'] as const,
   list: () => [...connectionGroupQueryKeys.all, 'list'] as const,
+  roles: (groupId: string) => [...connectionGroupQueryKeys.all, 'roles', groupId] as const,
 };
 
 /**

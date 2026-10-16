@@ -45,6 +45,7 @@ export * from './i18n/custom-messages/my-organization/idp-management/sso-domain/
 
 // i18n custom messages - my-organization connection-group-management
 export * from './i18n/custom-messages/my-organization/connection-group-management/connection-group-table-types';
+export * from './i18n/custom-messages/my-organization/connection-group-management/connection-group-detail-types';
 
 // i18n custom messages - my-organization organization-management
 export * from './i18n/custom-messages/my-organization/organization-management/organization-details-types';

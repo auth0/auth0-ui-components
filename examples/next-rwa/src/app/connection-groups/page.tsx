@@ -4,6 +4,7 @@ import {
   OrganizationConnectionGroupTableView,
   type ConnectionGroup,
 } from '@auth0/universal-components-react';
+import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 
 /**
@@ -15,6 +16,7 @@ import { useMemo } from 'react';
  * the full design (name, source, assigned roles, row actions).
  */
 export default function ConnectionGroupsPage() {
+  const router = useRouter();
   const groups = useMemo<ConnectionGroup[]>(
     () => [
       {
@@ -57,9 +59,9 @@ export default function ConnectionGroupsPage() {
     <div className="p-6 pt-8 space-y-6">
       <OrganizationConnectionGroupTableView
         groups={groups}
-        permissions={{ canListGroups: true, canManageGroupRoles: true }}
-        onViewDetails={(group) => console.log('view', group)}
-        onAssignRoles={(group) => console.log('assign roles', group)}
+        permissions={{ canListGroups: true, canRemoveFromOrganization: true }}
+        onViewDetails={(group) => router.push(`/connection-groups/${group.id}`)}
+        onRemoveFromOrganization={(group) => console.log('remove from organization', group)}
       />
     </div>
   );

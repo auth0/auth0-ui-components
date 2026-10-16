@@ -1422,6 +1422,52 @@
     "notifications": {
       "general_error": "問題が発生しました。もう一度お試しください。",
       "fetch_groups_error": "グループの読み込みに失敗しました。もう一度お試しください。"
+    },
+    "detail": {
+      "back_button": "グループに戻る",
+      "sources_label": "ソース:",
+      "roles": {
+        "title": "ロール",
+        "description": "このグループのすべてのメンバーに付与されるロールを管理します。",
+        "assign_button": "ロールを割り当てる",
+        "remove_button": "ロールを削除",
+        "remove_button_label": "ロール ${roleName} を削除する",
+        "selected_count": "${count}件選択中",
+        "empty_message": "割り当てられたロールはありません。",
+        "columns": {
+          "name": "名前",
+          "description": "説明",
+          "permissions": "権限"
+        },
+        "permissions_overflow": "他${count}件",
+        "managed_role_tooltip": "このロールはテナント管理者によって管理されているため、ここでは削除できません。",
+        "max_selection_message": "一度に削除できるロールは${max}件までです"
+      },
+      "assign_modal": {
+        "title": "ロールを割り当てる",
+        "roles_label": "ロール",
+        "roles_placeholder": "ロールを選択",
+        "submit_button": "割り当て",
+        "cancel_button": "キャンセル",
+        "no_roles_available": "利用可能なすべてのロールがすでに割り当てられています。",
+        "max_selection_message": "一度に割り当てられるロールは${max}件までです",
+        "search_for_more": "ロールを検索するには入力してください。",
+        "no_matching_roles": "一致するロールはすべて割り当て済みです。別の検索をお試しください。",
+        "searching_message": "検索中..."
+      },
+      "remove_modal": {
+        "title": "グループからロールを削除しますか？",
+        "description": "<groupBold>\"${groupName}\"</groupBold> から次のロールを削除します。グループのメンバーは、これらのロールによって付与されていた権限を失います。",
+        "confirm_button": "削除",
+        "cancel_button": "キャンセル"
+      },
+      "notifications": {
+        "fetch_roles_error": "グループのロールを読み込めませんでした。もう一度お試しください。",
+        "assign_success": "グループにロールが割り当てられました。",
+        "assign_error": "ロールの割り当てに失敗しました。もう一度お試しください。",
+        "remove_success": "グループからロールが削除されました。",
+        "remove_error": "ロールの削除に失敗しました。もう一度お試しください。"
+      }
     }
   }
 }

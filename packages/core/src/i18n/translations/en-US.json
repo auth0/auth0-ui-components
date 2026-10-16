@@ -1481,6 +1481,52 @@
     "notifications": {
       "general_error": "Something went wrong. Please try again.",
       "fetch_groups_error": "Failed to load groups. Please try again."
+    },
+    "detail": {
+      "back_button": "Back to Groups",
+      "sources_label": "Sources:",
+      "roles": {
+        "title": "Roles",
+        "description": "Manage the roles granted to all members of this group.",
+        "assign_button": "Assign Roles",
+        "remove_button": "Remove Roles",
+        "remove_button_label": "Remove role ${roleName}",
+        "selected_count": "${count} selected",
+        "empty_message": "No roles assigned.",
+        "columns": {
+          "name": "Name",
+          "description": "Description",
+          "permissions": "Permission"
+        },
+        "permissions_overflow": "+${count} more",
+        "managed_role_tooltip": "This role is managed by your tenant admin and can't be removed here.",
+        "max_selection_message": "Only ${max} can be removed at a time"
+      },
+      "assign_modal": {
+        "title": "Assign Roles",
+        "roles_label": "Roles",
+        "roles_placeholder": "Select role(s)",
+        "submit_button": "Assign Role(s)",
+        "cancel_button": "Cancel",
+        "no_roles_available": "All available roles are already assigned.",
+        "max_selection_message": "Only ${max} roles can be assigned at a time",
+        "search_for_more": "Type to search for more roles.",
+        "no_matching_roles": "All matching roles already assigned. Try a different search.",
+        "searching_message": "Searching..."
+      },
+      "remove_modal": {
+        "title": "Remove Roles from Group?",
+        "description": "This will remove the following roles from <groupBold>\"${groupName}\"</groupBold>. Members of the group will lose the permissions granted by these roles.",
+        "confirm_button": "Remove",
+        "cancel_button": "Cancel"
+      },
+      "notifications": {
+        "fetch_roles_error": "Failed to load group roles. Please try again.",
+        "assign_success": "Roles have been assigned to the group.",
+        "assign_error": "Failed to assign roles. Please try again.",
+        "remove_success": "Roles have been removed from the group.",
+        "remove_error": "Failed to remove roles. Please try again."
+      }
     }
   }
 }

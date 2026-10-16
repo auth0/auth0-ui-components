@@ -1,6 +1,10 @@
 import { vi } from 'vitest';
 
 import type {
+  ConnectionGroupDetailRole,
+  OrganizationConnectionGroupDetailViewProps,
+} from '@/types/my-organization/connection-group-management/organization-connection-group-detail-types';
+import type {
   ConnectionGroup,
   ConnectionGroupPermissions,
   ConnectionGroupRole,
@@ -33,6 +37,42 @@ export function createMockConnectionGroupRole(
     ...overrides,
   };
 }
+
+/**
+ * Builds a connection group detail role (role with permissions).
+ * @param overrides - Partial fields to override.
+ * @returns A {@link ConnectionGroupDetailRole}.
+ */
+export function createMockConnectionGroupDetailRole(
+  overrides: Partial<ConnectionGroupDetailRole> = {},
+): ConnectionGroupDetailRole {
+  return {
+    id: 'rol_admin',
+    name: 'Admin',
+    description: 'Administrator role',
+    permissions: ['read:users', 'update:users'],
+    removable: true,
+    ...overrides,
+  };
+}
+
+/** A mock list of connection group detail roles. */
+export const createMockConnectionGroupDetailRoles = (): ConnectionGroupDetailRole[] => [
+  createMockConnectionGroupDetailRole(),
+  createMockConnectionGroupDetailRole({
+    id: 'rol_member',
+    name: 'Member',
+    description: 'Member role',
+    permissions: ['read:users'],
+  }),
+  createMockConnectionGroupDetailRole({
+    id: 'rol_developer',
+    name: 'Developer',
+    description: 'Managed by the tenant admin',
+    permissions: ['read:apis'],
+    removable: false,
+  }),
+];
 
 /**
  * Builds a connection group.
@@ -71,6 +111,39 @@ export function createMockConnectionGroupTableViewProps(
     isLoading: false,
     onRemoveFromOrganization: vi.fn(),
     onViewDetails: vi.fn(),
+    ...overrides,
+  };
+}
+
+/**
+ * Builds props for the connection group detail view component.
+ * @param overrides - Partial fields to override.
+ * @returns A {@link OrganizationConnectionGroupDetailViewProps}.
+ */
+export function createMockConnectionGroupDetailViewProps(
+  overrides: Partial<OrganizationConnectionGroupDetailViewProps> = {},
+): OrganizationConnectionGroupDetailViewProps {
+  return {
+    permissions: { canViewRoles: true, canAssignRoles: true, canRemoveRoles: true },
+    group: createMockConnectionGroup(),
+    roles: createMockConnectionGroupDetailRoles(),
+    availableRoles: [],
+    selectedRoles: [],
+    modalState: null,
+    readOnly: false,
+    isFetchingRoles: false,
+    isSearchingRoles: false,
+    isAssigningRoles: false,
+    isRemovingRoles: false,
+    setSelectedRoles: vi.fn(),
+    onRoleSearch: vi.fn(),
+    handleBack: vi.fn(),
+    openModal: vi.fn(),
+    closeModal: vi.fn(),
+    handleAssignRolesSubmit: vi.fn(),
+    handleRemoveRolesConfirm: vi.fn(),
+    styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
+    customMessages: {},
     ...overrides,
   };
 }

@@ -1245,6 +1245,52 @@
     "notifications": {
       "general_error": "Une erreur s'est produite. Veuillez réessayer.",
       "fetch_groups_error": "Échec du chargement des groupes. Veuillez réessayer."
+    },
+    "detail": {
+      "back_button": "Retour aux groupes",
+      "sources_label": "Sources :",
+      "roles": {
+        "title": "Rôles",
+        "description": "Gérez les rôles accordés à tous les membres de ce groupe.",
+        "assign_button": "Attribuer des rôles",
+        "remove_button": "Supprimer les rôles",
+        "remove_button_label": "Supprimer le rôle ${roleName}",
+        "selected_count": "${count} sélectionné(s)",
+        "empty_message": "Aucun rôle attribué.",
+        "columns": {
+          "name": "Nom",
+          "description": "Description",
+          "permissions": "Autorisation"
+        },
+        "permissions_overflow": "+${count} de plus",
+        "managed_role_tooltip": "Ce rôle est géré par l'administrateur de votre tenant et ne peut pas être supprimé ici.",
+        "max_selection_message": "Seuls ${max} rôles peuvent être supprimés à la fois"
+      },
+      "assign_modal": {
+        "title": "Attribuer des rôles",
+        "roles_label": "Rôles",
+        "roles_placeholder": "Sélectionner un ou des rôles",
+        "submit_button": "Attribuer le(s) rôle(s)",
+        "cancel_button": "Annuler",
+        "no_roles_available": "Tous les rôles disponibles sont déjà attribués.",
+        "max_selection_message": "Seuls ${max} rôles peuvent être attribués à la fois",
+        "search_for_more": "Tapez pour rechercher d'autres rôles.",
+        "no_matching_roles": "Tous les rôles correspondants sont déjà attribués. Essayez une autre recherche.",
+        "searching_message": "Recherche en cours..."
+      },
+      "remove_modal": {
+        "title": "Retirer les rôles du groupe ?",
+        "description": "Cela retirera les rôles suivants de <groupBold>\"${groupName}\"</groupBold>. Les membres du groupe perdront les autorisations accordées par ces rôles.",
+        "confirm_button": "Retirer",
+        "cancel_button": "Annuler"
+      },
+      "notifications": {
+        "fetch_roles_error": "Échec du chargement des rôles du groupe. Veuillez réessayer.",
+        "assign_success": "Les rôles ont été attribués au groupe.",
+        "assign_error": "Échec de l'attribution des rôles. Veuillez réessayer.",
+        "remove_success": "Les rôles ont été retirés du groupe.",
+        "remove_error": "Échec de la suppression des rôles. Veuillez réessayer."
+      }
     }
   }
 }
