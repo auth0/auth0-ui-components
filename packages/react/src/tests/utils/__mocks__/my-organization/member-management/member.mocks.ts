@@ -35,7 +35,7 @@ export const createMockMember = (overrides?: Partial<OrgMember>): OrgMember =>
 export const createMockMembers = (): OrgMember[] => [
   createMockMember(),
   createMockMember({
-    user_id: 'auth0|testuser123',
+    user_id: 'auth0|testuser456',
     name: 'Test User',
     email: 'test@example.com',
     created_at: '2024-01-01T00:00:00.000Z',

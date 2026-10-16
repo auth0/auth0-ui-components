@@ -53,7 +53,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
     isFetchingInvitations,
     isLoadingInvitations,
     isFetchingMembers,
-    isLoadingMembers,
+    isInitialLoading,
     isLoadingOrganization,
     isSearchingRoles,
     isMembersStale,
@@ -228,7 +228,7 @@ export function OrganizationMemberManagementView(props: OrganizationMemberManage
           <TabsContent value="members">
             <OrganizationMemberTable
               members={members}
-              loading={isLoadingMembers}
+              loading={isInitialLoading}
               customMessages={customMessages?.member}
               pagination={memberPagination}
               pageSizeOptions={pageSizeOptions}
