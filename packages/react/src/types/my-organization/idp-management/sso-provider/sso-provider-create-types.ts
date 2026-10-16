@@ -82,12 +82,22 @@ export interface ProviderConfigureProps
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
+  connectionNamePrefix?: string;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -97,6 +107,8 @@ export interface ProviderConfigureFieldsProps
   className?: string;
   onFormDirty?: (isDirty: boolean) => void;
   idpConfig: GetIdpConfigurationResponseContent | null;
+  connectionName?: string;
+  connectionNamePrefix?: string;
   mode?: FormMode;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
@@ -104,6 +116,14 @@ export interface ProviderConfigureFieldsProps
   isCrossAppAccessReadOnly?: boolean;
   crossAppAccessDefaultValue?: 'enabled' | 'disabled';
   isOrganizationBlocked?: boolean;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -120,6 +140,15 @@ export interface SsoProviderCreateProps
   backButton?: SsoProviderCreateBackButton;
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
+  connectionNamePrefix?: string;
+  /**
+   * Optional resolver for SAML Service Provider metadata.
+   *
+   * @param params - Resolver parameters.
+   * @param params.connectionName - The SAML connection name.
+   * @returns An object containing `entityId` for the SP Issuer URN.
+   */
+  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export interface UseSsoProviderCreateOptions {
@@ -178,7 +207,13 @@ export interface SsoProviderCreateViewProps
   extends UseSsoProviderCreateResult,
     Pick<
       SsoProviderCreateProps,
-      'styling' | 'customMessages' | 'backButton' | 'onNext' | 'onPrevious'
+      | 'styling'
+      | 'customMessages'
+      | 'backButton'
+      | 'onNext'
+      | 'onPrevious'
+      | 'resolveSamlMetadata'
+      | 'connectionNamePrefix'
     > {
   strategy?: IdpStrategy;
   details?: ProviderDetailsFormValues | null;

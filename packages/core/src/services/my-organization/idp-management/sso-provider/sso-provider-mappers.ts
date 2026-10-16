@@ -36,6 +36,11 @@ type UpdateProviderFormValues = Partial<ProviderDetailsFormValues> & {
   cross_app_access_resource_app?: CrossAppAccessResourceApp;
 };
 
+type ConfigurableFieldFlags = {
+  canSetShowAsButton?: boolean;
+  canSetAssignMembershipOnLogin?: boolean;
+};
+
 const STRATEGY_FIELD_MAPPINGS = {
   [STRATEGIES.OKTA]: ['domain', 'client_id', 'client_secret', 'icon_url'],
   [STRATEGIES.ADFS]: ['adfs_server', 'fedMetadataXml'],
@@ -123,9 +128,13 @@ export const SsoProviderMappers = {
    * Transforms form data to API request format for creating SSO providers.
    * Filters out form-specific fields and includes only strategy-valid API fields.
    * @param data - The data object to process
+   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is set (true).
    * @returns API request payload for provider creation
    */
-  createToAPI(data: CombinedProviderFormValues): CreateIdentityProviderRequestContent {
+  createToAPI(
+    data: CombinedProviderFormValues,
+    flags: ConfigurableFieldFlags = {},
+  ): CreateIdentityProviderRequestContent {
     const {
       strategy,
       name,
@@ -145,8 +154,8 @@ export const SsoProviderMappers = {
       strategy,
       name: name.trim(),
       display_name,
-      show_as_button,
-      assign_membership_on_login,
+      ...(flags.canSetShowAsButton ? { show_as_button } : {}),
+      ...(flags.canSetAssignMembershipOnLogin ? { assign_membership_on_login } : {}),
       use_for_third_party_client_access,
       cross_app_access_resource_app,
       options: getValidOptionsForStrategy(strategy, options),
@@ -157,9 +166,13 @@ export const SsoProviderMappers = {
    * Transforms form data to API request format for updating SSO providers.
    * Only includes fields that have been modified and are valid for the strategy.
    * @param data - The data object to process
+   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is set (true).
    * @returns API request payload for provider update
    */
-  updateToAPI(data: UpdateProviderFormValues): UpdateIdentityProviderRequestContent {
+  updateToAPI(
+    data: UpdateProviderFormValues,
+    flags: ConfigurableFieldFlags = {},
+  ): UpdateIdentityProviderRequestContent {
     const {
       strategy,
       display_name,
@@ -180,10 +193,10 @@ export const SsoProviderMappers = {
     if (is_enabled !== undefined) {
       updateRequest.is_enabled = is_enabled;
     }
-    if (show_as_button !== undefined) {
+    if (flags.canSetShowAsButton && show_as_button !== undefined) {
       updateRequest.show_as_button = show_as_button;
     }
-    if (assign_membership_on_login !== undefined) {
+    if (flags.canSetAssignMembershipOnLogin && assign_membership_on_login !== undefined) {
       updateRequest.assign_membership_on_login = assign_membership_on_login;
     }
     if (use_for_third_party_client_access !== undefined) {

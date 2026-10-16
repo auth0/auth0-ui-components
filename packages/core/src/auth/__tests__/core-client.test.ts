@@ -415,8 +415,20 @@ describe('createCoreClient', () => {
       expect(() => client.getMFAStepUpApiClient()).toThrow('Function not implemented.');
     });
 
-    it('getDomain returns undefined in previewMode', async () => {
+    it('getDomain returns the configured domain in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
+      const client = await createCoreClient(
+        authDetails,
+        undefined,
+        defaultTelemetry,
+        mockGetComponent,
+      );
+
+      expect(client.getDomain()).toBe(TEST_DOMAIN);
+    });
+
+    it('getDomain returns undefined in previewMode when no domain is configured', async () => {
+      const authDetails = { ...createAuthDetails({ domain: undefined }), previewMode: true };
       const client = await createCoreClient(
         authDetails,
         undefined,

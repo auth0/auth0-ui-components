@@ -16,6 +16,7 @@ export type ResolvedPermissions<TSpec extends PermissionSpec> = {
 
 export interface PermissionOptions {
   readOnly?: boolean;
+  disablePermissionEnforcement?: boolean;
 }
 
 export type PermissionResolver<TSpec extends PermissionSpec> = (
@@ -35,6 +36,7 @@ function evaluateRule(
   userPermissions: readonly string[],
   options: PermissionOptions,
 ): boolean {
+  if (options.disablePermissionEnforcement) return true;
   if (options.readOnly) return false;
 
   return 'any' in rule

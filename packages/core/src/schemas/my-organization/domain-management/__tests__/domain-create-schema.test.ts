@@ -14,20 +14,20 @@ describe('Domain Create Schema', () => {
       { input: 'deep.sub.example.com', shouldPass: true, description: 'nested subdomain' },
       { input: 'https://example.com', shouldPass: true, description: 'with https protocol' },
       { input: 'http://example.com', shouldPass: true, description: 'with http protocol' },
-      { input: 'example.com:8080', shouldPass: true, description: 'with port' },
-      { input: 'https://example.com:443', shouldPass: true, description: 'with https and port' },
-      { input: 'example.com/path', shouldPass: true, description: 'with path' },
-      { input: 'example.com/path/to/resource', shouldPass: true, description: 'with nested path' },
+      { input: 'example.com:8080', shouldPass: false, description: 'with port' },
+      { input: 'https://example.com:443', shouldPass: false, description: 'with https and port' },
+      { input: 'example.com/path', shouldPass: false, description: 'with path' },
+      { input: 'example.com/path/to/resource', shouldPass: false, description: 'with nested path' },
       {
         input: 'https://example.com/path?query=value',
-        shouldPass: true,
+        shouldPass: false,
         description: 'with query params',
       },
-      { input: 'localhost', shouldPass: true, description: 'localhost' },
-      { input: 'localhost:3000', shouldPass: true, description: 'localhost with port' },
-      { input: 'http://localhost:3000', shouldPass: true, description: 'localhost with protocol' },
+      { input: 'localhost', shouldPass: false, description: 'localhost (no dot)' },
+      { input: 'localhost:3000', shouldPass: false, description: 'localhost with port' },
+      { input: 'http://localhost:3000', shouldPass: false, description: 'localhost with protocol' },
       { input: 'my-domain.com', shouldPass: true, description: 'domain with hyphen' },
-      { input: 'my_domain.com', shouldPass: true, description: 'domain with underscore' },
+      { input: 'my_domain.com', shouldPass: false, description: 'domain with underscore' },
       { input: 'domain123.com', shouldPass: true, description: 'domain with numbers' },
       { input: 'EXAMPLE.COM', shouldPass: true, description: 'uppercase domain' },
       { input: 'Example.Com', shouldPass: true, description: 'mixed case domain' },
@@ -181,18 +181,26 @@ describe('Domain Create Schema', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle domain with special query parameters', () => {
+    it('should reject a domain with query parameters', () => {
       const result = domainCreateSchema.safeParse({
         domain_url: 'example.com/path?foo=bar&baz=qux',
       });
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
-    it('should handle domain with encoded characters in path', () => {
+    it('should reject a domain with encoded characters in a path', () => {
       const result = domainCreateSchema.safeParse({
         domain_url: 'example.com/path%20with%20spaces',
       });
+      expect(result.success).toBe(false);
+    });
+
+    it('should strip a leading protocol and whitespace, outputting the bare host', () => {
+      const result = domainCreateSchema.safeParse({ domain_url: '  https://tenant.auth0.com  ' });
       expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.domain_url).toBe('tenant.auth0.com');
+      }
     });
 
     it('should handle internationalized domain-like patterns', () => {

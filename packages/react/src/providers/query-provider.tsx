@@ -18,6 +18,7 @@ import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
 
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import type { QueryCacheConfig } from '@/types/cache-types';
+import type { QueryRetryConfig } from '@/types/retry-types';
 
 /** Default cache configuration. */
 export const DEFAULT_CACHE_CONFIG: Readonly<Required<QueryCacheConfig>> = {
@@ -28,15 +29,28 @@ export const DEFAULT_CACHE_CONFIG: Readonly<Required<QueryCacheConfig>> = {
   refetchOnWindowFocus: false,
 };
 
-const QUERY_RETRY_CONFIG = {
-  maxRetries: 3,
-  maxRetryDelay: 30_000,
-  backoffMultiplier: 2,
-} as const;
+/** The `QueryRetryConfig` branch that carries the retry sub-configs. */
+type EnabledRetryConfig = Extract<QueryRetryConfig, { enabled?: true }>;
 
-const MUTATION_RETRY_CONFIG = {
-  maxRetries: 1,
-} as const;
+/** Fully-resolved retry configuration (no optional fields). */
+export type ResolvedRetryConfig = {
+  enabled: boolean;
+  queries: Required<NonNullable<EnabledRetryConfig['queries']>>;
+  mutations: Required<NonNullable<EnabledRetryConfig['mutations']>>;
+};
+
+/** Default retry configuration. */
+export const DEFAULT_RETRY_CONFIG: Readonly<ResolvedRetryConfig> = {
+  enabled: true,
+  queries: {
+    maxRetries: 3,
+    maxRetryDelay: 30_000,
+    backoffMultiplier: 2,
+  },
+  mutations: {
+    maxRetries: 1,
+  },
+};
 
 const DISABLED_CACHE_GC_TIME = 5 * 1000;
 
@@ -65,6 +79,29 @@ export function resolveCacheConfig(userConfig?: QueryCacheConfig): Required<Quer
 }
 
 /**
+ * Merges user retry config with defaults.
+ * @param userConfig - User-provided retry config.
+ * @returns The resolved retry configuration
+ * @internal
+ */
+export function resolveRetryConfig(userConfig?: QueryRetryConfig): ResolvedRetryConfig {
+  const queries = userConfig && 'queries' in userConfig ? userConfig.queries : undefined;
+  const mutations = userConfig && 'mutations' in userConfig ? userConfig.mutations : undefined;
+
+  return {
+    enabled: userConfig?.enabled ?? DEFAULT_RETRY_CONFIG.enabled,
+    queries: {
+      ...DEFAULT_RETRY_CONFIG.queries,
+      ...queries,
+    },
+    mutations: {
+      ...DEFAULT_RETRY_CONFIG.mutations,
+      ...mutations,
+    },
+  };
+}
+
+/**
  * Returns true if a cached query has an error that GateKeeper should handle.
  * @param query - The cached query to check.
  * @returns Whether the query error should be intercepted by GateKeeper.
@@ -76,12 +113,14 @@ function isGateKeeperError(query: Query): boolean {
 /**
  * Creates a QueryClient with config and global GateKeeper error interception.
  * @param cacheConfig - Cache configuration.
+ * @param retryConfig - Retry configuration.
  * @param setGateKeeperState - Setter for GateKeeper context state.
  * @returns The configured QueryClient instance
  * @internal
  */
 function createQueryClient(
   cacheConfig: Required<QueryCacheConfig>,
+  retryConfig: ResolvedRetryConfig,
   setGateKeeperState: (state: { error: Error; onRetry: () => Promise<boolean> } | null) => void,
 ): QueryClient {
   const queryClient = new QueryClient({
@@ -125,17 +164,21 @@ function createQueryClient(
         ...({ cacheTime: cacheConfig.cacheTime } as object),
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
         retry: (failureCount, error) =>
-          !isMfaRequiredError(error) && failureCount < QUERY_RETRY_CONFIG.maxRetries,
+          retryConfig.enabled &&
+          !isMfaRequiredError(error) &&
+          failureCount < retryConfig.queries.maxRetries,
         retryDelay: (attemptIndex: number) =>
           Math.min(
-            1000 * QUERY_RETRY_CONFIG.backoffMultiplier ** attemptIndex,
-            QUERY_RETRY_CONFIG.maxRetryDelay,
+            1000 * retryConfig.queries.backoffMultiplier ** attemptIndex,
+            retryConfig.queries.maxRetryDelay,
           ),
         refetchOnReconnect: true,
       },
       mutations: {
         retry: (failureCount, error) =>
-          !isMfaRequiredError(error) && failureCount < MUTATION_RETRY_CONFIG.maxRetries,
+          retryConfig.enabled &&
+          !isMfaRequiredError(error) &&
+          failureCount < retryConfig.mutations.maxRetries,
       },
     },
   });
@@ -148,6 +191,8 @@ export interface QueryProviderProps {
   children: ReactNode;
   /** Cache config, only read on mount. */
   cacheConfig?: QueryCacheConfig;
+  /** Retry config, only read on mount. */
+  retryConfig?: QueryRetryConfig;
 }
 
 /**
@@ -155,16 +200,25 @@ export interface QueryProviderProps {
  * @param props - Component props.
  * @param props.children - Child components.
  * @param props.cacheConfig - Cache configuration.
+ * @param props.retryConfig - Retry configuration.
  * @returns The context provider component
  * @internal
  */
-export function QueryProvider({ children, cacheConfig }: QueryProviderProps): ReactElement {
+export function QueryProvider({
+  children,
+  cacheConfig,
+  retryConfig,
+}: QueryProviderProps): ReactElement {
   const [gateKeeperState, setGateKeeperState] = useState<{
     error: Error;
     onRetry: () => Promise<boolean>;
   } | null>(null);
   const [queryClient] = useState(() =>
-    createQueryClient(resolveCacheConfig(cacheConfig), setGateKeeperState),
+    createQueryClient(
+      resolveCacheConfig(cacheConfig),
+      resolveRetryConfig(retryConfig),
+      setGateKeeperState,
+    ),
   );
 
   const contextValue = useMemo(() => gateKeeperState ?? { error: null }, [gateKeeperState]);

@@ -8,6 +8,7 @@ import type * as React from 'react';
 
 import type { QueryCacheConfig } from '@/types/cache-types';
 import type { I18nOptions } from '@/types/i18n-types';
+import type { QueryRetryConfig } from '@/types/retry-types';
 import type { ThemeSettings } from '@/types/theme-types';
 import type { ToastSettings } from '@/types/toast-types';
 
@@ -17,6 +18,7 @@ export type Auth0ComponentProviderProps = (
       mode?: 'direct';
       authContext?: AuthDetails['contextInterface'];
       proxyConfig?: never;
+      domain?: string;
     }
   | {
       mode: 'proxy';
@@ -37,6 +39,10 @@ export type Auth0ComponentProviderProps = (
   toastSettings?: ToastSettings;
   /** TanStack Query cache config. Use `{ enabled: false }` to disable. */
   cacheConfig?: QueryCacheConfig;
+  /** TanStack Query retry config. Use `{ enabled: false }` to disable. */
+  retryConfig?: QueryRetryConfig;
   previewMode?: boolean;
   telemetry?: boolean;
+  /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */
+  disablePermissionEnforcement?: boolean;
 };

@@ -59,7 +59,9 @@ export function useIdpConfig(): UseConfigIdpResult {
     enabled: !!coreClient,
     retry: (failureCount, error) => {
       if (hasApiErrorBody(error) && error.body?.status === 404) return false;
-      return failureCount < 3;
+      // Defer the retry count to the provider-level retryConfig baked into the client.
+      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
+      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
     },
   });
 

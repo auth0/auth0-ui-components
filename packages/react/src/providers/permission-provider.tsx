@@ -15,12 +15,14 @@ export const PermissionContext = React.createContext<PermissionContextValue | nu
  * @param props - Provider props.
  * @param props.children - Child components.
  * @param props.isAuthenticated - Whether the user is authenticated.
+ * @param props.disablePermissionEnforcement - Skip all permission checks; every flag resolves to true.
  * @returns Permission context provider.
  * @internal
  */
 export function PermissionProvider({
   children,
   isAuthenticated,
+  disablePermissionEnforcement = false,
 }: PermissionProviderProps): React.JSX.Element {
   const { coreClient } = useCoreClient();
   const [permissions, setPermissions] = React.useState<string[]>([]);
@@ -33,7 +35,7 @@ export function PermissionProvider({
      * Fetches permissions from the API.
      */
     async function fetchPermissions() {
-      if (!coreClient || !isAuthenticated) {
+      if (!coreClient || !isAuthenticated || disablePermissionEnforcement) {
         setPermissions([]);
         setIsLoading(false);
         return;
@@ -65,11 +67,11 @@ export function PermissionProvider({
     return () => {
       cancelled = true;
     };
-  }, [coreClient, isAuthenticated]);
+  }, [coreClient, isAuthenticated, disablePermissionEnforcement]);
 
   const value = React.useMemo<PermissionContextValue>(
-    () => ({ permissions, isLoading }),
-    [permissions, isLoading],
+    () => ({ permissions, isLoading, disablePermissionEnforcement }),
+    [permissions, isLoading, disablePermissionEnforcement],
   );
 
   return <PermissionContext.Provider value={value}>{children}</PermissionContext.Provider>;
