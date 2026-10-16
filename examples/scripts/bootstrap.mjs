@@ -53,14 +53,36 @@ async function main() {
   const args = process.argv.slice(2)
 
   if (args.includes("--help") || args.includes("-h")) {
-    console.log("Usage: node scripts/bootstrap.mjs <tenant-domain>")
+    console.log(
+      "Usage: node scripts/bootstrap.mjs <tenant-domain> [--client-id <id> --client-secret <secret>]"
+    )
     console.log("\nArguments:")
     console.log(
       "  tenant-domain  Required. The Auth0 tenant domain to configure."
     )
     console.log("                 Must match your Auth0 CLI active tenant.")
+    console.log("\nFlags:")
+    console.log(
+      "  --client-id      Optional. M2M client ID for machine login, instead of"
+    )
+    console.log(
+      "                   interactive browser login. Use this for tenants whose"
+    )
+    console.log(
+      "                   login page isn't served from *.auth0.com (e.g. internal"
+    )
+    console.log(
+      "                   dev/staging domains), which the CLI's browser login"
+    )
+    console.log("                   cannot target.")
+    console.log(
+      "  --client-secret  Required if --client-id is set. M2M client secret."
+    )
     console.log("\nExample:")
     console.log("  node scripts/bootstrap.mjs my-tenant.us.auth0.com")
+    console.log(
+      "  node scripts/bootstrap.mjs my-dev-tenant.internal.com --client-id abc --client-secret xyz"
+    )
     console.log("\nPrerequisites:")
     console.log("  1. Login to Auth0 CLI: auth0 login")
     console.log("  2. Select your tenant: auth0 tenants use <tenant-domain>")
@@ -72,13 +94,22 @@ async function main() {
   }
 
   const tenantName = args[0] // Required: tenant domain to verify against CLI
+  const clientId = getFlagValue(args, "--client-id")
+  const clientSecret = getFlagValue(args, "--client-secret")
+
+  if ((clientId && !clientSecret) || (!clientId && clientSecret)) {
+    console.error(
+      "\n❌ Error: --client-id and --client-secret must be provided together.\n"
+    )
+    process.exit(1)
+  }
 
   // Step 1: Pre-flight Checks
   console.log("📋 Step 1: Pre-flight Checks")
   checkNodeVersion()
   await checkAuth0CLI()
-  await validateAuth0Session()
-  const domain = await validateTenant(tenantName)
+  await validateAuth0Session(tenantName, clientId, clientSecret)
+  const domain = await validateTenant(tenantName, clientId, clientSecret)
   console.log("")
 
   // Step 2: Feature Selection
@@ -277,6 +308,17 @@ async function main() {
   console.log("  2. Review the generated .env.local file")
   console.log("  3. Run 'pnpm run dev' to start the development server")
   console.log("  4. Navigate to http://localhost:5173\n")
+}
+
+/**
+ * Extract a `--flag value` pair from argv
+ * @param {string[]} args - process.argv slice
+ * @param {string} flag - Flag name, e.g. "--client-id"
+ * @returns {string|undefined} The flag's value, if present
+ */
+function getFlagValue(args, flag) {
+  const index = args.indexOf(flag)
+  return index !== -1 ? args[index + 1] : undefined
 }
 
 /**
