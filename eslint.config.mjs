@@ -28,6 +28,8 @@ export default [
       '**/docs-api/**',
       '**/examples/**',
       '**/docs-site/**',
+      'functional-tests/playwright-report/**',
+      'functional-tests/test-results/**',
     ],
   },
 
@@ -146,13 +148,14 @@ export default [
   // Relaxed JSDoc rules for test, mock, asset, and UI atom component files
   {
     files: [
-      '**/__mocks__/**', 
-      '**/__tests__/**', 
-      '**/*.test.{ts,tsx}', 
+      '**/__mocks__/**',
+      '**/__tests__/**',
+      '**/*.test.{ts,tsx}',
       '**/*.spec.{ts,tsx}',
       '**/assets/**',
       '**/internals/**',
       '**/components/ui/**',  // shadcn/atom components - thin wrappers, not public API
+      'functional-tests/**',  // test infrastructure — not public API
     ],
     rules: {
       'jsdoc/require-param': 'off',
