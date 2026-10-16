@@ -28,11 +28,13 @@ export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
 
 export const createMockVerifiedDomain = (): Domain =>
   createMockDomain({
+    id: 'domain_verified123',
     status: 'verified',
   });
 
 export const createMockFailedDomain = (): Domain =>
   createMockDomain({
+    id: 'domain_failed123',
     status: 'failed',
   });
 
