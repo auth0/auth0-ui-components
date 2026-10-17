@@ -10,15 +10,18 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const alertVariants = cva(
-  'shadow-input-hover bg-input relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 overflow-clip rounded-3xl p-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
+  'shadow-bevel-xs bg-input theme-default:outline relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 overflow-clip rounded-3xl p-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
   {
     variants: {
       variant: {
-        default: 'text-foreground border-b-2 border-transparent',
-        info: 'text-info-foreground [&>svg]:text-info-foreground',
-        success: 'text-success-foreground [&>svg]:text-success-foreground',
-        warning: 'text-warning-foreground [&>svg]:text-warning-foreground',
-        destructive: 'text-destructive-foreground [&>svg]:text-destructive-foreground',
+        default: 'text-foreground theme-default:outline-transparent border-b-2 border-transparent',
+        info: 'text-info-foreground [&>svg]:text-info-foreground theme-default:outline-info-foreground/15',
+        success:
+          'text-success-foreground [&>svg]:text-success-foreground theme-default:outline-success-foreground/15',
+        warning:
+          'text-warning-foreground [&>svg]:text-warning-foreground theme-default:outline-warning-foreground/15',
+        destructive:
+          'text-destructive-foreground [&>svg]:text-destructive-foreground theme-default:outline-destructive-foreground/15',
       },
     },
     defaultVariants: {
