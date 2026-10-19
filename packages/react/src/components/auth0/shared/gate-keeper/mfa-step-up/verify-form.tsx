@@ -47,12 +47,14 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
   const { challenge, verify, isLoading } = useMfaStepUp({ error, onComplete });
   const mfaToken = error.mfa_token;
 
-  const isOob = authenticator.authenticatorType === 'oob';
-  const isRecoveryCode = authenticator.authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
+  const authenticatorType = authenticator.authenticatorType;
+
+  const isOob = authenticatorType === 'oob';
+  const isRecoveryCode = authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
   const isPush = authenticator.type === FACTOR_TYPE_PUSH_NOTIFICATION;
 
-  const [challenged, setChallenged] = useState(!isOob || !!authenticator.oobCode);
-  const [oobCode, setOobCode] = useState<string | undefined>(authenticator.oobCode);
+  const [challenged, setChallenged] = useState(!isOob);
+  const [oobCode, setOobCode] = useState<string | undefined>();
 
   const handleVerify = async (code: string) => {
     if (isOob) await verify({ mfaToken, oobCode, bindingCode: code });
@@ -66,7 +68,7 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
   };
 
   useEffect(() => {
-    if (!isOob || authenticator.oobCode) return;
+    if (!isOob) return;
 
     const initializeChallenge = async () => {
       const response = await challenge(authenticator);
@@ -77,7 +79,7 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
     };
 
     initializeChallenge();
-  }, [isOob, challenge, authenticator.id, authenticator.oobCode]);
+  }, [isOob, challenge, authenticator.id]);
 
   if (!challenged) {
     return (
