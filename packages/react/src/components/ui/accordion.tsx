@@ -30,7 +30,7 @@ function AccordionItem({
     <AccordionPrimitive.Item
       data-slot="accordion-item"
       className={cn(
-        'text-card-foreground shadow-bevel-2xl flex flex-col rounded-2xl transition-all duration-150 ease-in-out',
+        'bg-input hover:bg-muted/25 shadow-input-resting hover:shadow-input-hover flex flex-col rounded-2xl transition-all duration-150 ease-in-out',
         className,
       )}
       {...props}
@@ -48,7 +48,7 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'group text-foreground focus-visible:ring-ring flex w-full items-center justify-between p-6 text-sm font-medium transition-all duration-150 ease-in-out focus-visible:ring-2 focus-visible:outline-hidden disabled:cursor-not-allowed [&[data-state=open]>svg]:rotate-180',
+          'group text-foreground focus-visible:ring-ring flex w-full items-center justify-between px-4 py-3 text-sm font-medium transition-all duration-150 ease-in-out focus-visible:ring-2 focus-visible:outline-hidden disabled:cursor-not-allowed [&[data-state=open]>svg]:rotate-180',
           className,
         )}
         {...props}
@@ -73,7 +73,7 @@ function AccordionContent({
     >
       <div
         className={cn(
-          'text-muted-foreground border-border animate-in fade-in-50 px-6 pb-6 min-h-10 text-sm transition-all duration-150 ease-in-out',
+          'text-muted-foreground border-border animate-in fade-in-50 mx-4 border-t py-3 min-h-10 text-sm transition-all duration-150 ease-in-out',
           className,
         )}
       >

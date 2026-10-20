@@ -23,8 +23,8 @@ export interface ListItemProps extends React.LiHTMLAttributes<HTMLLIElement> {
 const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
   ({ className, children, icon, description, info, ...props }, ref) => {
     return (
-      <li ref={ref} className={cn('flex items-start gap-2', className)} {...props}>
-        <div className="flex min-w-0 gap-2 flex-1">
+      <li ref={ref} className={cn('flex items-start justify-between gap-2', className)} {...props}>
+        <div className="flex min-w-0 gap-2">
           {icon && <div className="text-muted-foreground mt-1 shrink-0">{icon}</div>}
           <div className="min-w-0 flex-1">
             <div className="text-primary text-sm">{children}</div>
@@ -39,7 +39,7 @@ const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 ListItem.displayName = 'ListItem';
 
 const List = React.forwardRef<HTMLUListElement, ListProps>(
-  ({ className, children, variant = 'plain', spacing = 'default', ...props }, ref) => {
+  ({ className, children, variant = 'plain', spacing = 'default', iconPosition: _iconPosition = 'start', ...props }, ref) => {
     return (
       <ul
         ref={ref}
