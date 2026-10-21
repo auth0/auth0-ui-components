@@ -19,7 +19,7 @@ export default defineConfig({
     timeout: 30_000,
   },
   use: {
-    trace: 'retain-on-failure',
+    trace: process.env.CI ? 'off' : 'retain-on-failure',
     video: 'retain-on-failure',
     permissions: ['clipboard-read', 'clipboard-write'],
     headless: process.env.CI ? true : process.env.HEADLESS === 'true',
