@@ -2,24 +2,50 @@ name: Functional Tests
 
 on:
   pull_request:
-    # TODO: restrict to branches: [main] before merging the specs PR
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'functional-tests/**'
-      - 'packages/**'
-      - 'examples/react-spa-npm/**'
-      - '.github/workflows/functional-tests.yml'
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
 
 concurrency:
   group: functional-tests-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+env:
+  # Path prefixes (regex alternation) that trigger the functional tests
+  FT_PATHS: functional-tests/|packages/|examples/react-spa-npm/|.github/workflows/functional-tests.yml
+
 jobs:
+  gate:
+    name: Functional Tests Gate
+    if: github.event.pull_request.head.repo.fork == false && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - name: Check approval and changed paths
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          decision=$(gh pr view "$PR" --repo "$REPO" --json reviewDecision --jq .reviewDecision)
+          relevant=$(gh api --paginate --slurp "repos/$REPO/pulls/$PR/files" | jq --arg re "^($FT_PATHS)" '
+            add | map(.filename | select(test($re))) | length')
+          echo "decision=$decision relevant_files=$relevant"
+          if [ "$decision" = "APPROVED" ] && [ "$relevant" -gt 0 ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
   functional-tests:
     name: Functional Tests
-    if: github.event.pull_request.head.repo.fork == false
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
-    environment: functional-tests
     permissions:
       contents: read
     env:
