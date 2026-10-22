@@ -247,6 +247,29 @@
       "save_organization_changes_message": "Les modifications ont été enregistrées pour ${organizationName}.",
       "organization_changes_error_message": "Un problème est survenu lors du traitement de votre demande. ${message}.",
       "organization_changes_error_message_generic": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste."
+    },
+    "organization_table": {
+      "header": {
+        "title": "Organisations",
+        "description": "Gérez les organisations avec lesquelles vous travaillez et personnalisez l'expérience de leurs utilisateurs lorsqu'ils accèdent à vos applications.",
+        "create_button_text": "Créer une organisation"
+      },
+      "table": {
+        "empty_message": "Vous n'avez aucune organisation.",
+        "error_message": "Nous n'avons pas pu charger cette information",
+        "error_description": "Veuillez réessayer ou contacter le support si le problème persiste.",
+        "retry_button_text": "Réessayer",
+        "columns": {
+          "display_name": "Nom affiché",
+          "name": "Nom",
+          "id": "Identifiant"
+        },
+        "actions": {
+          "menu_label": "Actions pour ${organizationName}",
+          "edit_button_text": "Modifier",
+          "delete_button_text": "Supprimer"
+        }
+      }
     }
   },
   "idp_management": {
