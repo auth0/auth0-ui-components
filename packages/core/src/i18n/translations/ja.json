@@ -300,6 +300,29 @@
       "save_organization_changes_message": "${organizationName}の変更が保存されました。",
       "organization_changes_error_message": "リクエストの処理中に問題が発生しました。${message}.",
       "organization_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+    },
+    "organization_table": {
+      "header": {
+        "title": "組織",
+        "description": "取引のある組織を管理し、そのユーザーがアプリケーションにアクセスする際のエクスペリエンスをカスタマイズします。",
+        "create_button_text": "組織を作成"
+      },
+      "table": {
+        "empty_message": "組織がありません。",
+        "error_message": "情報を読み込めませんでした",
+        "error_description": "もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
+        "retry_button_text": "再試行",
+        "columns": {
+          "display_name": "表示名",
+          "name": "名前",
+          "id": "識別子"
+        },
+        "actions": {
+          "menu_label": "${organizationName}のアクション",
+          "edit_button_text": "編集",
+          "delete_button_text": "削除"
+        }
+      }
     }
   },
   "idp_management": {

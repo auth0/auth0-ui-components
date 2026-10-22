@@ -8,6 +8,7 @@ import { Copy } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { InlineCode } from '@/components/ui/inline-code';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -19,11 +20,21 @@ export interface CopyableTextProps {
   tooltipSide?: 'top' | 'bottom' | 'left' | 'right';
   tooltipAlign?: 'start' | 'center' | 'end';
   onCopy?: () => void;
+  /** Render the value as an inline code chip (monospace). */
+  asCode?: boolean;
 }
 
 const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
   (
-    { value, className, buttonClassName, tooltipSide = 'top', tooltipAlign = 'end', onCopy },
+    {
+      value,
+      className,
+      buttonClassName,
+      tooltipSide = 'top',
+      tooltipAlign = 'end',
+      onCopy,
+      asCode = false,
+    },
     ref,
   ) => {
     const { t } = useTranslator('common');
@@ -64,7 +75,11 @@ const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
 
     return (
       <span ref={ref} className={cn('flex items-center gap-1', className)}>
-        <span className="text-sm text-primary">{value}</span>
+        {asCode ? (
+          <InlineCode className="min-w-0 truncate text-xs">{value}</InlineCode>
+        ) : (
+          <span className="text-sm text-primary">{value}</span>
+        )}
         <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
           <TooltipTrigger asChild>
             <Button
