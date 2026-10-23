@@ -81,6 +81,8 @@ export interface SsoProviderTabProps
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
@@ -118,6 +120,8 @@ export interface SsoProviderDetailsProps
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
    *

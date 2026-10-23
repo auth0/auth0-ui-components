@@ -53,6 +53,7 @@ export function SsoProviderDetails({
   isOrganizationBlocked = false,
   connectionNamePrefix,
   resolveSamlMetadata,
+  showSignRequest,
 }: SsoProviderDetailsProps) {
   const { t } = useTranslator('idp_management.sso_provider_details', customMessages);
   const { isDarkMode } = useTheme();
@@ -147,6 +148,7 @@ export function SsoProviderDetails({
           isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
           isOrganizationBlocked={isOrganizationBlocked}
           resolveSamlMetadata={resolveSamlMetadata}
+          showSignRequest={showSignRequest}
           styling={styling}
         />
       </div>

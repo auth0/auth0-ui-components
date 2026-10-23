@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -178,6 +178,97 @@ describe('SamlpProviderForm', () => {
         name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
       });
       expect(link).toHaveAttribute('href', 'https://example.auth0.com/pem?cert=connection');
+    });
+  });
+
+  describe('showSignRequest', () => {
+    const signedInitialData = {
+      signSAMLRequest: true,
+      signatureAlgorithm: 'rsa-sha1',
+      digestAlgorithm: 'sha1',
+    } as const;
+
+    it('should show the sign request checkbox and algorithm fields by default', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} initialData={signedInitialData} />);
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      expect(screen.getByRole('checkbox')).toBeChecked();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.sign_request_algorithm.label'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.sign_request_algorithm_digest.label'),
+      ).toBeInTheDocument();
+    });
+
+    it('should hide the sign request checkbox and algorithm fields but keep request binding when false', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request_algorithm.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request_algorithm_digest.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.request_protocol_binding.label'),
+      ).toBeInTheDocument();
+    });
+
+    it('should preserve signSAMLRequest and algorithms in getData when hidden', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+      renderWithProviders(
+        <SamlpProviderForm
+          ref={formRef}
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData();
+        expect(data?.signSAMLRequest).toBe(true);
+        expect(data?.signatureAlgorithm).toBe('rsa-sha1');
+        expect(data?.digestAlgorithm).toBe('sha1');
+      });
+    });
+
+    it('should preserve signSAMLRequest after reset when hidden', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+      renderWithProviders(
+        <SamlpProviderForm
+          ref={formRef}
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      act(() => formRef.current?.reset());
+
+      await waitFor(() => {
+        expect(formRef.current?.getData().signSAMLRequest).toBe(true);
+      });
     });
   });
 

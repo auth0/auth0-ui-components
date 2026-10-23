@@ -30,6 +30,7 @@ import type {
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.onNext - Callback for next action
  * @param props.onPrevious - Callback for previous action
+ * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @internal
  * @returns JSX element
  */
@@ -47,6 +48,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     onNext,
     onPrevious,
     resolveSamlMetadata,
+    showSignRequest,
     connectionNamePrefix,
   } = props;
 
@@ -72,6 +74,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
         onNext={onNext}
         onPrevious={onPrevious}
         resolveSamlMetadata={resolveSamlMetadata}
+        showSignRequest={showSignRequest}
         connectionNamePrefix={connectionNamePrefix}
       />
     </GateKeeper>
@@ -104,6 +107,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     crossAppAccessDefaultValue,
     isOrganizationBlocked,
     resolveSamlMetadata,
+    showSignRequest,
     connectionNamePrefix,
     detailsRef,
     configureRef,
@@ -184,6 +188,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               crossAppAccessDefaultValue={crossAppAccessDefaultValue}
               isOrganizationBlocked={isOrganizationBlocked}
               resolveSamlMetadata={resolveSamlMetadata}
+              showSignRequest={showSignRequest}
               styling={styling}
             />
           ) : null,
@@ -210,6 +215,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       crossAppAccessDefaultValue,
       isOrganizationBlocked,
       resolveSamlMetadata,
+      showSignRequest,
       connectionNamePrefix,
     ],
   );
@@ -258,6 +264,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * @param props.backButton - Back button configuration
  * @param props.onNext - Callback when moving to next step
  * @param props.onPrevious - Callback when moving to previous step
+ * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @returns SSO provider creation wizard component
