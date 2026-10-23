@@ -28,7 +28,6 @@ export default function SsoProviderEditPage() {
     <div className="p-6 pt-8 space-y-6">
       <SsoProviderEdit
         providerId={idpId!}
-        showSignRequest={false}
         sso={{
           updateAction,
           deleteAction: {

@@ -20,7 +20,7 @@ export default function SsoProviderCreatePage() {
 
   return (
     <div className="p-6 pt-8 space-y-6">
-      <SsoProviderCreate createAction={createAction} showSignRequest={false} />
+      <SsoProviderCreate createAction={createAction} />
     </div>
   );
 }
