@@ -41,6 +41,20 @@ describe('PingFederateProviderForm', () => {
     ).toBeInTheDocument();
   });
 
+  it('should keep the sign request option when showSignRequest is false', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<PingFederateProviderForm idpConfig={null} showSignRequest={false} />);
+
+    await user.click(
+      screen.getByRole('button', { name: 'fields.ping-federate.advanced_settings.title' }),
+    );
+    await user.click(screen.getByRole('checkbox'));
+
+    expect(
+      screen.getByText('fields.ping-federate.advanced_settings.sign_request_algorithm.label'),
+    ).toBeInTheDocument();
+  });
+
   it('should store uploaded certificate content and mark form dirty', async () => {
     const formRef = React.createRef<PingFederateConfigureFormHandle>();
     const onFormDirty = vi.fn();
