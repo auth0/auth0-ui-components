@@ -30,6 +30,7 @@ import {
 } from "./utils/roles.mjs"
 import { applyOrgsChanges} from "./utils/orgs.mjs"
 import { applyOrgMemberChanges} from "./utils/members.mjs"
+import { applyOrganizationTemplateChanges } from "./utils/organization-templates.mjs"
 import {
   applyPromptSettingsChanges,
   applyTenantSettingsChanges,
@@ -258,6 +259,16 @@ async function main() {
     // eslint-disable-next-line no-unused-vars
     const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id, adminRole.id)
     console.log("")
+
+    // 8j. Default Organization Profile (required to create organizations from My Account)
+    console.log("Configuring Organization Profile...")
+    await applyOrganizationTemplateChanges(plan.organizationTemplate, {
+      connectionProfileId: connectionProfile.id,
+      userAttributeProfileId: userAttributeProfile.id,
+      adminRoleId: adminRole.id,
+      orgId: org.id,
+    })
+    console.log("")
   }
 
   // Step 9: Generate .env.local
@@ -303,7 +314,8 @@ function checkForChanges(plan) {
       plan.resourceServer.action !== "skip" ||
       plan.roles.admin.action !== "skip" ||
       plan.orgs.action !== "skip" ||
-      plan.orgMembers.action !== "skip"
+      plan.orgMembers.action !== "skip" ||
+      plan.organizationTemplate.action !== "skip"
   }
 
   // Check MyAccount resources only if enabled
