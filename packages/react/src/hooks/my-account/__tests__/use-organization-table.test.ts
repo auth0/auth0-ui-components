@@ -99,6 +99,36 @@ describe('useOrganizationTable', () => {
     });
   });
 
+  describe('while another page is loading', () => {
+    // The real service keeps showing the previous page (and its next token) until the new one arrives.
+    beforeEach(() => {
+      mockUseOrganizationTableService.mockImplementation(({ paginationParams } = {}) =>
+        createServiceResult({
+          nextToken: 'next_1',
+          isRefetching: paginationParams?.fromToken === 'next_1',
+        }),
+      );
+    });
+
+    it('ignores a second Next click, so the page count and history stay correct', () => {
+      const { result } = renderHook(() => useOrganizationTable());
+
+      act(() => result.current.handleNextPage());
+      act(() => result.current.handleNextPage());
+
+      expect(result.current.pagination.currentPage).toBe(2);
+      expect(lastPaginationParams()?.fromToken).toBe('next_1');
+    });
+
+    it('disables Next until the page has loaded', () => {
+      const { result } = renderHook(() => useOrganizationTable());
+
+      act(() => result.current.handleNextPage());
+
+      expect(result.current.pagination.hasNextPage).toBe(false);
+    });
+  });
+
   describe('when the page size changes', () => {
     it('requests the first page with the new size', () => {
       mockUseOrganizationTableService.mockReturnValue(createServiceResult({ nextToken: 'next_1' }));

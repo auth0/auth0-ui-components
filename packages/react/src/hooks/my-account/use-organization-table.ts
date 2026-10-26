@@ -33,18 +33,22 @@ export function useOrganizationTable(): UseOrganizationTableResult {
     paginationParams: { pageSize, fromToken },
   });
 
+  // While a page loads, the service still shows the previous page and its next token. Another
+  // Next click would then record the same cursor twice and push the page count out of step.
+  const canGoNext = !!nextToken && !service.isRefetching;
+
   const handleNextPage = useCallback(() => {
-    if (nextToken) {
+    if (nextToken && canGoNext) {
       goToNextPage(nextToken);
     }
-  }, [nextToken, goToNextPage]);
+  }, [nextToken, canGoNext, goToNextPage]);
 
   return {
     ...service,
     pagination: {
       pageSize,
       currentPage,
-      hasNextPage: !!nextToken,
+      hasNextPage: canGoNext,
       hasPreviousPage,
     },
     handleNextPage,
