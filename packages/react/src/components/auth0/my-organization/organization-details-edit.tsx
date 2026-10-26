@@ -3,10 +3,12 @@
 import { getComponentStyles } from '@auth0/universal-components-core';
 import * as React from 'react';
 
+import { OrganizationDeleteSection } from '@/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-section';
 import { OrganizationDetails } from '@/components/auth0/my-organization/shared/organization-management/organization-details/organization-details';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
+import { useOrganizationDelete } from '@/hooks/my-organization/use-organization-delete';
 import { useOrganizationDetailsEdit } from '@/hooks/my-organization/use-organization-details-edit';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -27,6 +29,7 @@ import type {
  * @param props.cancelAction - Configuration for the cancel action
  * @param props.hideHeader - Whether to hide the header
  * @param props.backButton - Configuration for the back button
+ * @param props.deleteAction - Lifecycle hooks for the delete action; renders the delete section when provided
  * @returns JSX element
  * @internal
  */
@@ -45,6 +48,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     cancelAction,
     hideHeader = false,
     backButton,
+    deleteAction,
   } = props;
 
   const {
@@ -63,6 +67,12 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     customMessages,
   });
 
+  const organizationDelete = useOrganizationDelete({
+    deleteAction,
+    readOnly,
+    customMessages: customMessages.delete,
+  });
+
   return (
     <GateKeeper isLoading={isFetchLoading || isLoadingConfig} styling={styling}>
       <OrganizationDetailsEditView
@@ -77,6 +87,17 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
         showThirdPartyAccess={showThirdPartyAccess}
         isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
         thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
+        deleteSection={
+          deleteAction && {
+            organization: organizationDelete.organization,
+            customMessages: customMessages.delete,
+            readOnly,
+            canDelete: organizationDelete.canDelete,
+            permissionDenied: organizationDelete.permissionDenied,
+            isDeleteLoading: organizationDelete.isDeleteLoading,
+            onDelete: organizationDelete.deleteOrganization,
+          }
+        }
       />
     </GateKeeper>
   );
@@ -99,6 +120,7 @@ function OrganizationDetailsEditView({
   showThirdPartyAccess,
   isThirdPartyAccessReadOnly,
   thirdPartyAccessDefaultValue,
+  deleteSection,
 }: OrganizationDetailsEditViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_details_edit', customMessages);
@@ -140,6 +162,8 @@ function OrganizationDetailsEditView({
             thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
           />
         </div>
+
+        {deleteSection && <OrganizationDeleteSection {...deleteSection} styling={currentStyles} />}
       </div>
     </StyledScope>
   );
@@ -161,6 +185,7 @@ function OrganizationDetailsEditView({
  * @param props.cancelAction - Lifecycle hooks for cancel operation
  * @param props.hideHeader - Hide the header section
  * @param props.backButton - Back button configuration
+ * @param props.deleteAction - Lifecycle hooks for deleting the organization; renders the delete section when provided
  * @returns Organization details edit component
  *
  * @see {@link OrganizationDetailsEditProps} for full props documentation

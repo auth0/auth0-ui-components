@@ -295,7 +295,7 @@
       "cancel_button_label": "Discard"
     },
     "organization_delete": {
-      "title": "Delete ${organizationName}",
+      "title": "Delete this organization",
       "description": "Once confirmed, this operation cannot be undone.",
       "delete_button_label": "Delete",
       "modal_title": "Delete ${organizationName}",
@@ -303,7 +303,12 @@
       "organization_name_field_placeholder": "Type in the organization name",
       "organization_name_field_label": "Organization Name",
       "organization_name_field_error": "Please type \"${organizationName}\" to confirm deletion",
-      "cancel_button_label": "Cancel"
+      "cancel_button_label": "Cancel",
+      "notifications": {
+        "success": "${organizationName} has been deleted.",
+        "not_empty_error": "${organizationName} can't be deleted while it has other members. Remove all other members and try again.",
+        "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists."
+      }
     },
     "organization_details_edit": {
       "header": {

@@ -677,4 +677,63 @@ describe('OrganizationDetailsEdit', () => {
       });
     });
   });
+
+  describe('deleteAction', () => {
+    describe('when deleteAction is not provided', () => {
+      it('does not render the delete section', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit {...createMockOrganizationDetailsEditProps()} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(
+          screen.queryByRole('button', { name: 'delete_button_label' }),
+        ).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when deleteAction is provided', () => {
+      it('renders the delete section below the form', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter: vi.fn() } })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
+      });
+
+      it('disables delete when only update:my_org:details is granted', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter: vi.fn() } })}
+          />,
+          { permissions: ['read:my_org:details', 'update:my_org:details'] },
+        );
+
+        const displayNameInput = await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+        expect(displayNameInput).not.toHaveAttribute('readonly');
+      });
+
+      it('uses delete custom messages from customMessages.delete', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({
+              deleteAction: { onAfter: vi.fn() },
+              customMessages: { delete: { delete_button_label: 'Remove organization' } },
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: 'Remove organization' })).toBeInTheDocument();
+      });
+    });
+  });
 });
