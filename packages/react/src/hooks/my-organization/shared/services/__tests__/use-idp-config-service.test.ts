@@ -420,4 +420,53 @@ describe('useIdpConfig', () => {
       expect(result.current.getCrossAppAccessDefaultValue(undefined)).toBeUndefined();
     });
   });
+
+  describe('getScimTokenConfig', () => {
+    const tokens = {
+      scopes: ['get:users', 'post:users'],
+      default_expiry: 3600,
+      max_allowed_expiry: 86400,
+    };
+
+    it('returns provisioning.scim.tokens for the strategy', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            okta: {
+              enabled_features: ['provisioning'],
+              provisioning_methods: ['scim'],
+              provisioning: { scim: { tokens } },
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getScimTokenConfig('okta')).toEqual(tokens);
+    });
+
+    it('returns undefined when provisioning is null', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            okta: { enabled_features: [], provisioning_methods: [], provisioning: null },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getScimTokenConfig('okta')).toBeUndefined();
+    });
+
+    it('returns undefined for a strategy not in config', async () => {
+      mockGet.mockResolvedValue(createMockIdpConfig());
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getScimTokenConfig('samlp' as IdpStrategy)).toBeUndefined();
+      expect(result.current.getScimTokenConfig(undefined)).toBeUndefined();
+    });
+  });
 });

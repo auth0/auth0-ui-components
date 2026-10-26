@@ -784,6 +784,9 @@
                 "token_item": {
                   "token_prefix": "トークン",
                   "never_expire": "このトークンに有効期限はありません。",
+                  "expires_on": "有効期限: ${date}",
+                  "scopes": "スコープ: ${scopes}",
+                  "created_at": "作成日: ${date}",
                   "last_used": "最終使用: なし",
                   "status_active": "有効",
                   "status_expired": "期限切れ",
@@ -792,6 +795,37 @@
                 "create_modal": {
                   "title": "ベアラートークン情報",
                   "copy_and_close_button_label": "コピーして閉じる",
+                  "next_button_label": "次へ",
+                  "steps": {
+                    "configure": "トークンを設定",
+                    "review": "確認してコピー"
+                  },
+                  "fields": {
+                    "no_expiration": {
+                      "label": "有効期限なし",
+                      "helper_text": "このトークンは期限切れになりません。"
+                    },
+                    "token_lifetime": {
+                      "label": "有効期間",
+                      "suffix": "秒",
+                      "helper_default": "デフォルト: 接続プロファイルに基づき ${seconds} 秒。",
+                      "helper_max": "許可される最大値: ${seconds} 秒。",
+                      "helper_min": "最小値: ${seconds} 秒。",
+                      "errors": {
+                        "required": "トークンの有効期間を入力してください。",
+                        "integer": "秒数を整数で入力してください。",
+                        "min": "${seconds} 秒以上を入力してください。",
+                        "max": "${seconds} 秒以下を入力してください。"
+                      }
+                    },
+                    "scopes": {
+                      "label": "権限 (スコープ) を選択",
+                      "helper_text": "スコープはベアラートークンのアクセス範囲を定義します。",
+                      "errors": {
+                        "required": "スコープを1つ以上選択してください。"
+                      }
+                    }
+                  },
                   "content": {
                     "description": "ベアラートークンをコピーしてアイデンティティプロバイダーに提供してください。このダイアログを閉じると再表示されません。",
                     "field": {

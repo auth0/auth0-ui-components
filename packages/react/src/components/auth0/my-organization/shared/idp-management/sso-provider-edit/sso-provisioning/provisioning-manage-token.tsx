@@ -9,6 +9,7 @@
 import {
   getComponentStyles,
   type IdpScimTokenBase,
+  type CreateIdpProvisioningScimTokenRequestContent,
   type CreateIdpProvisioningScimTokenResponseContent,
 } from '@auth0/universal-components-core';
 import { Trash2, Plus } from 'lucide-react';
@@ -32,6 +33,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import { formatDate } from '@/lib/utils/date';
 import type { ProvisioningManageTokenProps } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
 const MAX_TOKENS = 2;
@@ -49,6 +51,7 @@ const TOKEN_STATUS = {
  * @param props.onListScimTokens - Callback to list SCIM tokens
  * @param props.onCreateScimToken - Callback to create a SCIM token
  * @param props.onDeleteScimToken - Callback to delete a SCIM token
+ * @param props.scimTokenConfig - Connection Profile SCIM token config
  * @param props.permissions - What the current user is allowed to do
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.customMessages - Custom translation messages to override defaults
@@ -61,6 +64,7 @@ export function ProvisioningManageToken({
   onListScimTokens,
   onCreateScimToken,
   onDeleteScimToken,
+  scimTokenConfig,
   permissions,
   readOnly = false,
   styling = {
@@ -73,7 +77,7 @@ export function ProvisioningManageToken({
   },
   customMessages = {},
 }: ProvisioningManageTokenProps): React.JSX.Element {
-  const { t } = useTranslator(
+  const { t, currentLanguage } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content.details.manage_tokens',
     customMessages,
   );
@@ -122,15 +126,23 @@ export function ProvisioningManageToken({
     };
   };
 
-  const handleGenerateToken = async () => {
-    const result = await onCreateScimToken({ token_lifetime: 3600 });
-    if (result) {
-      setCreatedToken(result);
-      setIsCreateModalOpen(true);
-      const tokens = await onListScimTokens();
-      if (tokens?.scim_tokens) {
-        setScimTokens(tokens.scim_tokens);
+  const handleGenerateToken = () => {
+    setCreatedToken(null);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleCreateToken = async (request: CreateIdpProvisioningScimTokenRequestContent) => {
+    try {
+      const result = await onCreateScimToken(request);
+      if (result) {
+        setCreatedToken(result);
+        const tokens = await onListScimTokens();
+        if (tokens?.scim_tokens) {
+          setScimTokens(tokens.scim_tokens);
+        }
       }
+    } catch {
+      // Error toast is shown by createScimToken's mutation; the modal stays on step 1.
     }
   };
 
@@ -204,7 +216,14 @@ export function ProvisioningManageToken({
           <CardContent className="space-y-4">
             {scimTokens.map((token) => {
               const status = getTokenStatus(token);
-              const showExpiry = !token.valid_until;
+              const showNeverExpire = !token.valid_until;
+              const expiresOn = token.valid_until
+                ? formatDate(token.valid_until, currentLanguage)
+                : '';
+              const createdOn = token.created_at
+                ? formatDate(token.created_at, currentLanguage)
+                : '';
+              const scopes = token.scopes?.join(', ') ?? '';
 
               return (
                 <div key={token.token_id} className="flex items-start justify-between gap-6">
@@ -212,9 +231,24 @@ export function ProvisioningManageToken({
                     <p className="text-sm font-medium text-foreground">
                       {t('token_item.token_prefix')} {token.token_id}
                     </p>
-                    {showExpiry && (
+                    {showNeverExpire && (
                       <p className="text-sm text-muted-foreground">
                         {t('token_item.never_expire')}
+                      </p>
+                    )}
+                    {expiresOn && (
+                      <p className="text-sm text-muted-foreground">
+                        {t('token_item.expires_on', { date: expiresOn })}
+                      </p>
+                    )}
+                    {scopes && (
+                      <p className="text-sm text-muted-foreground">
+                        {t('token_item.scopes', { scopes })}
+                      </p>
+                    )}
+                    {createdOn && (
+                      <p className="text-sm text-muted-foreground">
+                        {t('token_item.created_at', { date: createdOn })}
                       </p>
                     )}
                     <p className="text-sm text-muted-foreground">{t('token_item.last_used')}</p>
@@ -262,6 +296,8 @@ export function ProvisioningManageToken({
           }
         }}
         createdToken={createdToken}
+        scimTokenConfig={scimTokenConfig}
+        onCreate={handleCreateToken}
         customMessages={customMessages}
         styling={styling}
       />

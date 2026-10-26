@@ -731,6 +731,9 @@
                 "token_item": {
                   "token_prefix": "Jeton",
                   "never_expire": "Ce jeton n'expirera jamais.",
+                  "expires_on": "Expire le : ${date}",
+                  "scopes": "Portées : ${scopes}",
+                  "created_at": "Créé le : ${date}",
                   "last_used": "Dernière utilisation : Jamais",
                   "status_active": "Actif",
                   "status_expired": "Expiré",
@@ -739,6 +742,37 @@
                 "create_modal": {
                   "title": "Informations sur le jeton Bearer",
                   "copy_and_close_button_label": "Copier et fermer",
+                  "next_button_label": "Suivant",
+                  "steps": {
+                    "configure": "Configurer le jeton",
+                    "review": "Vérifier et copier"
+                  },
+                  "fields": {
+                    "no_expiration": {
+                      "label": "Aucune date d'expiration",
+                      "helper_text": "Ce jeton n'expirera pas."
+                    },
+                    "token_lifetime": {
+                      "label": "Durée de vie",
+                      "suffix": "secondes",
+                      "helper_default": "Par défaut : ${seconds} secondes selon votre profil de connexion.",
+                      "helper_max": "Maximum autorisé : ${seconds} secondes.",
+                      "helper_min": "Minimum : ${seconds} secondes.",
+                      "errors": {
+                        "required": "Saisissez une durée de vie pour le jeton.",
+                        "integer": "Saisissez un nombre entier de secondes.",
+                        "min": "Saisissez au moins ${seconds} secondes.",
+                        "max": "Saisissez au plus ${seconds} secondes."
+                      }
+                    },
+                    "scopes": {
+                      "label": "Sélectionner les autorisations (portées)",
+                      "helper_text": "Les portées définissent l'accès des jetons Bearer.",
+                      "errors": {
+                        "required": "Sélectionnez au moins une portée."
+                      }
+                    }
+                  },
                   "content": {
                     "description": "Copiez le jeton bearer à fournir à votre fournisseur d'identité. Il ne sera plus affiché après la fermeture de cette boîte de dialogue.",
                     "field": {
