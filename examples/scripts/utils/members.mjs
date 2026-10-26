@@ -113,11 +113,13 @@ export async function applyOrgMemberChanges(changePlan, org, connection, role) {
             const { stdout: userStdout } = await $`auth0 ${createUserArgs}`
             return JSON.parse(userStdout)
           } catch (e) {
-            // Report only the CLI's own message: the full command line would include the password.
-            const reason = String(e.stderr || "the Management API request failed")
+            // Depending on the CLI version, a rejected request either prints the server's error body
+            // or exits with an error. Return the CLI's message so both go through the same handling
+            // below. Never use e.message: it contains the full command line, including the password.
+            const message = String(e.stderr || "the Management API request failed")
               .replace(/\x1b\[[0-9;]*m/g, "")
               .trim()
-            throw new Error(`Unable to create org admin: ${reason}`)
+            return { message }
           }
         }
 

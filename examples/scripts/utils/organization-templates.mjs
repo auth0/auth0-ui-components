@@ -34,6 +34,7 @@ export function checkOrganizationTemplateChanges(existingTemplates) {
     return createChangeItem(ChangeAction.SKIP, {
       resource: "Organization Profile",
       name: DEMO_ORGANIZATION_TEMPLATE_NAME,
+      note: true,
       reason:
         "Organization Profiles are unavailable on this tenant (they must be enabled, and the bootstrap needs the read/create:organization_templates scopes)",
     })
@@ -54,6 +55,7 @@ export function checkOrganizationTemplateChanges(existingTemplates) {
     return createChangeItem(ChangeAction.SKIP, {
       resource: "Organization Profile",
       name: DEMO_ORGANIZATION_TEMPLATE_NAME,
+      note: true,
       reason: `"${otherDefault.name}" is already the default Organization Profile and was left unchanged. Organizations created from My Account use the default profile, so make sure it assigns an admin role`,
     })
   }
@@ -65,12 +67,16 @@ export function checkOrganizationTemplateChanges(existingTemplates) {
     })
   }
 
+  // Creating an organization needs a profile that assigns an admin role, so fill that in if it is missing.
+  const needsAdminRole = !existing.admin_roles_assignment?.length
   return createChangeItem(ChangeAction.UPDATE, {
     resource: "Organization Profile",
     name: DEMO_ORGANIZATION_TEMPLATE_NAME,
     existing,
-    updates: { is_default: true },
-    summary: "Make it the default Organization Profile",
+    updates: { is_default: true, needsAdminRole },
+    summary: needsAdminRole
+      ? "Make it the default Organization Profile and assign the admin role"
+      : "Make it the default Organization Profile",
   })
 }
 
@@ -114,9 +120,11 @@ export async function applyOrganizationTemplateChanges(changePlan, refs) {
       })
       if (!template) throw new Error("Missing scope create:organization_templates")
     } else if (changePlan.action === ChangeAction.UPDATE) {
-      template = await auth0ApiCall("patch", `organization-templates/${template.id}`, {
-        is_default: true,
-      })
+      const patch = { is_default: true }
+      if (adminRoleId && changePlan.updates?.needsAdminRole) {
+        patch.admin_roles_assignment = [adminRoleId]
+      }
+      template = await auth0ApiCall("patch", `organization-templates/${template.id}`, patch)
       if (!template) throw new Error("Missing scope update:organization_templates")
     }
 
