@@ -53,11 +53,7 @@ export interface OrganizationDetailsEditProps
   cancelAction?: Omit<ComponentAction<OrganizationPrivate>, 'onBefore'>;
   hideHeader?: boolean;
   backButton?: OrganizationEditBackButton;
-  /**
-   * Lifecycle hooks for deleting the organization. When provided, a delete section is
-   * rendered below the details form. Deletion invalidates the organization-scoped token,
-   * so use `onAfter` to redirect the user.
-   */
+  /** Lifecycle hooks for deleting the organization. When provided, a delete section is rendered below the form. */
   deleteAction?: OrganizationDeleteAction;
 }
 export interface UseOrganizationDetailsEditOptions {
@@ -100,6 +96,5 @@ export interface OrganizationDetailsEditViewProps {
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
-  /** Delete section props; the section is hidden when undefined. */
   deleteSection?: Omit<OrganizationDeleteSectionProps, 'styling'>;
 }

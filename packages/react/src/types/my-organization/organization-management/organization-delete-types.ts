@@ -18,11 +18,8 @@ export interface OrganizationDeleteClasses {
 }
 
 /**
- * Lifecycle hooks for deleting the organization.
- *
- * Deleting the organization invalidates the current organization-scoped token,
- * so `onAfter` should redirect the user (e.g. to an organization list or a
- * "deleted" page). Components must not be left rendered for the deleted organization.
+ * Lifecycle hooks for deleting the organization. Deleting it invalidates the current
+ * organization-scoped token, so `onAfter` should redirect the user away.
  */
 export interface OrganizationDeleteAction extends ComponentAction<OrganizationPrivate> {}
 

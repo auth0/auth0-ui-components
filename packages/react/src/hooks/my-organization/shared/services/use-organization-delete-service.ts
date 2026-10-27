@@ -61,7 +61,6 @@ export function useOrganizationDeleteService({
   });
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
-  // Messages always use the name, which is also what the user types to confirm the deletion.
   const organizationName = organization.name;
 
   const deleteMutation = useMutation({
@@ -75,9 +74,8 @@ export function useOrganizationDeleteService({
         message: t('notifications.success', { organizationName }),
       });
 
-      // The organization-scoped token is no longer valid, so no request may go out with it. Removing
-      // the queries would make hooks that are still mounted refetch them, so mark them stale without
-      // refetching instead; they reload with a new token the next time they are used.
+      // The token is no longer valid, so nothing may be requested with it. Marking the queries stale
+      // (not removing them) keeps hooks that are still mounted from refetching.
       void queryClient.invalidateQueries({
         queryKey: organizationDetailsQueryKeys.all,
         refetchType: 'none',

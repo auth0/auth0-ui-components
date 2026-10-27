@@ -12,7 +12,6 @@ export interface OrganizationDetailsEditMessages {
     back_button_text?: string;
   };
   details?: OrganizationDetailsMessages;
-  /** Messages for the delete section, shown when `deleteAction` is provided. */
   delete?: OrganizationDeleteMessages;
   save_organization_changes_message?: string;
   organization_changes_error_message?: string;
