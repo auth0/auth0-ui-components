@@ -181,6 +181,24 @@ describe('useOrganizationDeleteService', () => {
     });
   });
 
+  describe('when deleteAction.onAfter fails', () => {
+    it('still reports success and shows no error', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onAfter = vi.fn().mockRejectedValue(new Error('navigation failed'));
+      const { result } = await renderUseOrganizationDeleteService({ deleteAction: { onAfter } });
+
+      let deleted: boolean | undefined;
+      await act(async () => {
+        deleted = await result.current.deleteOrganization();
+      });
+
+      expect(deleted).toBe(true);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      consoleError.mockRestore();
+    });
+  });
+
   describe('when deleteAction.onBefore returns false', () => {
     it('skips the delete request and resolves to false', async () => {
       const { result, apiService } = await renderUseOrganizationDeleteService({

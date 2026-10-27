@@ -82,7 +82,12 @@ export function useOrganizationDeleteService({
       });
       void queryClient.invalidateQueries({ queryKey: configQueryKeys.all, refetchType: 'none' });
 
-      await deleteAction?.onAfter?.(organization);
+      try {
+        await deleteAction?.onAfter?.(organization);
+      } catch (error) {
+        // The organization is already deleted, so a failing callback must not turn that into a failure.
+        console.error('OrganizationDelete: deleteAction.onAfter failed', error);
+      }
     },
     onError: (error) => {
       if (isOrganizationNotEmptyError(error)) {
