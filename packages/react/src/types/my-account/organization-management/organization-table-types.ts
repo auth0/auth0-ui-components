@@ -20,7 +20,6 @@ export interface OrganizationTableClasses {
 /** Props for the OrganizationTable block component. */
 export interface OrganizationTableProps
   extends SharedComponentProps<OrganizationTableMessages, OrganizationTableClasses> {
-  /** Hide the title and description. */
   hideHeader?: boolean;
   /**
    * Shows an "Edit" row action. Editing another organization needs an organization-scoped
