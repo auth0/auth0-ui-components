@@ -293,8 +293,14 @@ export async function buildChangePlan(resources, domain, exampleType, featureCon
     }
 
     // Default Organization Profile - needed to create organizations from My Account
+    // IDs are undefined for resources this run will create
     plan.organizationTemplate = featureConfig.enableMyOrg
-      ? checkOrganizationTemplateChanges(resources.organizationTemplates)
+      ? await checkOrganizationTemplateChanges(resources.organizationTemplates, {
+          connectionProfileId: plan.connectionProfile.existing?.id,
+          userAttributeProfileId: plan.userAttributeProfile.existing?.id,
+          adminRoleId: plan.roles.admin.existing?.id,
+          orgId: plan.orgs.existing?.id,
+        })
       : createChangeItem(ChangeAction.SKIP, {
           resource: "Organization Profile",
           name: "Default",
