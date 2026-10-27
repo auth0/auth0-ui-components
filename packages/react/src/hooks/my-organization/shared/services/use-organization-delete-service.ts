@@ -74,9 +74,14 @@ export function useOrganizationDeleteService({
         message: t('notifications.success', { organizationName }),
       });
 
-      // The organization-scoped token is no longer valid, so drop data that would refetch with it.
-      queryClient.removeQueries({ queryKey: organizationDetailsQueryKeys.all });
-      queryClient.removeQueries({ queryKey: configQueryKeys.all });
+      // The organization-scoped token is no longer valid, so no request may go out with it. Removing
+      // the queries would make hooks that are still mounted refetch them, so mark them stale without
+      // refetching instead; they reload with a new token the next time they are used.
+      void queryClient.invalidateQueries({
+        queryKey: organizationDetailsQueryKeys.all,
+        refetchType: 'none',
+      });
+      void queryClient.invalidateQueries({ queryKey: configQueryKeys.all, refetchType: 'none' });
 
       await deleteAction?.onAfter?.(organization);
     },

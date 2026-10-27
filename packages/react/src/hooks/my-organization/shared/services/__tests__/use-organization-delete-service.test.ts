@@ -104,16 +104,29 @@ describe('useOrganizationDeleteService', () => {
       });
     });
 
-    it('removes cached organization-scoped queries', async () => {
-      const { result, queryClient } = await renderUseOrganizationDeleteService();
+    it('marks cached organization-scoped queries stale without requesting them again', async () => {
+      // Keep unobserved data around, so the config entry is still there to be checked.
+      const { result, queryClient, apiService } = await renderUseOrganizationDeleteService(
+        {},
+        new QueryClient({ defaultOptions: { queries: { gcTime: Infinity, retry: false } } }),
+      );
       queryClient.setQueryData(configQueryKeys.details(), { allowed_strategies: [] });
+      const getOrganization = apiService.organizationDetails.get as ReturnType<typeof vi.fn>;
+      const callsBeforeDelete = getOrganization.mock.calls.length;
 
       await act(async () => {
         await result.current.deleteOrganization();
       });
+      // Give a refetch from the still-mounted hook time to start, if there were one.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
 
-      expect(queryClient.getQueryData(organizationDetailsQueryKeys.details())).toBeUndefined();
-      expect(queryClient.getQueryData(configQueryKeys.details())).toBeUndefined();
+      expect(queryClient.getQueryState(organizationDetailsQueryKeys.details())?.isInvalidated).toBe(
+        true,
+      );
+      expect(queryClient.getQueryState(configQueryKeys.details())?.isInvalidated).toBe(true);
+      expect(getOrganization).toHaveBeenCalledTimes(callsBeforeDelete);
     });
 
     it('calls deleteAction.onAfter with the deleted organization', async () => {
