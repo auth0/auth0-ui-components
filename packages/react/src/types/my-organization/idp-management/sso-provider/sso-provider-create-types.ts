@@ -90,7 +90,7 @@ export interface ProviderConfigureProps
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
@@ -118,7 +118,7 @@ export interface ProviderConfigureFieldsProps
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
@@ -128,6 +128,44 @@ export interface ProviderConfigureFieldsProps
    * @returns An object containing `entityId` for the SP Issuer URN.
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+}
+
+/** Cross App Access status of a connection. */
+export type CrossAppAccessStatus = 'enabled' | 'disabled';
+
+/** Existing provider values used to seed the connection-level access fields. */
+export interface ConnectionAccessInitialData {
+  use_for_third_party_client_access?: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Default form values for the connection-level access fields. */
+export interface ConnectionAccessDefaults {
+  use_for_third_party_client_access: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Form values read and written by the connection-level access fields. */
+export interface ConnectionAccessFormValues extends ConnectionAccessDefaults {
+  discovery_url?: string;
+}
+
+/** Props for ConnectionAccessFields component. */
+export interface ConnectionAccessFieldsProps
+  extends Pick<
+    ProviderConfigureFieldsProps,
+    | 'strategy'
+    | 'showThirdPartyAccess'
+    | 'isThirdPartyAccessReadOnly'
+    | 'showCrossAppAccess'
+    | 'isCrossAppAccessReadOnly'
+    | 'isOrganizationBlocked'
+  > {
+  readOnly?: boolean;
+  classes?: Pick<
+    SsoProviderCreateClasses,
+    'ProviderConfigure-ThirdPartyAccess' | 'ProviderConfigure-CrossAppAccess'
+  >;
 }
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
@@ -191,9 +229,9 @@ export interface UseSsoProviderCreateResult {
   thirdPartyAccessDefaultValue?: 'allow' | 'block';
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
-  getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
+  getCrossAppAccessDefaultValue: () => CrossAppAccessStatus | undefined;
   isOrganizationBlocked: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

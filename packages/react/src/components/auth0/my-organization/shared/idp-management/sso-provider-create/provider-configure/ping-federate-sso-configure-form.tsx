@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type PingFederateConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +15,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
+import { ConnectionAccessFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields';
 import {
   Accordion,
   AccordionContent,
@@ -73,7 +76,21 @@ export const PingFederateProviderForm = React.forwardRef<
   PingFederateConfigureFormHandle,
   PingFederateConfigureFormProps
 >(function PingFederateProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+    showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
+    styling,
+  },
   ref,
 ) {
   const { t } = useTranslator(
@@ -97,6 +114,11 @@ export const PingFederateProviderForm = React.forwardRef<
       digestAlgorithm: pingFederateData?.digestAlgorithm || 'sha256',
       show_as_button: pingFederateData?.show_as_button ?? false,
       assign_membership_on_login: pingFederateData?.assign_membership_on_login ?? false,
+      ...getConnectionAccessDefaults(
+        STRATEGIES.PINGFEDERATE,
+        pingFederateData,
+        crossAppAccessDefaultValue,
+      ),
     },
   });
 
@@ -343,6 +365,17 @@ export const PingFederateProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={readOnly}
           customMessages={customMessages}
+        />
+
+        <ConnectionAccessFields
+          strategy={STRATEGIES.PINGFEDERATE}
+          readOnly={readOnly}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
       </div>
     </Form>

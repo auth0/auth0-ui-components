@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type AdfsConfigureFormValues,
   type AdfsConfigureFormInput,
 } from '@auth0/universal-components-core';
@@ -15,6 +16,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
+import { ConnectionAccessFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { FileUpload } from '@/components/ui/file-upload';
 import {
@@ -45,7 +48,21 @@ interface AdfsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'str
 
 export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsConfigureFormProps>(
   function AdfsProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+    {
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      onFormDirty,
+      idpConfig,
+      showThirdPartyAccess = false,
+      isThirdPartyAccessReadOnly = false,
+      isOrganizationBlocked = false,
+      showCrossAppAccess = false,
+      isCrossAppAccessReadOnly = false,
+      crossAppAccessDefaultValue,
+      styling,
+    },
     ref,
   ) {
     const { t } = useTranslator(
@@ -68,6 +85,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
         fedMetadataXml: adfsData?.fedMetadataXml || '',
         show_as_button: adfsData?.show_as_button ?? false,
         assign_membership_on_login: adfsData?.assign_membership_on_login ?? false,
+        ...getConnectionAccessDefaults(STRATEGIES.ADFS, adfsData, crossAppAccessDefaultValue),
       },
     });
 
@@ -247,6 +265,17 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
             idpConfig={idpConfig}
             readOnly={readOnly}
             customMessages={customMessages}
+          />
+
+          <ConnectionAccessFields
+            strategy={STRATEGIES.ADFS}
+            readOnly={readOnly}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            isOrganizationBlocked={isOrganizationBlocked}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            classes={styling?.classes}
           />
         </div>
       </Form>

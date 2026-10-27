@@ -237,6 +237,21 @@ describe('SsoProviderMappers', () => {
     });
 
     describe('use_for_third_party_client_access', () => {
+      it.each(Object.values(STRATEGIES) as IdpStrategy[])(
+        'should include use_for_third_party_client_access for %s',
+        (strategy) => {
+          const result = SsoProviderMappers.createToAPI({
+            strategy,
+            name: 'Provider',
+            display_name: 'Display',
+            options: {},
+            use_for_third_party_client_access: true,
+          });
+
+          expect(result.use_for_third_party_client_access).toBe(true);
+        },
+      );
+
       it('should include use_for_third_party_client_access when true', () => {
         const formData = {
           strategy: STRATEGIES.OIDC as IdpStrategy,
@@ -606,6 +621,18 @@ describe('SsoProviderMappers', () => {
     });
 
     describe('use_for_third_party_client_access', () => {
+      it.each(Object.values(STRATEGIES) as IdpStrategy[])(
+        'should include use_for_third_party_client_access for %s',
+        (strategy) => {
+          const result = SsoProviderMappers.updateToAPI({
+            strategy,
+            use_for_third_party_client_access: true,
+          });
+
+          expect(result.use_for_third_party_client_access).toBe(true);
+        },
+      );
+
       it('should include use_for_third_party_client_access when true', () => {
         const updateData = {
           strategy: STRATEGIES.OIDC as IdpStrategy,
