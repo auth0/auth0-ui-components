@@ -1,0 +1,20 @@
+{
+  "name": "functional-tests",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "bash scripts/run-tests.sh",
+    "type-check": "tsc --noEmit",
+    "org:setup": "tsx scripts/setup-org.ts",
+    "org:teardown": "tsx scripts/teardown-org.ts",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^22.15.27",
+    "dotenv": "^16.4.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}
