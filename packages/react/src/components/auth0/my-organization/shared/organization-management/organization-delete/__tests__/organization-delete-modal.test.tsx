@@ -7,6 +7,15 @@ import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { OrganizationDeleteModalProps } from '@/types/my-organization/organization-management/organization-delete-types';
 
+const { mockTranslate } = vi.hoisted(() => ({ mockTranslate: vi.fn((key: string) => key) }));
+
+// Keep translations as plain keys, and record what values are passed in.
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({
+    t: Object.assign(mockTranslate, { trans: vi.fn((key: string) => key) }),
+  }),
+}));
+
 const mockOrganization = createMockOrganization();
 
 const renderModal = (overrides: Partial<OrganizationDeleteModalProps> = {}) => {
@@ -84,6 +93,40 @@ describe('OrganizationDeleteModal', () => {
       await user.click(getDeleteButton());
 
       expect(props.onDelete).toHaveBeenCalledTimes(1);
+      expect(props.onClose).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when the organization has a display name', () => {
+    it('uses the name, not the display name, in the title and description', () => {
+      mockTranslate.mockClear();
+      renderModal();
+
+      const { name, display_name: displayName } = mockOrganization;
+      expect(mockTranslate).toHaveBeenCalledWith('modal_title', { organizationName: name });
+      expect(mockTranslate).toHaveBeenCalledWith('modal_description', { organizationName: name });
+      expect(mockTranslate).not.toHaveBeenCalledWith('modal_title', {
+        organizationName: displayName,
+      });
+    });
+  });
+
+  describe('when the user presses Escape', () => {
+    it('closes the dialog', async () => {
+      const user = userEvent.setup();
+      const { props } = renderModal();
+
+      await user.keyboard('{Escape}');
+
+      expect(props.onClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the dialog open while a delete request is in flight', async () => {
+      const user = userEvent.setup();
+      const { props } = renderModal({ isLoading: true });
+
+      await user.keyboard('{Escape}');
+
       expect(props.onClose).not.toHaveBeenCalled();
     });
   });
