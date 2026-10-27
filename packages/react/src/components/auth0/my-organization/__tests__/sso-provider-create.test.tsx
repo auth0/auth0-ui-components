@@ -11,9 +11,13 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { SsoProviderCreate } from '@/components/auth0/my-organization/sso-provider-create';
+import {
+  SsoProviderCreate,
+  SsoProviderCreateView,
+} from '@/components/auth0/my-organization/sso-provider-create';
 import * as useConfigModule from '@/hooks/my-organization/shared/services/use-config-service';
 import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use-idp-config-service';
+import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
@@ -683,6 +687,81 @@ describe('SsoProviderCreate', () => {
             mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create,
           ).toHaveBeenCalled();
         });
+      });
+    });
+  });
+
+  describe('showSignRequest', () => {
+    const goToSamlpConfigureStep = async () => {
+      const user = userEvent.setup();
+
+      await waitForComponentToLoad();
+      const strategyButtons = Array.from(await waitForStrategyButtons());
+      const samlpButton = strategyButtons.find((button) => /saml/i.test(button.textContent ?? ''));
+      await user.click(samlpButton!);
+
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.name\.label/i }),
+        'test-saml-provider',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.display_name\.label/i }),
+        'Test SAML Provider',
+      );
+      await user.click(screen.getByRole('button', { name: /nextbuttonlabel/i }));
+
+      await user.click(
+        await screen.findByRole('button', { name: /fields\.samlp\.advanced_settings\.title/i }),
+      );
+    };
+
+    describe('when not set', () => {
+      it('should show the SAML sign request option', async () => {
+        renderCreate();
+
+        await goToSamlpConfigureStep();
+
+        expect(
+          screen.getByText('fields.samlp.advanced_settings.sign_request.label'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    describe('when false', () => {
+      it('should hide the SAML sign request option and keep request binding', async () => {
+        renderCreate({ showSignRequest: false });
+
+        await goToSamlpConfigureStep();
+
+        expect(
+          screen.queryByText('fields.samlp.advanced_settings.sign_request.label'),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByText('fields.samlp.advanced_settings.request_protocol_binding.label'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    describe('when false on the composable SsoProviderCreateView', () => {
+      it('should hide the SAML sign request option', async () => {
+        const createAction = createMockCreateAction();
+        function ComposedSsoProviderCreate() {
+          const ssoProviderCreate = useSsoProviderCreate({ createAction });
+          return (
+            <SsoProviderCreateView
+              {...ssoProviderCreate}
+              {...ssoProviderCreate.formData}
+              showSignRequest={false}
+            />
+          );
+        }
+        renderWithProviders(<ComposedSsoProviderCreate />, { queryClient });
+
+        await goToSamlpConfigureStep();
+
+        expect(
+          screen.queryByText('fields.samlp.advanced_settings.sign_request.label'),
+        ).not.toBeInTheDocument();
       });
     });
   });

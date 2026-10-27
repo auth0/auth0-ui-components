@@ -35,6 +35,7 @@ import type {
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
+ * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.schema - Zod validation schema
@@ -66,6 +67,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     enableProviderAction,
     connectionNamePrefix,
     resolveSamlMetadata,
+    showSignRequest,
   } = props;
 
   const ssoProviderEdit = useSsoProviderEdit(providerId, {
@@ -103,6 +105,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         enableProviderAction={enableProviderAction}
         connectionNamePrefix={connectionNamePrefix}
         resolveSamlMetadata={resolveSamlMetadata}
+        showSignRequest={showSignRequest}
       />
     </GateKeeper>
   );
@@ -166,6 +169,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     deleteScimToken,
     syncProvisioningAttributes,
     resolveSamlMetadata,
+    showSignRequest,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -274,6 +278,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               isOrganizationBlocked={isOrganizationBlocked}
               connectionNamePrefix={connectionNamePrefix}
               resolveSamlMetadata={resolveSamlMetadata}
+              showSignRequest={showSignRequest}
             />
           </TabsContent>
 
