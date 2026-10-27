@@ -44,7 +44,6 @@ export interface OrganizationCreateProps
     OrganizationCreateClasses,
     OrganizationCreateSchemas
   > {
-  /** Lifecycle hooks for the create operation. */
   createAction?: OrganizationCreateAction;
   /** Back button configuration; hidden when not provided. */
   backButton?: OrganizationEditBackButton;
