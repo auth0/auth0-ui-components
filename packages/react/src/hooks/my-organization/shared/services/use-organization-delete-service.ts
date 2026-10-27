@@ -61,7 +61,8 @@ export function useOrganizationDeleteService({
   });
 
   const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
-  const organizationName = organization.display_name || organization.name;
+  // Messages always use the name, which is also what the user types to confirm the deletion.
+  const organizationName = organization.name;
 
   const deleteMutation = useMutation({
     mutationFn: () => coreClient!.getMyOrganizationApiClient().organizationDetails.delete(),

@@ -10,6 +10,14 @@ import { createQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 
 const { mockedShowToast } = mockToast();
+const { mockTranslate } = vi.hoisted(() => ({ mockTranslate: vi.fn((key: string) => key) }));
+
+// Keep translations as plain keys, and record what values are passed in.
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({
+    t: Object.assign(mockTranslate, { trans: vi.fn((key: string) => key) }),
+  }),
+}));
 const { initMockCoreClient } = mockCore();
 
 const createApiError = (status: number, type?: string) =>
@@ -142,6 +150,34 @@ describe('useOrganizationDeleteService', () => {
       expect(onAfter).toHaveBeenCalledWith(
         expect.objectContaining({ name: mockOrganization.name }),
       );
+    });
+  });
+
+  describe('when the organization has a display name', () => {
+    it('uses the name, not the display name, in the success and refusal messages', async () => {
+      const { result, apiService, mockOrganization } = await renderUseOrganizationDeleteService();
+      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>)
+        .mockRejectedValueOnce(createApiError(403))
+        .mockResolvedValueOnce(undefined);
+      mockTranslate.mockClear();
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      const { name, display_name: displayName } = mockOrganization;
+      expect(mockTranslate).toHaveBeenCalledWith('notifications.not_empty_error', {
+        organizationName: name,
+      });
+      expect(mockTranslate).toHaveBeenCalledWith('notifications.success', {
+        organizationName: name,
+      });
+      expect(mockTranslate).not.toHaveBeenCalledWith('notifications.success', {
+        organizationName: displayName,
+      });
     });
   });
 

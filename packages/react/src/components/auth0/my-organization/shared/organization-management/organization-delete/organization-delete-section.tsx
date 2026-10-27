@@ -49,7 +49,7 @@ export function OrganizationDeleteSection({
         <CardContent className="flex items-start justify-between gap-6 p-0">
           <div className="flex-1 space-y-2">
             <h3 className="font-semibold text-left text-subtitle">
-              {t('title', { organizationName: organization.display_name || organization.name })}
+              {t('title', { organizationName: organization.name })}
             </h3>
             <p className="text-muted-foreground text-left text-paragraph">{t('description')}</p>
           </div>
