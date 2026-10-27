@@ -9,10 +9,8 @@
  */
 export const ORGANIZATION_CREATE_NAME_REGEX = /^(?!org_)[a-z0-9](?:[a-z0-9_-]*[a-z0-9])?$/;
 
-/** Maximum length of a new organization's name (My Account API). */
 export const ORGANIZATION_CREATE_NAME_MAX_LENGTH = 50;
 
-/** Maximum length of a new organization's display name (My Account API). */
 export const ORGANIZATION_CREATE_DISPLAY_NAME_MAX_LENGTH = 255;
 
 /** A new organization's logo must be an `https` URL of at most 1024 characters (My Account API). */
