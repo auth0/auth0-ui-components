@@ -362,6 +362,15 @@
         "conflict_error": "An organization named \"${organizationName}\" already exists. Choose a different name.",
         "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists."
       }
+    },
+    "organization_switcher": {
+      "trigger_placeholder": "Select organization",
+      "trigger_label": "Switch organization, current: ${organizationName}",
+      "menu_label": "Organizations",
+      "error_message": "There was an issue loading your organizations.",
+      "retry_button_text": "Try again",
+      "load_more_button_text": "Load more",
+      "create_button_text": "Create Organization"
     }
   },
   "idp_management": {
