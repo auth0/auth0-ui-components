@@ -71,6 +71,24 @@ describe('OrganizationCreate', () => {
     });
   });
 
+  describe('when only a name is entered', () => {
+    it('creates the organization without a display name', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<OrganizationCreate />);
+
+      await user.type(getNameInput(), 'bulba_leaf');
+      await user.click(getSubmit());
+
+      await waitFor(() => expect(createOrganization).toHaveBeenCalledTimes(1));
+      expect(createOrganization).not.toHaveBeenCalledWith(
+        expect.objectContaining({ display_name: expect.anything() }),
+      );
+      expect(createOrganization).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'bulba_leaf' }),
+      );
+    });
+  });
+
   describe('when the name starts with org_', () => {
     it('shows the name error and does not create', async () => {
       const user = userEvent.setup();
