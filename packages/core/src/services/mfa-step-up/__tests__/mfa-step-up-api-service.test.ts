@@ -39,14 +39,18 @@ describe('initializeMfaStepUpClient', () => {
   });
 
   describe('proxy client - getAuthenticators', () => {
-    it('makes GET request to /auth/mfa/authenticators with mfa_token query param', async () => {
+    it('makes GET request to /auth/mfa/authenticators with Authorization header', async () => {
       const mockFetch = stubFetch(true, []);
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.getAuthenticators(MFA_TOKEN);
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${PROXY_URL}/auth/mfa/authenticators?mfa_token=${MFA_TOKEN}`,
+        `${PROXY_URL}/auth/mfa/authenticators`,
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({ Authorization: `Bearer ${MFA_TOKEN}` }),
+        }),
       );
     });
 
@@ -66,10 +70,10 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.getAuthenticators(MFA_TOKEN)).rejects.toEqual(errorBody);
+      await expect(client.getAuthenticators(MFA_TOKEN)).rejects.toMatchObject({ data: errorBody });
     });
 
-    it('throws { status } when error response JSON parse fails', async () => {
+    it('throws error with status when error response JSON parse fails', async () => {
       vi.stubGlobal(
         'fetch',
         vi.fn().mockResolvedValue({
@@ -81,24 +85,24 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.getAuthenticators(MFA_TOKEN)).rejects.toEqual({ status: 503 });
+      await expect(client.getAuthenticators(MFA_TOKEN)).rejects.toMatchObject({ status: 503 });
     });
   });
 
   describe('proxy client - enroll', () => {
-    it('makes POST request to /auth/mfa/enroll', async () => {
+    it('makes POST request to /auth/mfa/associate', async () => {
       const mockFetch = stubFetch(true, { authenticatorType: 'otp', secret: 'abc' });
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${PROXY_URL}/auth/mfa/enroll`,
+        `${PROXY_URL}/auth/mfa/associate`,
         expect.objectContaining({ method: 'POST' }),
       );
     });
 
-    it('sends Content-Type: application/json header', async () => {
+    it('sends Content-Type and Authorization headers', async () => {
       const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
@@ -107,7 +111,10 @@ describe('initializeMfaStepUpClient', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          headers: { 'Content-Type': 'application/json' },
+          headers: expect.objectContaining({
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${MFA_TOKEN}`,
+          }),
         }),
       );
     });
@@ -119,13 +126,10 @@ describe('initializeMfaStepUpClient', () => {
       await client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' });
 
       const [, init] = mockFetch.mock.calls[0]!;
-      expect(JSON.parse(init.body)).toEqual({
-        mfaToken: MFA_TOKEN,
-        authenticatorTypes: ['otp'],
-      });
+      expect(JSON.parse(init.body)).toEqual({ factor_type: 'otp' });
     });
 
-    it('sends phoneNumber in body for SMS enrollment', async () => {
+    it('sends phone_number in body for SMS enrollment', async () => {
       const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
@@ -133,9 +137,8 @@ describe('initializeMfaStepUpClient', () => {
 
       const [, init] = mockFetch.mock.calls[0]!;
       expect(JSON.parse(init.body)).toEqual({
-        mfaToken: MFA_TOKEN,
-        authenticatorTypes: ['sms'],
-        phoneNumber: '+15551234567',
+        factor_type: 'sms',
+        phone_number: '+15551234567',
       });
     });
 
@@ -147,8 +150,7 @@ describe('initializeMfaStepUpClient', () => {
 
       const [, init] = mockFetch.mock.calls[0]!;
       expect(JSON.parse(init.body)).toEqual({
-        mfaToken: MFA_TOKEN,
-        authenticatorTypes: ['email'],
+        factor_type: 'email',
         email: 'user@example.com',
       });
     });
@@ -161,10 +163,7 @@ describe('initializeMfaStepUpClient', () => {
 
       const [, init] = mockFetch.mock.calls[0]!;
       const body = JSON.parse(init.body);
-      expect(body).toEqual({
-        mfaToken: MFA_TOKEN,
-        authenticatorTypes: ['email'],
-      });
+      expect(body).toEqual({ factor_type: 'email' });
       expect(body).not.toHaveProperty('email');
     });
 
@@ -188,8 +187,8 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' })).rejects.toEqual(
-        errorBody,
+      await expect(client.enroll({ mfaToken: MFA_TOKEN, factorType: 'otp' })).rejects.toMatchObject(
+        { data: errorBody },
       );
     });
   });
@@ -207,7 +206,7 @@ describe('initializeMfaStepUpClient', () => {
       );
     });
 
-    it('sends correct body with mfaToken and challengeType', async () => {
+    it('sends correct body with mfa_token and challenge_type', async () => {
       const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
@@ -215,13 +214,12 @@ describe('initializeMfaStepUpClient', () => {
 
       const [, init] = mockFetch.mock.calls[0]!;
       expect(JSON.parse(init.body)).toEqual({
-        mfaToken: MFA_TOKEN,
-        challengeType: 'oob',
-        authenticatorId: undefined,
+        mfa_token: MFA_TOKEN,
+        challenge_type: 'oob',
       });
     });
 
-    it('includes authenticatorId in body when provided', async () => {
+    it('includes authenticator_id in body when provided', async () => {
       const mockFetch = stubFetch();
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
@@ -233,9 +231,9 @@ describe('initializeMfaStepUpClient', () => {
 
       const [, init] = mockFetch.mock.calls[0]!;
       expect(JSON.parse(init.body)).toEqual({
-        mfaToken: MFA_TOKEN,
-        challengeType: 'oob',
-        authenticatorId: 'auth_123',
+        mfa_token: MFA_TOKEN,
+        challenge_type: 'oob',
+        authenticator_id: 'auth_123',
       });
     });
 
@@ -255,9 +253,9 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.challenge({ mfaToken: MFA_TOKEN, challengeType: 'otp' })).rejects.toEqual(
-        errorBody,
-      );
+      await expect(
+        client.challenge({ mfaToken: MFA_TOKEN, challengeType: 'otp' }),
+      ).rejects.toMatchObject({ data: errorBody });
     });
   });
 
@@ -274,15 +272,14 @@ describe('initializeMfaStepUpClient', () => {
       );
     });
 
-    it('sends the full params as request body', async () => {
+    it('sends snake_case request body', async () => {
       const mockFetch = stubFetch();
 
-      const verifyParams = { mfaToken: MFA_TOKEN, otp: '654321' };
       const client = initializeMfaStepUpClient(PROXY_AUTH);
-      await client.verify(verifyParams);
+      await client.verify({ mfaToken: MFA_TOKEN, otp: '654321' });
 
       const [, init] = mockFetch.mock.calls[0]!;
-      expect(JSON.parse(init.body)).toEqual(verifyParams);
+      expect(JSON.parse(init.body)).toEqual({ mfa_token: MFA_TOKEN, otp: '654321' });
     });
 
     it('returns parsed token response', async () => {
@@ -305,12 +302,12 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.verify({ mfaToken: MFA_TOKEN, otp: '000000' })).rejects.toEqual(
-        errorBody,
-      );
+      await expect(client.verify({ mfaToken: MFA_TOKEN, otp: '000000' })).rejects.toMatchObject({
+        data: errorBody,
+      });
     });
 
-    it('throws { status } when error response JSON parse fails', async () => {
+    it('throws error with status when error response JSON parse fails', async () => {
       vi.stubGlobal(
         'fetch',
         vi.fn().mockResolvedValue({
@@ -322,7 +319,7 @@ describe('initializeMfaStepUpClient', () => {
 
       const client = initializeMfaStepUpClient(PROXY_AUTH);
 
-      await expect(client.verify({ mfaToken: MFA_TOKEN, otp: '123456' })).rejects.toEqual({
+      await expect(client.verify({ mfaToken: MFA_TOKEN, otp: '123456' })).rejects.toMatchObject({
         status: 500,
       });
     });
