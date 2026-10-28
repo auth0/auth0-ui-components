@@ -42,6 +42,7 @@ export interface OrganizationSwitcherProps
   /**
    * Shows a "Create Organization" item at the bottom of the menu that calls this,
    * e.g. to open OrganizationCreate or navigate to a create page. Hidden when not provided.
+   * It also keeps the switcher visible when the user belongs to only one organization.
    */
   onCreateOrganization?: () => void;
   /** Number of organizations loaded per page. Defaults to 10. */

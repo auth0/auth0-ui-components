@@ -145,7 +145,7 @@ describe('OrganizationSwitcher', () => {
     it.each<[string, UserOrganization[]]>([
       ['one', [createMockUserOrganization()]],
       ['none', []],
-    ])('renders nothing with %s organization', async (_label, page) => {
+    ])('renders nothing with %s organization and no create item', async (_label, page) => {
       listOrganizations.mockResolvedValue(createMockUserOrganizationsPage(page));
 
       renderSwitcher();
@@ -166,6 +166,31 @@ describe('OrganizationSwitcher', () => {
       renderSwitcher();
 
       expect(await findTrigger()).toBeInTheDocument();
+    });
+
+    it('still renders with one organization when there is a create item', async () => {
+      const user = userEvent.setup();
+      listOrganizations.mockResolvedValue(
+        createMockUserOrganizationsPage([createMockUserOrganization()]),
+      );
+
+      renderSwitcher({ onCreateOrganization: vi.fn() });
+      await openMenu(user);
+
+      expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'create_button_text' })).toBeInTheDocument();
+    });
+
+    it('shows only the create item when there are no organizations', async () => {
+      const user = userEvent.setup();
+      listOrganizations.mockResolvedValue(createMockUserOrganizationsPage([]));
+
+      renderSwitcher({ onCreateOrganization: vi.fn() });
+      await openMenu(user);
+
+      expect(screen.getByRole('menuitem', { name: 'create_button_text' })).toBeInTheDocument();
+      expect(screen.getAllByRole('menuitem')).toHaveLength(1);
+      expect(screen.queryByRole('separator')).not.toBeInTheDocument();
     });
   });
 

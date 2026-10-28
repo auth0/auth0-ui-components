@@ -116,9 +116,9 @@ function OrganizationSwitcherView({
   // Keep the error state on screen while a retry is in flight, so the control doesn't vanish.
   const hasFailed = isError || isRetrying;
 
-  // Render nothing until the first page loads, and when there is nothing to switch to.
-  const hasSingleOrganization = organizations.length <= 1 && !hasNextPage;
-  if ((isLoading && !isRetrying) || (!hasFailed && hasSingleOrganization)) {
+  // Render nothing until the first page loads, and when there is nothing to switch to or create.
+  const hasNothingToDo = organizations.length <= 1 && !hasNextPage && !onCreateOrganization;
+  if ((isLoading && !isRetrying) || (!hasFailed && hasNothingToDo)) {
     return null;
   }
 
@@ -190,7 +190,7 @@ function OrganizationSwitcherView({
           )}
           {onCreateOrganization && (
             <>
-              <DropdownMenuSeparator />
+              {(hasFailed || organizations.length > 0) && <DropdownMenuSeparator />}
               <DropdownMenuItem onSelect={() => onCreateOrganization()}>
                 <Plus className="mr-2 h-4 w-4" />
                 {t('create_button_text')}
@@ -238,7 +238,8 @@ function TruncatedText({ text }: { text: string }) {
  * Compact control that shows the organization the user is signed in to and lets
  * them pick another organization they belong to (My Account API). Organizations
  * load a page at a time with "Load more". The switcher is hidden while loading and
- * when the user belongs to only one organization.
+ * when there is nothing to switch to or create: a single organization and no
+ * `onCreateOrganization`.
  * Requires the `read:me:organizations` scope on the My Account API token.
  *
  * @param props - {@link OrganizationSwitcherProps}
