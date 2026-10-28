@@ -59,7 +59,12 @@ export function useOrganizationCreateService({
       // Refresh every organization list (table pages and the switcher).
       await queryClient.invalidateQueries({ queryKey: userOrganizationQueryKeys.all });
 
-      await createAction?.onAfter?.(values, created);
+      try {
+        await createAction?.onAfter?.(values, created);
+      } catch (error) {
+        // The organization is already created, so a failing callback must not turn that into a failure.
+        console.error('OrganizationCreate: createAction.onAfter failed', error);
+      }
     },
     onError: (error, values) => {
       if (getStatusCode(error) === 409) {
