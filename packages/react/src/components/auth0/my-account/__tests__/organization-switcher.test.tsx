@@ -248,6 +248,35 @@ describe('OrganizationSwitcher', () => {
     });
   });
 
+  describe('when loading more fails', () => {
+    it('keeps the loaded organizations and retries the next page', async () => {
+      const user = userEvent.setup();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockRejectedValueOnce(new Error('Network error'))
+        .mockResolvedValueOnce(
+          createMockUserOrganizationsPage([
+            createMockUserOrganization({ id: 'org_xyz', name: 'initech', display_name: 'Initech' }),
+          ]),
+        );
+      renderSwitcher();
+
+      await openMenu(user);
+      await user.click(await screen.findByRole('menuitem', { name: 'load_more_button_text' }));
+
+      expect(await screen.findByText('error_message')).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('menuitem', { name: 'retry_button_text' }));
+
+      expect(await screen.findByRole('menuitem', { name: 'Initech' })).toBeInTheDocument();
+      expect(screen.queryByText('error_message')).not.toBeInTheDocument();
+      expect(listOrganizations).toHaveBeenLastCalledWith(
+        expect.objectContaining({ from: 'next_token' }),
+      );
+    });
+  });
+
   describe('when loading fails', () => {
     it('shows the error and retries', async () => {
       const user = userEvent.setup();

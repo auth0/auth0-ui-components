@@ -114,7 +114,10 @@ function OrganizationSwitcherView({
   };
 
   // Keep the error state on screen while a retry is in flight, so the control doesn't vanish.
-  const hasFailed = isError || isRetrying;
+  const hasFailed = (isError && organizations.length === 0) || isRetrying;
+
+  // A failed "Load more" keeps the organizations already loaded and offers a retry in its place.
+  const loadMoreFailed = isError && organizations.length > 0;
 
   // Render nothing until the first page loads, and when there is nothing to switch to or create.
   const hasNothingToDo = organizations.length <= 1 && !hasNextPage && !onCreateOrganization;
@@ -181,10 +184,20 @@ function OrganizationSwitcherView({
                 );
               })}
               {hasNextPage && (
-                <DropdownMenuItem disabled={isFetchingNextPage} onSelect={keepOpen(fetchNextPage)}>
-                  {isFetchingNextPage && <Spinner size="sm" className="mr-2" />}
-                  {t('load_more_button_text')}
-                </DropdownMenuItem>
+                <>
+                  {loadMoreFailed && (
+                    <p className="px-2 py-1.5 text-sm text-destructive-foreground">
+                      {t('error_message')}
+                    </p>
+                  )}
+                  <DropdownMenuItem
+                    disabled={isFetchingNextPage}
+                    onSelect={keepOpen(fetchNextPage)}
+                  >
+                    {isFetchingNextPage && <Spinner size="sm" className="mr-2" />}
+                    {loadMoreFailed ? t('retry_button_text') : t('load_more_button_text')}
+                  </DropdownMenuItem>
+                </>
               )}
             </div>
           )}
