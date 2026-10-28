@@ -34,6 +34,7 @@ export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-fa
 export * from './i18n/custom-messages/my-account/user-passkey-management/user-passkey-management-types';
 export * from './i18n/custom-messages/my-account/organization-management/organization-table-types';
 export * from './i18n/custom-messages/my-account/organization-management/organization-create-types';
+export * from './i18n/custom-messages/my-account/organization-management/organization-switcher-types';
 
 // i18n custom messages - my-organization idp-management
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';

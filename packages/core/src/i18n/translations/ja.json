@@ -349,6 +349,15 @@
         "conflict_error": "「${organizationName}」という名前の組織はすでに存在します。別の名前を選択してください。",
         "general_error": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
       }
+    },
+    "organization_switcher": {
+      "trigger_placeholder": "組織を選択",
+      "trigger_label": "組織を切り替え、現在の組織: ${organizationName}",
+      "menu_label": "組織",
+      "error_message": "組織の読み込み中に問題が発生しました。",
+      "retry_button_text": "再試行",
+      "load_more_button_text": "さらに表示",
+      "create_button_text": "組織を作成"
     }
   },
   "idp_management": {

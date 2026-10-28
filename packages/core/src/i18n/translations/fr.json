@@ -296,6 +296,15 @@
         "conflict_error": "Une organisation nommée « ${organizationName} » existe déjà. Choisissez un autre nom.",
         "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste."
       }
+    },
+    "organization_switcher": {
+      "trigger_placeholder": "Sélectionner une organisation",
+      "trigger_label": "Changer d'organisation, actuelle : ${organizationName}",
+      "menu_label": "Organisations",
+      "error_message": "Un problème est survenu lors du chargement de vos organisations.",
+      "retry_button_text": "Réessayer",
+      "load_more_button_text": "Afficher plus",
+      "create_button_text": "Créer une organisation"
     }
   },
   "idp_management": {
