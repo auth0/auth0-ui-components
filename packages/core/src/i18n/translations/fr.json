@@ -270,6 +270,32 @@
           "delete_button_text": "Supprimer"
         }
       }
+    },
+    "organization_create": {
+      "header": {
+        "title": "Créer une organisation",
+        "back_button_text": "Retour aux organisations"
+      },
+      "details": {
+        "submit_button_label": "Créer une organisation",
+        "sections": {
+          "settings": {
+            "fields": {
+              "name": {
+                "placeholder": "Saisissez un identifiant lisible pour cette organisation"
+              },
+              "display_name": {
+                "placeholder": "Saisissez un nom convivial pour cette organisation"
+              }
+            }
+          }
+        }
+      },
+      "notifications": {
+        "success": "${organizationName} a été créée.",
+        "conflict_error": "Une organisation nommée « ${organizationName} » existe déjà. Choisissez un autre nom.",
+        "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste."
+      }
     }
   },
   "idp_management": {

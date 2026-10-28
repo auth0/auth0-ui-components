@@ -323,6 +323,32 @@
           "delete_button_text": "削除"
         }
       }
+    },
+    "organization_create": {
+      "header": {
+        "title": "組織を作成",
+        "back_button_text": "組織一覧に戻る"
+      },
+      "details": {
+        "submit_button_label": "組織を作成",
+        "sections": {
+          "settings": {
+            "fields": {
+              "name": {
+                "placeholder": "この組織の識別子を入力してください"
+              },
+              "display_name": {
+                "placeholder": "この組織のわかりやすい名前を入力してください"
+              }
+            }
+          }
+        }
+      },
+      "notifications": {
+        "success": "${organizationName}を作成しました。",
+        "conflict_error": "「${organizationName}」という名前の組織はすでに存在します。別の名前を選択してください。",
+        "general_error": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+      }
     }
   },
   "idp_management": {

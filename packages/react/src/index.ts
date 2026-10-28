@@ -16,6 +16,10 @@ export {
   OrganizationTableView,
 } from './components/auth0/my-account/organization-table';
 export {
+  OrganizationCreate,
+  OrganizationCreateView,
+} from './components/auth0/my-account/organization-create';
+export {
   SsoProviderEdit,
   SsoProviderEditView,
 } from './components/auth0/my-organization/sso-provider-edit';
@@ -56,6 +60,7 @@ export { usePermissions } from './hooks/shared/use-permissions';
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
 export { useUserPasskey } from './hooks/my-account/use-user-passkey';
 export { useOrganizationTable } from './hooks/my-account/use-organization-table';
+export { useOrganizationCreate } from './hooks/my-account/use-organization-create';
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
@@ -79,6 +84,7 @@ export * from './types/auth-types';
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';
 export * from './types/my-account/user-passkey-management/user-passkey-management-types';
 export * from './types/my-account/organization-management/organization-table-types';
+export * from './types/my-account/organization-management/organization-create-types';
 
 // My Organization types
 export * from './types/my-organization/config/config-types';

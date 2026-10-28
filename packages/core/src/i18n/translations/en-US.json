@@ -336,6 +336,32 @@
           "delete_button_text": "Delete"
         }
       }
+    },
+    "organization_create": {
+      "header": {
+        "title": "Create an Organization",
+        "back_button_text": "Back to Organizations"
+      },
+      "details": {
+        "submit_button_label": "Create Organization",
+        "sections": {
+          "settings": {
+            "fields": {
+              "name": {
+                "placeholder": "Enter a human-readable identifier for this organization"
+              },
+              "display_name": {
+                "placeholder": "Enter a friendly name for this organization"
+              }
+            }
+          }
+        }
+      },
+      "notifications": {
+        "success": "${organizationName} has been created.",
+        "conflict_error": "An organization named \"${organizationName}\" already exists. Choose a different name.",
+        "general_error": "There was an issue processing your request. Please try again or contact support if the issue persists."
+      }
     }
   },
   "idp_management": {
