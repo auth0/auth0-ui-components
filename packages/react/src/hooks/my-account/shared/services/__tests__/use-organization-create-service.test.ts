@@ -43,6 +43,24 @@ describe('useOrganizationCreateService', () => {
     return { ...renderHook(() => useOrganizationCreateService(options), { wrapper }), queryClient };
   };
 
+  describe('when createAction.onAfter fails', () => {
+    it('still reports success and shows no error', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onAfter = vi.fn().mockRejectedValue(new Error('navigation failed'));
+      const { result } = render({ createAction: { onAfter } });
+
+      let success: boolean | undefined;
+      await act(async () => {
+        success = await result.current.createOrganization(values);
+      });
+
+      expect(success).toBe(true);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      consoleError.mockRestore();
+    });
+  });
+
   describe('when creation succeeds', () => {
     it('sends the mapped payload and resolves to true', async () => {
       const { result } = render();

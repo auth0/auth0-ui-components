@@ -108,6 +108,7 @@ function OrganizationCreateView({
         ...schema?.details?.name,
       },
       displayName: {
+        required: false,
         maxLength: ORGANIZATION_CREATE_DISPLAY_NAME_MAX_LENGTH,
         ...schema?.details?.displayName,
       },
