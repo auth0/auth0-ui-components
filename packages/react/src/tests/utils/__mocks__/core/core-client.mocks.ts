@@ -9,6 +9,10 @@ import {
 } from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import {
+  createMockIdpInstructions,
+  createMockIdpProvisioningInstructions,
+} from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
+import {
   createMockInvitation,
   createMockListUserStoresResponse,
   createMockRoles,
@@ -120,6 +124,16 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
               },
             },
           }),
+        },
+        identityProviderInstructions: {
+          get: vi.fn().mockImplementation(async (strategy) => createMockIdpInstructions(strategy)),
+        },
+        identityProviderProvisioningInstructions: {
+          get: vi
+            .fn()
+            .mockImplementation(async (strategy) =>
+              createMockIdpProvisioningInstructions(strategy),
+            ),
         },
       },
       members: {
