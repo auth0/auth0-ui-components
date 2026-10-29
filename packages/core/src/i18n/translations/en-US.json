@@ -797,6 +797,9 @@
                 "token_item": {
                   "token_prefix": "Token",
                   "never_expire": "This token will never expire.",
+                  "expires_on": "Expires: ${date}",
+                  "scopes": "Scopes: ${scopes}",
+                  "created_at": "Created: ${date}",
                   "last_used": "Last used: Never",
                   "status_active": "Active",
                   "status_expired": "Expired",
@@ -805,6 +808,37 @@
                 "create_modal": {
                   "title": "Bearer Token Information",
                   "copy_and_close_button_label": "Copy and Close",
+                  "next_button_label": "Next",
+                  "steps": {
+                    "configure": "Configure Token",
+                    "review": "Review & Copy"
+                  },
+                  "fields": {
+                    "no_expiration": {
+                      "label": "No expiration date",
+                      "helper_text": "This token will not expire."
+                    },
+                    "token_lifetime": {
+                      "label": "Time to Live",
+                      "suffix": "seconds",
+                      "helper_default": "Default: ${seconds} seconds per your Connection Profile.",
+                      "helper_max": "Maximum allowed: ${seconds} seconds.",
+                      "helper_min": "Minimum: ${seconds} seconds.",
+                      "errors": {
+                        "required": "Enter a token lifetime.",
+                        "integer": "Enter a whole number of seconds.",
+                        "min": "Enter ${seconds} seconds or more.",
+                        "max": "Enter ${seconds} seconds or less."
+                      }
+                    },
+                    "scopes": {
+                      "label": "Select Permission (Scope)",
+                      "helper_text": "Scopes define the access for Bearer Tokens.",
+                      "errors": {
+                        "required": "Select at least one scope."
+                      }
+                    }
+                  },
                   "content": {
                     "description": "Copy the bearer token to provide your identity provider. It will not be displayed again upon closing this dialog.",
                     "field": {

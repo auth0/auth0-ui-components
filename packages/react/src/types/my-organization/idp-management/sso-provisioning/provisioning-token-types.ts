@@ -5,9 +5,13 @@
 
 import type {
   SharedComponentProps,
+  ProvisioningCreateTokenFormMessages,
   ProvisioningCreateTokenModalContentMessages,
   ProvisioningDeleteTokenModalContentMessages,
+  ProvisioningCreateTokenFormValues,
+  ProvisioningCreateTokenFormRules,
 } from '@auth0/universal-components-core';
+import type { UseFormReturn } from 'react-hook-form';
 
 /** CSS classes for provisioning token components. */
 export interface ProvisioningTokenClasses {
@@ -34,4 +38,11 @@ export interface ProvisioningDeleteTokenModalContentProps
   > {
   className?: string;
   tokenId?: string;
+}
+
+/** Props for ProvisioningCreateTokenForm. */
+export interface ProvisioningCreateTokenFormProps {
+  form: UseFormReturn<ProvisioningCreateTokenFormValues>;
+  rules: ProvisioningCreateTokenFormRules;
+  customMessages?: Partial<ProvisioningCreateTokenFormMessages>;
 }
