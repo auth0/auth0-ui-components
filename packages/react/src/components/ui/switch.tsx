@@ -16,7 +16,7 @@ function Switch({ className, ...props }: React.ComponentProps<typeof SwitchPrimi
     <SwitchPrimitive.Root
       data-slot="switch"
       className={cn(
-        'theme-default:shadow-switch-resting data-[state=checked]:from-primary-foreground/0 data-[state=checked]:to-primary-foreground/25 from-primary-foreground/50 to-primary-foreground/0 [&]:bg-accent/50 hover:bg-accent/75 data-[state=checked]:hover:bg-primary theme-default:hover:shadow-switch-hover data-[state=checked]:bg-primary focus-visible:ring-ring focus-within:ring-ring relative h-7 w-[46px] rounded-full bg-gradient-to-l transition-all duration-150 ease-in-out focus-visible:ring-4 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50',
+        'theme-default:shadow-switch-resting [&]:bg-accent/25 hover:bg-accent/50 data-[state=checked]:hover:bg-primary theme-default:hover:shadow-switch-hover data-[state=checked]:bg-primary focus-visible:ring-ring focus-within:ring-ring relative h-7 w-[46px] rounded-full transition-all duration-150 ease-in-out focus-visible:ring-4 disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}
