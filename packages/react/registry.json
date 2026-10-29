@@ -17,7 +17,6 @@
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-label@2.1.7",
         "@radix-ui/react-slot@1.2.3",
-        "@radix-ui/react-switch@1.1.0",
         "@radix-ui/react-tooltip@1.2.7",
         "class-variance-authority@0.7.1",
         "clsx@2.1.1",
@@ -74,6 +73,11 @@
           "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx"
         },
         {
+          "path": "src/components/auth0/shared/compound-header.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/compound-header.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/copyable-text-field.tsx"
@@ -82,11 +86,6 @@
           "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
-        },
-        {
-          "path": "src/components/auth0/shared/header.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/header.tsx"
         },
         {
           "path": "src/components/auth0/shared/sonner.tsx",
@@ -167,11 +166,6 @@
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "components/ui/spinner.tsx"
-        },
-        {
-          "path": "src/components/ui/switch.tsx",
-          "type": "registry:component",
-          "target": "components/ui/switch.tsx"
         },
         {
           "path": "src/components/ui/text-field.tsx",
@@ -279,6 +273,11 @@
           "target": "types/cache-types.ts"
         },
         {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
+        },
+        {
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
@@ -322,6 +321,16 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/composability/create-compound-context.tsx",
+          "type": "registry:component",
+          "target": "lib/composability/create-compound-context.tsx"
+        },
+        {
+          "path": "src/lib/composability/use-render.tsx",
+          "type": "registry:component",
+          "target": "lib/composability/use-render.tsx"
         },
         {
           "path": "src/lib/constants/form-constants.ts",
@@ -588,6 +597,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
@@ -960,6 +974,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
@@ -1349,6 +1368,11 @@
           "target": "types/cache-types.ts"
         },
         {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
+        },
+        {
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
@@ -1716,6 +1740,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
@@ -2167,6 +2196,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
@@ -2648,6 +2682,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
@@ -3325,6 +3364,11 @@
           "target": "types/cache-types.ts"
         },
         {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
+        },
+        {
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
@@ -3756,6 +3800,11 @@
           "path": "src/types/cache-types.ts",
           "type": "registry:component",
           "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/composability-types.ts",
+          "type": "registry:component",
+          "target": "types/composability-types.ts"
         },
         {
           "path": "src/types/i18n-types.ts",
