@@ -73,6 +73,7 @@ export * from './types/auth-types';
 // My Account types
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';
 export * from './types/my-account/user-passkey-management/user-passkey-management-types';
+export * from './types/composability-types';
 
 // My Organization types
 export * from './types/my-organization/config/config-types';
