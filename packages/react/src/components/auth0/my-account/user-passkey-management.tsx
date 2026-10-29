@@ -1,12 +1,24 @@
-/** @module user-passkey-management */
+/**
+ * Passkey management component.
+ *
+ * Displays enrolled passkeys with options to add and revoke, as a default component,
+ * compound parts and a headless model.
+ * @module user-passkey-management
+ */
 
 import { getComponentStyles } from '@auth0/universal-components-core';
 import { MoreVertical, Trash2, UserRoundKey } from 'lucide-react';
 import * as React from 'react';
 
 import { PasskeyActionModal } from '@/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal';
+import {
+  CompoundHeader,
+  CompoundHeaderActions,
+  CompoundHeaderContent,
+  CompoundHeaderDescription,
+  CompoundHeaderTitle,
+} from '@/components/auth0/shared/compound-header';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
-import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,234 +38,662 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Spinner } from '@/components/ui/spinner';
-import { useUserPasskey } from '@/hooks/my-account/use-user-passkey';
+import { createUserPasskeyModel, useUserPasskeyModel } from '@/hooks/my-account/use-user-passkey';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { createCompoundContext } from '@/lib/composability/create-compound-context';
+import { getButtonContract, useRender } from '@/lib/composability/use-render';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type {
-  UserPasskeyManagementViewProps,
+  Passkey,
+  UserPasskeyItemContextValue,
+  UserPasskeyManagementActionProps,
+  UserPasskeyManagementContextValue,
+  UserPasskeyManagementDefaultLayoutProps,
+  UserPasskeyManagementHeaderActionsProps,
+  UserPasskeyManagementHeaderProps,
+  UserPasskeyManagementListProps,
+  UserPasskeyManagementPartProps,
   UserPasskeyManagementProps,
+  UserPasskeyManagementRootProps,
+  UserPasskeyManagementViewProps,
+  UserPasskeyModel,
 } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
 
+const COMPONENT = 'UserPasskeyManagement';
+
+const DEFAULT_STYLING: NonNullable<UserPasskeyManagementProps['styling']> = {
+  variables: { common: {}, light: {}, dark: {} },
+  classes: {},
+};
+
+const [PasskeyProvider, usePasskeyContext] =
+  createCompoundContext<UserPasskeyManagementContextValue>(COMPONENT);
+
+const [PasskeyItemProvider, usePasskeyItemContext] =
+  createCompoundContext<UserPasskeyItemContextValue>(COMPONENT, 'Item');
+
 /**
- * Passkey management component.
- * @param props - Component props
- * @param props.customMessages - Custom translation messages to override defaults
- * @param props.styling - Custom styling configuration with variables and classes
- * @param props.hideHeader - Whether to hide the header
- * @param props.addAction - Configuration for the add passkey action
- * @param props.revokeAction - Configuration for the revoke passkey action
- * @param props.onFetch - Callback after passkeys are loaded
- * @returns JSX element
- * @internal
+ * Reads the passkey management context. Use it in host components rendered
+ * inside `UserPasskeyManagement.Root`.
+ * @returns The context value, see {@link UserPasskeyManagementContextValue}.
  */
-function UserPasskeyManagement(props: UserPasskeyManagementProps) {
-  useTelemetry('user-passkey-management');
-  const {
-    customMessages = {},
-    styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-    hideHeader = false,
-    addAction,
-    revokeAction,
-    onFetch,
-  } = props;
-
-  const {
-    passkeys,
-    isLoading,
-    isEnrolling,
-    isRevoking,
-    disableAdd,
-    disableRevoke,
-    isRevokeModalOpen,
-    currentPasskey,
-    setIsRevokeModalOpen,
-    handleAddPasskey,
-    handleRevokePasskey,
-    handleConfirmRevoke,
-  } = useUserPasskey({
-    customMessages,
-    addAction,
-    revokeAction,
-    onFetch,
-  });
-
-  return (
-    <GateKeeper isLoading={isLoading} styling={styling}>
-      <UserPasskeyManagementView
-        passkeys={passkeys}
-        isEnrolling={isEnrolling}
-        isRevoking={isRevoking}
-        styling={styling}
-        customMessages={customMessages}
-        hideHeader={hideHeader}
-        disableAdd={disableAdd}
-        disableRevoke={disableRevoke}
-        isRevokeModalOpen={isRevokeModalOpen}
-        currentPasskey={currentPasskey}
-        handleAddPasskey={handleAddPasskey}
-        handleRevokePasskey={handleRevokePasskey}
-        handleConfirmRevoke={handleConfirmRevoke}
-        setIsRevokeModalOpen={setIsRevokeModalOpen}
-      />
-    </GateKeeper>
-  );
+function useUserPasskeyManagementContext(): UserPasskeyManagementContextValue {
+  return usePasskeyContext('useUserPasskeyManagementContext');
 }
 
 /**
- * UserPasskeyManagementView — presentational component.
- * @internal
- * @param props - {@link UserPasskeyManagementViewProps}
- * @returns View component
+ * Reads the current row inside `UserPasskeyManagement.Item`.
+ * @returns The row context, see {@link UserPasskeyItemContextValue}.
  */
-function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
-  const {
-    passkeys,
-    isEnrolling,
-    isRevoking,
-    styling,
-    customMessages,
-    hideHeader,
-    disableAdd,
-    disableRevoke,
-    isRevokeModalOpen,
-    currentPasskey,
-    handleAddPasskey,
-    handleRevokePasskey,
-    handleConfirmRevoke,
-    setIsRevokeModalOpen,
-  } = props;
+function useUserPasskeyItemContext(): UserPasskeyItemContextValue {
+  return usePasskeyItemContext('useUserPasskeyItemContext');
+}
 
+interface PasskeyScopeProps {
+  model: UserPasskeyModel;
+  customMessages: UserPasskeyManagementProps['customMessages'];
+  styling: UserPasskeyManagementProps['styling'];
+  hideHeader: boolean;
+  children: React.ReactNode;
+}
+
+/**
+ * Provides the context, the style scope and the revoke dialog. Shared by `Root`,
+ * which builds the model from the API, and `View`, which builds it from props.
+ * @param props - {@link PasskeyScopeProps}
+ * @returns Scoped children and the revoke dialog.
+ * @internal
+ */
+function PasskeyScope({
+  model,
+  customMessages = {},
+  styling = DEFAULT_STYLING,
+  hideHeader,
+  children,
+}: PasskeyScopeProps) {
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('passkey', customMessages);
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const hasPasskeys = passkeys.length > 0;
+  const value = React.useMemo<UserPasskeyManagementContextValue>(
+    () => ({
+      model,
+      customMessages,
+      styling,
+      classes: currentStyles.classes ?? {},
+      hideHeader,
+    }),
+    [model, customMessages, styling, currentStyles.classes, hideHeader],
+  );
 
   return (
-    <StyledScope style={currentStyles.variables}>
-      {!hideHeader && <Header title={t('header.title')} description={t('header.description')} />}
+    <PasskeyProvider value={value}>
+      <StyledScope style={currentStyles.variables}>
+        {children}
+        <PasskeyActionModal
+          open={model.isRevokeModalOpen}
+          onOpenChange={model.setIsRevokeModalOpen}
+          isPending={model.isRevoking}
+          onConfirm={model.handleConfirmRevoke}
+          name={model.currentPasskey?.name}
+          styling={styling}
+          customMessages={customMessages?.modals?.revoke}
+        />
+      </StyledScope>
+    </PasskeyProvider>
+  );
+}
 
-      <Card className={cn(currentStyles.classes?.['UserPasskeyManagement-root'])}>
-        <CardHeader>
-          <CardTitle className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="text-body font-semibold text-card-foreground">
-              {t('section_title')}
-            </span>
-            {hasPasskeys && (
-              <Badge variant="success" size="sm" className="shrink-0" aria-label={t('enabled')}>
-                {t('enabled')}
-              </Badge>
-            )}
-          </CardTitle>
-          {!hasPasskeys && <CardDescription>{t('no_passkeys')}</CardDescription>}
-          {!disableAdd && (
-            <CardAction>
-              <Button
-                size="default"
-                variant="outline"
-                className="text-sm w-full sm:w-auto shrink-0"
-                onClick={handleAddPasskey}
-                disabled={isEnrolling}
-                aria-busy={isEnrolling}
-                aria-label={t('add_passkey')}
-              >
-                {isEnrolling ? (
-                  <Spinner size="sm" colorScheme="primary" aria-hidden="true" />
-                ) : (
-                  t('add_passkey')
-                )}
-              </Button>
-            </CardAction>
-          )}
-        </CardHeader>
+/**
+ * Owns data, state and the revoke dialog for every composition level. Error and
+ * MFA step-up states replace the children; loading is shown by the data parts
+ * (`Section`, `List`), so host content inside `Root` stays visible.
+ *
+ * @param props - {@link UserPasskeyManagementRootProps}
+ * @returns Root element.
+ */
+function Root({
+  children,
+  customMessages = {},
+  styling = DEFAULT_STYLING,
+  hideHeader = false,
+  addAction,
+  revokeAction,
+  onFetch,
+}: UserPasskeyManagementRootProps) {
+  useTelemetry('user-passkey-management');
+  const model = useUserPasskeyModel({ customMessages, addAction, revokeAction, onFetch });
 
-        {hasPasskeys && (
-          <CardContent className="space-y-2">
-            {passkeys.map((passkey) => (
-              <Card
-                key={passkey.id}
-                className={cn(currentStyles.classes?.['UserPasskeyManagement-item'])}
-              >
-                <CardHeader className="flex flex-row items-center gap-3">
-                  <UserRoundKey
-                    className="h-4 w-4 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <div className="flex flex-col gap-0.5 flex-1 min-w-0">
-                    <CardTitle className="text-body font-semibold text-card-foreground">
-                      {passkey.name}
-                    </CardTitle>
-                    {(passkey.deviceInfo || passkey.createdAt || passkey.lastUsedAt) && (
-                      <CardDescription className="flex flex-wrap items-center gap-x-1.5">
-                        {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
-                        {passkey.createdAt && (
-                          <>
-                            {passkey.deviceInfo && <span aria-hidden="true">•</span>}
-                            <span>
-                              {t('created_at', {
-                                date: new Date(passkey.createdAt).toLocaleDateString(),
-                              })}
-                            </span>
-                          </>
-                        )}
-                        {passkey.lastUsedAt && (
-                          <>
-                            {(passkey.deviceInfo || passkey.createdAt) && (
-                              <span aria-hidden="true">•</span>
-                            )}
-                            <span>
-                              {t('last_used', {
-                                date: new Date(passkey.lastUsedAt).toLocaleDateString(),
-                              })}
-                            </span>
-                          </>
-                        )}
-                      </CardDescription>
-                    )}
-                  </div>
-                  {!disableRevoke && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        aria-label={passkey.name}
-                        className="h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0"
-                      >
-                        <MoreVertical className="h-4 w-4 text-primary-foreground" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuPortal>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleRevokePasskey(passkey)}
-                            className="text-destructive-foreground focus:text-destructive-foreground"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            {t('actions.revoke')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenuPortal>
-                    </DropdownMenu>
-                  )}
-                </CardHeader>
-              </Card>
-            ))}
-          </CardContent>
-        )}
-      </Card>
-
-      <PasskeyActionModal
-        open={isRevokeModalOpen}
-        onOpenChange={setIsRevokeModalOpen}
-        isPending={isRevoking}
-        onConfirm={handleConfirmRevoke}
-        name={currentPasskey?.name}
+  return (
+    <GateKeeper styling={styling}>
+      <PasskeyScope
+        model={model}
+        customMessages={customMessages}
         styling={styling}
-        customMessages={customMessages?.modals?.revoke}
-      />
-    </StyledScope>
+        hideHeader={hideHeader}
+      >
+        {children}
+      </PasskeyScope>
+    </GateKeeper>
+  );
+}
+
+/**
+ * The pre-composed layout used by `<UserPasskeyManagement />`.
+ * @param props - {@link UserPasskeyManagementDefaultLayoutProps}
+ * @returns Default layout.
+ */
+function DefaultLayout({ addAction, renderItem }: UserPasskeyManagementDefaultLayoutProps) {
+  const { hideHeader } = usePasskeyContext('DefaultLayout');
+
+  return (
+    <>
+      {!hideHeader && <Header />}
+      <Section>
+        <SectionHeader>
+          <SectionTitle />
+          <EmptyState />
+          <SectionActions>{addAction ?? <AddAction />}</SectionActions>
+        </SectionHeader>
+        <List>{renderItem}</List>
+      </Section>
+    </>
+  );
+}
+
+/**
+ * Page header. Defaults to the translated title and description.
+ * @param props - {@link UserPasskeyManagementHeaderProps}
+ * @returns Header element.
+ */
+function Header({ children, align, className }: UserPasskeyManagementHeaderProps) {
+  const { customMessages } = usePasskeyContext('Header');
+  const { t } = useTranslator('passkey', customMessages);
+
+  return (
+    <CompoundHeader label={t('header.title')} className={className}>
+      {children ?? (
+        <CompoundHeaderContent align={align}>
+          <Title />
+          <Description />
+        </CompoundHeaderContent>
+      )}
+    </CompoundHeader>
+  );
+}
+
+/**
+ * Wraps `Title` and `Description` inside a custom `Header`.
+ * @param props - Content props.
+ * @returns Header content element.
+ */
+function HeaderContent(props: UserPasskeyManagementHeaderProps) {
+  usePasskeyContext('HeaderContent');
+  return <CompoundHeaderContent {...props} />;
+}
+
+/**
+ * Page title. Children replace the translated text.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Title element.
+ */
+function Title({ children, className }: UserPasskeyManagementPartProps) {
+  const { customMessages } = usePasskeyContext('Title');
+  const { t } = useTranslator('passkey', customMessages);
+  return (
+    <CompoundHeaderTitle className={className}>{children ?? t('header.title')}</CompoundHeaderTitle>
+  );
+}
+
+/**
+ * Page description. Children replace the translated text.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Description element.
+ */
+function Description({ children, className }: UserPasskeyManagementPartProps) {
+  const { customMessages } = usePasskeyContext('Description');
+  const { t } = useTranslator('passkey', customMessages);
+  return (
+    <CompoundHeaderDescription className={className}>
+      {children ?? t('header.description')}
+    </CompoundHeaderDescription>
+  );
+}
+
+/**
+ * Action region of a custom `Header`.
+ * @param props - {@link UserPasskeyManagementHeaderActionsProps}
+ * @returns Header actions element.
+ */
+function HeaderActions(props: UserPasskeyManagementHeaderActionsProps) {
+  usePasskeyContext('HeaderActions');
+  return <CompoundHeaderActions {...props} />;
+}
+
+/**
+ * The passkeys card. Shows a spinner instead of its content while loading.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Section element.
+ */
+function Section({ children, className }: UserPasskeyManagementPartProps) {
+  const { model, classes } = usePasskeyContext('Section');
+
+  return (
+    <Card
+      className={cn(classes['UserPasskeyManagement-root'], className)}
+      aria-busy={model.isLoading || undefined}
+    >
+      {model.isLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <Spinner />
+        </div>
+      ) : (
+        (children ?? (
+          <>
+            <SectionHeader />
+            <List />
+          </>
+        ))
+      )}
+    </Card>
+  );
+}
+
+/**
+ * Header of the passkeys card. Defaults to title, empty state and add action.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Section header element.
+ */
+function SectionHeader({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyContext('SectionHeader');
+
+  return (
+    <CardHeader className={className}>
+      {children ?? (
+        <>
+          <SectionTitle />
+          <EmptyState />
+          <SectionActions>
+            <AddAction />
+          </SectionActions>
+        </>
+      )}
+    </CardHeader>
+  );
+}
+
+/**
+ * Title of the passkeys card. Defaults to the translated title and status badge.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Section title element.
+ */
+function SectionTitle({ children, className }: UserPasskeyManagementPartProps) {
+  const { customMessages } = usePasskeyContext('SectionTitle');
+  const { t } = useTranslator('passkey', customMessages);
+
+  return (
+    <CardTitle className={cn('flex flex-wrap items-center gap-2 sm:gap-3', className)}>
+      {children ?? (
+        <>
+          <span className="text-body font-semibold text-card-foreground">{t('section_title')}</span>
+          <StatusBadge />
+        </>
+      )}
+    </CardTitle>
+  );
+}
+
+/**
+ * "Enabled" badge, shown when at least one passkey exists.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Badge element or null.
+ */
+function StatusBadge({ children, className }: UserPasskeyManagementPartProps) {
+  const { model, customMessages } = usePasskeyContext('StatusBadge');
+  const { t } = useTranslator('passkey', customMessages);
+  if (model.isLoading || !model.hasPasskeys) return null;
+
+  return (
+    <Badge
+      variant="success"
+      size="sm"
+      className={cn('shrink-0', className)}
+      aria-label={t('enabled')}
+    >
+      {children ?? t('enabled')}
+    </Badge>
+  );
+}
+
+/**
+ * Message shown when there are no passkeys.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Description element or null.
+ */
+function EmptyState({ children, className }: UserPasskeyManagementPartProps) {
+  const { model, customMessages } = usePasskeyContext('EmptyState');
+  const { t } = useTranslator('passkey', customMessages);
+  if (model.isLoading || model.hasPasskeys) return null;
+
+  return <CardDescription className={className}>{children ?? t('no_passkeys')}</CardDescription>;
+}
+
+/**
+ * Action region of the passkeys card header.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Card action element.
+ */
+function SectionActions({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyContext('SectionActions');
+  return <CardAction className={className}>{children}</CardAction>;
+}
+
+/**
+ * Starts passkey enrollment. Hidden when `addAction.disabled` is set.
+ * Use `render` to replace the button while keeping the behaviour.
+ *
+ * @param props - {@link UserPasskeyManagementActionProps}
+ * @returns Add action element or null.
+ */
+const AddAction = React.forwardRef<HTMLButtonElement, UserPasskeyManagementActionProps>(
+  function AddAction({ render, children, className }, ref) {
+    const { model, customMessages } = usePasskeyContext('AddAction');
+    const { t } = useTranslator('passkey', customMessages);
+    const action = model.getAddActionProps();
+    const label = t('add_passkey');
+
+    const element = useRender({
+      render,
+      ref,
+      state: { pending: action.pending, disabled: action.disabled || action.pending },
+      props: {
+        ...getButtonContract(action),
+        'aria-label': label,
+        className,
+      },
+      defaultRender: (props, state) => (
+        <Button
+          size="default"
+          variant="outline"
+          {...props}
+          className={cn('text-sm w-full sm:w-auto shrink-0', props.className)}
+        >
+          {state.pending ? (
+            <Spinner size="sm" colorScheme="primary" aria-hidden="true" />
+          ) : (
+            (children ?? label)
+          )}
+        </Button>
+      ),
+    });
+
+    return action.hidden ? null : element;
+  },
+);
+
+/**
+ * The passkey rows. Renders nothing when there are no passkeys.
+ * @param props - {@link UserPasskeyManagementListProps}
+ * @returns List element or null.
+ */
+function List({ children, className }: UserPasskeyManagementListProps) {
+  const { model } = usePasskeyContext('List');
+
+  if (model.isLoading) {
+    return (
+      <CardContent className="flex items-center justify-center p-8">
+        <Spinner />
+      </CardContent>
+    );
+  }
+  if (!model.hasPasskeys) return null;
+
+  return (
+    <CardContent className={cn('space-y-2', className)}>
+      {model.passkeys.map((passkey) => (
+        <ItemScope key={passkey.id} passkey={passkey}>
+          {children ? children(passkey) : <Item />}
+        </ItemScope>
+      ))}
+    </CardContent>
+  );
+}
+
+/**
+ * Provides one row's context.
+ * @param props - Row passkey and content.
+ * @param props.passkey - Row passkey.
+ * @param props.children - Row content.
+ * @returns Row context provider.
+ * @internal
+ */
+function ItemScope({ passkey, children }: { passkey: Passkey; children: React.ReactNode }) {
+  const { model } = usePasskeyContext('List');
+  const nameId = useId();
+  return (
+    <PasskeyItemProvider value={{ ...model.getItemProps(passkey), nameId }}>
+      {children}
+    </PasskeyItemProvider>
+  );
+}
+
+/**
+ * One passkey row. Defaults to icon, details and menu.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Row element.
+ */
+function Item({ children, className }: UserPasskeyManagementPartProps) {
+  const { classes } = usePasskeyContext('Item');
+  usePasskeyItemContext('Item');
+
+  return (
+    <Card className={cn(classes['UserPasskeyManagement-item'], className)}>
+      <CardHeader className="flex flex-row items-center gap-3">
+        {children ?? (
+          <>
+            <ItemIcon />
+            <ItemDetails />
+            <ItemMenu />
+          </>
+        )}
+      </CardHeader>
+    </Card>
+  );
+}
+
+/**
+ * Row icon.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Icon element.
+ */
+function ItemIcon({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyItemContext('ItemIcon');
+  return (
+    <>
+      {children ?? (
+        <UserRoundKey
+          className={cn('h-4 w-4 shrink-0 text-muted-foreground', className)}
+          aria-hidden="true"
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * Row name and meta.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Details element.
+ */
+function ItemDetails({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyItemContext('ItemDetails');
+  return (
+    <div className={cn('flex flex-col gap-0.5 flex-1 min-w-0', className)}>
+      {children ?? (
+        <>
+          <ItemName />
+          <ItemMeta />
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Passkey name.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Name element.
+ */
+function ItemName({ children, className }: UserPasskeyManagementPartProps) {
+  const { passkey, nameId } = usePasskeyItemContext('ItemName');
+  return (
+    <CardTitle
+      id={nameId}
+      className={cn('text-body font-semibold text-card-foreground', className)}
+    >
+      {children ?? passkey.name}
+    </CardTitle>
+  );
+}
+
+/**
+ * Device, created and last used dates. Renders nothing when none are known.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Meta element or null.
+ */
+function ItemMeta({ className }: Omit<UserPasskeyManagementPartProps, 'children'>) {
+  const { customMessages } = usePasskeyContext('ItemMeta');
+  const { passkey } = usePasskeyItemContext('ItemMeta');
+  const { t } = useTranslator('passkey', customMessages);
+  if (!passkey.deviceInfo && !passkey.createdAt && !passkey.lastUsedAt) return null;
+
+  return (
+    <CardDescription className={cn('flex flex-wrap items-center gap-x-1.5', className)}>
+      {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
+      {passkey.createdAt && (
+        <>
+          {passkey.deviceInfo && <span aria-hidden="true">•</span>}
+          <span>{t('created_at', { date: new Date(passkey.createdAt).toLocaleDateString() })}</span>
+        </>
+      )}
+      {passkey.lastUsedAt && (
+        <>
+          {(passkey.deviceInfo || passkey.createdAt) && <span aria-hidden="true">•</span>}
+          <span>{t('last_used', { date: new Date(passkey.lastUsedAt).toLocaleDateString() })}</span>
+        </>
+      )}
+    </CardDescription>
+  );
+}
+
+/**
+ * Row menu with the revoke command. Hidden when `revokeAction.disabled` is set.
+ * Use `RevokeAction` instead to show revoke as a button.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Menu element or null.
+ */
+function ItemMenu({ className }: Omit<UserPasskeyManagementPartProps, 'children'>) {
+  const { customMessages } = usePasskeyContext('ItemMenu');
+  const { passkey, revokeAction } = usePasskeyItemContext('ItemMenu');
+  const { t } = useTranslator('passkey', customMessages);
+  if (revokeAction.hidden) return null;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label={passkey.name}
+        className={cn(
+          'h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0',
+          className,
+        )}
+      >
+        <MoreVertical className="h-4 w-4 text-primary-foreground" />
+      </DropdownMenuTrigger>
+      <DropdownMenuPortal>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            onClick={revokeAction.onClick}
+            disabled={revokeAction.disabled}
+            className="text-destructive-foreground focus:text-destructive-foreground"
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t('actions.revoke')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenuPortal>
+    </DropdownMenu>
+  );
+}
+
+/**
+ * Revoke command for the current row as a button, for layouts without the menu.
+ * Opens the confirmation dialog mounted by `Root`. Hidden when
+ * `revokeAction.disabled` is set.
+ *
+ * @param props - {@link UserPasskeyManagementActionProps}
+ * @returns Revoke action element or null.
+ */
+const RevokeAction = React.forwardRef<HTMLButtonElement, UserPasskeyManagementActionProps>(
+  function RevokeAction({ render, children, className }, ref) {
+    const { customMessages } = usePasskeyContext('RevokeAction');
+    const { revokeAction, nameId } = usePasskeyItemContext('RevokeAction');
+    const { t } = useTranslator('passkey', customMessages);
+
+    const element = useRender({
+      render,
+      ref,
+      state: {
+        pending: revokeAction.pending,
+        disabled: revokeAction.disabled || revokeAction.pending,
+      },
+      props: {
+        ...getButtonContract(revokeAction),
+        'aria-describedby': nameId,
+        className,
+      },
+      defaultRender: (props) => (
+        <Button size="sm" variant="outline" {...props}>
+          {children ?? t('actions.revoke')}
+        </Button>
+      ),
+    });
+
+    return revokeAction.hidden ? null : element;
+  },
+);
+
+/**
+ * Presentational passkey management, driven entirely by props. Renders the same
+ * layout as `<UserPasskeyManagement />` without fetching, for docs and tests.
+ * @param props - {@link UserPasskeyManagementViewProps}
+ * @returns View element.
+ */
+function UserPasskeyManagementView({
+  styling,
+  customMessages,
+  hideHeader,
+  ...state
+}: UserPasskeyManagementViewProps) {
+  const model = createUserPasskeyModel({
+    ...state,
+    isLoading: false,
+    readOnly: state.disableAdd && state.disableRevoke,
+  });
+
+  return (
+    <PasskeyScope
+      model={model}
+      customMessages={customMessages}
+      styling={styling}
+      hideHeader={hideHeader}
+    >
+      <DefaultLayout />
+    </PasskeyScope>
   );
 }
 
@@ -261,6 +701,13 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
  * Passkey management component.
  *
  * Displays enrolled passkeys with options to add and revoke.
+ *
+ * Composition levels:
+ * - Default: `<UserPasskeyManagement />`.
+ * - Narrow: replace one element with `render`, e.g.
+ *   `<DefaultLayout addAction={<UserPasskeyManagement.AddAction render={<MyButton />} />} />`.
+ * - Structural: arrange `Header`, `Section`, `List`, `Item` and their parts inside `Root`.
+ * - Headless: `useUserPasskeyModel()` and host-owned markup.
  *
  * @param props - {@link UserPasskeyManagementProps}
  * @param props.customMessages - Custom i18n message overrides
@@ -280,5 +727,67 @@ function UserPasskeyManagementView(props: UserPasskeyManagementViewProps) {
  *   revokeAction={{ onAfter: (passkey) => console.log('Revoked:', passkey.name) }}
  * />
  * ```
+ *
+ * @example
+ * ```tsx
+ * <UserPasskeyManagement.Root>
+ *   <UserPasskeyManagement.Header>
+ *     <UserPasskeyManagement.HeaderContent>
+ *       <UserPasskeyManagement.Title />
+ *     </UserPasskeyManagement.HeaderContent>
+ *     <UserPasskeyManagement.HeaderActions>
+ *       <UserPasskeyManagement.AddAction render={<MyButton />} />
+ *     </UserPasskeyManagement.HeaderActions>
+ *   </UserPasskeyManagement.Header>
+ *   <UserPasskeyManagement.Section>
+ *     <UserPasskeyManagement.List>
+ *       {() => (
+ *         <UserPasskeyManagement.Item>
+ *           <UserPasskeyManagement.ItemDetails />
+ *           <UserPasskeyManagement.RevokeAction />
+ *         </UserPasskeyManagement.Item>
+ *       )}
+ *     </UserPasskeyManagement.List>
+ *   </UserPasskeyManagement.Section>
+ * </UserPasskeyManagement.Root>
+ * ```
  */
-export { UserPasskeyManagement, UserPasskeyManagementView };
+function UserPasskeyManagementDefault(props: UserPasskeyManagementProps) {
+  return (
+    <Root {...props}>
+      <DefaultLayout />
+    </Root>
+  );
+}
+
+const UserPasskeyManagement = Object.assign(UserPasskeyManagementDefault, {
+  Root,
+  DefaultLayout,
+  Header,
+  HeaderContent,
+  Title,
+  Description,
+  HeaderActions,
+  Section,
+  SectionHeader,
+  SectionTitle,
+  StatusBadge,
+  EmptyState,
+  SectionActions,
+  AddAction,
+  List,
+  Item,
+  ItemIcon,
+  ItemDetails,
+  ItemName,
+  ItemMeta,
+  ItemMenu,
+  RevokeAction,
+});
+
+export {
+  UserPasskeyManagement,
+  UserPasskeyManagementView,
+  useUserPasskeyManagementContext,
+  useUserPasskeyItemContext,
+};

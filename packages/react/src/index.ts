@@ -10,6 +10,8 @@ export {
 export {
   UserPasskeyManagement,
   UserPasskeyManagementView,
+  useUserPasskeyManagementContext,
+  useUserPasskeyItemContext,
 } from './components/auth0/my-account/user-passkey-management';
 export {
   SsoProviderEdit,
@@ -50,7 +52,7 @@ export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
-export { useUserPasskey } from './hooks/my-account/use-user-passkey';
+export { useUserPasskey, useUserPasskeyModel } from './hooks/my-account/use-user-passkey';
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';

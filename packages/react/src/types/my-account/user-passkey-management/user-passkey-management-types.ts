@@ -11,6 +11,9 @@ import type {
   SharedComponentProps,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type * as React from 'react';
+
+import type { ActionPartProps } from '@/types/composability-types';
 
 export interface PasskeyActionModalProps
   extends SharedComponentProps<
@@ -84,6 +87,98 @@ export interface UseUserPasskeyReturn {
   handleRevokePasskey: (passkey: Passkey) => void;
   handleConfirmRevoke: () => Promise<void>;
 }
+
+/** State and command of one action, shared by action parts and headless hosts. */
+export interface PasskeyActionModel {
+  /** The action is not offered and its part renders nothing. */
+  hidden: boolean;
+  /** The action is shown but cannot be triggered. */
+  disabled: boolean;
+  /** The action's command is running. */
+  pending: boolean;
+  /** Runs the action. Does nothing while hidden, disabled or pending. */
+  onClick: () => void;
+}
+
+/** One passkey row, as rendered by `UserPasskeyManagement.Item`. */
+export interface PasskeyItemModel {
+  passkey: Passkey;
+  revokeAction: PasskeyActionModel;
+}
+
+/**
+ * Headless model for passkey management.
+ *
+ * A host that renders its own UI must honour `hidden`/`disabled`/`pending` on each
+ * action and render a confirmation from `isRevokeModalOpen` / `currentPasskey`
+ * before calling `handleConfirmRevoke`.
+ */
+export interface UserPasskeyModel extends UseUserPasskeyReturn {
+  hasPasskeys: boolean;
+  /** Props for the add action. */
+  getAddActionProps: () => PasskeyActionModel;
+  /** Props for one passkey row. */
+  getItemProps: (passkey: Passkey) => PasskeyItemModel;
+}
+
+/** Options for `useUserPasskeyModel`. */
+export type UseUserPasskeyModelOptions = UseUserPasskeyOptions;
+
+/** Value read by every `UserPasskeyManagement` part. */
+export interface UserPasskeyManagementContextValue {
+  model: UserPasskeyModel;
+  customMessages: NonNullable<UserPasskeyManagementProps['customMessages']>;
+  styling: NonNullable<UserPasskeyManagementProps['styling']>;
+  classes: UserPasskeyManagementClasses;
+  hideHeader: boolean;
+}
+
+/** Value read by parts inside `UserPasskeyManagement.Item`. */
+export interface UserPasskeyItemContextValue extends PasskeyItemModel {
+  /** Id of the rendered name, used to describe the row's actions. */
+  nameId: string;
+}
+
+/** Props for `UserPasskeyManagement.Root`. */
+export interface UserPasskeyManagementRootProps extends UserPasskeyManagementProps {
+  children?: React.ReactNode;
+}
+
+/** Props for `UserPasskeyManagement.DefaultLayout`. */
+export interface UserPasskeyManagementDefaultLayoutProps {
+  /** Replaces the add action in the default layout, e.g. an `AddAction` with `render`. */
+  addAction?: React.ReactNode;
+  /** Replaces the default row, e.g. to swap the menu for inline actions. */
+  renderItem?: (passkey: Passkey) => React.ReactNode;
+}
+
+/** Props for `UserPasskeyManagement.List`. */
+export interface UserPasskeyManagementListProps {
+  /** Renders each row. Defaults to `<UserPasskeyManagement.Item />`. */
+  children?: (passkey: Passkey) => React.ReactNode;
+  className?: string;
+}
+
+/** Props for parts that only take content and a class name. */
+export interface UserPasskeyManagementPartProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+/** Props for `UserPasskeyManagement.Header`. */
+export interface UserPasskeyManagementHeaderProps extends UserPasskeyManagementPartProps {
+  /** Text alignment of the default title and description. */
+  align?: 'start' | 'center' | 'end';
+}
+
+/** Props for `UserPasskeyManagement.HeaderActions`. */
+export interface UserPasskeyManagementHeaderActionsProps extends UserPasskeyManagementPartProps {
+  /** Side the actions sit on from the `sm` breakpoint up. */
+  align?: 'start' | 'end';
+}
+
+/** Props for `UserPasskeyManagement.AddAction` and `UserPasskeyManagement.RevokeAction`. */
+export type UserPasskeyManagementActionProps = ActionPartProps;
 
 export interface UseUserPasskeyServiceResult {
   passkeysQuery: UseQueryResult<Passkey[]>;
