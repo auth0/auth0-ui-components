@@ -81,6 +81,8 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
+  /** Hide the Domains tab. Defaults to `false`. */
+  hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
   hideAttributeMappings?: boolean;
@@ -189,6 +191,7 @@ export interface SsoProviderEditViewProps
       | 'domains'
       | 'hideHeader'
       | 'hideProvisioningTab'
+      | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'

@@ -173,6 +173,13 @@
       "modal": {
         "title": "Configure ${domain}",
         "description": "Direct users with an ${domain} email domain to your identity provider for authentication for the selected providers.",
+        "field": {
+          "label": "Connection",
+          "placeholder": "Select a connection to associate",
+          "helper_text": "Only one connection can be associated with a domain at a time."
+        },
+        "assigned_helper_text": "To associate a different connection with ${domain}, remove the current connection first.",
+        "legacy_warning": "This domain is assigned to more than one connection. Remove connections until only one remains.",
         "table": {
           "empty_message": "You do not have any providers.",
           "columns": {
@@ -187,7 +194,11 @@
           }
         },
         "actions": {
-          "close_button_text": "Close"
+          "close_button_text": "Close",
+          "cancel_button_text": "Cancel",
+          "save_button_text": "Save",
+          "remove_button_text": "Remove",
+          "remove_button_aria_label": "Remove ${provider}"
         }
       }
     },

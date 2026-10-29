@@ -97,6 +97,7 @@ export function useDomainTable({
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [isSavingProvider, setIsSavingProvider] = useState(false);
 
   const handleCreate = useCallback(
     async (domainUrl: string) => {
@@ -213,6 +214,60 @@ export function useDomainTable({
     [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
+  const handleAssignProvider = useCallback(
+    async (domain: Domain, provider: IdpKnownResponse) => {
+      if (!permissions.canAssociateProvider) return;
+      const isOnAnotherProvider = providers.some(
+        (current) => current.is_associated && current.id !== provider.id,
+      );
+      if (isOnAnotherProvider) return;
+
+      setIsSavingProvider(true);
+      try {
+        await onAssociateToProvider(domain, provider);
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_associate_provider.success', {
+            domainName: domain.domain,
+            idp: provider.name,
+          }),
+        });
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_associate_provider.error'),
+        });
+      } finally {
+        setIsSavingProvider(false);
+      }
+    },
+    [permissions, providers, onAssociateToProvider, t, handleError],
+  );
+
+  const handleRemoveProvider = useCallback(
+    async (domain: Domain, provider: IdpKnownResponse) => {
+      if (!permissions.canDissociateProvider) return;
+
+      setIsSavingProvider(true);
+      try {
+        await onDeleteFromProvider(domain, provider);
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_delete_provider.success', {
+            domainName: domain.domain,
+            idp: provider.name,
+          }),
+        });
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_delete_provider.error'),
+        });
+      } finally {
+        setIsSavingProvider(false);
+      }
+    },
+    [permissions, onDeleteFromProvider, t, handleError],
+  );
+
   const handleCloseVerifyModal = useCallback(() => {
     setShowVerifyModal(false);
     setVerifyError(undefined);
@@ -317,6 +372,7 @@ export function useDomainTable({
     isDeleting,
     isVerifying,
     isLoadingProviders,
+    isSavingProvider,
     // Pagination
     pagination: {
       pageSize,
@@ -345,6 +401,8 @@ export function useDomainTable({
     handleVerify,
     handleDelete,
     handleToggleSwitch,
+    handleAssignProvider,
+    handleRemoveProvider,
     handleCloseVerifyModal,
     handleCreateClick,
     handleConfigureClick,

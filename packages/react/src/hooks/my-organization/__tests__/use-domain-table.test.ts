@@ -225,6 +225,149 @@ describe('useDomainTable', () => {
     });
   });
 
+  describe('single-provider assignment', () => {
+    const providerA = { ...mockProvider, id: 'con_a', name: 'idp-a', is_associated: true };
+    const providerB = { ...mockProvider, id: 'con_b', name: 'idp-b', is_associated: false };
+
+    const renderWithServiceProviders = (
+      providers: Array<typeof providerA>,
+      overrides: Partial<ReturnType<typeof createMockDomainTableServiceReturn>> = {},
+      permissions: string[] = ALL_MY_ORG_PERMISSIONS,
+    ) => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({
+          providers,
+          onAssociateToProvider: vi.fn().mockResolvedValue(undefined),
+          onDeleteFromProvider: vi.fn().mockResolvedValue(undefined),
+          ...overrides,
+        }),
+      );
+      return renderWithGranted(permissions, defaultOptions);
+    };
+
+    describe('handleAssignProvider', () => {
+      it('should associate the domain when it has no provider', async () => {
+        const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not associate while the domain is on another provider', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should not associate without the create scope', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'create:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when associating fails', async () => {
+        const error = new Error('Associate failed');
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }], {
+          onAssociateToProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_associate_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should keep the configure modal open after assigning', async () => {
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }]);
+
+        act(() => result.current.setShowConfigureModal(true));
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(result.current.showConfigureModal).toBe(true);
+      });
+    });
+
+    describe('handleRemoveProvider', () => {
+      it('should dissociate the domain from the provider', async () => {
+        const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onDeleteFromProvider,
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not dissociate without the delete scope', async () => {
+        const onDeleteFromProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [providerA],
+          { onDeleteFromProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'delete:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when dissociating fails', async () => {
+        const error = new Error('Delete failed');
+        const { result } = renderWithServiceProviders([providerA], {
+          onDeleteFromProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_delete_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+    });
+  });
+
   it('should associate domain to provider on handleToggleSwitch with true', async () => {
     const mockOnAssociateToProvider = vi.fn().mockResolvedValue(undefined);
     mockUseDomainTableService.mockReturnValue(
