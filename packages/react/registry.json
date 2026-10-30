@@ -1181,11 +1181,6 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
-          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/shared/services/use-config-service.ts"
-        },
-        {
           "path": "src/hooks/my-organization/shared/services/use-organization-delete-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-organization-delete-service.ts"
@@ -1289,11 +1284,6 @@
           "path": "src/types/i18n-types.ts",
           "type": "registry:component",
           "target": "types/i18n-types.ts"
-        },
-        {
-          "path": "src/types/my-organization/config/config-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/config/config-types.ts"
         },
         {
           "path": "src/types/my-organization/organization-management/organization-delete-types.ts",

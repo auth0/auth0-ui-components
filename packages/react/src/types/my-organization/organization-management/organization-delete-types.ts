@@ -11,8 +11,6 @@ import type {
   SharedComponentProps,
 } from '@auth0/universal-components-core';
 
-import type { UseConfigResult } from '@/types/my-organization/config/config-types';
-
 /** CSS classes for OrganizationDelete. */
 export interface OrganizationDeleteClasses {
   'OrganizationDelete-root'?: string;
@@ -49,8 +47,6 @@ export interface UseOrganizationDeleteResult {
   canDelete: boolean;
   /** Whether the delete scope is missing (drives the permission-denied tooltip; always `false` in read-only mode). */
   permissionDenied: boolean;
-  /** How the API restricts deletion; `undefined` until the configuration has loaded. */
-  deletionBehavior: UseConfigResult['organizationDeletionBehavior'];
   isFetchLoading: boolean;
   isDeleteLoading: boolean;
   /** Deletes the organization. Resolves to `true` on success, `false` when denied, cancelled, or failed. */

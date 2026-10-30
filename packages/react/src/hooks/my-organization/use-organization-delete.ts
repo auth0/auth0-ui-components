@@ -7,7 +7,6 @@
 import { getOrganizationDetailsPermissions } from '@auth0/universal-components-core';
 import { useCallback, useMemo } from 'react';
 
-import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useOrganizationDeleteService } from '@/hooks/my-organization/shared/services/use-organization-delete-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
@@ -30,7 +29,6 @@ export function useOrganizationDelete({
   customMessages = {},
 }: UseOrganizationDeleteOptions = {}): UseOrganizationDeleteResult {
   const service = useOrganizationDeleteService({ deleteAction, customMessages });
-  const { organizationDeletionBehavior } = useConfig();
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
@@ -50,7 +48,6 @@ export function useOrganizationDelete({
     organization: service.organization,
     canDelete,
     permissionDenied,
-    deletionBehavior: organizationDeletionBehavior,
     isFetchLoading: service.isFetchLoading,
     isDeleteLoading: service.isDeleteLoading,
     deleteOrganization,
