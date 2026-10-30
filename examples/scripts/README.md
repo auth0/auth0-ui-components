@@ -20,6 +20,8 @@ An interactive CLI script that configures your Auth0 tenant with everything need
 
 3. **An Auth0 tenant** — Sign up at [auth0.com/signup](https://auth0.com/signup) if you don't have one. You can use an existing tenant — the script will only add what's missing without modifying your existing configuration.
 
+4. **Early-access organization features** — Listing, creating and deleting organizations needs the early-access organization features of the My Account and My Organization APIs to be enabled on your tenant. The script can't enable them; it checks for the My Organization scopes and warns if they are missing.
+
 ## Usage
 
 ### 1. Install dependencies
@@ -73,20 +75,21 @@ The script creates and configures the following Auth0 resources based on your fe
 
 ### My Organization Resources (if enabled)
 
-| Resource                | Details                                                   |
-| ----------------------- | --------------------------------------------------------- |
-| **My Organization API** | Resource server at `https://{domain}/my-org/`             |
-| **Client Grant**        | Application authorized for all My Organization API scopes |
-| **Admin Role**          | `admin` role with all My Organization API permissions     |
-| **Organization**        | `demo-org` with database connection enabled               |
-| **Organization Member** | Test user created and assigned the admin role             |
+| Resource                 | Details                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **My Organization API**  | Resource server at `https://{domain}/my-org/`                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Client Grant**         | Application authorized for all My Organization API scopes                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| **Admin Role**           | `admin` role with all My Organization API permissions                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| **Organization**         | `demo-org` with database connection enabled                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **Organization Member**  | Test user created and assigned the admin role                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Organization Profile** | `Universal-Components-Org-Profile`, the tenant's default profile, assigned to `demo-org`. Users who create an organization get the `admin` role in it, and an organization can be deleted only when it has no other members. Running the script again restores these settings, the connection and user attribute profile links and the `demo-org` assignment if they have drifted. If another profile is already the default, it is left unchanged and the script reports where it differs |
 
 ### My Account Resources (if enabled)
 
-| Resource           | Details                                                           |
-| ------------------ | ----------------------------------------------------------------- |
-| **My Account API** | Resource server at `https://{domain}/me/`                         |
-| **Client Grant**   | Application authorized for My Account API scopes (MFA enrollment) |
+| Resource           | Details                                                                                                              |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **My Account API** | Resource server at `https://{domain}/me/`                                                                            |
+| **Client Grant**   | Application authorized for all scopes the My Account API offers (MFA enrollment, listing and creating organizations) |
 
 ## Auth0 CLI Scopes
 
@@ -120,12 +123,16 @@ read:resource_servers
 create:resource_servers
 update:resource_servers
 update:tenant_settings
+read:organization_templates
+create:organization_templates
+update:organization_templates
+update:organizations
 ```
 
 If you need to manually authenticate the Auth0 CLI with these scopes:
 
 ```bash
-auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings"
+auth0 login --scopes "read:connection_profiles,create:connection_profiles,update:connection_profiles,read:user_attribute_profiles,create:user_attribute_profiles,update:user_attribute_profiles,read:client_grants,create:client_grants,update:client_grants,delete:client_grants,read:connections,create:connections,update:connections,create:organization_connections,create:organization_members,create:organization_member_roles,read:clients,create:clients,update:clients,read:client_keys,read:roles,create:roles,update:roles,read:resource_servers,create:resource_servers,update:resource_servers,update:tenant_settings,read:organization_templates,create:organization_templates,update:organization_templates,update:organizations"
 ```
 
 ## Generated Environment Variables
@@ -147,10 +154,11 @@ The script generates an environment file in the selected example directory.
 
 ### React SPA (`examples/react-spa-npm/.env` or `examples/react-spa-shadcn/.env.local`)
 
-| Variable               | Description           |
-| ---------------------- | --------------------- |
-| `VITE_AUTH0_DOMAIN`    | Auth0 tenant domain   |
-| `VITE_AUTH0_CLIENT_ID` | Application client ID |
+| Variable                 | Description                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| `VITE_AUTH0_DOMAIN`      | Auth0 tenant domain                                                                   |
+| `VITE_AUTH0_CLIENT_ID`   | Application client ID                                                                 |
+| `VITE_ENABLE_MY_ACCOUNT` | My Account feature toggle. Shows the My Account pages (such as Organizations and MFA) |
 
 ## Private-Cloud Tenants
 
@@ -206,6 +214,7 @@ If you prefer to configure your tenant manually, or if you are on a private-clou
 ```
 read:my_org:details
 update:my_org:details
+delete:my_org:organizations
 create:my_org:identity_providers
 read:my_org:identity_providers
 update:my_org:identity_providers
@@ -233,7 +242,6 @@ delete:my_org:member_roles
 create:my_org:member_roles
 read:my_org:members
 delete:my_org:memberships
-read:my_org:permissions
 read:my_org:user_stores
 ```
 

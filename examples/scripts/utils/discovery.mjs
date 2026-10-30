@@ -24,6 +24,10 @@ import {
 } from "./resource-servers.mjs"
 import { checkAdminRoleChanges } from "./roles.mjs"
 import { checkOrgChanges } from "./orgs.mjs"
+import {
+  checkOrganizationTemplateChanges,
+  fetchOrganizationTemplates,
+} from "./organization-templates.mjs"
 import { checkOrgMembers } from "./members.mjs"
 import {
   checkPromptSettingsChanges,
@@ -88,6 +92,9 @@ export async function discoverExistingResources() {
     // Get Orgs
     const { stdout: orgsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 orgs list --json --no-input`
     resources.orgs = JSON.parse(orgsStdout) || []
+
+    // Get Organization Profiles (null when the feature or scope is unavailable)
+    resources.organizationTemplates = await fetchOrganizationTemplates()
 
     // Get Org Members (if Demo Org exists)
     const demoOrg = resources.orgs.find((o) => o.name === DEMO_ORG_NAME)
@@ -285,6 +292,21 @@ export async function buildChangePlan(resources, domain, exampleType, featureCon
       })
     }
 
+    // Default Organization Profile - needed to create organizations from My Account
+    // IDs are undefined for resources this run will create
+    plan.organizationTemplate = featureConfig.enableMyOrg
+      ? await checkOrganizationTemplateChanges(resources.organizationTemplates, {
+          connectionProfileId: plan.connectionProfile.existing?.id,
+          userAttributeProfileId: plan.userAttributeProfile.existing?.id,
+          adminRoleId: plan.roles.admin.existing?.id,
+          orgId: plan.orgs.existing?.id,
+        })
+      : createChangeItem(ChangeAction.SKIP, {
+          resource: "Organization Profile",
+          name: "Default",
+          reason: "Organization Management feature disabled",
+        })
+
     // Tenant Configuration (these make API calls to check current state)
     plan.tenantConfig.settings = await checkTenantSettingsChanges()
     plan.tenantConfig.prompts = await checkPromptSettingsChanges()
@@ -306,6 +328,7 @@ export function displayChangePlan(plan) {
   const updates = []
   const skips = []
   const featureSkips = []
+  const notes = []
 
   // Helper to categorize changes
   function categorize(item) {
@@ -319,8 +342,11 @@ export function displayChangePlan(plan) {
       const summaryStr = item.summary ? `: ${item.summary}` : ""
       updates.push(`${item.resource}${nameStr}${summaryStr}`)
     } else if (item.action === "skip") {
-      // Distinguish between feature-disabled skips and already-configured skips
-      if (item.reason) {
+      // Notes are things the user should read even when nothing else changes
+      if (item.note) {
+        notes.push(`${item.resource}${item.name ? ` (${item.name})` : ""}: ${item.reason}`)
+      } else if (item.reason) {
+        // Distinguish between feature-disabled skips and already-configured skips
         featureSkips.push(`${item.resource}${item.name ? ` (${item.name})` : ""}: ${item.reason}`)
       } else {
         skips.push(`${item.resource}${item.name ? ` (${item.name})` : ""}`)
@@ -341,6 +367,7 @@ export function displayChangePlan(plan) {
   categorize(plan.roles.member)
   categorize(plan.orgs)
   categorize(plan.orgMembers)
+  categorize(plan.organizationTemplate)
   categorize(plan.tenantConfig.settings)
   categorize(plan.tenantConfig.prompts)
 
@@ -360,11 +387,19 @@ export function displayChangePlan(plan) {
     }
   }
 
+  const printNotes = () => {
+    if (notes.length > 0) {
+      console.log("\nℹ️  Notes:")
+      notes.forEach((item) => console.log(`   • ${item}`))
+    }
+  }
+
   // Check if there are no changes needed
   if (creates.length === 0 && updates.length === 0) {
     console.log(
       "\n✅ No changes needed! All resources are already configured correctly."
     )
+    printNotes()
     console.log("\n" + "=".repeat(80))
     console.log("")
     return
@@ -389,6 +424,8 @@ export function displayChangePlan(plan) {
     console.log("\n⏭️  Resources skipped (feature not selected):")
     featureSkips.forEach((item) => console.log(`   • ${item}`))
   }
+
+  printNotes()
 
   console.log("\n" + "=".repeat(80))
 
@@ -525,6 +562,7 @@ export function displayChangePlan(plan) {
     showDetails(plan.roles.member, "Member Role")
     showDetails(plan.orgs, "Organization")
     showDetails(plan.orgMembers, "Organization Members")
+    showDetails(plan.organizationTemplate, "Organization Profile")
     console.log("\n" + "=".repeat(80))
   }
 
