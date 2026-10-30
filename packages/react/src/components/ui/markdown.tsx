@@ -7,7 +7,7 @@
  */
 
 import * as React from 'react';
-import ReactMarkdown, { type Components } from 'react-markdown';
+import ReactMarkdown, { type Components, type Options, uriTransformer } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import {
@@ -23,9 +23,13 @@ import { cn } from '@/lib/utils';
 export interface MarkdownProps {
   children: string;
   className?: string;
-  /** Per-element overrides merged over the defaults. */
   components?: Components;
+  transformImageUri?: Options['transformImageUri'];
+  transformLinkUri?: Options['transformLinkUri'];
+  skipHtml?: boolean;
 }
+
+const remarkPlugins = [remarkGfm];
 
 const defaultComponents: Components = {
   h1: ({ node: _node, children, ...props }) => (
@@ -148,7 +152,14 @@ const defaultComponents: Components = {
   ),
 };
 
-function Markdown({ children, className, components }: MarkdownProps) {
+function Markdown({
+  children,
+  className,
+  components,
+  transformImageUri = uriTransformer,
+  transformLinkUri,
+  skipHtml,
+}: MarkdownProps) {
   const mergedComponents = React.useMemo(
     () => (components ? { ...defaultComponents, ...components } : defaultComponents),
     [components],
@@ -156,7 +167,13 @@ function Markdown({ children, className, components }: MarkdownProps) {
 
   return (
     <div className={cn('text-foreground', className)} data-slot="markdown">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={mergedComponents}>
+      <ReactMarkdown
+        remarkPlugins={remarkPlugins}
+        components={mergedComponents}
+        transformImageUri={transformImageUri}
+        transformLinkUri={transformLinkUri}
+        skipHtml={skipHtml}
+      >
         {children}
       </ReactMarkdown>
     </div>
