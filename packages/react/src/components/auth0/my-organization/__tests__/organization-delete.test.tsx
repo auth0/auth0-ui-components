@@ -21,9 +21,7 @@ describe('OrganizationDelete', () => {
     (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
       mockOrganization,
     );
-    (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockResolvedValue(
-      undefined,
-    );
+    (apiService.organization.delete as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
     });
@@ -53,9 +51,9 @@ describe('OrganizationDelete', () => {
           expect.objectContaining({ name: mockOrganization.name }),
         );
       });
-      expect(
-        mockCoreClient.getMyOrganizationApiClient().organizationDetails.delete,
-      ).toHaveBeenCalledTimes(1);
+      expect(mockCoreClient.getMyOrganizationApiClient().organization.delete).toHaveBeenCalledTimes(
+        1,
+      );
     });
   });
 

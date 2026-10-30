@@ -37,7 +37,7 @@ async function renderUseOrganizationDeleteService(
   (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
     mockOrganization,
   );
-  (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+  (apiService.organization.delete as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
 
   vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
     coreClient: mockCoreClient,
@@ -72,7 +72,7 @@ describe('useOrganizationDeleteService', () => {
         defaultOptions: { queries: { retry: false }, mutations: { retry: 3, retryDelay: 0 } },
       });
       const { result, apiService } = await renderUseOrganizationDeleteService({}, retryingClient);
-      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
         createApiError(500),
       );
 
@@ -82,7 +82,7 @@ describe('useOrganizationDeleteService', () => {
       });
 
       expect(deleted).toBe(false);
-      expect(apiService.organizationDetails.delete).toHaveBeenCalledTimes(1);
+      expect(apiService.organization.delete).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -95,7 +95,7 @@ describe('useOrganizationDeleteService', () => {
         deleted = await result.current.deleteOrganization();
       });
 
-      expect(apiService.organizationDetails.delete).toHaveBeenCalledTimes(1);
+      expect(apiService.organization.delete).toHaveBeenCalledTimes(1);
       expect(deleted).toBe(true);
     });
 
@@ -156,7 +156,7 @@ describe('useOrganizationDeleteService', () => {
   describe('when the organization has a display name', () => {
     it('uses the name, not the display name, in the success and refusal messages', async () => {
       const { result, apiService, mockOrganization } = await renderUseOrganizationDeleteService();
-      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>)
+      (apiService.organization.delete as ReturnType<typeof vi.fn>)
         .mockRejectedValueOnce(createApiError(403))
         .mockResolvedValueOnce(undefined);
       mockTranslate.mockClear();
@@ -210,7 +210,7 @@ describe('useOrganizationDeleteService', () => {
         deleted = await result.current.deleteOrganization();
       });
 
-      expect(apiService.organizationDetails.delete).not.toHaveBeenCalled();
+      expect(apiService.organization.delete).not.toHaveBeenCalled();
       expect(deleted).toBe(false);
     });
   });
@@ -218,7 +218,7 @@ describe('useOrganizationDeleteService', () => {
   describe('when deletion fails', () => {
     it('shows the not-empty message for a 403 that is not an insufficient-scope error', async () => {
       const { result, apiService } = await renderUseOrganizationDeleteService();
-      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
         createApiError(403),
       );
 
@@ -236,7 +236,7 @@ describe('useOrganizationDeleteService', () => {
 
     it('uses the shared error handler for an insufficient-scope 403', async () => {
       const { result, apiService } = await renderUseOrganizationDeleteService();
-      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
         createApiError(403, 'https://auth0.com/api-errors#A0E-403-0002'),
       );
 
@@ -255,7 +255,7 @@ describe('useOrganizationDeleteService', () => {
       const { result, apiService, queryClient } = await renderUseOrganizationDeleteService({
         deleteAction: { onAfter },
       });
-      (apiService.organizationDetails.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
         new Error('Network error'),
       );
 

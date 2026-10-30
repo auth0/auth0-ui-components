@@ -64,7 +64,7 @@ export function useOrganizationDeleteService({
   const organizationName = organization.name;
 
   const deleteMutation = useMutation({
-    mutationFn: () => coreClient!.getMyOrganizationApiClient().organizationDetails.delete(),
+    mutationFn: () => coreClient!.getMyOrganizationApiClient().organization.delete(),
     // A retry can't help: a refused delete is refused again, and if the first request succeeded but
     // its reply was lost, the retry would report an error for an organization that is already gone.
     retry: false,
