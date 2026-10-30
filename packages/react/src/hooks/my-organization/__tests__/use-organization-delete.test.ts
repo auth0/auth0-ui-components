@@ -9,6 +9,7 @@ import type { UseOrganizationDeleteOptions } from '@/types/my-organization/organ
 
 const mockOrganization = createMockOrganization();
 const mockServiceDelete = vi.fn();
+let mockDeletionBehavior: 'allow' | 'allow_if_empty' | undefined;
 
 vi.mock('@/hooks/my-organization/shared/services/use-organization-delete-service', () => ({
   useOrganizationDeleteService: () => ({
@@ -17,6 +18,10 @@ vi.mock('@/hooks/my-organization/shared/services/use-organization-delete-service
     isDeleteLoading: false,
     deleteOrganization: mockServiceDelete,
   }),
+}));
+
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: () => ({ organizationDeletionBehavior: mockDeletionBehavior }),
 }));
 
 const renderWithGranted = (permissions: string[], options: UseOrganizationDeleteOptions = {}) =>
@@ -32,6 +37,20 @@ const renderWithGranted = (permissions: string[], options: UseOrganizationDelete
 describe('useOrganizationDelete', () => {
   beforeEach(() => {
     mockServiceDelete.mockResolvedValue(true);
+    mockDeletionBehavior = undefined;
+  });
+
+  describe('deletionBehavior', () => {
+    it.each([undefined, 'allow', 'allow_if_empty'] as const)(
+      'exposes %s from the configuration',
+      (behavior) => {
+        mockDeletionBehavior = behavior;
+
+        const { result } = renderWithGranted(['delete:my_org:organizations']);
+
+        expect(result.current.deletionBehavior).toBe(behavior);
+      },
+    );
   });
 
   describe('when the delete scope is granted', () => {

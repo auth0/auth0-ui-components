@@ -1,3 +1,5 @@
+import { configQueryKeys } from '@auth0/universal-components-core';
+import { QueryClient } from '@tanstack/react-query';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -54,6 +56,55 @@ describe('OrganizationDelete', () => {
       expect(mockCoreClient.getMyOrganizationApiClient().organization.delete).toHaveBeenCalledTimes(
         1,
       );
+    });
+  });
+
+  describe('deletion behavior hint', () => {
+    const renderWithConfig = (config: object | Error) => {
+      const get = mockCoreClient.getMyOrganizationApiClient().organization.configuration
+        .get as ReturnType<typeof vi.fn>;
+      if (config instanceof Error) {
+        get.mockRejectedValue(config);
+      } else {
+        get.mockResolvedValue(config);
+      }
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      renderWithProviders(<OrganizationDelete />, { queryClient });
+      const configStatus = () => queryClient.getQueryState(configQueryKeys.details())?.status;
+      return { configStatus };
+    };
+
+    it.each([
+      [
+        'configured',
+        { allowed_strategies: ['okta'], organization_deletion_behavior: 'allow_if_empty' },
+      ],
+      ['not set', { allowed_strategies: ['okta'] }],
+    ])('tells the user they must be the only member when it is %s', async (_label, config) => {
+      renderWithConfig(config);
+
+      expect(await screen.findByText('allow_if_empty_hint')).toBeInTheDocument();
+    });
+
+    it('shows no hint when any organization may be deleted', async () => {
+      const { configStatus } = renderWithConfig({
+        allowed_strategies: ['okta'],
+        organization_deletion_behavior: 'allow',
+      });
+
+      await findSectionDeleteButton();
+      await waitFor(() => expect(configStatus()).toBe('success'));
+      expect(screen.queryByText('allow_if_empty_hint')).not.toBeInTheDocument();
+    });
+
+    it('shows no hint, and still allows deleting, when the configuration cannot be loaded', async () => {
+      const { configStatus } = renderWithConfig(
+        Object.assign(new Error('Not found'), { body: { status: 404 } }),
+      );
+
+      expect(await findSectionDeleteButton()).toBeEnabled();
+      await waitFor(() => expect(configStatus()).toBe('error'));
+      expect(screen.queryByText('allow_if_empty_hint')).not.toBeInTheDocument();
     });
   });
 

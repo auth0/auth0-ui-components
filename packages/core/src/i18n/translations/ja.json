@@ -284,6 +284,7 @@
     "organization_delete": {
       "title": "この組織を削除",
       "description": "一度確認すると、この操作は元に戻すことができません。",
+      "allow_if_empty_hint": "この組織を削除できるのは、あなたが唯一のメンバーである場合のみです。",
       "delete_button_label": "削除",
       "modal_title": "${organizationName}を削除",
       "modal_description": "${organizationName}を削除してもよろしいですか？ユーザーは維持されますが、この組織へのメンバーシップは削除されます。一度確認すると、この操作は元に戻すことができません。",

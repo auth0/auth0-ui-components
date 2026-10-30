@@ -94,6 +94,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
             readOnly,
             canDelete: organizationDelete.canDelete,
             permissionDenied: organizationDelete.permissionDenied,
+            deletionBehavior: organizationDelete.deletionBehavior,
             isDeleteLoading: organizationDelete.isDeleteLoading,
             onDelete: organizationDelete.deleteOrganization,
           }

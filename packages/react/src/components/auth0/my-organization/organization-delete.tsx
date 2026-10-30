@@ -41,6 +41,7 @@ function OrganizationDelete(props: OrganizationDeleteProps): React.JSX.Element {
     organization,
     canDelete,
     permissionDenied,
+    deletionBehavior,
     isFetchLoading,
     isDeleteLoading,
     deleteOrganization,
@@ -55,6 +56,7 @@ function OrganizationDelete(props: OrganizationDeleteProps): React.JSX.Element {
         readOnly={readOnly}
         canDelete={canDelete}
         permissionDenied={permissionDenied}
+        deletionBehavior={deletionBehavior}
         isDeleteLoading={isDeleteLoading}
         onDelete={deleteOrganization}
       />
@@ -87,6 +89,9 @@ function OrganizationDeleteView({ styling, ...sectionProps }: OrganizationDelete
  *
  * Renders a danger-zone section that deletes the current organization after the
  * user types its name to confirm. Requires the `delete:my_org:organizations` permission.
+ * When the tenant only allows deleting an empty organization (`allow_if_empty`), it tells the
+ * user they must be the only member; that hint reads the configuration, which needs the
+ * `read:my_org:configuration` scope.
  *
  * Deleting the organization invalidates the current organization-scoped token, so
  * use `deleteAction.onAfter` to redirect the user away from the deleted organization.

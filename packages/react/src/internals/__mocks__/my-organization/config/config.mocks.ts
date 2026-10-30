@@ -13,6 +13,7 @@ type MockUseConfig = UseConfigResult;
 export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUseConfig => ({
   isLoadingConfig: false,
   shouldAllowDeletion: true,
+  organizationDeletionBehavior: 'allow_if_empty',
   isConfigValid: true,
   config: {
     connection_deletion_behavior: 'allow',
