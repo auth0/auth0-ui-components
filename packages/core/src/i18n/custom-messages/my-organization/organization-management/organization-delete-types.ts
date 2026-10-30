@@ -8,7 +8,6 @@ import type { SharedMessages } from '../../shared/shared-types';
 export interface OrganizationDeleteMessages extends SharedMessages {
   title?: string;
   description?: string;
-  allow_if_empty_hint?: string;
   delete_button_label?: string;
   modal_title?: string;
   modal_description?: string;

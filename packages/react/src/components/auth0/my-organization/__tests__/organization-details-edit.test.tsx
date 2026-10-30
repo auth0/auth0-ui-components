@@ -706,18 +706,6 @@ describe('OrganizationDetailsEdit', () => {
         expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
       });
 
-      it('tells the user they must be the only member', async () => {
-        renderWithProviders(
-          <OrganizationDetailsEdit
-            {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter: vi.fn() } })}
-          />,
-        );
-
-        await waitForComponentToLoad();
-
-        expect(screen.getByText('allow_if_empty_hint')).toBeInTheDocument();
-      });
-
       it('disables delete when only update:my_org:details is granted', async () => {
         renderWithProviders(
           <OrganizationDetailsEdit

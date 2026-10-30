@@ -65,8 +65,6 @@ export interface OrganizationDeleteSectionProps {
   readOnly?: boolean;
   canDelete: boolean;
   permissionDenied: boolean;
-  /** When `allow_if_empty`, the section tells the user they must be the only member. */
-  deletionBehavior?: UseConfigResult['organizationDeletionBehavior'];
   isDeleteLoading: boolean;
   onDelete: () => Promise<boolean>;
 }

@@ -23,7 +23,6 @@ import type { OrganizationDeleteSectionProps } from '@/types/my-organization/org
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.canDelete - Whether the delete action is available
  * @param props.permissionDenied - Whether the delete scope is missing
- * @param props.deletionBehavior - How the API restricts deletion
  * @param props.isDeleteLoading - Whether the delete request is in flight
  * @param props.onDelete - Callback fired when deletion is confirmed
  * @returns JSX element
@@ -35,7 +34,6 @@ export function OrganizationDeleteSection({
   readOnly = false,
   canDelete,
   permissionDenied,
-  deletionBehavior,
   isDeleteLoading,
   onDelete,
 }: OrganizationDeleteSectionProps) {
@@ -54,11 +52,6 @@ export function OrganizationDeleteSection({
               {t('title', { organizationName: organization.name })}
             </h3>
             <p className="text-muted-foreground text-left text-paragraph">{t('description')}</p>
-            {deletionBehavior === 'allow_if_empty' && (
-              <p className="text-muted-foreground text-left text-paragraph">
-                {t('allow_if_empty_hint')}
-              </p>
-            )}
           </div>
 
           <PermissionDeniedTooltip

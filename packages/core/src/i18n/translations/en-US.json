@@ -297,7 +297,6 @@
     "organization_delete": {
       "title": "Delete this organization",
       "description": "Once confirmed, this operation cannot be undone.",
-      "allow_if_empty_hint": "You can only delete this organization when you are its only member.",
       "delete_button_label": "Delete",
       "modal_title": "Delete ${organizationName}",
       "modal_description": "Are you sure you want to delete ${organizationName}? Users will be maintained but membership to this organization will be removed. Once confirmed, this action cannot be undone.",

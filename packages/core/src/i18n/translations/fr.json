@@ -231,7 +231,6 @@
     "organization_delete": {
       "title": "Supprimer cette organisation",
       "description": "Une fois confirmé, cette opération ne peut pas être annulée.",
-      "allow_if_empty_hint": "Vous ne pouvez supprimer cette organisation que si vous en êtes le seul membre.",
       "delete_button_label": "Supprimer",
       "modal_title": "Supprimer ${organizationName}",
       "modal_description": "Êtes-vous sûr de vouloir supprimer ${organizationName} ? Les utilisateurs seront conservés mais l'appartenance à cette organisation sera supprimée. Une fois confirmé, cette action ne peut pas être annulée.",
