@@ -71,12 +71,16 @@ const union = (scopes: string[][]): string[] => [...new Set(scopes.flat())];
  * @returns Promise that settles when the request has been answered; it never rejects
  * @internal
  */
-function sendUnlessAborted(request: PendingRequest, scope: string[]): Promise<void> {
+async function sendUnlessAborted(request: PendingRequest, scope: string[]): Promise<void> {
   if (request.signal?.aborted) {
     request.reject(request.signal.reason ?? new DOMException('Aborted', 'AbortError'));
-    return Promise.resolve();
+    return;
   }
-  return request.send(scope).then(request.resolve, request.reject);
+  try {
+    request.resolve(await request.send(scope));
+  } catch (error) {
+    request.reject(error);
+  }
 }
 
 /**

@@ -39,7 +39,7 @@ export interface ProxyFetcherConfig {
  */
 export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier {
   const fetchFn = config.customFetcher;
-  return (url, init, authParams) => {
+  return async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);

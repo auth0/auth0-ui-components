@@ -240,6 +240,22 @@ describe('token-coordination', () => {
       await expect(follower).resolves.toBeInstanceOf(Response);
     });
 
+    it('gives the caller the error when the send function throws straight away', async () => {
+      const failing = coordinateProxyRequest({ audience: ORG_API, scope: ['a'] }, undefined, () => {
+        throw new Error('cannot send');
+      });
+      const follower = request('follower', { audience: ORG_API, scope: ['b'] });
+      const failingResult = failing.catch((error: Error) => error.message);
+
+      await flushTick();
+
+      await expect(failingResult).resolves.toBe('cannot send');
+      await flushTick();
+      expect(sentNames()).toEqual(['follower']);
+      respond('follower');
+      await expect(follower).resolves.toBeInstanceOf(Response);
+    });
+
     it('does not send a request that was aborted while waiting', async () => {
       const controller = new AbortController();
       const leader = request('leader', { audience: ORG_API, scope: ['a'] });

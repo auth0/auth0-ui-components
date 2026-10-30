@@ -191,6 +191,20 @@ describe('api-utils', () => {
       expect(decoded.distribution).toBe('shadcn');
     });
 
+    it('returns a rejected promise when the custom fetcher throws straight away', async () => {
+      const fetcher = createProxyFetcher({
+        customFetcher: () => {
+          throw new Error('cannot fetch');
+        },
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await expect(fetcher('https://example.com/api', undefined, undefined)).rejects.toThrow(
+        'cannot fetch',
+      );
+    });
+
     it('uses custom fetcher when provided', async () => {
       const customFetcher = vi.fn().mockResolvedValue(new Response());
       const fetcher = createProxyFetcher({
