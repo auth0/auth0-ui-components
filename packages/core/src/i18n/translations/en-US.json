@@ -313,6 +313,29 @@
       "save_organization_changes_message": "The changes have been saved for ${organizationName}.",
       "organization_changes_error_message": "There was an issue processing your request. ${message}.",
       "organization_changes_error_message_generic": "There was an issue processing your request. Please try again or contact support if the issue persists."
+    },
+    "organization_table": {
+      "header": {
+        "title": "Organizations",
+        "description": "Manage the organizations you do business with and customize the experience their users have when accessing your applications.",
+        "create_button_text": "Create Organization"
+      },
+      "table": {
+        "empty_message": "You do not have any organizations.",
+        "error_message": "We couldn't load this information",
+        "error_description": "Please try again or contact support if the problem persists.",
+        "retry_button_text": "Retry",
+        "columns": {
+          "display_name": "Display Name",
+          "name": "Name",
+          "id": "Identifier"
+        },
+        "actions": {
+          "menu_label": "Actions for ${organizationName}",
+          "edit_button_text": "Edit",
+          "delete_button_text": "Delete"
+        }
+      }
     }
   },
   "idp_management": {
