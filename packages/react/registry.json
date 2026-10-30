@@ -1078,6 +1078,280 @@
       }
     },
     {
+      "name": "react/my-organization/organization-delete",
+      "type": "registry:block",
+      "title": "Organization delete component.",
+      "description": "A block component for organization delete.",
+      "dependencies": [
+        "@auth0/universal-components-core@3.5.4",
+        "@auth0/auth0-react@2.15.1",
+        "@radix-ui/react-dialog@1.1.14",
+        "@radix-ui/react-slot@1.2.3",
+        "@radix-ui/react-tooltip@1.2.7",
+        "class-variance-authority@0.7.1",
+        "clsx@2.1.1",
+        "lucide-react@1.16.0",
+        "sonner@2.0.5",
+        "tailwind-merge@3.3.0"
+      ],
+      "files": [
+        {
+          "path": "src/components/auth0/my-organization/organization-delete.tsx",
+          "type": "registry:block",
+          "target": "components/auth0/my-organization/organization-delete.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-section.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/form-actions.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/form-actions.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/gate-keeper/gate-keeper.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/sonner.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/sonner.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/styled-scope.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/styled-scope.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/toast.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/toast.tsx"
+        },
+        {
+          "path": "src/components/ui/button.tsx",
+          "type": "registry:component",
+          "target": "components/ui/button.tsx"
+        },
+        {
+          "path": "src/components/ui/card.tsx",
+          "type": "registry:component",
+          "target": "components/ui/card.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
+          "path": "src/components/ui/label.tsx",
+          "type": "registry:component",
+          "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
+        },
+        {
+          "path": "src/components/ui/spinner.tsx",
+          "type": "registry:component",
+          "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/text-field.tsx",
+          "type": "registry:component",
+          "target": "components/ui/text-field.tsx"
+        },
+        {
+          "path": "src/components/ui/tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tooltip.tsx"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-organization-delete-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-organization-delete-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-organization-delete.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-organization-delete.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client-initialization.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client-initialization.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-core-client.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-error-handler.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-permissions.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-permissions.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-telemetry.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-telemetry.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-theme.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-theme.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-toast-provider.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-toast-provider.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-translator.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-translator.ts"
+        },
+        {
+          "path": "src/providers/gate-keeper-context.tsx",
+          "type": "registry:component",
+          "target": "providers/gate-keeper-context.tsx"
+        },
+        {
+          "path": "src/providers/permission-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/permission-provider.tsx"
+        },
+        {
+          "path": "src/providers/portal-context.tsx",
+          "type": "registry:component",
+          "target": "providers/portal-context.tsx"
+        },
+        {
+          "path": "src/providers/proxy-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/proxy-provider.tsx"
+        },
+        {
+          "path": "src/providers/query-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/query-provider.tsx"
+        },
+        {
+          "path": "src/providers/spa-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/spa-provider.tsx"
+        },
+        {
+          "path": "src/providers/telemetry-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/telemetry-provider.tsx"
+        },
+        {
+          "path": "src/providers/theme-provider.tsx",
+          "type": "registry:component",
+          "target": "providers/theme-provider.tsx"
+        },
+        {
+          "path": "src/types/auth-types.ts",
+          "type": "registry:component",
+          "target": "types/auth-types.ts"
+        },
+        {
+          "path": "src/types/cache-types.ts",
+          "type": "registry:component",
+          "target": "types/cache-types.ts"
+        },
+        {
+          "path": "src/types/i18n-types.ts",
+          "type": "registry:component",
+          "target": "types/i18n-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
+        },
+        {
+          "path": "src/types/permissions/permissions-types.ts",
+          "type": "registry:component",
+          "target": "types/permissions/permissions-types.ts"
+        },
+        {
+          "path": "src/types/retry-types.ts",
+          "type": "registry:component",
+          "target": "types/retry-types.ts"
+        },
+        {
+          "path": "src/types/theme-types.ts",
+          "type": "registry:component",
+          "target": "types/theme-types.ts"
+        },
+        {
+          "path": "src/types/toast-types.ts",
+          "type": "registry:component",
+          "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/lib/constants/telemetry-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/telemetry-constants.ts"
+        },
+        {
+          "path": "src/lib/utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/shared/css-detection.ts",
+          "type": "registry:component",
+          "target": "lib/utils/shared/css-detection.ts"
+        },
+        {
+          "path": "src/lib/utils/tanstack-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/tanstack-compat.ts"
+        },
+        {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
+        },
+        {
+          "path": "src/styles/globals.css",
+          "type": "registry:component",
+          "target": "styles/globals.css"
+        },
+        {
+          "path": "src/styles/tailwind.css",
+          "type": "registry:component",
+          "target": "styles/tailwind.css"
+        }
+      ],
+      "meta": {
+        "framework": "react",
+        "coreVersion": "3.5.4"
+      }
+    },
+    {
       "name": "react/my-organization/organization-details-edit",
       "type": "registry:block",
       "title": "Organization details edit component.",
@@ -1086,6 +1360,7 @@
         "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
+        "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-label@2.1.7",
         "@radix-ui/react-popover@1.1.14",
         "@radix-ui/react-radio-group@1.2.0",
@@ -1107,6 +1382,16 @@
           "path": "src/components/auth0/my-organization/organization-details-edit.tsx",
           "type": "registry:block",
           "target": "components/auth0/my-organization/organization-details-edit.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-section.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-section.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/organization-management/organization-details/branding-details.tsx",
@@ -1144,6 +1429,11 @@
           "target": "components/auth0/shared/header.tsx"
         },
         {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/section.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/section.tsx"
@@ -1179,6 +1469,11 @@
           "target": "components/ui/color-picker.tsx"
         },
         {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
           "path": "src/components/ui/form.tsx",
           "type": "registry:component",
           "target": "components/ui/form.tsx"
@@ -1192,6 +1487,11 @@
           "path": "src/components/ui/label.tsx",
           "type": "registry:component",
           "target": "components/ui/label.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
         },
         {
           "path": "src/components/ui/popover.tsx",
@@ -1244,9 +1544,19 @@
           "target": "hooks/my-organization/shared/services/use-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-organization-delete-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-organization-delete-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-organization-details-edit-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-organization-delete.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-organization-delete.ts"
         },
         {
           "path": "src/hooks/my-organization/use-organization-details-edit.ts",
@@ -1357,6 +1667,11 @@
           "path": "src/types/my-organization/config/config-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/config/config-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
         },
         {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
@@ -2670,6 +2985,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
@@ -3392,6 +3712,11 @@
           "path": "src/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
         },
         {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",

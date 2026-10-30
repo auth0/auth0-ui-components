@@ -36,6 +36,10 @@ export {
   OrganizationDetailsEdit,
   OrganizationDetailsEditView,
 } from './components/auth0/my-organization/organization-details-edit';
+export {
+  OrganizationDelete,
+  OrganizationDeleteView,
+} from './components/auth0/my-organization/organization-delete';
 
 // Providers
 export { PermissionProvider } from './providers/permission-provider';
@@ -55,6 +59,7 @@ export { useUserPasskey } from './hooks/my-account/use-user-passkey';
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
 export { useIdpConfig } from './hooks/my-organization/shared/services/use-idp-config-service';
+export { useOrganizationDelete } from './hooks/my-organization/use-organization-delete';
 export { useOrganizationDetailsEdit } from './hooks/my-organization/use-organization-details-edit';
 export { useDomainTable } from './hooks/my-organization/use-domain-table';
 export { useProviderFormMode } from './hooks/my-organization/use-provider-form-mode';
@@ -91,6 +96,7 @@ export * from './types/my-organization/idp-management/sso-provider/sso-provider-
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+export * from './types/my-organization/organization-management/organization-delete-types';
 export * from './types/my-organization/organization-management/organization-details-edit-types';
 export * from './types/my-organization/organization-management/organization-details-types';
 export * from './types/my-organization/member-management/organization-invitation-table-types';

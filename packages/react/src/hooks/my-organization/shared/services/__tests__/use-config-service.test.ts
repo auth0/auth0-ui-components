@@ -126,6 +126,35 @@ describe('useConfig', () => {
     });
   });
 
+  describe('organizationDeletionBehavior', () => {
+    it.each(['allow', 'allow_if_empty'] as const)(
+      'returns the configured "%s"',
+      async (behavior) => {
+        mockGet.mockResolvedValue(createMockConfig({ organization_deletion_behavior: behavior }));
+
+        const { result } = await renderUseConfig();
+
+        expect(result.current.organizationDeletionBehavior).toBe(behavior);
+      },
+    );
+
+    it('defaults to allow_if_empty when the configuration does not set it', async () => {
+      mockGet.mockResolvedValue(createMockConfig());
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.organizationDeletionBehavior).toBe('allow_if_empty');
+    });
+
+    it('stays undefined when the configuration could not be loaded', async () => {
+      mockGet.mockRejectedValue({ body: { status: 404 } });
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.organizationDeletionBehavior).toBeUndefined();
+    });
+  });
+
   describe('error handling', () => {
     it('returns null config on 404', async () => {
       mockGet.mockRejectedValue({ body: { status: 404 } });
