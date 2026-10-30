@@ -4,12 +4,9 @@
  * @internal
  */
 
-import { Copy } from 'lucide-react';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useTranslator } from '@/hooks/shared/use-translator';
+import { CopyButton } from '@/components/auth0/shared/copy-button';
 import { cn } from '@/lib/utils';
 
 export interface CopyableTextProps {
@@ -25,66 +22,19 @@ const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
   (
     { value, className, buttonClassName, tooltipSide = 'top', tooltipAlign = 'end', onCopy },
     ref,
-  ) => {
-    const { t } = useTranslator('common');
-    const [tooltipText, setTooltipText] = React.useState(t('copy'));
-    const [tooltipOpen, setTooltipOpen] = React.useState(false);
-
-    const resetTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    React.useEffect(() => {
-      return () => {
-        if (resetTimeoutRef.current) {
-          clearTimeout(resetTimeoutRef.current);
-        }
-      };
-    }, []);
-
-    const handleCopy = async () => {
-      try {
-        await navigator.clipboard.writeText(value);
-        setTooltipText(t('copied'));
-        setTooltipOpen(true);
-        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-        resetTimeoutRef.current = setTimeout(() => {
-          setTooltipText(t('copy'));
-          setTooltipOpen(false);
-        }, 1000);
-        onCopy?.();
-      } catch {
-        setTooltipText(t('copy_failed'));
-        setTooltipOpen(true);
-        if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-        resetTimeoutRef.current = setTimeout(() => {
-          setTooltipText(t('copy'));
-          setTooltipOpen(false);
-        }, 1000);
-      }
-    };
-
-    return (
-      <span ref={ref} className={cn('flex items-center gap-1', className)}>
-        <span className="text-sm text-primary">{value}</span>
-        <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className={cn('h-6 w-6 shrink-0', buttonClassName)}
-              onClick={handleCopy}
-              aria-label={t('copy')}
-            >
-              <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5}>
-            {tooltipText}
-          </TooltipContent>
-        </Tooltip>
-      </span>
-    );
-  },
+  ) => (
+    <span ref={ref} className={cn('flex items-center gap-1', className)}>
+      <span className="text-sm text-primary">{value}</span>
+      <CopyButton
+        value={value}
+        onCopy={onCopy}
+        className={cn('h-6 w-6 shrink-0', buttonClassName)}
+        iconClassName="h-3.5 w-3.5"
+        tooltipSide={tooltipSide}
+        tooltipAlign={tooltipAlign}
+      />
+    </span>
+  ),
 );
 
 CopyableText.displayName = 'CopyableText';
