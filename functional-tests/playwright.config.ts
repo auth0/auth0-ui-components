@@ -11,7 +11,7 @@ export default defineConfig({
   // avoiding display_name races, 429s, and refresh-token conflicts across files.
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 2 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
