@@ -118,25 +118,6 @@ describe('ProvisioningManageToken', () => {
     expect(await screen.findByText('token_item.never_expire')).toBeInTheDocument();
   });
 
-  it('should call onCreateScimToken when generate button is clicked', async () => {
-    const user = userEvent.setup();
-    const mockCreatedToken = {
-      scim_token: 'new-token-value',
-      token_id: 'new-token-id',
-    };
-    mockOnCreateScimToken.mockResolvedValue(mockCreatedToken);
-    mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
-
-    render(<ProvisioningManageToken {...defaultProps} />);
-
-    const generateButton = await screen.findByText('generate_button_label');
-    await user.click(generateButton);
-
-    await waitFor(() => {
-      expect(mockOnCreateScimToken).toHaveBeenCalledWith({ token_lifetime: 3600 });
-    });
-  });
-
   it('should disable generate button when max tokens reached', async () => {
     mockOnListScimTokens.mockResolvedValue({ scim_tokens: mockTokens });
     render(<ProvisioningManageToken {...defaultProps} />);
@@ -208,27 +189,6 @@ describe('ProvisioningManageToken', () => {
     });
   });
 
-  it('should reload tokens after successful creation', async () => {
-    const user = userEvent.setup();
-    const mockCreatedToken = {
-      scim_token: 'new-token-value',
-      token_id: 'new-token-id',
-    };
-    mockOnCreateScimToken.mockResolvedValue(mockCreatedToken);
-    mockOnListScimTokens.mockResolvedValueOnce({ scim_tokens: [] }).mockResolvedValueOnce({
-      scim_tokens: [{ token_id: 'new-token-id', valid_until: undefined }],
-    });
-
-    render(<ProvisioningManageToken {...defaultProps} />);
-
-    const generateButton = await screen.findByText('generate_button_label');
-    await user.click(generateButton);
-
-    await waitFor(() => {
-      expect(mockOnListScimTokens).toHaveBeenCalledTimes(2);
-    });
-  });
-
   it('should apply custom styling classes', async () => {
     const styling = {
       variables: { common: {}, light: {}, dark: {} },
@@ -254,21 +214,129 @@ describe('ProvisioningManageToken', () => {
     });
   });
 
-  it('should show create modal after generating token', async () => {
+  it('should open the create modal on step 1 when generate is clicked', async () => {
     const user = userEvent.setup();
-    const mockCreatedToken = {
-      scim_token: 'new-token-value',
-      token_id: 'new-token-id',
-    };
-    mockOnCreateScimToken.mockResolvedValue(mockCreatedToken);
-    mockOnListScimTokens.mockResolvedValue({ scim_tokens: [] });
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    await user.click(await screen.findByText('generate_button_label'));
+
+    expect(await screen.findByText('create_modal.steps.configure')).toBeInTheDocument();
+    expect(mockOnCreateScimToken).not.toHaveBeenCalled();
+  });
+
+  it('should create with no lifetime when no expiration is checked, then reload tokens', async () => {
+    const user = userEvent.setup();
+    mockOnCreateScimToken.mockResolvedValue({
+      token_id: 'tok_new',
+      token: 'secret-value',
+      created_at: '2026-03-14T09:12:45Z',
+    });
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    await user.click(await screen.findByText('generate_button_label'));
+    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
+    await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
+
+    await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalledWith({}));
+    expect(await screen.findByDisplayValue('secret-value')).toBeInTheDocument();
+    expect(mockOnListScimTokens).toHaveBeenCalledTimes(2);
+  });
+
+  it('should send the profile default lifetime from scimTokenConfig', async () => {
+    const user = userEvent.setup();
+    mockOnCreateScimToken.mockResolvedValue({
+      token_id: 'tok_new',
+      token: 'secret-value',
+      created_at: '2026-03-14T09:12:45Z',
+    });
+    render(
+      <ProvisioningManageToken
+        {...defaultProps}
+        scimTokenConfig={{ default_expiry: 7200, max_allowed_expiry: 86400 }}
+      />,
+    );
+
+    await user.click(await screen.findByText('generate_button_label'));
+    await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
+
+    await waitFor(() =>
+      expect(mockOnCreateScimToken).toHaveBeenCalledWith({ token_lifetime: 7200 }),
+    );
+  });
+
+  it('should stay on step 1 when creation fails', async () => {
+    const user = userEvent.setup();
+    mockOnCreateScimToken.mockResolvedValue(undefined);
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    await user.click(await screen.findByText('generate_button_label'));
+    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
+    await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
+
+    await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalled());
+    expect(screen.getByText('create_modal.steps.configure')).toBeInTheDocument();
+    expect(screen.queryByDisplayValue('secret-value')).toBeNull();
+  });
+
+  it('should stay on step 1 without an unhandled rejection when creation rejects', async () => {
+    const user = userEvent.setup();
+    mockOnCreateScimToken.mockRejectedValue(new Error('quota exceeded'));
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    await user.click(await screen.findByText('generate_button_label'));
+    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
+    await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
+
+    await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalled());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(screen.getByText('create_modal.steps.configure')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /create_modal.next_button_label/ })).toBeEnabled();
+  });
+
+  it('should show scopes and created date for a token', async () => {
+    mockOnListScimTokens.mockResolvedValue({
+      scim_tokens: [
+        {
+          token_id: 'token-meta',
+          scopes: ['get:users', 'post:users'],
+          created_at: '2026-03-14T09:12:45Z',
+        },
+      ],
+    });
 
     render(<ProvisioningManageToken {...defaultProps} />);
 
-    const generateButton = await screen.findByText('generate_button_label');
-    await user.click(generateButton);
+    expect(await screen.findByText('token_item.scopes')).toBeInTheDocument();
+    expect(screen.getByText('token_item.created_at')).toBeInTheDocument();
+  });
 
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  it('should not show scopes or created date when the token has none', async () => {
+    mockOnListScimTokens.mockResolvedValue({
+      scim_tokens: [{ token_id: 'token-bare', scopes: [], created_at: '' }],
+    });
+
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    expect(await screen.findByText(/token-bare/)).toBeInTheDocument();
+    expect(screen.queryByText('token_item.scopes')).not.toBeInTheDocument();
+    expect(screen.queryByText('token_item.created_at')).not.toBeInTheDocument();
+  });
+
+  it('should show the expiry date for a token with valid_until', async () => {
+    mockOnListScimTokens.mockResolvedValue({
+      scim_tokens: [
+        {
+          token_id: 'token-expiring',
+          created_at: '2026-03-14T09:12:45Z',
+          valid_until: '2099-01-01T00:00:00Z',
+        },
+      ],
+    });
+
+    render(<ProvisioningManageToken {...defaultProps} />);
+
+    expect(await screen.findByText('token_item.expires_on')).toBeInTheDocument();
+    expect(screen.queryByText('token_item.never_expire')).not.toBeInTheDocument();
   });
 
   describe('granted permissions', () => {

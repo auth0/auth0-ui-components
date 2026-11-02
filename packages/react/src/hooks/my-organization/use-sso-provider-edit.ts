@@ -75,6 +75,7 @@ export function useSsoProviderEdit(
     isProvisioningMethodEnabled,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    getScimTokenConfig,
   } = useIdpConfig();
 
   const showProvisioningTab =
@@ -145,5 +146,6 @@ export function useSsoProviderEdit(
     isThirdPartyAccessReadOnly,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
+    scimTokenConfig: getScimTokenConfig(service.provider?.strategy),
   };
 }
