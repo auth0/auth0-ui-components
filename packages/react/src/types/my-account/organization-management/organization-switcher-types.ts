@@ -57,6 +57,8 @@ export interface UseOrganizationSwitcherServiceResult {
   organizations: UserOrganization[];
   isLoading: boolean;
   isError: boolean;
+  /** Whether the latest error came from loading the next page. */
+  isFetchNextPageError: boolean;
   /** Whether a retry is in flight after the first load failed. */
   isRetrying: boolean;
   hasNextPage: boolean;

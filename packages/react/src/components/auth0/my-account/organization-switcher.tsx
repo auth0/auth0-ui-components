@@ -90,6 +90,7 @@ function OrganizationSwitcherView({
     currentOrganization,
     isLoading,
     isError,
+    isFetchNextPageError,
     isRetrying,
     hasNextPage,
     isFetchingNextPage,
@@ -117,7 +118,7 @@ function OrganizationSwitcherView({
   const hasFailed = (isError && organizations.length === 0) || isRetrying;
 
   // A failed "Load more" keeps the organizations already loaded and offers a retry in its place.
-  const loadMoreFailed = isError && organizations.length > 0;
+  const loadMoreFailed = isFetchNextPageError && organizations.length > 0;
 
   // Render nothing until the first page loads, and when there is nothing to switch to or create.
   const hasNothingToDo = organizations.length <= 1 && !hasNextPage && !onCreateOrganization;

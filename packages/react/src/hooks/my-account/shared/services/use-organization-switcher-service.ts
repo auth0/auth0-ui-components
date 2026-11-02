@@ -7,6 +7,7 @@
 
 import { userOrganizationQueryKeys } from '@auth0/universal-components-core';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type {
@@ -25,6 +26,8 @@ export function useOrganizationSwitcherService({
   pageSize,
 }: UseOrganizationSwitcherServiceOptions): UseOrganizationSwitcherServiceResult {
   const { coreClient } = useCoreClient();
+  // When the last "Load more" failed. `isFetchNextPageError` would do this but TanStack Query v4 lacks it.
+  const [nextPageErrorAt, setNextPageErrorAt] = useState<number>();
 
   const organizationsQuery = useInfiniteQuery({
     queryKey: userOrganizationQueryKeys.infinite({ pageSize }),
@@ -48,12 +51,17 @@ export function useOrganizationSwitcherService({
     organizations: organizationsQuery.data?.pages.flatMap((page) => page.organizations) ?? [],
     isLoading: organizationsQuery.isLoading,
     isError: organizationsQuery.isError,
+    // Only while the latest error is that failed page, not a later refetch of the loaded pages.
+    isFetchNextPageError:
+      organizationsQuery.isError && organizationsQuery.errorUpdatedAt === nextPageErrorAt,
     // Retrying after a failed first load puts the query back into its loading state.
     isRetrying: organizationsQuery.isLoading && organizationsQuery.errorUpdateCount > 0,
     hasNextPage: !!organizationsQuery.hasNextPage,
     isFetchingNextPage: organizationsQuery.isFetchingNextPage,
     fetchNextPage: () => {
-      void organizationsQuery.fetchNextPage();
+      void organizationsQuery.fetchNextPage().then((result) => {
+        setNextPageErrorAt(result.isError ? result.errorUpdatedAt : undefined);
+      });
     },
     refetch: () => {
       void organizationsQuery.refetch();

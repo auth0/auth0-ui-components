@@ -1,5 +1,6 @@
-import type { UserOrganization } from '@auth0/universal-components-core';
-import { screen, waitFor } from '@testing-library/react';
+import { userOrganizationQueryKeys, type UserOrganization } from '@auth0/universal-components-core';
+import { QueryClient } from '@tanstack/react-query';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -274,6 +275,37 @@ describe('OrganizationSwitcher', () => {
       expect(listOrganizations).toHaveBeenLastCalledWith(
         expect.objectContaining({ from: 'next_token' }),
       );
+    });
+  });
+
+  describe('when refreshing the loaded organizations fails', () => {
+    it('keeps them and still offers load more, without an error', async () => {
+      const user = userEvent.setup();
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockRejectedValueOnce(new Error('Network error'));
+      renderWithProviders(<OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />, {
+        queryClient,
+      });
+
+      await openMenu(user);
+      await screen.findByRole('menuitem', { name: 'load_more_button_text' });
+      await act(async () => {
+        await queryClient.refetchQueries({ queryKey: userOrganizationQueryKeys.all });
+      });
+      // Let the failed refresh reach the component before checking what it shows.
+      await waitFor(() =>
+        expect(
+          queryClient.getQueryCache().findAll({ queryKey: userOrganizationQueryKeys.all })[0]?.state
+            .status,
+        ).toBe('error'),
+      );
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+
+      expect(screen.queryByText('error_message')).not.toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'load_more_button_text' })).toBeInTheDocument();
     });
   });
 
