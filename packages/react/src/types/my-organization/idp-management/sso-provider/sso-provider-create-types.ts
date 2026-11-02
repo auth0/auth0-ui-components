@@ -84,6 +84,8 @@ export interface ProviderConfigureProps
   idpConfig: GetIdpConfigurationResponseContent | null;
   connectionName?: string;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
@@ -110,6 +112,8 @@ export interface ProviderConfigureFieldsProps
   connectionName?: string;
   connectionNamePrefix?: string;
   mode?: FormMode;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
@@ -141,6 +145,8 @@ export interface SsoProviderCreateProps
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
    *
@@ -214,6 +220,7 @@ export interface SsoProviderCreateViewProps
       | 'onPrevious'
       | 'resolveSamlMetadata'
       | 'connectionNamePrefix'
+      | 'showSignRequest'
     > {
   strategy?: IdpStrategy;
   details?: ProviderDetailsFormValues | null;

@@ -94,6 +94,7 @@ export const SamlpProviderForm = React.forwardRef<
     connectionName: connectionNameProp,
     connectionNamePrefix,
     resolveSamlMetadata,
+    showSignRequest = true,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -359,51 +360,53 @@ export const SamlpProviderForm = React.forwardRef<
               {t('fields.samlp.advanced_settings.title')}
             </AccordionTrigger>
             <AccordionContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="signSAMLRequest"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value || false}
-                        onCheckedChange={field.onChange}
-                        disabled={readOnly}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        {t('fields.samlp.advanced_settings.sign_request.label')}
-                      </FormLabel>
-                      <FormDescription className="text-paragraph font-normal text-left">
-                        <>
-                          {t.trans(
-                            typeValue === 'meta_data_url'
-                              ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
-                              : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
-                            {
-                              components: {
-                                link: (children: string) => (
-                                  <Link
-                                    key="samlp-sign-request-link"
-                                    href={signRequestCertUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {children}
-                                  </Link>
-                                ),
+              {showSignRequest && (
+                <FormField
+                  control={form.control}
+                  name="signSAMLRequest"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                          disabled={readOnly}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          {t('fields.samlp.advanced_settings.sign_request.label')}
+                        </FormLabel>
+                        <FormDescription className="text-paragraph font-normal text-left">
+                          <>
+                            {t.trans(
+                              typeValue === 'meta_data_url'
+                                ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
+                                : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
+                              {
+                                components: {
+                                  link: (children: string) => (
+                                    <Link
+                                      key="samlp-sign-request-link"
+                                      href={signRequestCertUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {children}
+                                    </Link>
+                                  ),
+                                },
                               },
-                            },
-                          )}
-                        </>
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
+                            )}
+                          </>
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              {signRequestEnabled && (
+              {showSignRequest && signRequestEnabled && (
                 <>
                   <FormField
                     control={form.control}
