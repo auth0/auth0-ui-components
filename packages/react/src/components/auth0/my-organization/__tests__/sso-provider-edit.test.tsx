@@ -1,3 +1,4 @@
+import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -270,6 +271,92 @@ describe('SsoProviderEdit', () => {
         await user.click(backButton);
 
         expect(mockBackButton.onClick).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
+
+  describe('showSignRequest', () => {
+    const signedSamlProvider = createMockIdentityProvider({
+      options: {
+        metadataUrl: 'https://idp.example.com/metadata',
+        signSAMLRequest: true,
+        signatureAlgorithm: 'rsa-sha256',
+        digestAlgorithm: 'sha256',
+      },
+    } as Partial<IdpKnownResponse>);
+
+    const openAdvancedSettings = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(
+        await screen.findByRole('button', { name: /fields\.samlp\.advanced_settings\.title/i }),
+      );
+    };
+
+    beforeEach(() => {
+      const identityProviders =
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders;
+      vi.mocked(identityProviders.get).mockResolvedValue(signedSamlProvider);
+      vi.mocked(identityProviders.update).mockResolvedValue(signedSamlProvider);
+    });
+
+    describe('when not set', () => {
+      it('should show the SAML sign request option', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+        await waitForComponentToLoad();
+        await openAdvancedSettings(user);
+
+        expect(
+          screen.getByText('fields.samlp.advanced_settings.sign_request.label'),
+        ).toBeInTheDocument();
+      });
+    });
+
+    describe('when false', () => {
+      it('should hide the SAML sign request option and keep request binding', async () => {
+        const user = userEvent.setup();
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ showSignRequest: false })} />,
+        );
+
+        await waitForComponentToLoad();
+        await openAdvancedSettings(user);
+
+        expect(
+          screen.queryByText('fields.samlp.advanced_settings.sign_request.label'),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.getByText('fields.samlp.advanced_settings.request_protocol_binding.label'),
+        ).toBeInTheDocument();
+      });
+
+      it('should keep signSAMLRequest enabled when saving', async () => {
+        const user = userEvent.setup();
+        const props = createMockSsoProviderEditProps({ showSignRequest: false });
+        renderWithProviders(<SsoProviderEdit {...props} />);
+
+        await waitForComponentToLoad();
+        const displayName = await screen.findByRole('textbox', {
+          name: /fields\.display_name\.label/i,
+        });
+        await user.clear(displayName);
+        await user.type(displayName, 'Renamed Provider');
+        await user.click(screen.getByRole('button', { name: /submit_button_label/i }));
+
+        await waitFor(() => {
+          expect(
+            mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.update,
+          ).toHaveBeenCalledWith(
+            props.providerId,
+            expect.objectContaining({
+              options: expect.objectContaining({
+                signSAMLRequest: true,
+                signatureAlgorithm: 'rsa-sha256',
+                digestAlgorithm: 'sha256',
+              }),
+            }),
+          );
+        });
       });
     });
   });
