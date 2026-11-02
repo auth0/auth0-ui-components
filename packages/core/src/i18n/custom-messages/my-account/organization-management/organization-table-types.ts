@@ -24,7 +24,6 @@ export interface OrganizationTableMessages extends SharedMessages {
     actions?: {
       menu_label?: string;
       edit_button_text?: string;
-      delete_button_text?: string;
     };
   };
 }

@@ -332,8 +332,7 @@
         },
         "actions": {
           "menu_label": "Actions for ${organizationName}",
-          "edit_button_text": "Edit",
-          "delete_button_text": "Delete"
+          "edit_button_text": "Edit"
         }
       }
     }
