@@ -74,24 +74,48 @@ export async function checkAuth0CLI() {
 }
 
 /**
- * Run Auth0 CLI login interactively with required scopes
- * @param {string} domain - Optional tenant domain to login to
- * @returns {Promise<boolean>} True if login was successful
+ * Log in to the Auth0 CLI, either interactively (browser) or via M2M client
+ * credentials. The CLI's --domain flag is only valid for client-credential
+ * (machine) login and rejects non-auth0.com domains for interactive/browser
+ * login — so for tenants whose login page isn't served from *.auth0.com
+ * (e.g. internal dev/staging domains), machine login is the only option,
+ * and the caller must supply clientId/clientSecret for that tenant.
+ * @param {string} domain - Tenant domain to login to (machine login) or switch to after interactive login
+ * @param {string} [clientId] - M2M client ID; when set, uses machine login instead of browser login
+ * @param {string} [clientSecret] - M2M client secret; required alongside clientId
+ * @returns {Promise<boolean>} True if login (and tenant switch, if applicable) succeeded
  */
-async function runAuth0Login(domain = null) {
+async function runAuth0Login(domain = null, clientId = null, clientSecret = null) {
+  if (clientId && clientSecret) {
+    console.log(`\n🔐 Starting Auth0 CLI machine login for ${domain}...\n`)
+
+    try {
+      execaSync(
+        'auth0',
+        ['login', '--domain', domain, '--client-id', clientId, '--client-secret', clientSecret],
+        {
+          stdio: 'inherit',
+          timeout: 120000, // 2 minute timeout for login process
+        }
+      )
+      return true
+    } catch (e) {
+      if (e.timedOut) {
+        console.error("\n❌ Login timed out. Please try again.")
+      } else {
+        console.error(`\n❌ Machine login failed: ${e.message}`)
+      }
+      return false
+    }
+  }
+
   console.log("\n🔐 Starting Auth0 CLI login...\n")
   console.log("   A browser window will open for authentication.")
   console.log("   Please complete the login process.\n")
 
   try {
-    // Build login args with required scopes
     const scopesArg = BOOTSTRAP_SCOPES.join(",")
     const args = ['login', '--scopes', scopesArg]
-
-    // Add domain if specified
-    if (domain) {
-      args.push('--domain', domain)
-    }
 
     // Run login in interactive mode (no --no-input flag)
     // Use stdio: 'inherit' to allow interactive browser-based login
@@ -99,7 +123,6 @@ async function runAuth0Login(domain = null) {
       stdio: 'inherit',
       timeout: 120000, // 2 minute timeout for login process
     })
-    return true
   } catch (e) {
     if (e.timedOut) {
       console.error("\n❌ Login timed out. Please try again.")
@@ -108,13 +131,22 @@ async function runAuth0Login(domain = null) {
     }
     return false
   }
+
+  if (domain) {
+    return switchToTenant(domain)
+  }
+
+  return true
 }
 
 /**
  * Validate Auth0 CLI session and offer to login if expired
+ * @param {string} [tenantName] - Tenant domain to login to if session is invalid
+ * @param {string} [clientId] - M2M client ID for machine login (see runAuth0Login)
+ * @param {string} [clientSecret] - M2M client secret for machine login
  * @returns {Promise<void>}
  */
-export async function validateAuth0Session() {
+export async function validateAuth0Session(tenantName = null, clientId = null, clientSecret = null) {
   const spinner = ora({
     text: `Validating Auth0 CLI session`,
   }).start()
@@ -138,7 +170,7 @@ export async function validateAuth0Session() {
     process.exit(1)
   }
 
-  const loginSuccess = await runAuth0Login()
+  const loginSuccess = await runAuth0Login(tenantName, clientId, clientSecret)
 
   if (!loginSuccess) {
     console.error("\n❌ Login was not successful. Please try again.\n")
@@ -179,8 +211,10 @@ async function switchToTenant(tenantName) {
 /**
  * Validate tenant configuration
  * @param {string} tenantName - Required tenant name from command line argument
+ * @param {string} [clientId] - M2M client ID for machine login (see runAuth0Login)
+ * @param {string} [clientSecret] - M2M client secret for machine login
  */
-export async function validateTenant(tenantName) {
+export async function validateTenant(tenantName, clientId = null, clientSecret = null) {
   if (!tenantName) {
     console.error("\n❌ Error: Tenant name is required")
     console.error("\nUsage: node scripts/bootstrap.mjs <tenant-domain>")
@@ -222,10 +256,10 @@ export async function validateTenant(tenantName) {
       )
 
       if (shouldLogin) {
-        const loginSuccess = await runAuth0Login(tenantName)
+        const loginSuccess = await runAuth0Login(tenantName, clientId, clientSecret)
         if (loginSuccess) {
           // Retry tenant validation after login
-          return validateTenant(tenantName)
+          return validateTenant(tenantName, clientId, clientSecret)
         }
       }
 
@@ -255,7 +289,7 @@ export async function validateTenant(tenantName) {
           const switchSuccess = await switchToTenant(tenantName)
           if (switchSuccess) {
             // Retry tenant validation after switching
-            return validateTenant(tenantName)
+            return validateTenant(tenantName, clientId, clientSecret)
           }
         }
       } else {
@@ -267,10 +301,10 @@ export async function validateTenant(tenantName) {
         )
 
         if (shouldLogin) {
-          const loginSuccess = await runAuth0Login(tenantName)
+          const loginSuccess = await runAuth0Login(tenantName, clientId, clientSecret)
           if (loginSuccess) {
             // Retry tenant validation after login
-            return validateTenant(tenantName)
+            return validateTenant(tenantName, clientId, clientSecret)
           }
         }
       }
@@ -296,10 +330,10 @@ export async function validateTenant(tenantName) {
       )
 
       if (shouldLogin) {
-        const loginSuccess = await runAuth0Login(tenantName)
+        const loginSuccess = await runAuth0Login(tenantName, clientId, clientSecret)
         if (loginSuccess) {
           // Retry tenant validation after login
-          return validateTenant(tenantName)
+          return validateTenant(tenantName, clientId, clientSecret)
         }
       }
 
