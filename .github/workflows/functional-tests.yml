@@ -3,58 +3,29 @@ name: Functional Tests
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-  pull_request_review:
-    types: [submitted]
+    paths:
+      - functional-tests/**
+      - packages/**
+      - examples/react-spa-npm/**
+      - .github/workflows/functional-tests.yml
+  workflow_dispatch:
 
 concurrency:
-  group: functional-tests-${{ github.event.pull_request.number }}
+  group: functional-tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-env:
-  # Path prefixes (regex alternation) that trigger the functional tests
-  FT_PATHS: functional-tests/|packages/|examples/react-spa-npm/|.github/workflows/functional-tests.yml
-
 jobs:
-  gate:
-    name: Functional Tests Gate
-    if: github.event.pull_request.head.repo.fork == false && github.event.pull_request.draft == false
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      run: ${{ steps.check.outputs.run }}
-    steps:
-      - name: Check approval and changed paths
-        id: check
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          decision=$(gh pr view "$PR" --repo "$REPO" --json reviewDecision --jq .reviewDecision)
-          relevant=$(gh api --paginate --slurp "repos/$REPO/pulls/$PR/files" | jq --arg re "^($FT_PATHS)" '
-            add | map(.filename | select(test($re))) | length')
-          echo "decision=$decision relevant_files=$relevant"
-          if [ "$decision" = "APPROVED" ] && [ "$relevant" -gt 0 ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          fi
-
   functional-tests:
     name: Functional Tests
-    needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.fork == false &&
+      github.event.pull_request.draft == false &&
+      github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
-    env:
-      FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
-      FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
-      FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
-      FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
-      FT_TEST_USER_EMAIL: ${{ secrets.FT_TEST_USER_EMAIL }}
-      FT_TEST_USER_PASSWORD: ${{ secrets.FT_TEST_USER_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -81,22 +52,40 @@ jobs:
         working-directory: functional-tests
         run: pnpm exec playwright install --with-deps chromium ffmpeg
 
-      - name: Check CPU Cores
-        run: lscpu | grep "CPU(s):"
-
       - name: Create ephemeral test org
         working-directory: functional-tests
         run: pnpm run org:setup
+        env:
+          FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
+          FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
+          FT_TEST_USER_EMAIL: ${{ secrets.FT_TEST_USER_EMAIL }}
+          FT_TEST_USER_PASSWORD: ${{ secrets.FT_TEST_USER_PASSWORD }}
 
       - name: Run Playwright tests
         working-directory: functional-tests
         # TODO: remove --pass-with-no-tests in specs pr
         run: pnpm exec playwright test --pass-with-no-tests
+        env:
+          FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
+          FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
+          FT_TEST_USER_EMAIL: ${{ secrets.FT_TEST_USER_EMAIL }}
+          FT_TEST_USER_PASSWORD: ${{ secrets.FT_TEST_USER_PASSWORD }}
 
       - name: Teardown ephemeral test org
         if: always()
         working-directory: functional-tests
         run: pnpm run org:teardown
+        env:
+          FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
+          FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
+          FT_TEST_USER_EMAIL: ${{ secrets.FT_TEST_USER_EMAIL }}
+          FT_TEST_USER_PASSWORD: ${{ secrets.FT_TEST_USER_PASSWORD }}
 
       - name: Upload Playwright report
         if: always()
