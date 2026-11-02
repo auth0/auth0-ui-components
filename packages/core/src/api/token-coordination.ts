@@ -57,6 +57,15 @@ interface PendingRequest {
 let pending: PendingRequest[] = [];
 
 /**
+ * Returns what an aborted request rejects with, matching `fetch`.
+ * @param signal - The aborted signal
+ * @returns The signal's reason, or an `AbortError`
+ * @internal
+ */
+const abortReason = (signal: AbortSignal): unknown =>
+  signal.reason ?? new DOMException('Aborted', 'AbortError');
+
+/**
  * Merges scope lists, keeping each scope once in the order it first appears.
  * @param scopes - Scope lists to merge
  * @returns The merged scopes
@@ -73,7 +82,7 @@ const union = (scopes: string[][]): string[] => [...new Set(scopes.flat())];
  */
 async function sendUnlessAborted(request: PendingRequest, scope: string[]): Promise<void> {
   if (request.signal?.aborted) {
-    request.reject(request.signal.reason ?? new DOMException('Aborted', 'AbortError'));
+    request.reject(abortReason(request.signal));
     return;
   }
   try {
@@ -145,8 +154,28 @@ export function coordinateProxyRequest(
   const scope = authParams?.scope;
   if (!audience || !scope?.length) return send(scope);
 
+  const signal = init?.signal;
+  if (signal?.aborted) return Promise.reject(abortReason(signal));
+
   return new Promise<Response>((resolve, reject) => {
-    pending.push({ audience, scope, signal: init?.signal, send, resolve, reject });
+    // Like `fetch`, reject as soon as the caller aborts, even while the request is still waiting.
+    const onAbort = () => reject(abortReason(signal!));
+    signal?.addEventListener('abort', onAbort, { once: true });
+    const settle =
+      <T>(done: (value: T) => void) =>
+      (value: T) => {
+        signal?.removeEventListener('abort', onAbort);
+        done(value);
+      };
+
+    pending.push({
+      audience,
+      scope,
+      signal,
+      send,
+      resolve: settle(resolve),
+      reject: settle(reject),
+    });
     if (pending.length === 1) setTimeout(flush, 0);
   });
 }

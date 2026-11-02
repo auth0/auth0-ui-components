@@ -278,6 +278,60 @@ describe('token-coordination', () => {
       await leader;
     });
 
+    it('rejects a waiting request as soon as it is aborted, before its leader answers', async () => {
+      const controller = new AbortController();
+      const leader = request('leader', { audience: ORG_API, scope: ['a'] });
+      const follower = request(
+        'follower',
+        { audience: ORG_API, scope: ['b'] },
+        {
+          signal: controller.signal,
+        },
+      );
+      const settled = vi.fn();
+      void follower.then(settled, settled);
+
+      await flushTick();
+      controller.abort();
+      await flushTick();
+
+      expect(settled).toHaveBeenCalledWith(expect.any(DOMException));
+      expect(sentNames()).toEqual(['leader']);
+
+      respond('leader');
+      await flushTick();
+      expect(sentNames()).toEqual(['leader']);
+      await leader;
+    });
+
+    it('rejects a request that is already aborted without queueing it', async () => {
+      const controller = new AbortController();
+      controller.abort(new Error('unmounted'));
+
+      await expect(
+        request('aborted', { audience: ORG_API, scope: ['a'] }, { signal: controller.signal }),
+      ).rejects.toThrow('unmounted');
+
+      await flushTick();
+      expect(sentNames()).toEqual([]);
+    });
+
+    it('stops listening for an abort once the request has settled', async () => {
+      const controller = new AbortController();
+      const removeEventListener = vi.spyOn(controller.signal, 'removeEventListener');
+      const only = request(
+        'only',
+        { audience: ORG_API, scope: ['a'] },
+        { signal: controller.signal },
+      );
+
+      await flushTick();
+      respond('only');
+      await only;
+
+      expect(removeEventListener).toHaveBeenCalledWith('abort', expect.any(Function));
+    });
+
     it('sends the waiting requests when the first one never answers', async () => {
       void request('leader', { audience: ORG_API, scope: ['a'] });
       const follower = request('follower', { audience: ORG_API, scope: ['b'] });
