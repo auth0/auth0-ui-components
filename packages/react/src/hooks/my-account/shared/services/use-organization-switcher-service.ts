@@ -6,8 +6,7 @@
  */
 
 import { userOrganizationQueryKeys } from '@auth0/universal-components-core';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type {
@@ -26,11 +25,11 @@ export function useOrganizationSwitcherService({
   pageSize,
 }: UseOrganizationSwitcherServiceOptions): UseOrganizationSwitcherServiceResult {
   const { coreClient } = useCoreClient();
-  // When the last "Load more" failed. `isFetchNextPageError` would do this but TanStack Query v4 lacks it.
-  const [nextPageErrorAt, setNextPageErrorAt] = useState<number>();
+  const queryClient = useQueryClient();
+  const queryKey = userOrganizationQueryKeys.infinite({ pageSize });
 
   const organizationsQuery = useInfiniteQuery({
-    queryKey: userOrganizationQueryKeys.infinite({ pageSize }),
+    queryKey,
     queryFn: async ({ pageParam }: { pageParam?: string }) => {
       const { response } = await coreClient!.getMyAccountApiClient().organizations.list({
         take: pageSize,
@@ -51,17 +50,17 @@ export function useOrganizationSwitcherService({
     organizations: organizationsQuery.data?.pages.flatMap((page) => page.organizations) ?? [],
     isLoading: organizationsQuery.isLoading,
     isError: organizationsQuery.isError,
-    // Only while the latest error is that failed page, not a later refetch of the loaded pages.
+    // The query records which way its last fetch went, so every switcher sharing it agrees.
+    // TanStack Query v5 exposes this as `isFetchNextPageError`; v4 does not.
     isFetchNextPageError:
-      organizationsQuery.isError && organizationsQuery.errorUpdatedAt === nextPageErrorAt,
+      organizationsQuery.isError &&
+      queryClient.getQueryState(queryKey)?.fetchMeta?.fetchMore?.direction === 'forward',
     // Retrying after a failed first load puts the query back into its loading state.
     isRetrying: organizationsQuery.isLoading && organizationsQuery.errorUpdateCount > 0,
     hasNextPage: !!organizationsQuery.hasNextPage,
     isFetchingNextPage: organizationsQuery.isFetchingNextPage,
     fetchNextPage: () => {
-      void organizationsQuery.fetchNextPage().then((result) => {
-        setNextPageErrorAt(result.isError ? result.errorUpdatedAt : undefined);
-      });
+      void organizationsQuery.fetchNextPage();
     },
     refetch: () => {
       void organizationsQuery.refetch();

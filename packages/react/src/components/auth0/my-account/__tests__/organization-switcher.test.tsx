@@ -309,6 +309,33 @@ describe('OrganizationSwitcher', () => {
     });
   });
 
+  describe('when two switchers share the list and loading more fails', () => {
+    it('shows the error and retry in both', async () => {
+      const user = userEvent.setup();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockRejectedValueOnce(new Error('Network error'));
+      renderWithProviders(
+        <>
+          <OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />
+          <OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />
+        </>,
+      );
+
+      const [first, second] = await screen.findAllByRole('button', {
+        name: /^trigger_(label|placeholder)$/,
+      });
+      await user.click(first!);
+      await user.click(await screen.findByRole('menuitem', { name: 'load_more_button_text' }));
+      expect(await screen.findByText('error_message')).toBeInTheDocument();
+      await user.keyboard('{Escape}');
+
+      await user.click(second!);
+      expect(await screen.findByText('error_message')).toBeInTheDocument();
+      expect(screen.getByRole('menuitem', { name: 'retry_button_text' })).toBeInTheDocument();
+    });
+  });
+
   describe('when loading fails', () => {
     it('shows the error and retries', async () => {
       const user = userEvent.setup();
