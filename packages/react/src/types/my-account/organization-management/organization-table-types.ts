@@ -27,12 +27,6 @@ export interface OrganizationTableProps
    * rendering OrganizationDetailsEdit. Also used for row clicks.
    */
   onEditOrganization?: (organization: UserOrganization) => void;
-  /**
-   * Shows a "Delete" row action. Deleting needs a token scoped to that organization, so the
-   * host app handles it, e.g. by logging in to the organization and rendering
-   * OrganizationDelete, which asks the user to confirm by typing the name.
-   */
-  onDeleteOrganization?: (organization: UserOrganization) => void;
   /** Shows a "Create Organization" header button that calls this. */
   onCreateOrganization?: () => void;
 }
@@ -77,7 +71,6 @@ export interface OrganizationTableViewProps {
   readOnly: boolean;
   customMessages: OrganizationTableProps['customMessages'];
   onEditOrganization?: OrganizationTableProps['onEditOrganization'];
-  onDeleteOrganization?: OrganizationTableProps['onDeleteOrganization'];
   onCreateOrganization?: OrganizationTableProps['onCreateOrganization'];
 }
 
@@ -85,5 +78,4 @@ export interface OrganizationTableActionsColumnProps {
   organization: UserOrganization;
   customMessages?: OrganizationTableProps['customMessages'];
   onEdit?: (organization: UserOrganization) => void;
-  onDelete?: (organization: UserOrganization) => void;
 }

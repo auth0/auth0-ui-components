@@ -319,8 +319,7 @@
         },
         "actions": {
           "menu_label": "${organizationName}のアクション",
-          "edit_button_text": "編集",
-          "delete_button_text": "削除"
+          "edit_button_text": "編集"
         }
       }
     },
