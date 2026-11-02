@@ -135,33 +135,6 @@ describe('OrganizationTable', () => {
     });
   });
 
-  describe('when onDeleteOrganization is provided', () => {
-    it('deletes from the row actions menu', async () => {
-      const user = userEvent.setup();
-      const onDeleteOrganization = vi.fn();
-      const acme = createMockUserOrganization();
-      listOrganizations.mockResolvedValue(createMockUserOrganizationsPage([acme]));
-
-      renderWithProviders(<OrganizationTable onDeleteOrganization={onDeleteOrganization} />);
-
-      await user.click(await screen.findByRole('button', { name: 'table.actions.menu_label' }));
-      await user.click(await screen.findByRole('menuitem', { name: /delete_button_text/ }));
-
-      expect(onDeleteOrganization).toHaveBeenCalledWith(acme);
-    });
-
-    it('does not handle row clicks', async () => {
-      const user = userEvent.setup();
-      const onDeleteOrganization = vi.fn();
-
-      renderWithProviders(<OrganizationTable onDeleteOrganization={onDeleteOrganization} />);
-
-      await user.click(await screen.findByText('Fabrikam Inc.'));
-
-      expect(onDeleteOrganization).not.toHaveBeenCalled();
-    });
-  });
-
   describe('when onCreateOrganization is provided', () => {
     it('shows the create button in the header', async () => {
       const user = userEvent.setup();
@@ -235,7 +208,6 @@ describe('OrganizationTable', () => {
         <OrganizationTable
           readOnly
           onEditOrganization={onEditOrganization}
-          onDeleteOrganization={vi.fn()}
           onCreateOrganization={vi.fn()}
         />,
       );

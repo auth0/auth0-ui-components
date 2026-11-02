@@ -40,7 +40,6 @@ function OrganizationTable(props: OrganizationTableProps) {
     customMessages = {},
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     onEditOrganization,
-    onDeleteOrganization,
     onCreateOrganization,
   } = props;
 
@@ -55,7 +54,6 @@ function OrganizationTable(props: OrganizationTableProps) {
         readOnly={readOnly}
         customMessages={customMessages}
         onEditOrganization={onEditOrganization}
-        onDeleteOrganization={onDeleteOrganization}
         onCreateOrganization={onCreateOrganization}
       />
     </GateKeeper>
@@ -75,7 +73,6 @@ function OrganizationTableView({
   readOnly,
   customMessages,
   onEditOrganization,
-  onDeleteOrganization,
   onCreateOrganization,
 }: OrganizationTableViewProps) {
   const { isDarkMode } = useTheme();
@@ -101,7 +98,7 @@ function OrganizationTableView({
     [styling, isDarkMode],
   );
 
-  const hasRowActions = !readOnly && (!!onEditOrganization || !!onDeleteOrganization);
+  const hasRowActions = !readOnly && !!onEditOrganization;
   // A failed refresh keeps the rows already loaded; only a load with nothing to show is an error.
   const showError = isError && organizations.length === 0;
 
@@ -144,14 +141,13 @@ function OrganizationTableView({
                   organization={organization}
                   customMessages={customMessages}
                   onEdit={onEditOrganization}
-                  onDelete={onDeleteOrganization}
                 />
               ),
             },
           ]
         : []),
     ],
-    [t, customMessages, hasRowActions, onEditOrganization, onDeleteOrganization],
+    [t, customMessages, hasRowActions, onEditOrganization],
   );
 
   return (
@@ -246,7 +242,6 @@ function OrganizationTableView({
  * @param props.hideHeader - Hide the title and description
  * @param props.readOnly - Hide the create button and row actions
  * @param props.onEditOrganization - Shows an "Edit" row action; also handles row clicks
- * @param props.onDeleteOrganization - Shows a "Delete" row action
  * @param props.onCreateOrganization - Shows a "Create Organization" header button
  * @returns Organization table component
  *
