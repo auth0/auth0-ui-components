@@ -272,7 +272,9 @@
         },
         "actions": {
           "menu_label": "Actions pour ${organizationName}",
-          "edit_button_text": "Modifier"
+          "edit_button_text": "Modifier",
+          "delete_button_text": "Supprimer",
+          "delete_other_organization_hint": "Passez à cette organisation pour la supprimer"
         }
       }
     },

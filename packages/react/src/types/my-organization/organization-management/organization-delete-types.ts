@@ -34,6 +34,25 @@ export type UseOrganizationDeleteServiceOptions = Pick<
   'deleteAction' | 'customMessages'
 >;
 
+export interface UseOrganizationDeleteMutationOptions<TItem> {
+  /** What `deleteAction` receives; nothing is deleted while it is null. */
+  item: TItem | null;
+  /** Name used in the notifications. */
+  organizationName: string;
+  deleteAction?: ComponentAction<TItem>;
+  customMessages?: Partial<OrganizationDeleteMessages>;
+  /** Called after a successful delete, before `deleteAction.onAfter`. */
+  onDeleted?: () => void;
+  /** Component name used in console messages. */
+  componentName: string;
+}
+
+export interface UseOrganizationDeleteMutationResult {
+  /** Resolves to `true` on success, `false` when cancelled by `onBefore` or failed. */
+  deleteOrganization: () => Promise<boolean>;
+  isDeleteLoading: boolean;
+}
+
 export interface UseOrganizationDeleteResult {
   organization: OrganizationPrivate;
   /** Whether the user may delete: loaded, granted the scope, not read-only, not disabled via `deleteAction`, and allowed by the deletion behavior. */
@@ -63,7 +82,8 @@ export interface OrganizationDeleteModalProps {
   styling?: ComponentStyling<OrganizationDeleteClasses>;
   isOpen: boolean;
   onClose: () => void;
-  organization: OrganizationPrivate;
+  /** Always the name, never the display name: it is also what the user types to confirm. */
+  organizationName: string;
   customMessages?: Partial<OrganizationDeleteMessages>;
   isLoading: boolean;
   onDelete: () => Promise<boolean>;

@@ -74,7 +74,7 @@ export function OrganizationDeleteSection({
         styling={styling}
         isOpen={isModalOpen}
         onClose={closeModal}
-        organization={organization}
+        organizationName={organization.name ?? ''}
         customMessages={customMessages}
         isLoading={isDeleteLoading}
         onDelete={onDelete}

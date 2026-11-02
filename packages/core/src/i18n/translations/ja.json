@@ -325,7 +325,9 @@
         },
         "actions": {
           "menu_label": "${organizationName}のアクション",
-          "edit_button_text": "編集"
+          "edit_button_text": "編集",
+          "delete_button_text": "削除",
+          "delete_other_organization_hint": "削除するには、この組織に切り替えてください"
         }
       }
     },

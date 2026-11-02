@@ -4,6 +4,7 @@
  */
 
 import type {
+  ComponentAction,
   ComponentStyling,
   OrganizationTableMessages,
   SharedComponentProps,
@@ -18,6 +19,20 @@ export interface OrganizationTableClasses {
   'OrganizationTable-errorState'?: string;
 }
 
+/**
+ * Lifecycle hooks for deleting the signed-in organization from the table. Deleting it invalidates
+ * the session's organization-scoped token, so `onAfter` should sign the user in to another
+ * organization or out.
+ */
+export interface OrganizationTableDeleteAction extends ComponentAction<UserOrganization> {}
+
+/** Whether a row's Delete action is available, and why not. */
+export type OrganizationTableDeleteState =
+  | 'enabled'
+  | 'disabled'
+  | 'forbidden'
+  | 'other_organization';
+
 /** Props for the OrganizationTable block component. */
 export interface OrganizationTableProps
   extends SharedComponentProps<OrganizationTableMessages, OrganizationTableClasses> {
@@ -30,6 +45,24 @@ export interface OrganizationTableProps
   onEditOrganization?: (organization: UserOrganization) => void;
   /** Shows a "Create Organization" header button that calls this. */
   onCreateOrganization?: () => void;
+  /**
+   * ID of the organization the user is signed in to (the token's `org_id`). Only that organization
+   * can be deleted from the table, because the API deletes the organization of the session's
+   * token. Other rows show Delete disabled with a hint to switch to them first.
+   */
+  currentOrganizationId?: string;
+  /**
+   * Shows a "Delete" row action that asks the user to confirm by typing the organization name.
+   * Requires `currentOrganizationId` and the `delete:my_org:organizations` permission.
+   */
+  deleteAction?: OrganizationTableDeleteAction;
+}
+
+export interface UseOrganizationTableOptions {
+  currentOrganizationId?: OrganizationTableProps['currentOrganizationId'];
+  deleteAction?: OrganizationTableProps['deleteAction'];
+  readOnly?: OrganizationTableProps['readOnly'];
+  customMessages?: OrganizationTableProps['customMessages'];
 }
 
 export interface UseOrganizationTableServiceOptions {
@@ -63,6 +96,16 @@ export interface UseOrganizationTableResult
   handleNextPage: () => void;
   handlePreviousPage: () => void;
   handlePageSizeChange: (pageSize: number) => void;
+  organizationDelete: {
+    /** Organization whose confirmation dialog is open. */
+    target: UserOrganization | null;
+    getState: (organization: UserOrganization) => OrganizationTableDeleteState;
+    open: (organization: UserOrganization) => void;
+    close: () => void;
+    /** Deletes the target organization. Resolves to `true` on success. */
+    confirm: () => Promise<boolean>;
+    isLoading: boolean;
+  };
 }
 
 export interface OrganizationTableViewProps {
@@ -73,10 +116,14 @@ export interface OrganizationTableViewProps {
   customMessages: OrganizationTableProps['customMessages'];
   onEditOrganization?: OrganizationTableProps['onEditOrganization'];
   onCreateOrganization?: OrganizationTableProps['onCreateOrganization'];
+  hasDeleteAction: boolean;
 }
 
 export interface OrganizationTableActionsColumnProps {
   organization: UserOrganization;
   customMessages?: OrganizationTableProps['customMessages'];
   onEdit?: (organization: UserOrganization) => void;
+  /** Shows a "Delete" item when set. */
+  deleteState?: OrganizationTableDeleteState;
+  onDelete?: (organization: UserOrganization) => void;
 }

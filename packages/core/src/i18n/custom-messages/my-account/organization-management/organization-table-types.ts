@@ -3,6 +3,7 @@
  * @module organization-table-types
  * @internal
  */
+import type { OrganizationDeleteMessages } from '../../my-organization/organization-management/organization-delete-types';
 import type { SharedMessages } from '../../shared/shared-types';
 
 export interface OrganizationTableMessages extends SharedMessages {
@@ -24,6 +25,10 @@ export interface OrganizationTableMessages extends SharedMessages {
     actions?: {
       menu_label?: string;
       edit_button_text?: string;
+      delete_button_text?: string;
+      delete_other_organization_hint?: string;
     };
   };
+  /** Messages for the delete confirmation dialog. */
+  delete?: OrganizationDeleteMessages;
 }
