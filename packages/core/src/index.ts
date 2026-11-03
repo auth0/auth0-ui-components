@@ -139,6 +139,7 @@ export * from './services/my-organization/member-management/member-management-pe
 
 export * from './services/my-organization/config/config-types';
 export * from './services/my-organization/config/instructions/instructions-text';
+export * from './services/my-organization/config/instructions/instructions-flow';
 
 // Permissions (shared across modules)
 export * from './services/permissions/permission-utils';

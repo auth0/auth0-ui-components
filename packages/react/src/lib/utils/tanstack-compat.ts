@@ -44,3 +44,16 @@ export function getPreviousDataOption(): PreviousDataOption {
   }
   return { keepPreviousData: true };
 }
+
+type GcTimeOption = { gcTime: number };
+type LegacyCacheTimeOption = { cacheTime: number };
+
+/**
+ * Returns the query option for how long unused data stays cached, for both v4 and v5.
+ * v5 renamed `cacheTime` to `gcTime`.
+ * @param ms - Time in milliseconds.
+ * @returns The option object to spread into a query config.
+ */
+export function getCacheTimeOption(ms: number): GcTimeOption | LegacyCacheTimeOption {
+  return typeof getNativeKeepPreviousData() === 'function' ? { gcTime: ms } : { cacheTime: ms };
+}
