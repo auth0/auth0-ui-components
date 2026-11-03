@@ -124,6 +124,7 @@ export * from './services/my-organization/organization-management/organization-d
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-urls';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
 export * from './services/my-organization/idp-management/idp-management-permissions';
