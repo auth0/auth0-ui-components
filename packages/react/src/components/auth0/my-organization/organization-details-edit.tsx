@@ -73,6 +73,18 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
     customMessages: customMessages.delete,
   });
 
+  const deleteSection = deleteAction
+    ? {
+        organization: organizationDelete.organization,
+        customMessages: customMessages.delete,
+        readOnly,
+        canDelete: organizationDelete.canDelete,
+        permissionDenied: organizationDelete.permissionDenied,
+        isDeleteLoading: organizationDelete.isDeleteLoading,
+        onDelete: organizationDelete.deleteOrganization,
+      }
+    : undefined;
+
   return (
     <GateKeeper isLoading={isFetchLoading || isLoadingConfig} styling={styling}>
       <OrganizationDetailsEditView
@@ -87,17 +99,7 @@ function OrganizationDetailsEdit(props: OrganizationDetailsEditProps): React.JSX
         showThirdPartyAccess={showThirdPartyAccess}
         isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
         thirdPartyAccessDefaultValue={thirdPartyAccessDefaultValue}
-        deleteSection={
-          deleteAction && {
-            organization: organizationDelete.organization,
-            customMessages: customMessages.delete,
-            readOnly,
-            canDelete: organizationDelete.canDelete,
-            permissionDenied: organizationDelete.permissionDenied,
-            isDeleteLoading: organizationDelete.isDeleteLoading,
-            onDelete: organizationDelete.deleteOrganization,
-          }
-        }
+        deleteSection={deleteSection}
       />
     </GateKeeper>
   );
