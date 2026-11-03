@@ -321,19 +321,6 @@ describe('OrganizationSwitcher', () => {
 
       expect(await screen.findByRole('tooltip')).toHaveTextContent('Fabrikam Inc.');
     });
-
-    it('shows no tooltip when the name fits', async () => {
-      const user = userEvent.setup();
-      vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(100);
-      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
-      renderSwitcher();
-
-      await openMenu(user);
-      await user.hover(screen.getByText('Fabrikam Inc.'));
-
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
-    });
   });
 
   describe('when readOnly is true', () => {

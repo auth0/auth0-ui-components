@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
+import { TruncatedText } from '@/components/auth0/shared/truncated-text';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Spinner } from '@/components/ui/spinner';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOrganizationSwitcher } from '@/hooks/my-account/use-organization-switcher';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -191,35 +191,6 @@ function OrganizationSwitcherView({
         </DropdownMenuContent>
       </DropdownMenu>
     </StyledScope>
-  );
-}
-
-/**
- * Single-line label that shows its full text in a tooltip only when truncated.
- * @param props - Component props.
- * @param props.text - Label text
- * @returns JSX element
- * @internal
- */
-function TruncatedText({ text }: { text: string }) {
-  const ref = React.useRef<HTMLSpanElement>(null);
-  const [open, setOpen] = React.useState(false);
-
-  // Stay controlled and only allow opening while the label overflows.
-  const handleOpenChange = React.useCallback((nextOpen: boolean) => {
-    const element = ref.current;
-    setOpen(nextOpen && !!element && element.scrollWidth > element.clientWidth);
-  }, []);
-
-  return (
-    <Tooltip open={open} onOpenChange={handleOpenChange}>
-      <TooltipTrigger asChild>
-        <span ref={ref} className="truncate">
-          {text}
-        </span>
-      </TooltipTrigger>
-      <TooltipContent>{text}</TooltipContent>
-    </Tooltip>
   );
 }
 
