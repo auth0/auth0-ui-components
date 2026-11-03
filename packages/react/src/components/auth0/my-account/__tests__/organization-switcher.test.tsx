@@ -1,6 +1,6 @@
 import { userOrganizationQueryKeys, type UserOrganization } from '@auth0/universal-components-core';
 import { QueryClient } from '@tanstack/react-query';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -128,9 +128,9 @@ describe('OrganizationSwitcher', () => {
         'acme',
       );
 
-      await openMenu(user);
+      const menu = await openMenu(user);
 
-      expect(await screen.findByText('error_message')).toBeInTheDocument();
+      expect(await within(menu).findByText('error_message')).toBeInTheDocument();
     });
   });
 
@@ -265,12 +265,34 @@ describe('OrganizationSwitcher', () => {
       listOrganizations.mockRejectedValueOnce(new Error('Network error'));
       renderSwitcher();
 
-      await openMenu(user);
-      expect(await screen.findByText('error_message')).toBeInTheDocument();
+      const menu = await openMenu(user);
+      expect(await within(menu).findByText('error_message')).toBeInTheDocument();
 
       await user.click(screen.getByRole('menuitem', { name: 'retry_button_text' }));
 
       expect(await screen.findByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
+    });
+
+    it('announces the failure outside the menu and describes the retry item with it', async () => {
+      const user = userEvent.setup();
+      listOrganizations.mockRejectedValueOnce(new Error('Network error'));
+      renderSwitcher();
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('error_message');
+      const menu = await openMenu(user);
+
+      expect(within(menu).queryByRole('alert')).not.toBeInTheDocument();
+      expect(
+        within(menu).getByRole('menuitem', { name: 'retry_button_text' }),
+      ).toHaveAccessibleDescription('error_message');
+    });
+
+    it('announces nothing when the organizations load', async () => {
+      renderSwitcher();
+
+      await findTrigger();
+
+      expect(screen.getByRole('alert')).toBeEmptyDOMElement();
     });
 
     it('keeps the switcher and the error on screen while the retry is in flight', async () => {
@@ -295,8 +317,7 @@ describe('OrganizationSwitcher', () => {
           'data-disabled',
         ),
       );
-      expect(screen.getByText('error_message')).toBeInTheDocument();
-      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(within(screen.getByRole('menu')).getByText('error_message')).toBeInTheDocument();
 
       resolveRetry(createMockUserOrganizationsPage(organizations));
 

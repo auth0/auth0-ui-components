@@ -84,6 +84,7 @@ function OrganizationSwitcherView({
 }: OrganizationSwitcherViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_switcher', customMessages);
+  const errorMessageId = 'organization-switcher-error';
 
   const { organizations, currentName, hasFailed, isHidden, isRetrying, refetch, handleSelect } =
     organizationSwitcher;
@@ -105,6 +106,10 @@ function OrganizationSwitcherView({
 
   return (
     <StyledScope style={currentStyles.variables}>
+      {/* A menu can only hold items, so the failure is announced from outside it. */}
+      <span role="alert" className="sr-only">
+        {hasFailed ? t('error_message') : null}
+      </span>
       <DropdownMenu>
         <DropdownMenuTrigger
           variant="outline"
@@ -132,10 +137,18 @@ function OrganizationSwitcherView({
         >
           {hasFailed ? (
             <>
-              <p className="px-2 py-1.5 text-sm text-destructive-foreground">
+              <p
+                id={errorMessageId}
+                aria-hidden="true"
+                className="px-2 py-1.5 text-sm text-destructive-foreground"
+              >
                 {t('error_message')}
               </p>
-              <DropdownMenuItem disabled={isRetrying} onSelect={handleRetry}>
+              <DropdownMenuItem
+                aria-describedby={errorMessageId}
+                disabled={isRetrying}
+                onSelect={handleRetry}
+              >
                 {isRetrying ? (
                   <Spinner size="sm" className="mr-2" />
                 ) : (
