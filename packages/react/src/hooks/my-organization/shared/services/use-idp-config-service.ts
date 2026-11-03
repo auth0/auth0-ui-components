@@ -6,6 +6,7 @@
 import {
   hasApiErrorBody,
   idpConfigQueryKeys,
+  STRATEGY_TO_CONFIG_KEY,
   type GetIdpConfigurationResponseContent,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
@@ -16,22 +17,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
-
-/**
- * Mapping from IdpStrategy values to the SDK's strategy config keys.
- */
-const STRATEGY_TO_CONFIG_KEY: Record<
-  IdpStrategy,
-  keyof NonNullable<GetIdpConfigurationResponseContent['strategies']>
-> = {
-  adfs: 'adfs',
-  'google-apps': 'googleapps',
-  oidc: 'oidc',
-  okta: 'okta',
-  pingfederate: 'pingfederate',
-  samlp: 'samlp',
-  waad: 'waad',
-};
 
 /**
  * Hook for fetching IDP configuration and provisioning settings.
