@@ -388,6 +388,10 @@
             "assign_membership_on_login": {
               "label": "ログイン時にメンバーシップを割り当て",
               "helper_text": "この接続を通じてログインしたユーザーに組織メンバーシップを自動的に付与します"
+            },
+            "connection_method": {
+              "automatic": "自動",
+              "manual": "手動"
             }
           },
           "okta": {

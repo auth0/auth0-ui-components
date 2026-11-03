@@ -45,6 +45,10 @@ export interface ProviderFieldsMessages {
       label?: string;
       helper_text?: string;
     };
+    connection_method?: {
+      automatic?: string;
+      manual?: string;
+    };
   };
 
   okta?: {
