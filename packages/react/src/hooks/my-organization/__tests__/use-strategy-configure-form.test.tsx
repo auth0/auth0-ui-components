@@ -91,6 +91,30 @@ describe('useStrategyConfigureForm', () => {
   });
 });
 
+describe('useStrategyConfigureForm validation mode', () => {
+  it('validates on touch by default', () => {
+    const ref = React.createRef<StrategyConfigureFormHandle<Values>>();
+    const { result } = renderHook(() =>
+      useStrategyConfigureForm<Values>(ref, { strategy: 'oidc', defaultValues: defaults }),
+    );
+
+    expect(result.current.control._options.mode).toBe('onTouched');
+  });
+
+  it('keeps an explicit undefined mode (react-hook-form default)', () => {
+    const ref = React.createRef<StrategyConfigureFormHandle<Values>>();
+    const { result } = renderHook(() =>
+      useStrategyConfigureForm<Values>(ref, {
+        strategy: 'oidc',
+        defaultValues: defaults,
+        mode: undefined,
+      }),
+    );
+
+    expect(result.current.control._options.mode).toBeUndefined();
+  });
+});
+
 describe('parseStrategyConfigureValues', () => {
   it('returns the raw values when they do not pass the schema', () => {
     const raw = { ...defaults };
