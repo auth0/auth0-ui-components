@@ -45,6 +45,22 @@ describe('tanstack-compat', () => {
     });
   });
 
+  describe('getCacheTimeOption', () => {
+    it('returns gcTime on v5', async () => {
+      const { getCacheTimeOption } = await import('../tanstack-compat');
+
+      expect(getCacheTimeOption(1000)).toEqual({ gcTime: 1000 });
+    });
+
+    it('returns the legacy cacheTime on v4', async () => {
+      mockReactQueryWithoutKeepPreviousData();
+
+      const { getCacheTimeOption } = await import('../tanstack-compat');
+
+      expect(getCacheTimeOption(1000)).toEqual({ cacheTime: 1000 });
+    });
+  });
+
   describe('isMutationLoading', () => {
     it('returns the isPending value when present', async () => {
       const { isMutationLoading } = await import('../tanstack-compat');
