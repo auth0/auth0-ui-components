@@ -47,6 +47,8 @@ function OrganizationSwitcher(props: OrganizationSwitcherProps) {
 
   const organizationSwitcher = useOrganizationSwitcher({
     currentOrganizationId,
+    currentOrganizationName,
+    hasCreateAction: !!onCreateOrganization,
     onSwitchOrganization,
     pageSize,
   });
@@ -57,7 +59,6 @@ function OrganizationSwitcher(props: OrganizationSwitcherProps) {
       <OrganizationSwitcherView
         organizationSwitcher={organizationSwitcher}
         currentOrganizationId={currentOrganizationId}
-        currentOrganizationName={currentOrganizationName}
         styling={styling}
         customMessages={customMessages}
         readOnly={readOnly}
@@ -76,7 +77,6 @@ function OrganizationSwitcher(props: OrganizationSwitcherProps) {
 function OrganizationSwitcherView({
   organizationSwitcher,
   currentOrganizationId,
-  currentOrganizationName,
   styling,
   customMessages,
   readOnly,
@@ -85,37 +85,21 @@ function OrganizationSwitcherView({
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_switcher', customMessages);
 
-  const {
-    organizations,
-    currentOrganization,
-    isLoading,
-    isError,
-    isRetrying,
-    refetch,
-    handleSelect,
-  } = organizationSwitcher;
+  const { organizations, currentName, hasFailed, isHidden, isRetrying, refetch, handleSelect } =
+    organizationSwitcher;
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  // The list may not hold the current organization (loading failed, or it is on a later page).
-  const currentName =
-    currentOrganization?.display_name || currentOrganization?.name || currentOrganizationName;
-
   // Keep the menu open while retrying.
-  const keepOpen = (handler: () => void) => (event: Event) => {
+  const handleRetry = (event: Event) => {
     event.preventDefault();
-    handler();
+    refetch();
   };
 
-  // Keep the error state on screen while a retry is in flight, so the control doesn't vanish.
-  const hasFailed = (isError && organizations.length === 0) || isRetrying;
-
-  // Render nothing until the first page loads, and when there is nothing to switch to or create.
-  const hasNothingToDo = organizations.length <= 1 && !onCreateOrganization;
-  if ((isLoading && !isRetrying) || (!hasFailed && hasNothingToDo)) {
+  if (isHidden) {
     return null;
   }
 
@@ -151,7 +135,7 @@ function OrganizationSwitcherView({
               <p className="px-2 py-1.5 text-sm text-destructive-foreground">
                 {t('error_message')}
               </p>
-              <DropdownMenuItem disabled={isRetrying} onSelect={keepOpen(refetch)}>
+              <DropdownMenuItem disabled={isRetrying} onSelect={handleRetry}>
                 {isRetrying ? (
                   <Spinner size="sm" className="mr-2" />
                 ) : (

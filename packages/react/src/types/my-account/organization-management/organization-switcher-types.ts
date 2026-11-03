@@ -64,13 +64,19 @@ export interface UseOrganizationSwitcherServiceResult {
 
 export interface UseOrganizationSwitcherOptions {
   currentOrganizationId?: OrganizationSwitcherProps['currentOrganizationId'];
+  currentOrganizationName?: OrganizationSwitcherProps['currentOrganizationName'];
+  hasCreateAction?: boolean;
   onSwitchOrganization: OrganizationSwitcherProps['onSwitchOrganization'];
   pageSize?: OrganizationSwitcherProps['pageSize'];
 }
 
 export interface UseOrganizationSwitcherResult extends UseOrganizationSwitcherServiceResult {
-  /** The current organization, once it appears in a loaded page. */
-  currentOrganization: UserOrganization | undefined;
+  /** Name for the trigger: the loaded organization's, else the name passed in. */
+  currentName: string | undefined;
+  /** Whether to show the error state: a failed first load, or a retry in flight. */
+  hasFailed: boolean;
+  /** Whether the switcher renders nothing: still loading, or nothing to switch to or create. */
+  isHidden: boolean;
   /** Switches to the organization with the given ID; ignores the current one. */
   handleSelect: (organizationId: string) => void;
 }
@@ -78,7 +84,6 @@ export interface UseOrganizationSwitcherResult extends UseOrganizationSwitcherSe
 export interface OrganizationSwitcherViewProps {
   organizationSwitcher: UseOrganizationSwitcherResult;
   currentOrganizationId?: string;
-  currentOrganizationName?: string;
   styling: ComponentStyling<OrganizationSwitcherClasses>;
   customMessages: OrganizationSwitcherProps['customMessages'];
   readOnly: boolean;
