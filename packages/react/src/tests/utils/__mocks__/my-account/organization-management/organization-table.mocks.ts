@@ -1,5 +1,5 @@
 import type {
-  ListUserOrganizationsResponse,
+  ListOrganizationsResponseContent,
   UserOrganization,
 } from '@auth0/universal-components-core';
 
@@ -27,7 +27,7 @@ export const createMockUserOrganizations = (): UserOrganization[] => [
 export const createMockUserOrganizationsPage = (
   organizations: UserOrganization[],
   next?: string,
-): { data: UserOrganization[]; response: ListUserOrganizationsResponse } => ({
+): { data: UserOrganization[]; response: ListOrganizationsResponseContent } => ({
   data: organizations,
   response: { organizations, next },
 });

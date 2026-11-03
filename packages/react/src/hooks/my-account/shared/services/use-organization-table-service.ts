@@ -51,8 +51,8 @@ export function useOrganizationTableService({
   return {
     organizations: organizationsQuery.data?.organizations ?? [],
     nextToken: organizationsQuery.data?.next ?? null,
-    isFetching: organizationsQuery.isLoading,
-    isRefetching: organizationsQuery.isFetching,
+    isLoading: organizationsQuery.isLoading,
+    isFetching: organizationsQuery.isFetching,
     isStale: organizationsQuery.isStale,
     isError: organizationsQuery.isError,
     updatedAt: organizationsQuery.dataUpdatedAt,

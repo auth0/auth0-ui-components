@@ -8,9 +8,9 @@ import type { MyAccount } from '@auth0/myaccount-js';
 /** An organization the authenticated user belongs to. */
 export type UserOrganization = MyAccount.Organization;
 
-export type ListUserOrganizationsRequest = MyAccount.ListOrganizationsRequestParameters;
+export type ListOrganizationsRequestParameters = MyAccount.ListOrganizationsRequestParameters;
 
-export type ListUserOrganizationsResponse = MyAccount.ListOrganizationsResponseContent;
+export type ListOrganizationsResponseContent = MyAccount.ListOrganizationsResponseContent;
 
 export type CreateOrganizationRequestContent = MyAccount.CreateOrganizationRequestContent;
 
