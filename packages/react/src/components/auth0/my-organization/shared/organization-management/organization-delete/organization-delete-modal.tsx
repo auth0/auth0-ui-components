@@ -40,9 +40,8 @@ export function OrganizationDeleteModal({
   const { t } = useTranslator('organization_management.organization_delete', customMessages);
   const [confirmationText, setConfirmationText] = React.useState('');
 
-  // The dialog always uses the name: it is also what the user types to confirm.
   const organizationName = organization.name;
-  const isConfirmed = confirmationText === organization.name;
+  const isConfirmed = confirmationText === organizationName;
   const showMismatchError = confirmationText !== '' && !isConfirmed;
 
   React.useEffect(() => {
@@ -59,7 +58,6 @@ export function OrganizationDeleteModal({
 
   const handleOpenChange = React.useCallback(
     (open: boolean) => {
-      // Keep the dialog open while the request is in flight, like the disabled Cancel button.
       if (!open && !isLoading) {
         onClose();
       }
