@@ -169,7 +169,10 @@ export interface UseSsoProviderCreateOptions {
 }
 
 export interface UseSsoProviderCreateServiceReturn {
-  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
+  /** Creates the provider; resolves to it, or `undefined` when creation did not start. */
+  createProvider: (
+    data: CreateIdentityProviderRequestContentPrivate,
+  ) => Promise<IdpKnownResponse | undefined>;
   isCreating: boolean;
   isOrganizationBlocked: boolean;
 }

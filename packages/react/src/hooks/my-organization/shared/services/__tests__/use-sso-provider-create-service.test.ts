@@ -95,7 +95,9 @@ describe('useSsoProviderCreateService', () => {
 
     const { result } = renderUseSsoProviderCreateService();
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
+    await expect(result.current.createProvider(mockProviderData)).resolves.toEqual(
+      mockIdentityProvider,
+    );
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalledTimes(1);
@@ -298,7 +300,9 @@ describe('useSsoProviderCreateService', () => {
       createAction: { onBefore },
     });
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
+    await expect(result.current.createProvider(mockProviderData)).resolves.toEqual(
+      mockIdentityProvider,
+    );
 
     await waitFor(() => {
       expect(onBefore).toHaveBeenCalledWith(mockProviderData);
@@ -344,7 +348,9 @@ describe('useSsoProviderCreateService', () => {
       createAction: { onAfter },
     });
 
-    await expect(result.current.createProvider(mockProviderData)).resolves.toBeUndefined();
+    await expect(result.current.createProvider(mockProviderData)).resolves.toEqual(
+      mockIdentityProvider,
+    );
 
     await waitFor(() => {
       expect(onAfter).toHaveBeenCalledWith(mockProviderData, mockIdentityProvider);
