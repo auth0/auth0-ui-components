@@ -4,63 +4,45 @@
  * @internal
  */
 
-import {
-  createProviderConfigureSchema,
-  type AdfsConfigureFormValues,
-  type AdfsConfigureFormInput,
+import type {
+  AdfsConfigureFormInput,
+  AdfsConfigureFormValues,
 } from '@auth0/universal-components-core';
-import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
-import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
-import { FileUpload } from '@/components/ui/file-upload';
+import { SsoAdfsConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-adfs-connection-fields';
+import { Form } from '@/components/ui/form';
 import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { TextField } from '@/components/ui/text-field';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+  parseStrategyConfigureValues,
+  useStrategyConfigureForm,
+  type StrategyConfigureFormHandle,
+} from '@/hooks/my-organization/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-export interface AdfsConfigureFormHandle {
-  validate: () => Promise<boolean>;
-  getData: () => AdfsConfigureFormValues;
-  isDirty: () => boolean;
-  reset: (data?: AdfsConfigureFormValues) => void;
-}
+export type AdfsConfigureFormHandle = StrategyConfigureFormHandle<AdfsConfigureFormValues>;
 
 interface AdfsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
 
 export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsConfigureFormProps>(
   function AdfsProviderForm(
-    { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+    {
+      initialData,
+      readOnly = false,
+      customMessages = {},
+      className,
+      onFormDirty,
+      idpConfig,
+      connectionSourceSelector = 'radio',
+    },
     ref,
   ) {
-    const { t } = useTranslator(
-      'idp_management.create_sso_provider.provider_configure',
-      customMessages,
-    );
-
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-
     const adfsData = initialData as AdfsConfigureFormInput | undefined;
 
-    const form = useForm<AdfsConfigureFormValues>({
-      resolver: zodResolver(createProviderConfigureSchema('adfs')),
-      mode: FORM_VALIDATION_MODE,
-      reValidateMode: FORM_REVALIDATE_MODE,
+    const form = useStrategyConfigureForm<AdfsConfigureFormValues>(ref, {
+      strategy: 'adfs',
+      onFormDirty,
       defaultValues: {
         meta_data_source: adfsData?.meta_data_source || 'meta_data_url',
         meta_data_location_url: adfsData?.meta_data_location_url || '',
@@ -69,179 +51,17 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
         show_as_button: adfsData?.show_as_button ?? false,
         assign_membership_on_login: adfsData?.assign_membership_on_login ?? false,
       },
+      getData: (adfsForm) => parseStrategyConfigureValues('adfs', adfsForm.getValues()),
     });
-
-    const { isDirty } = form.formState;
-
-    React.useEffect(() => {
-      onFormDirty?.(isDirty);
-    }, [isDirty, onFormDirty]);
-
-    React.useImperativeHandle(ref, () => ({
-      validate: async () => {
-        return await form.trigger();
-      },
-      getData: () => {
-        const rawData = form.getValues();
-        const schema = createProviderConfigureSchema('adfs');
-        const result = schema.safeParse(rawData);
-        return result.success ? result.data : rawData;
-      },
-      isDirty: () => form.formState.isDirty,
-      reset: (data) => {
-        if (data) {
-          form.reset(data);
-        } else {
-          form.reset();
-        }
-      },
-    }));
-
-    const typeValue = form.watch('meta_data_source');
-    const showFederationMetadataFile = typeValue === 'meta_data_file';
-
-    const handleFileUpload = async (files: File[]) => {
-      setUploadedFiles(files);
-
-      const file = files[0];
-      if (file) {
-        try {
-          const content = await file.text();
-          form.setValue('fedMetadataXml', content, { shouldDirty: true, shouldValidate: true });
-        } catch (error) {
-          console.error('Error reading file:', error);
-        }
-      } else {
-        form.setValue('fedMetadataXml', '', { shouldDirty: true, shouldValidate: true });
-      }
-    };
 
     return (
       <Form {...form}>
         <div className={cn('space-y-6', className)}>
-          <FormField
-            control={form.control}
-            name="meta_data_source"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-label font-medium">
-                  {t('fields.adfs.meta_data_source.label')}
-                </FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={readOnly}
-                    className="flex flex-col space-y-2"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="meta_data_url" id="meta_data_url" />
-                      <Label htmlFor="meta_data_url" className="text-sm font-normal cursor-pointer">
-                        {t('fields.adfs.meta_data_source.options.meta_data_url.label')}
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="meta_data_file" id="meta_data_file" />
-                      <Label
-                        htmlFor="meta_data_file"
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {t('fields.adfs.meta_data_source.options.meta_data_file.label')}
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage role="alert" className="text-left text-paragraph" />
-              </FormItem>
-            )}
+          <SsoAdfsConnectionFields
+            readOnly={readOnly}
+            sourceSelector={connectionSourceSelector}
+            customMessages={customMessages}
           />
-
-          {typeValue === 'meta_data_url' && (
-            <>
-              <FormField
-                control={form.control}
-                name="adfs_server"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel className="text-label font-medium">
-                      {t('fields.adfs.meta_data_url.label')}
-                    </FormLabel>
-                    <FormControl>
-                      <TextField
-                        type="url"
-                        placeholder={t('fields.adfs.meta_data_url.placeholder')}
-                        error={Boolean(fieldState.error)}
-                        readOnly={readOnly}
-                        aria-required={true}
-                        aria-invalid={Boolean(fieldState.error)}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage role="alert" className="text-left text-paragraph" />
-                    <FormDescription className="text-paragraph font-normal text-left">
-                      {t('fields.adfs.meta_data_url.helper_text')}
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="meta_data_location_url"
-                render={({ field, fieldState }) => (
-                  <FormItem>
-                    <FormLabel className="text-label font-medium">
-                      {t('fields.adfs.meta_data_location_url.label')}
-                    </FormLabel>
-                    <FormControl>
-                      <CopyableTextField
-                        type="url"
-                        placeholder={t('fields.adfs.meta_data_location_url.placeholder')}
-                        error={Boolean(fieldState.error)}
-                        readOnly={readOnly}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage role="alert" className="text-left text-paragraph" />
-                    <FormDescription className="text-paragraph font-normal text-left">
-                      {t('fields.adfs.meta_data_location_url.helper_text')}
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-            </>
-          )}
-
-          {showFederationMetadataFile && (
-            <FormField
-              control={form.control}
-              name="fedMetadataXml"
-              render={() => (
-                <FormItem>
-                  <FormLabel className="text-label font-medium">
-                    {t('fields.adfs.federation_metadata_file.label')}
-                  </FormLabel>
-                  <FormControl>
-                    <div className="space-y-3">
-                      <FileUpload
-                        accept=".xml"
-                        onChange={handleFileUpload}
-                        value={uploadedFiles}
-                        maxFiles={1}
-                        disabled={readOnly}
-                        className="w-full"
-                        placeholder={t('fields.adfs.federation_metadata_file.placeholder')}
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage role="alert" className="text-left text-paragraph" />
-                  <FormDescription className="text-paragraph font-normal text-left">
-                    {t('fields.adfs.federation_metadata_file.helper_text')}
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-          )}
 
           <CommonConfigureFields
             idpConfig={idpConfig}
