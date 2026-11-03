@@ -119,7 +119,7 @@ export function useOrganizationDeleteService({
 
   return {
     organization,
-    isFetchLoading: organizationQuery.isFetching,
+    isLoading: organizationQuery.isLoading,
     isDeleteLoading: isMutationLoading(deleteMutation),
     deleteOrganization,
   };

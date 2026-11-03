@@ -47,7 +47,7 @@ export interface UseOrganizationDeleteResult {
   canDelete: boolean;
   /** Whether the delete scope is missing (drives the permission-denied tooltip; always `false` in read-only mode). */
   permissionDenied: boolean;
-  isFetchLoading: boolean;
+  isLoading: boolean;
   isDeleteLoading: boolean;
   /** Deletes the organization. Resolves to `true` on success, `false` when denied, cancelled, or failed. */
   deleteOrganization: () => Promise<boolean>;

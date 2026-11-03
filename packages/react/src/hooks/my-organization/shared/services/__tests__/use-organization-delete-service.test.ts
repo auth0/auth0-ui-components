@@ -64,6 +64,24 @@ describe('useOrganizationDeleteService', () => {
 
       expect(result.current.organization.display_name).toBe(mockOrganization.display_name);
     });
+
+    it('reports loading for the first load only, not while it refetches', async () => {
+      const { result, queryClient, apiService } = await renderUseOrganizationDeleteService();
+      expect(result.current.isLoading).toBe(false);
+
+      let finishRefetch!: () => void;
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockReturnValue(
+        new Promise((resolve) => {
+          finishRefetch = () => resolve(createMockOrganization());
+        }),
+      );
+      const detailsKey = organizationDetailsQueryKeys.details();
+      void queryClient.refetchQueries({ queryKey: detailsKey });
+
+      await waitFor(() => expect(queryClient.isFetching({ queryKey: detailsKey })).toBe(1));
+      expect(result.current.isLoading).toBe(false);
+      finishRefetch();
+    });
   });
 
   describe('when the app retries mutations', () => {

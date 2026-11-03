@@ -13,7 +13,7 @@ const mockServiceDelete = vi.fn();
 vi.mock('@/hooks/my-organization/shared/services/use-organization-delete-service', () => ({
   useOrganizationDeleteService: () => ({
     organization: mockOrganization,
-    isFetchLoading: false,
+    isLoading: false,
     isDeleteLoading: false,
     deleteOrganization: mockServiceDelete,
   }),

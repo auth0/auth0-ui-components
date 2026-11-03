@@ -48,7 +48,7 @@ export function useOrganizationDelete({
     organization: service.organization,
     canDelete,
     permissionDenied,
-    isFetchLoading: service.isFetchLoading,
+    isLoading: service.isLoading,
     isDeleteLoading: service.isDeleteLoading,
     deleteOrganization,
   };

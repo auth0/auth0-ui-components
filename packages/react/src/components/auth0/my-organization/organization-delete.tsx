@@ -41,13 +41,13 @@ function OrganizationDelete(props: OrganizationDeleteProps): React.JSX.Element {
     organization,
     canDelete,
     permissionDenied,
-    isFetchLoading,
+    isLoading,
     isDeleteLoading,
     deleteOrganization,
   } = useOrganizationDelete({ deleteAction, readOnly, customMessages });
 
   return (
-    <GateKeeper isLoading={isFetchLoading} styling={styling}>
+    <GateKeeper isLoading={isLoading} styling={styling}>
       <OrganizationDeleteView
         organization={organization}
         customMessages={customMessages}
