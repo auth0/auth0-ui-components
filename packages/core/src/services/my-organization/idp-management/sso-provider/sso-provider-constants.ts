@@ -3,6 +3,8 @@
  * @module sso-provider-constants
  * @internal
  */
+import type { GetIdpConfigurationResponseContent } from '../../config/config-types';
+
 import type { IdpStrategy } from './sso-provider-types';
 
 export const STRATEGIES = {
@@ -28,3 +30,17 @@ export const STRATEGY_DISPLAY_NAMES: Record<IdpStrategy, string> = {
 } as const;
 
 export const DISCOVERY_URL_SUFFIX = '/.well-known/openid-configuration';
+
+export type IdpConfigStrategyKey = keyof NonNullable<
+  GetIdpConfigurationResponseContent['strategies']
+>;
+
+export const STRATEGY_TO_CONFIG_KEY: Record<IdpStrategy, IdpConfigStrategyKey> = {
+  [STRATEGIES.ADFS]: 'adfs',
+  [STRATEGIES.GOOGLE_APPS]: 'googleapps',
+  [STRATEGIES.OIDC]: 'oidc',
+  [STRATEGIES.OKTA]: 'okta',
+  [STRATEGIES.PINGFEDERATE]: 'pingfederate',
+  [STRATEGIES.SAMLP]: 'samlp',
+  [STRATEGIES.WAAD]: 'waad',
+};
