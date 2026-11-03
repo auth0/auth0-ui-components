@@ -42,9 +42,9 @@ export interface UseOrganizationTableServiceResult {
   organizations: UserOrganization[];
   nextToken: string | null;
   /** True only while the first page has no data yet. */
+  isLoading: boolean;
+  /** True during any fetch, including page changes and background refetches. */
   isFetching: boolean;
-  /** True during any fetch, including background refetches. */
-  isRefetching: boolean;
   isStale: boolean;
   isError: boolean;
   updatedAt: number;

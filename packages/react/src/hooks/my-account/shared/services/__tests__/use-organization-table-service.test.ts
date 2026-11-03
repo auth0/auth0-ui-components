@@ -38,7 +38,7 @@ describe('useOrganizationTableService', () => {
 
       const { result } = render();
 
-      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(result.current.organizations).toEqual(organizations);
       expect(result.current.nextToken).toBe('next_1');
       expect(result.current.isError).toBe(false);
@@ -49,7 +49,7 @@ describe('useOrganizationTableService', () => {
 
       const { result } = render({ paginationParams: { pageSize: 25, fromToken: 'cursor_2' } });
 
-      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(listOrganizations).toHaveBeenCalledWith({ take: 25, from: 'cursor_2' });
     });
 
@@ -58,9 +58,32 @@ describe('useOrganizationTableService', () => {
 
       const { result } = render();
 
-      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
       expect(result.current.organizations).toEqual([]);
       expect(result.current.nextToken).toBeNull();
+    });
+  });
+
+  describe('while another page loads', () => {
+    it('keeps the previous page and reports a fetch, not a first load', async () => {
+      const firstPage = createMockUserOrganizations();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(firstPage, 'next_1'))
+        .mockReturnValueOnce(new Promise(() => {}));
+      const { wrapper } = createQueryClientWrapper();
+      const initialProps: Parameters<typeof useOrganizationTableService>[0] = {};
+      const { result, rerender } = renderHook(
+        (options: Parameters<typeof useOrganizationTableService>[0]) =>
+          useOrganizationTableService(options),
+        { wrapper, initialProps },
+      );
+      await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+      rerender({ paginationParams: { fromToken: 'next_1' } });
+
+      await waitFor(() => expect(result.current.isFetching).toBe(true));
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.organizations).toEqual(firstPage);
     });
   });
 

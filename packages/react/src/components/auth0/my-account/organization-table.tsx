@@ -46,7 +46,7 @@ function OrganizationTable(props: OrganizationTableProps) {
   const organizationTable = useOrganizationTable();
 
   return (
-    <GateKeeper isLoading={organizationTable.isFetching} styling={styling}>
+    <GateKeeper isLoading={organizationTable.isLoading} styling={styling}>
       <OrganizationTableView
         organizationTable={organizationTable}
         styling={styling}
@@ -81,8 +81,8 @@ function OrganizationTableView({
 
   const {
     organizations,
+    isLoading,
     isFetching,
-    isRefetching,
     isStale,
     isError,
     updatedAt,
@@ -181,7 +181,7 @@ function OrganizationTableView({
       >
         <RefreshIndicator
           isStale={isStale}
-          isFetching={isRefetching}
+          isFetching={isFetching}
           lastUpdatedAt={updatedAt || undefined}
           customMessages={customMessages}
           onRefresh={refetch}
@@ -204,7 +204,7 @@ function OrganizationTableView({
         <DataTable
           columns={columns}
           data={organizations}
-          loading={isFetching}
+          loading={isLoading}
           emptyState={{ title: t('table.empty_message') }}
           className={currentStyles.classes?.['OrganizationTable-table']}
           onRowClick={readOnly ? undefined : onEditOrganization}

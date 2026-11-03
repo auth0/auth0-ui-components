@@ -19,8 +19,8 @@ const createServiceResult = (
 ): UseOrganizationTableServiceResult => ({
   organizations: createMockUserOrganizations(),
   nextToken: null,
+  isLoading: false,
   isFetching: false,
-  isRefetching: false,
   isStale: false,
   isError: false,
   updatedAt: 0,
@@ -105,7 +105,7 @@ describe('useOrganizationTable', () => {
       mockUseOrganizationTableService.mockImplementation(({ paginationParams } = {}) =>
         createServiceResult({
           nextToken: 'next_1',
-          isRefetching: paginationParams?.fromToken === 'next_1',
+          isFetching: paginationParams?.fromToken === 'next_1',
         }),
       );
     });
