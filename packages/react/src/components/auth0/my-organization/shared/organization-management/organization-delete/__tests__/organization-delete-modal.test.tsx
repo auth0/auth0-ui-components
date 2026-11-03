@@ -38,6 +38,16 @@ const renderModal = (overrides: Partial<OrganizationDeleteModalProps> = {}) => {
 };
 
 describe('OrganizationDeleteModal', () => {
+  describe('when custom classes are given', () => {
+    it('applies the modal class to the dialog', () => {
+      const { dialog } = renderModal({
+        styling: { classes: { 'OrganizationDelete-modal': 'custom-modal' } },
+      });
+
+      expect(dialog).toHaveClass('custom-modal');
+    });
+  });
+
   describe('when the confirmation field is empty', () => {
     it('disables the delete button and shows no error', () => {
       const { getDeleteButton, input } = renderModal();

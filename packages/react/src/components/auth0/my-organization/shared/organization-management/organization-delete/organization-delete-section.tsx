@@ -71,7 +71,7 @@ export function OrganizationDeleteSection({
       </Card>
 
       <OrganizationDeleteModal
-        className={styling?.classes?.['OrganizationDelete-modal']}
+        styling={styling}
         isOpen={isModalOpen}
         onClose={closeModal}
         organization={organization}

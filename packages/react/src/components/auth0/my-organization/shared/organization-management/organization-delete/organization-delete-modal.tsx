@@ -19,7 +19,7 @@ const CONFIRMATION_ERROR_ID = 'organization-delete-confirmation-error';
 /**
  * Asks the user to type the organization name before deleting it.
  * @param props - Component props.
- * @param props.className - Optional CSS class name for styling
+ * @param props.styling - Custom styling configuration with variables and classes
  * @param props.isOpen - Whether the modal is open
  * @param props.onClose - Callback fired when the modal should close
  * @param props.organization - Organization to delete
@@ -29,7 +29,7 @@ const CONFIRMATION_ERROR_ID = 'organization-delete-confirmation-error';
  * @returns JSX element
  */
 export function OrganizationDeleteModal({
-  className,
+  styling,
   isOpen,
   onClose,
   organization,
@@ -69,7 +69,7 @@ export function OrganizationDeleteModal({
     <Modal
       open={isOpen}
       onOpenChange={handleOpenChange}
-      className={cn('p-10', className)}
+      className={cn('p-10', styling?.classes?.['OrganizationDelete-modal'])}
       title={t('modal_title', { organizationName })}
       content={
         <div className="space-y-6">

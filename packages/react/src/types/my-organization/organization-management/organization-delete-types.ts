@@ -67,7 +67,7 @@ export interface OrganizationDeleteSectionProps {
 
 /** Props for the delete confirmation modal. */
 export interface OrganizationDeleteModalProps {
-  className?: string;
+  styling?: ComponentStyling<OrganizationDeleteClasses>;
   isOpen: boolean;
   onClose: () => void;
   organization: OrganizationPrivate;
