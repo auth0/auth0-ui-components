@@ -114,6 +114,11 @@ export interface ProviderConfigureFieldsProps
   mode?: FormMode;
   /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
+  /**
+   * How SAML and ADFS forms choose the connection source: a radio group (default) or
+   * Automatic / Manual tabs (guided setup).
+   */
+  connectionSourceSelector?: 'radio' | 'tabs';
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;

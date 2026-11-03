@@ -48,6 +48,7 @@ export const SamlpProviderForm = React.forwardRef<
     connectionNamePrefix,
     resolveSamlMetadata,
     showSignRequest = true,
+    connectionSourceSelector = 'radio',
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -124,7 +125,11 @@ export const SamlpProviderForm = React.forwardRef<
   return (
     <Form {...form}>
       <div className={cn('space-y-6', className)}>
-        <SsoSamlConnectionFields readOnly={readOnly} customMessages={customMessages} />
+        <SsoSamlConnectionFields
+          readOnly={readOnly}
+          sourceSelector={connectionSourceSelector}
+          customMessages={customMessages}
+        />
 
         <SsoSamlRequestSettings
           signRequestCertUrl={spValues.signRequestCertUrl}

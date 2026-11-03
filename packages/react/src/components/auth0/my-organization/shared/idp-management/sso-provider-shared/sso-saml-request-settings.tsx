@@ -54,26 +54,41 @@ interface SelectOption {
 export interface SsoSamlRequestSettingsProps {
   /** URL of the certificate used to verify signed requests. */
   signRequestCertUrl: string;
+  /** Message key prefix, e.g. `fields.samlp.advanced_settings`. */
+  messageKey?: string;
   readOnly?: boolean;
   /** Show the sign request checkbox and algorithms. */
   showSignRequest?: boolean;
+  /** Show the request protocol binding select (not used by PingFederate). */
+  showProtocolBinding?: boolean;
+  /**
+   * `by-source`: the sign request help text follows `meta_data_source`
+   * (`helper_text_metadata_url` / `helper_text_metadata_file`). `single`: one `helper_text`.
+   */
+  signRequestHelperText?: 'by-source' | 'single';
   customMessages?: Partial<Record<string, unknown>>;
 }
 
 /**
  * Advanced SAML request settings. Reads and writes `signSAMLRequest`, `signatureAlgorithm`,
- * `digestAlgorithm` and `bindingMethod`; the sign request help text follows `meta_data_source`.
+ * `digestAlgorithm` and `bindingMethod`.
  * @param props - Component props.
  * @param props.signRequestCertUrl - Certificate download link.
+ * @param props.messageKey - Message key prefix.
  * @param props.readOnly - Disable editing.
  * @param props.showSignRequest - Show request signing.
+ * @param props.showProtocolBinding - Show the protocol binding select.
+ * @param props.signRequestHelperText - Help text per metadata source, or a single one.
  * @param props.customMessages - Custom translation messages.
  * @returns JSX element
  */
 export function SsoSamlRequestSettings({
   signRequestCertUrl,
+  messageKey = 'fields.samlp.advanced_settings',
   readOnly = false,
   showSignRequest = true,
+  showProtocolBinding = true,
+  signRequestHelperText = 'by-source',
   customMessages = {},
 }: SsoSamlRequestSettingsProps) {
   const { t } = useTranslator(
@@ -84,6 +99,14 @@ export function SsoSamlRequestSettings({
 
   const source = watch('meta_data_source');
   const signRequestEnabled = watch('signSAMLRequest');
+
+  let signRequestHelperKey = `${messageKey}.sign_request.helper_text`;
+  if (signRequestHelperText === 'by-source') {
+    signRequestHelperKey =
+      source === 'meta_data_url'
+        ? `${messageKey}.sign_request.helper_text_metadata_url`
+        : `${messageKey}.sign_request.helper_text_metadata_file`;
+  }
 
   const renderSelect = (
     name: string,
@@ -121,7 +144,7 @@ export function SsoSamlRequestSettings({
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="advanced-settings">
         <AccordionTrigger className="text-sm font-medium">
-          {t('fields.samlp.advanced_settings.title')}
+          {t(`${messageKey}.title`)}
         </AccordionTrigger>
         <AccordionContent className="space-y-6">
           {showSignRequest && (
@@ -139,29 +162,24 @@ export function SsoSamlRequestSettings({
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel className="text-sm font-medium cursor-pointer">
-                      {t('fields.samlp.advanced_settings.sign_request.label')}
+                      {t(`${messageKey}.sign_request.label`)}
                     </FormLabel>
                     <FormDescription className="text-paragraph font-normal text-left">
                       <>
-                        {t.trans(
-                          source === 'meta_data_url'
-                            ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
-                            : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
-                          {
-                            components: {
-                              link: (children: string) => (
-                                <Link
-                                  key="samlp-sign-request-link"
-                                  href={signRequestCertUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  {children}
-                                </Link>
-                              ),
-                            },
+                        {t.trans(signRequestHelperKey, {
+                          components: {
+                            link: (children: string) => (
+                              <Link
+                                key="sign-request-link"
+                                href={signRequestCertUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {children}
+                              </Link>
+                            ),
                           },
-                        )}
+                        })}
                       </>
                     </FormDescription>
                   </div>
@@ -174,24 +192,25 @@ export function SsoSamlRequestSettings({
             <>
               {renderSelect(
                 'signatureAlgorithm',
-                'fields.samlp.advanced_settings.sign_request_algorithm.label',
-                'fields.samlp.advanced_settings.sign_request_algorithm.placeholder',
+                `${messageKey}.sign_request_algorithm.label`,
+                `${messageKey}.sign_request_algorithm.placeholder`,
                 SIGNATURE_ALGORITHMS,
               )}
               {renderSelect(
                 'digestAlgorithm',
-                'fields.samlp.advanced_settings.sign_request_algorithm_digest.label',
-                'fields.samlp.advanced_settings.sign_request_algorithm_digest.placeholder',
+                `${messageKey}.sign_request_algorithm_digest.label`,
+                `${messageKey}.sign_request_algorithm_digest.placeholder`,
                 DIGEST_ALGORITHMS,
               )}
             </>
           )}
-          {renderSelect(
-            'bindingMethod',
-            'fields.samlp.advanced_settings.request_protocol_binding.label',
-            'fields.samlp.advanced_settings.request_protocol_binding.placeholder',
-            BINDING_METHODS,
-          )}
+          {showProtocolBinding &&
+            renderSelect(
+              'bindingMethod',
+              `${messageKey}.request_protocol_binding.label`,
+              `${messageKey}.request_protocol_binding.placeholder`,
+              BINDING_METHODS,
+            )}
         </AccordionContent>
       </AccordionItem>
     </Accordion>

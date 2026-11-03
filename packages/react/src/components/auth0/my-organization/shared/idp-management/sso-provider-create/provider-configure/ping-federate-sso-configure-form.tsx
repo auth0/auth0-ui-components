@@ -4,44 +4,18 @@
  * @internal
  */
 
-import {
-  createProviderConfigureSchema,
-  type PingFederateConfigureFormValues,
-} from '@auth0/universal-components-core';
-import { zodResolver } from '@hookform/resolvers/zod';
+import type { PingFederateConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
+import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
+import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
+import { Form } from '@/components/ui/form';
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Checkbox } from '@/components/ui/checkbox';
-import { FileUpload } from '@/components/ui/file-upload';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Link } from '@/components/ui/link';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { TextField } from '@/components/ui/text-field';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+  useStrategyConfigureForm,
+  type StrategyConfigureFormHandle,
+} from '@/hooks/my-organization/use-strategy-configure-form';
 import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -50,22 +24,8 @@ const PING_FEDERATE_HELP_LINKS = {
   sign_request: 'domain/pem?cert=connection',
 } as const;
 
-const SIGNATURE_ALGORITHMS = [
-  { value: 'rsa-sha1', label: 'RSA-SHA1' },
-  { value: 'rsa-sha256', label: 'RSA-SHA256' },
-] as const;
-
-const DIGEST_ALGORITHMS = [
-  { value: 'sha1', label: 'SHA1' },
-  { value: 'sha256', label: 'SHA256' },
-] as const;
-
-export interface PingFederateConfigureFormHandle {
-  validate: () => Promise<boolean>;
-  getData: () => PingFederateConfigureFormValues;
-  isDirty: () => boolean;
-  reset: (data?: PingFederateConfigureFormValues) => void;
-}
+export type PingFederateConfigureFormHandle =
+  StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
 
 interface PingFederateConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
 
@@ -76,19 +36,11 @@ export const PingFederateProviderForm = React.forwardRef<
   { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
   ref,
 ) {
-  const { t } = useTranslator(
-    'idp_management.create_sso_provider.provider_configure',
-    customMessages,
-  );
-
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-
   const pingFederateData = initialData as PingFederateConfigureFormValues | undefined;
 
-  const form = useForm<PingFederateConfigureFormValues>({
-    resolver: zodResolver(createProviderConfigureSchema('pingfederate')),
-    mode: FORM_VALIDATION_MODE,
-    reValidateMode: FORM_REVALIDATE_MODE,
+  const form = useStrategyConfigureForm<PingFederateConfigureFormValues>(ref, {
+    strategy: 'pingfederate',
+    onFormDirty,
     defaultValues: {
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',
       signingCert: pingFederateData?.signingCert || '',
@@ -100,244 +52,33 @@ export const PingFederateProviderForm = React.forwardRef<
     },
   });
 
-  const { isDirty } = form.formState;
-
-  React.useEffect(() => {
-    onFormDirty?.(isDirty);
-  }, [isDirty, onFormDirty]);
-
-  React.useImperativeHandle(ref, () => ({
-    validate: async () => {
-      return await form.trigger();
-    },
-    getData: () => form.getValues(),
-    isDirty: () => form.formState.isDirty,
-    reset: (data) => {
-      if (data) {
-        form.reset(data);
-      } else {
-        form.reset();
-      }
-    },
-  }));
-
-  const signRequestEnabled = form.watch('signSAMLRequest');
-
-  const isAllowedCertificateFile = React.useCallback((file: File) => {
-    const fileName = file.name.toLowerCase();
-    return ALLOWED_CERT_EXTENSIONS.some((extension) => fileName.endsWith(extension));
-  }, []);
-
-  const handleFileUpload = async (files: File[]) => {
-    setUploadedFiles(files);
-
-    const file = files[0];
-    if (file) {
-      try {
-        const content = await file.text();
-        form.setValue('signingCert', content, { shouldDirty: true, shouldValidate: true });
-      } catch (error) {
-        console.error('Error reading file:', error);
-      }
-    } else {
-      form.setValue('signingCert', '', { shouldDirty: true, shouldValidate: true });
-    }
-  };
-
-  const handleInvalidFiles = (files: File[]) => {
-    if (files.some((file) => !isAllowedCertificateFile(file))) {
-      form.setError('signingCert', {
-        type: 'manual',
-        message: t('fields.ping-federate.sign_cert.error'),
-      });
-    }
-  };
-
   return (
     <Form {...form}>
       <div className={cn('space-y-6', className)}>
-        <FormField
-          control={form.control}
+        <SsoUrlField
           name="pingFederateBaseUrl"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.ping-federate.ping_federate_baseurl.label')}
-              </FormLabel>
-              <FormControl>
-                <TextField
-                  type="url"
-                  placeholder={t('fields.ping-federate.ping_federate_baseurl.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  aria-invalid={Boolean(fieldState.error)}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.ping-federate.ping_federate_baseurl.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
+          messageKey="fields.ping-federate.ping_federate_baseurl"
+          readOnly={readOnly}
+          customMessages={customMessages}
         />
 
-        <FormField
-          control={form.control}
+        <SsoFileField
           name="signingCert"
-          render={() => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.ping-federate.sign_cert.label')}
-              </FormLabel>
-              <FormControl>
-                <div className="space-y-3">
-                  <FileUpload
-                    accept={ALLOWED_CERT_EXTENSIONS.join(',')}
-                    onChange={handleFileUpload}
-                    onInvalidFiles={handleInvalidFiles}
-                    value={uploadedFiles}
-                    maxFiles={1}
-                    disabled={readOnly}
-                    className="w-full"
-                    placeholder={t('fields.ping-federate.sign_cert.placeholder')}
-                  />
-                </div>
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.ping-federate.sign_cert.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
+          messageKey="fields.ping-federate.sign_cert"
+          accept={ALLOWED_CERT_EXTENSIONS.join(',')}
+          invalidFileMessageKey="fields.ping-federate.sign_cert.error"
+          readOnly={readOnly}
+          customMessages={customMessages}
         />
 
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="advanced-settings">
-            <AccordionTrigger className="text-sm font-medium">
-              {t('fields.ping-federate.advanced_settings.title')}
-            </AccordionTrigger>
-            <AccordionContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="signSAMLRequest"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value || false}
-                        onCheckedChange={field.onChange}
-                        disabled={readOnly}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        {t('fields.ping-federate.advanced_settings.sign_request.label')}
-                      </FormLabel>
-                      <FormDescription className="text-paragraph font-normal text-left">
-                        <>
-                          {t.trans(
-                            'fields.ping-federate.advanced_settings.sign_request.helper_text',
-                            {
-                              components: {
-                                link: (children: string) => (
-                                  <Link
-                                    key="ping-federate-sign-request-link"
-                                    href={PING_FEDERATE_HELP_LINKS.sign_request}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {children}
-                                  </Link>
-                                ),
-                              },
-                            },
-                          )}
-                        </>
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-
-              {signRequestEnabled && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="signatureAlgorithm"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-label font-medium">
-                          {t('fields.ping-federate.advanced_settings.sign_request_algorithm.label')}
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value || ''}
-                          disabled={readOnly}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t(
-                                  'fields.ping-federate.advanced_settings.sign_request_algorithm.placeholder',
-                                )}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {SIGNATURE_ALGORITHMS.map((algorithm) => (
-                              <SelectItem key={algorithm.value} value={algorithm.value}>
-                                {algorithm.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage role="alert" className="text-left text-paragraph" />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="digestAlgorithm"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-label font-medium">
-                          {t(
-                            'fields.ping-federate.advanced_settings.sign_request_algorithm_digest.label',
-                          )}
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value || ''}
-                          disabled={readOnly}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue
-                                placeholder={t(
-                                  'fields.ping-federate.advanced_settings.sign_request_algorithm_digest.placeholder',
-                                )}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {DIGEST_ALGORITHMS.map((algorithm) => (
-                              <SelectItem key={algorithm.value} value={algorithm.value}>
-                                {algorithm.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage role="alert" className="text-left text-paragraph" />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        <SsoSamlRequestSettings
+          signRequestCertUrl={PING_FEDERATE_HELP_LINKS.sign_request}
+          messageKey="fields.ping-federate.advanced_settings"
+          showProtocolBinding={false}
+          signRequestHelperText="single"
+          readOnly={readOnly}
+          customMessages={customMessages}
+        />
 
         <CommonConfigureFields
           idpConfig={idpConfig}
