@@ -26,6 +26,8 @@ import type { UseOrganizationDeleteServiceOptions } from '@/types/my-organizatio
 
 const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 
+const ORGANIZATION_SCOPED_QUERY_KEYS = [organizationDetailsQueryKeys.all, configQueryKeys.all];
+
 /**
  * A 403 that is not an insufficient-scope error means the API refused deletion
  * because the organization still has other members (`allow_if_empty` behavior).
@@ -77,10 +79,10 @@ export function useOrganizationDeleteService({
       // The token is no longer valid, so nothing may be requested with it. Marking the queries stale
       // (not removing them) keeps hooks that are still mounted from refetching.
       void queryClient.invalidateQueries({
-        queryKey: organizationDetailsQueryKeys.all,
+        predicate: ({ queryKey }) =>
+          ORGANIZATION_SCOPED_QUERY_KEYS.some(([root]) => queryKey[0] === root),
         refetchType: 'none',
       });
-      void queryClient.invalidateQueries({ queryKey: configQueryKeys.all, refetchType: 'none' });
 
       try {
         await deleteAction?.onAfter?.(organization);
