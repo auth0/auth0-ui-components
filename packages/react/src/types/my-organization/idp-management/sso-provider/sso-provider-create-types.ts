@@ -169,7 +169,6 @@ export interface UseSsoProviderCreateOptions {
 }
 
 export interface UseSsoProviderCreateServiceReturn {
-  /** Creates the provider; resolves to it, or `undefined` when creation did not start. */
   createProvider: (
     data: CreateIdentityProviderRequestContentPrivate,
   ) => Promise<IdpKnownResponse | undefined>;
