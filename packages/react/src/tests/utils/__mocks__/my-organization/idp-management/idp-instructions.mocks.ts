@@ -1,6 +1,5 @@
 import type {
   IdpInstructionsPage,
-  IdpInstructionsPageContent,
   IdpInstructionsResponse,
   IdpProvisioningInstructionsPage,
   IdpProvisioningInstructionsResponse,
@@ -8,48 +7,14 @@ import type {
 } from '@auth0/universal-components-core';
 
 /**
- * Instruction fixtures modelled on the page order in the RFC "Identity Provider
- * Creation Instructions" (697780235) and "Provisioning Instructions" (697781233).
- * Text is shortened; structure (page order, conditions, content types) matches.
+ * Instruction fixtures that mirror the live My Organization API content: page keys and order,
+ * entry and exit conditions, content keys and types, payload fields and tab structure.
+ * Markdown text is short placeholder text; help links are the real public URLs.
  */
 
 const BASE_URL = 'https://acme.auth0.com/my-org/public/instructions';
 const TENANT = 'acme';
 const VERSION_INFO = { version: '1', lifecycle_status: 'latest' } as const;
-
-const markdown = (key: string, text: string): IdpInstructionsPageContent => ({
-  key,
-  type: 'markdown_component',
-  markdown_component: { text },
-});
-
-const component = (
-  key: string,
-  type: IdpInstructionsPageContent['type'],
-): IdpInstructionsPageContent => ({ key, type });
-
-const testPage = (strategy: string): IdpInstructionsPage => ({
-  key: `${strategy}-test-connection`,
-  title: 'Test SSO',
-  exit_condition: 'connection_testing_suggested',
-  contents: [
-    markdown(`${strategy}-test-1`, 'Test the provider to ensure SSO setup is successful.'),
-    component(`${strategy}-test-2`, 'test_connection_component'),
-  ],
-});
-
-const claimsMappingPage = (strategy: string): IdpInstructionsPage => ({
-  key: `${strategy}-claims-mapping`,
-  title: 'Claims Mapping',
-  entry_condition: 'if_mapping_present',
-  contents: [
-    markdown(
-      `${strategy}-mapping-1`,
-      'Claims mapping ensures that the correct user attributes are passed from the identity provider to {{companyName}}.',
-    ),
-    component(`${strategy}-mapping-2`, 'attribute_mapping_list_component'),
-  ],
-});
 
 const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
   okta: [
@@ -57,139 +22,325 @@ const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
       key: 'okta-create-application',
       title: 'Create Application',
       contents: [
-        markdown(
-          'okta-create-1',
-          'To connect your Okta tenant as an identity provider, you must create an OIDC application.\n\nSelect **Applications > Applications**, and **Create App Integration**.\n\n![Okta applications](/img/okta/1.png)',
-        ),
-        markdown('okta-create-2', 'Add the Callback URL in the **Sign-in redirect URIs** field.'),
-        component('okta-create-3', 'callback_url_component'),
-      ],
-    },
-    {
-      key: 'okta-configure-connection',
-      title: 'Configure Provider',
-      exit_condition: 'connection_exists',
-      contents: [
         {
-          key: 'okta-configure-1',
-          type: 'okta_configure_connection_component',
-          okta_configure_connection_component: {
-            find_okta_domain_url: 'https://developer.okta.com/docs/guides/find-your-domain/',
-            find_client_id_url: 'https://developer.okta.com/docs/guides/find-your-app-credentials/',
-            find_client_secret_url:
-              'https://developer.okta.com/docs/guides/find-your-app-credentials/',
+          key: 'okta-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for Okta and {{companyName}}.\n\n![Create Application](/img/okta/okta-create-application.png)',
+          },
+        },
+        {
+          key: 'okta-create-application-2',
+          type: 'callback_url_component',
+        },
+        {
+          key: 'okta-create-application-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for Okta.',
           },
         },
       ],
     },
-    claimsMappingPage('okta'),
+    {
+      key: 'okta-configure-connection',
+      title: 'Configure Connection',
+      exit_condition: 'connection_exists',
+      contents: [
+        {
+          key: 'okta-configure-connection-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for Okta and {{companyName}}.\n\n![Configure Connection](/img/okta/okta-configure-connection.png)',
+          },
+        },
+        {
+          key: 'okta-configure-connection-2',
+          type: 'okta_configure_connection_component',
+          okta_configure_connection_component: {
+            find_okta_domain_url: 'https://developer.okta.com/docs/guides/find-your-domain/main/',
+            find_client_id_url:
+              'https://developer.okta.com/docs/guides/find-your-app-credentials/main/',
+            find_client_secret_url:
+              'https://developer.okta.com/docs/guides/find-your-app-credentials/main/',
+          },
+        },
+      ],
+    },
+    {
+      key: 'okta-claims-mapping',
+      title: 'Claims Mapping',
+      entry_condition: 'if_mapping_present',
+      contents: [
+        {
+          key: 'okta-claims-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Claims Mapping for Okta and {{companyName}}.\n\n![Claims Mapping](/img/okta/okta-claims-mapping.png)',
+          },
+        },
+        {
+          key: 'okta-claims-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+      ],
+    },
     {
       key: 'okta-assign-access',
       title: 'Assign Access',
       contents: [
-        markdown(
-          'okta-assign-1',
-          'Grant users or groups access to {{companyName}}.\n\nSelect **Assign**, then **Assign to Groups**.',
-        ),
+        {
+          key: 'okta-assign-access-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Assign Access for Okta and {{companyName}}.\n\n![Assign Access](/img/okta/okta-assign-access.png)',
+          },
+        },
       ],
     },
-    testPage('okta'),
+    {
+      key: 'okta-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'okta-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
   oidc: [
     {
       key: 'oidc-create-application',
       title: 'Create Application',
       contents: [
-        markdown('oidc-create-1', 'Register a new web application with your OIDC provider.'),
-        component('oidc-create-2', 'callback_url_component'),
+        {
+          key: 'oidc-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for your identity provider and {{companyName}}.\n\n![Create Application](/img/oidc/oidc-create-application.png)',
+          },
+        },
+        {
+          key: 'oidc-create-application-2',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for your identity provider.',
+          },
+        },
+        {
+          key: 'oidc-create-application-3',
+          type: 'callback_url_component',
+        },
       ],
     },
     {
       key: 'oidc-configure-connection',
-      title: 'Configure Provider',
+      title: 'Configure Connection',
       exit_condition: 'connection_exists',
-      contents: [component('oidc-configure-1', 'oidc_configure_connection_component')],
+      contents: [
+        {
+          key: 'oidc-configure-connection-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for your identity provider and {{companyName}}.\n\n![Configure Connection](/img/oidc/oidc-configure-connection.png)',
+          },
+        },
+        {
+          key: 'oidc-configure-connection-2',
+          type: 'oidc_configure_connection_component',
+        },
+      ],
     },
-    claimsMappingPage('oidc'),
-    testPage('oidc'),
+    {
+      key: 'oidc-claims-mapping',
+      title: 'Claims Mapping',
+      entry_condition: 'if_mapping_present',
+      contents: [
+        {
+          key: 'oidc-claims-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Claims Mapping for your identity provider and {{companyName}}.\n\n![Claims Mapping](/img/oidc/oidc-claims-mapping.png)',
+          },
+        },
+        {
+          key: 'oidc-claims-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+      ],
+    },
+    {
+      key: 'oidc-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'oidc-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
   samlp: [
     {
       key: 'samlp-create-application',
       title: 'Create Application',
       contents: [
-        markdown('samlp-create-1', 'Create a SAML application in your identity provider.'),
-        component('samlp-create-2', 'sso_url_component'),
-        component('samlp-create-3', 'service_provider_entity_id_component'),
-      ],
-    },
-    {
-      key: 'samlp-configure-connection',
-      title: 'Configure Provider',
-      exit_condition: 'connection_exists',
-      contents: [component('samlp-configure-1', 'samlp_configure_connection_component')],
-    },
-    claimsMappingPage('samlp'),
-    testPage('samlp'),
-  ],
-  adfs: [
-    {
-      key: 'adfs-relying-party-trust',
-      title: 'Add a Relying Party Trust',
-      contents: [
-        markdown('adfs-rpt-1', 'In AD FS Management, select **Add Relying Party Trust**.'),
-        component('adfs-rpt-2', 'adfs_relying_party_ws_federation_passive_protocol_url_component'),
-        component('adfs-rpt-3', 'adfs_relying_party_trust_identifier_component'),
-      ],
-    },
-    {
-      key: 'adfs-claims-issuance-policy',
-      title: 'Configure Claims Issuance Policy',
-      entry_condition: 'if_mapping_present',
-      contents: [
-        markdown('adfs-claims-1', 'Add a rule to send LDAP attributes as claims.'),
-        component('adfs-claims-2', 'attribute_mapping_list_component'),
-      ],
-    },
-    {
-      key: 'adfs-configure-connection',
-      title: 'Configure Provider',
-      exit_condition: 'connection_exists',
-      contents: [
         {
-          key: 'adfs-configure-1',
-          type: 'adfs_configure_connection_component',
-          adfs_configure_connection_component: {
-            metadata_location_instructions:
-              'Use `https://HOSTNAME/FederationMetadata/2007-06/FederationMetadata.xml`, replacing **HOSTNAME** with your AD FS host.',
+          key: 'samlp-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for your identity provider and {{companyName}}.\n\n![Create Application](/img/samlp/samlp-create-application.png)',
+          },
+        },
+        {
+          key: 'samlp-create-application-2',
+          type: 'sso_url_component',
+        },
+        {
+          key: 'samlp-create-application-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for your identity provider.',
+          },
+        },
+        {
+          key: 'samlp-create-application-4',
+          type: 'service_provider_entity_id_component',
+        },
+        {
+          key: 'samlp-create-application-5',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 3 for your identity provider.',
           },
         },
       ],
     },
-    testPage('adfs'),
+    {
+      key: 'samlp-configure-connection-tabs',
+      title: 'Configure Connection',
+      exit_condition: 'connection_exists',
+      contents: [
+        {
+          key: 'samlp-configure-connection-tabs-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for your identity provider and {{companyName}}.\n\n![Configure Connection](/img/samlp/samlp-configure-connection-tabs.png)',
+          },
+        },
+        {
+          key: 'samlp-configure-connection-tabs-2',
+          type: 'samlp_configure_connection_component',
+        },
+      ],
+    },
+    {
+      key: 'samlp-attribute-mapping',
+      title: 'Attribute Mapping',
+      entry_condition: 'if_mapping_present',
+      contents: [
+        {
+          key: 'samlp-attribute-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Attribute Mapping for your identity provider and {{companyName}}.\n\n![Attribute Mapping](/img/samlp/samlp-attribute-mapping.png)',
+          },
+        },
+        {
+          key: 'samlp-attribute-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+      ],
+    },
+    {
+      key: 'samlp-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'samlp-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
   waad: [
     {
       key: 'waad-create-application',
       title: 'Create Application',
       contents: [
-        markdown('waad-create-1', 'Register a new application in Microsoft Entra ID.'),
-        component('waad-create-2', 'callback_url_component'),
+        {
+          key: 'waad-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for Entra ID and {{companyName}}.\n\n![Create Application](/img/waad/waad-create-application.png)',
+          },
+        },
+        {
+          key: 'waad-create-application-2',
+          type: 'callback_url_component',
+        },
+        {
+          key: 'waad-create-application-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for Entra ID.',
+          },
+        },
       ],
     },
     {
       key: 'waad-configure-connection',
-      title: 'Configure Provider',
+      title: 'Configure Connection',
       exit_condition: 'connection_exists',
-      contents: [component('waad-configure-1', 'waad_configure_connection_component')],
+      contents: [
+        {
+          key: 'waad-configure-connection-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for Entra ID and {{companyName}}.\n\n![Configure Connection](/img/waad/waad-configure-connection.png)',
+          },
+        },
+        {
+          key: 'waad-configure-connection-2',
+          type: 'waad_configure_connection_component',
+        },
+      ],
     },
-    claimsMappingPage('waad'),
+    {
+      key: 'waad-claims-mapping',
+      title: 'Claims Mapping',
+      entry_condition: 'if_mapping_present',
+      contents: [
+        {
+          key: 'waad-claims-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Claims Mapping for Entra ID and {{companyName}}.\n\n![Claims Mapping](/img/waad/waad-claims-mapping.png)',
+          },
+        },
+        {
+          key: 'waad-claims-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+      ],
+    },
     {
       key: 'waad-assign-access',
       title: 'Assign Access',
       contents: [
         {
-          key: 'waad-assign-1',
+          key: 'waad-assign-access-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Assign Access for Entra ID and {{companyName}}.\n\n![Assign Access](/img/waad/waad-assign-access.png)',
+          },
+        },
+        {
+          key: 'waad-assign-access-2',
           type: 'tabs_component',
           tabs_component: {
             default_tab: 0,
@@ -198,10 +349,10 @@ const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
                 title: 'Specific Users or Groups',
                 contents: [
                   {
-                    key: 'waad-assign-specific-1',
+                    key: 'waad-assign-access-specific-1',
                     type: 'markdown_component',
                     markdown_component: {
-                      text: 'Set **Assignment required** to **Yes**, then add users or groups.',
+                      text: 'Assign Access: step 2 for Entra ID.',
                     },
                   },
                 ],
@@ -210,9 +361,11 @@ const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
                 title: 'All Users',
                 contents: [
                   {
-                    key: 'waad-assign-all-1',
+                    key: 'waad-assign-access-all-1',
                     type: 'markdown_component',
-                    markdown_component: { text: 'Set **Assignment required** to **No**.' },
+                    markdown_component: {
+                      text: 'Assign Access: step 3 for Entra ID.',
+                    },
                   },
                 ],
               },
@@ -221,28 +374,64 @@ const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
         },
       ],
     },
-    testPage('waad'),
+    {
+      key: 'waad-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'waad-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
   'google-apps': [
     {
       key: 'google-apps-create-application',
       title: 'Create Application',
       contents: [
-        markdown('google-apps-create-1', 'Create an OAuth client in Google Cloud Console.'),
-        component('google-apps-create-2', 'google_apps_authorized_javascript_origins_component'),
-        component('google-apps-create-3', 'google_apps_authorized_redirect_uri_component'),
+        {
+          key: 'google-apps-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for Google Workspace and {{companyName}}.\n\n![Create Application](/img/google-apps/google-apps-create-application.png)',
+          },
+        },
+        {
+          key: 'google-apps-create-application-2',
+          type: 'google_apps_authorized_javascript_origins_component',
+        },
+        {
+          key: 'google-apps-create-application-3',
+          type: 'google_apps_authorized_redirect_uri_component',
+        },
+        {
+          key: 'google-apps-create-application-4',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for Google Workspace.',
+          },
+        },
       ],
     },
     {
       key: 'google-apps-configure-connection',
-      title: 'Configure Provider',
+      title: 'Configure Connection',
       exit_condition: 'connection_exists',
       contents: [
         {
-          key: 'google-apps-configure-1',
+          key: 'google-apps-configure-connection-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for Google Workspace and {{companyName}}.\n\n![Configure Connection](/img/google-apps/google-apps-configure-connection.png)',
+          },
+        },
+        {
+          key: 'google-apps-configure-connection-2',
           type: 'google_apps_configure_connection_component',
           google_apps_configure_connection_component: {
-            find_google_workspace_domain_url: 'https://support.google.com/a/answer/7502379',
+            find_google_workspace_domain_url: 'https://support.google.com/domains/answer/7278940',
           },
         },
       ],
@@ -250,54 +439,251 @@ const pages: Record<IdpStrategy, IdpInstructionsPage[]> = {
     {
       key: 'google-apps-assign-access',
       title: 'Assign Access',
-      contents: [markdown('google-apps-assign-1', 'Turn the app on for everyone or for an OU.')],
+      contents: [
+        {
+          key: 'google-apps-assign-access-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Assign Access for Google Workspace and {{companyName}}.\n\n![Assign Access](/img/google-apps/google-apps-assign-access.png)',
+          },
+        },
+      ],
     },
-    testPage('google-apps'),
+    {
+      key: 'google-apps-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'google-apps-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
+  ],
+  adfs: [
+    {
+      key: 'adfs-create-application',
+      title: 'Create Application',
+      contents: [
+        {
+          key: 'adfs-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for ADFS and {{companyName}}.\n\n![Create Application](/img/adfs/adfs-create-application.png)',
+          },
+        },
+        {
+          key: 'adfs-create-application-2',
+          type: 'adfs_relying_party_ws_federation_passive_protocol_url_component',
+        },
+        {
+          key: 'adfs-create-application-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 2 for ADFS.',
+          },
+        },
+        {
+          key: 'adfs-create-application-4',
+          type: 'adfs_relying_party_trust_identifier_component',
+        },
+        {
+          key: 'adfs-create-application-5',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application: step 3 for ADFS.',
+          },
+        },
+      ],
+    },
+    {
+      key: 'adfs-configure-claims-issuance-policy',
+      title: 'Configure Claims Issuance Policy',
+      entry_condition: 'if_mapping_present',
+      contents: [
+        {
+          key: 'adfs-configure-claims-issuance-policy-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Claims Issuance Policy for ADFS and {{companyName}}.\n\n![Configure Claims Issuance Policy](/img/adfs/adfs-configure-claims-issuance-policy.png)',
+          },
+        },
+        {
+          key: 'adfs-configure-claims-issuance-policy-2',
+          type: 'attribute_mapping_list_component',
+        },
+        {
+          key: 'adfs-configure-claims-issuance-policy-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Claims Issuance Policy: step 2 for ADFS.',
+          },
+        },
+      ],
+    },
+    {
+      key: 'adfs-configure-connection-tabs-adfs',
+      title: 'Configure Connection',
+      exit_condition: 'connection_exists',
+      contents: [
+        {
+          key: 'adfs-configure-connection-tabs-adfs-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for ADFS and {{companyName}}.\n\n![Configure Connection](/img/adfs/adfs-configure-connection-tabs-adfs.png)',
+          },
+        },
+        {
+          key: 'adfs-configure-connection-tabs-adfs-2',
+          type: 'adfs_configure_connection_component',
+          adfs_configure_connection_component: {
+            metadata_location_instructions:
+              'Replace HOSTNAME with your ADFS host to get the metadata URL.',
+          },
+        },
+      ],
+    },
+    {
+      key: 'adfs-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'adfs-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
   pingfederate: [
     {
-      key: 'pingfederate-create-sp-connection',
+      key: 'pingfederate-create-application',
       title: 'Create SP Connection',
       contents: [
-        markdown('pingfederate-sp-1', 'Create a new SP connection in PingFederate.'),
-        component('pingfederate-sp-2', 'pingfederate_partners_entity_id_component'),
+        {
+          key: 'pingfederate-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create SP Connection for PingFederate and {{companyName}}.\n\n![Create SP Connection](/img/pingfederate/pingfederate-create-application.png)',
+          },
+        },
+        {
+          key: 'pingfederate-create-application-2',
+          type: 'pingfederate_partners_entity_id_component',
+        },
+        {
+          key: 'pingfederate-create-application-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create SP Connection: step 2 for PingFederate.',
+          },
+        },
       ],
     },
     {
-      key: 'pingfederate-browser-sso',
+      key: 'pingfederate-browser-sso-settings-ping',
       title: 'Browser SSO',
-      contents: [markdown('pingfederate-sso-1', 'Enable **SP-Initiated SSO**.')],
+      contents: [
+        {
+          key: 'pingfederate-browser-sso-settings-ping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Browser SSO for PingFederate and {{companyName}}.\n\n![Browser SSO](/img/pingfederate/pingfederate-browser-sso-settings-ping.png)',
+          },
+        },
+      ],
     },
     {
-      key: 'pingfederate-assertion-creation',
+      key: 'pingfederate-attribute-mapping',
       title: 'Assertion Creation',
       contents: [
-        markdown('pingfederate-assertion-1', 'Map these attributes in the assertion.'),
-        component('pingfederate-assertion-2', 'attribute_mapping_list_component'),
+        {
+          key: 'pingfederate-attribute-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Assertion Creation for PingFederate and {{companyName}}.\n\n![Assertion Creation](/img/pingfederate/pingfederate-attribute-mapping.png)',
+          },
+        },
+        {
+          key: 'pingfederate-attribute-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+        {
+          key: 'pingfederate-attribute-mapping-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Assertion Creation: step 2 for PingFederate.',
+          },
+        },
       ],
     },
     {
-      key: 'pingfederate-protocols',
+      key: 'pingfederate-protocols-ping',
       title: 'Protocols',
       contents: [
-        markdown('pingfederate-protocols-1', 'Add the endpoint URL with binding **POST**.'),
-        component('pingfederate-protocols-2', 'pingfederate_endpoint_url_component'),
+        {
+          key: 'pingfederate-protocols-ping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Protocols for PingFederate and {{companyName}}.\n\n![Protocols](/img/pingfederate/pingfederate-protocols-ping.png)',
+          },
+        },
+        {
+          key: 'pingfederate-protocols-ping-2',
+          type: 'pingfederate_endpoint_url_component',
+        },
+        {
+          key: 'pingfederate-protocols-ping-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Protocols: step 2 for PingFederate.',
+          },
+        },
       ],
     },
     {
-      key: 'pingfederate-credentials',
-      title: 'Credentials Setup',
-      contents: [markdown('pingfederate-credentials-1', 'Select your signing certificate.')],
+      key: 'pingfederate-credentials-ping',
+      title: 'Credentials',
+      contents: [
+        {
+          key: 'pingfederate-credentials-ping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Credentials for PingFederate and {{companyName}}.\n\n![Credentials](/img/pingfederate/pingfederate-credentials-ping.png)',
+          },
+        },
+      ],
     },
     {
-      key: 'pingfederate-configure-connection',
-      title: 'Configure Provider',
+      key: 'pingfederate-configure-connection-tabs',
+      title: 'Configure Connection',
       exit_condition: 'connection_exists',
       contents: [
-        component('pingfederate-configure-1', 'pingfederate_configure_connection_component'),
+        {
+          key: 'pingfederate-configure-connection-tabs-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Connection for PingFederate and {{companyName}}.\n\n![Configure Connection](/img/pingfederate/pingfederate-configure-connection-tabs.png)',
+          },
+        },
+        {
+          key: 'pingfederate-configure-connection-tabs-2',
+          type: 'pingfederate_configure_connection_component',
+        },
       ],
     },
-    testPage('pingfederate'),
+    {
+      key: 'pingfederate-test-connection',
+      title: 'Test SSO',
+      exit_condition: 'connection_testing_suggested',
+      contents: [
+        {
+          key: 'pingfederate-test-connection-1',
+          type: 'test_connection_component',
+        },
+      ],
+    },
   ],
 };
 
@@ -321,122 +707,305 @@ export const createMockIdpInstructions = (
 const provisioningPages: Record<IdpStrategy, IdpProvisioningInstructionsPage[]> = {
   okta: [
     {
-      key: 'okta-scim-create-application',
+      key: 'okta-create-application',
       title: 'Add SCIM Template App',
       contents: [
         {
-          key: 'okta-scim-create-1',
+          key: 'okta-create-application-1',
           type: 'markdown_component',
           markdown_component: {
-            text: 'To provision users to {{companyName}}, you must create a SWA application.',
+            text: 'Add SCIM Template App for Okta and {{companyName}}.\n\n![Add SCIM Template App](/img/okta/okta-create-application.png)',
           },
         },
         {
-          key: 'okta-scim-create-2',
+          key: 'okta-create-application-2',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Add SCIM Template App: step 2 for Okta.',
+          },
+        },
+      ],
+    },
+    {
+      key: 'okta-configure-scim',
+      title: 'Configure SCIM',
+      exit_condition: 'token_generation_suggested',
+      contents: [
+        {
+          key: 'okta-configure-scim-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM for Okta and {{companyName}}.\n\n![Configure SCIM](/img/okta/okta-configure-scim.png)',
+          },
+        },
+        {
+          key: 'okta-configure-scim-2',
+          type: 'scim_endpoint_url_component',
+        },
+        {
+          key: 'okta-configure-scim-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM: step 2 for Okta.',
+          },
+        },
+        {
+          key: 'okta-configure-scim-4',
+          type: 'bearer_token_component',
+        },
+        {
+          key: 'okta-configure-scim-5',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM: step 3 for Okta.',
+          },
+        },
+        {
+          key: 'okta-configure-scim-6',
           type: 'markdown_component',
           markdown_component: {
             variant: 'notice',
-            text: 'This is a separate application from the one used for SSO.',
+            text: 'Note for configure scim.',
           },
         },
       ],
     },
     {
-      key: 'okta-scim-configure',
-      title: 'Configure SCIM',
-      exit_condition: 'token_generation_suggested',
-      contents: [
-        {
-          key: 'okta-scim-configure-1',
-          type: 'markdown_component',
-          markdown_component: { text: 'Add the following URL to the **Base URL** field.' },
-        },
-        { key: 'okta-scim-configure-2', type: 'scim_endpoint_url_component' },
-        { key: 'okta-scim-configure-3', type: 'bearer_token_component' },
-      ],
-    },
-    {
-      key: 'okta-scim-mapping',
+      key: 'okta-mapping',
       title: 'SCIM Mapping',
       contents: [
-        { key: 'okta-scim-mapping-1', type: 'okta_schema_urn_component' },
-        { key: 'okta-scim-mapping-2', type: 'attribute_mapping_list_component' },
-      ],
-    },
-  ],
-  waad: [
-    {
-      key: 'waad-scim-create-application',
-      title: 'Create Application',
-      contents: [
         {
-          key: 'waad-scim-create-1',
+          key: 'okta-mapping-1',
           type: 'markdown_component',
-          markdown_component: { text: 'Create a non-gallery enterprise application.' },
+          markdown_component: {
+            text: 'SCIM Mapping for Okta and {{companyName}}.\n\n![SCIM Mapping](/img/okta/okta-mapping.png)',
+          },
+        },
+        {
+          key: 'okta-mapping-2',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'SCIM Mapping: step 2 for Okta.',
+          },
+        },
+        {
+          key: 'okta-mapping-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'SCIM Mapping: step 3 for Okta.',
+          },
+        },
+        {
+          key: 'okta-mapping-4',
+          type: 'okta_schema_urn_component',
+        },
+        {
+          key: 'okta-mapping-5',
+          type: 'attribute_mapping_list_component',
+        },
+        {
+          key: 'okta-mapping-6',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'SCIM Mapping: step 4 for Okta.',
+          },
         },
       ],
     },
     {
-      key: 'waad-scim-configure',
-      title: 'Configure SCIM',
-      exit_condition: 'token_generation_suggested',
+      key: 'okta-sync-groups',
+      title: 'Sync Groups',
+      entry_condition: 'if_group_provisioning_enabled',
       contents: [
         {
-          key: 'waad-scim-configure-1',
+          key: 'okta-sync-groups-1',
           type: 'markdown_component',
-          markdown_component: { text: 'Append `?aadOptscim062020` to the Tenant URL.' },
+          markdown_component: {
+            text: 'Sync Groups for Okta and {{companyName}}.\n\n![Sync Groups](/img/okta/okta-sync-groups.png)',
+          },
         },
-        { key: 'waad-scim-configure-2', type: 'scim_endpoint_url_component' },
-        { key: 'waad-scim-configure-3', type: 'bearer_token_component' },
+        {
+          key: 'okta-sync-groups-2',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Sync Groups: step 2 for Okta.',
+          },
+        },
       ],
-    },
-    {
-      key: 'waad-scim-mapping',
-      title: 'SCIM Mapping',
-      contents: [{ key: 'waad-scim-mapping-1', type: 'attribute_mapping_list_component' }],
     },
   ],
   oidc: [
     {
-      key: 'oidc-scim-mapping',
-      title: 'SCIM mapping',
+      key: 'oidc-configure-provisioning',
+      title: 'Configure Provisioning',
+      exit_condition: 'token_generation_suggested',
       contents: [
         {
-          key: 'oidc-scim-1',
+          key: 'oidc-configure-provisioning-1',
           type: 'markdown_component',
-          markdown_component: { text: 'Configure to provision users to {{companyName}}.' },
+          markdown_component: {
+            text: 'Configure Provisioning for your identity provider and {{companyName}}.\n\n![Configure Provisioning](/img/oidc/oidc-configure-provisioning.png)',
+          },
         },
-        { key: 'oidc-scim-2', type: 'bearer_token_component' },
-        { key: 'oidc-scim-3', type: 'scim_endpoint_url_component' },
         {
-          key: 'oidc-scim-4',
+          key: 'oidc-configure-provisioning-2',
+          type: 'bearer_token_component',
+        },
+        {
+          key: 'oidc-configure-provisioning-3',
+          type: 'scim_endpoint_url_component',
+        },
+        {
+          key: 'oidc-configure-provisioning-4',
           type: 'markdown_component',
           markdown_component: {
             variant: 'notice',
-            text: 'We use standard SCIM syntax (e.g., `emails[type eq "work"].value`) but support varies by identity provider.',
+            text: 'Note for configure provisioning.',
           },
         },
-        { key: 'oidc-scim-5', type: 'attribute_mapping_list_component' },
+        {
+          key: 'oidc-configure-provisioning-5',
+          type: 'attribute_mapping_list_component',
+        },
       ],
     },
   ],
   samlp: [
     {
-      key: 'samlp-scim-mapping',
-      title: 'SCIM mapping',
+      key: 'samlp-configure-provisioning',
+      title: 'Configure Provisioning',
+      exit_condition: 'token_generation_suggested',
       contents: [
-        { key: 'samlp-scim-1', type: 'bearer_token_component' },
-        { key: 'samlp-scim-2', type: 'scim_endpoint_url_component' },
-        { key: 'samlp-scim-3', type: 'attribute_mapping_list_component' },
+        {
+          key: 'samlp-configure-provisioning-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure Provisioning for your identity provider and {{companyName}}.\n\n![Configure Provisioning](/img/samlp/samlp-configure-provisioning.png)',
+          },
+        },
+        {
+          key: 'samlp-configure-provisioning-2',
+          type: 'bearer_token_component',
+        },
+        {
+          key: 'samlp-configure-provisioning-3',
+          type: 'scim_endpoint_url_component',
+        },
+        {
+          key: 'samlp-configure-provisioning-4',
+          type: 'markdown_component',
+          markdown_component: {
+            variant: 'notice',
+            text: 'Note for configure provisioning.',
+          },
+        },
+        {
+          key: 'samlp-configure-provisioning-5',
+          type: 'attribute_mapping_list_component',
+        },
+      ],
+    },
+  ],
+  waad: [
+    {
+      key: 'waad-create-application',
+      title: 'Create Application',
+      contents: [
+        {
+          key: 'waad-create-application-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Create Application for Entra ID and {{companyName}}.\n\n![Create Application](/img/waad/waad-create-application.png)',
+          },
+        },
+      ],
+    },
+    {
+      key: 'waad-configure-scim',
+      title: 'Configure SCIM',
+      exit_condition: 'token_generation_suggested',
+      contents: [
+        {
+          key: 'waad-configure-scim-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM for Entra ID and {{companyName}}.\n\n![Configure SCIM](/img/waad/waad-configure-scim.png)',
+          },
+        },
+        {
+          key: 'waad-configure-scim-2',
+          type: 'scim_endpoint_url_component',
+        },
+        {
+          key: 'waad-configure-scim-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM: step 2 for Entra ID.',
+          },
+        },
+        {
+          key: 'waad-configure-scim-4',
+          type: 'bearer_token_component',
+        },
+        {
+          key: 'waad-configure-scim-5',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Configure SCIM: step 3 for Entra ID.',
+          },
+        },
+      ],
+    },
+    {
+      key: 'waad-scim-mapping',
+      title: 'SCIM Mapping',
+      contents: [
+        {
+          key: 'waad-scim-mapping-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'SCIM Mapping for Entra ID and {{companyName}}.\n\n![SCIM Mapping](/img/waad/waad-scim-mapping.png)',
+          },
+        },
+        {
+          key: 'waad-scim-mapping-2',
+          type: 'attribute_mapping_list_component',
+        },
+        {
+          key: 'waad-scim-mapping-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'SCIM Mapping: step 2 for Entra ID.',
+          },
+        },
       ],
     },
   ],
   'google-apps': [
     {
-      key: 'google-apps-setup',
-      title: 'Setup',
+      key: 'google-apps-grant-access',
+      title: 'Grant Access',
       exit_condition: 'google_workspace_setup_complete',
-      contents: [{ key: 'google-apps-setup-1', type: 'google_workspace_setup_component' }],
+      contents: [
+        {
+          key: 'google-apps-grant-access-1',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Grant Access for Google Workspace and {{companyName}}.\n\n![Grant Access](/img/google-apps/google-apps-grant-access.png)',
+          },
+        },
+        {
+          key: 'google-apps-grant-access-2',
+          type: 'google_workspace_setup_component',
+        },
+        {
+          key: 'google-apps-grant-access-3',
+          type: 'markdown_component',
+          markdown_component: {
+            text: 'Grant Access: step 2 for Google Workspace.',
+          },
+        },
+      ],
     },
   ],
   adfs: [],
