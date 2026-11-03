@@ -8,7 +8,6 @@
 import {
   configQueryKeys,
   ERROR_CODES,
-  getStatusCode,
   hasApiErrorBody,
   OrganizationDetailsFactory,
   OrganizationDetailsMappers,
@@ -29,14 +28,13 @@ const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
 const ORGANIZATION_SCOPED_QUERY_KEYS = [organizationDetailsQueryKeys.all, configQueryKeys.all];
 
 /**
- * A 403 that is not an insufficient-scope error means the API refused deletion
- * because the organization still has other members (`allow_if_empty` behavior).
+ * Whether the API refused the delete because the organization still has other members
+ * (`allow_if_empty` behavior), which it reports with the forbidden error type.
  * @param error - Error thrown by the delete request.
  * @returns Whether the error is the "organization not empty" rejection.
  */
 const isOrganizationNotEmptyError = (error: unknown): boolean =>
-  getStatusCode(error) === 403 &&
-  !(hasApiErrorBody(error) && error.body?.type?.includes(ERROR_CODES.INSUFFICIENT_SCOPE));
+  hasApiErrorBody(error) && !!error.body?.type?.includes(ERROR_CODES.FORBIDDEN);
 
 /**
  * Internal service hook for organization delete API operations.

@@ -20,6 +20,9 @@ vi.mock('@/hooks/shared/use-translator', () => ({
 }));
 const { initMockCoreClient } = mockCore();
 
+// The error type the API returns when the organization still has other members.
+const NOT_EMPTY_TYPE = 'https://auth0.com/api-errors#A0E-403-0001';
+
 const createApiError = (status: number, type?: string) =>
   Object.assign(new Error('Request failed'), {
     statusCode: status,
@@ -175,7 +178,7 @@ describe('useOrganizationDeleteService', () => {
     it('uses the name, not the display name, in the success and refusal messages', async () => {
       const { result, apiService, mockOrganization } = await renderUseOrganizationDeleteService();
       (apiService.organization.delete as ReturnType<typeof vi.fn>)
-        .mockRejectedValueOnce(createApiError(403))
+        .mockRejectedValueOnce(createApiError(403, NOT_EMPTY_TYPE))
         .mockResolvedValueOnce(undefined);
       mockTranslate.mockClear();
 
@@ -234,22 +237,41 @@ describe('useOrganizationDeleteService', () => {
   });
 
   describe('when deletion fails', () => {
-    it('shows the not-empty message for a 403 that is not an insufficient-scope error', async () => {
+    it.each([NOT_EMPTY_TYPE, 'https://auth0.com/api-errors/A0E-403-0001'])(
+      'shows the not-empty message when the API reports the has-members error (%s)',
+      async (type) => {
+        const { result, apiService } = await renderUseOrganizationDeleteService();
+        (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+          createApiError(403, type),
+        );
+
+        let deleted: boolean | undefined;
+        await act(async () => {
+          deleted = await result.current.deleteOrganization();
+        });
+
+        expect(deleted).toBe(false);
+        expect(mockedShowToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'notifications.not_empty_error',
+        });
+      },
+    );
+
+    it('uses the shared error handler for a 403 without that error type', async () => {
       const { result, apiService } = await renderUseOrganizationDeleteService();
       (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
         createApiError(403),
       );
 
-      let deleted: boolean | undefined;
       await act(async () => {
-        deleted = await result.current.deleteOrganization();
+        await result.current.deleteOrganization();
       });
 
-      expect(deleted).toBe(false);
-      expect(mockedShowToast).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'notifications.not_empty_error',
-      });
+      expect(mockedShowToast).toHaveBeenCalledTimes(1);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'notifications.not_empty_error' }),
+      );
     });
 
     it('uses the shared error handler for an insufficient-scope 403', async () => {
