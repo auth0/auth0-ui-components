@@ -190,7 +190,9 @@ function OrganizationTableView({
 
       {showError ? (
         // Per design, a failed load replaces the whole table (no column headers or pagination).
-        <Card className={cn('text-center', currentStyles.classes?.['OrganizationTable-table'])}>
+        <Card
+          className={cn('text-center', currentStyles.classes?.['OrganizationTable-errorState'])}
+        >
           <CardContent className="flex flex-col items-center gap-2">
             <CardTitle>{t('table.error_message')}</CardTitle>
             <CardDescription>{t('table.error_description')}</CardDescription>

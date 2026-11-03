@@ -15,6 +15,7 @@ export interface OrganizationTableClasses {
   'OrganizationTable-header'?: string;
   'OrganizationTable-tableActions'?: string;
   'OrganizationTable-table'?: string;
+  'OrganizationTable-errorState'?: string;
 }
 
 /** Props for the OrganizationTable block component. */
