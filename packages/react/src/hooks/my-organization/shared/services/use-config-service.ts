@@ -48,9 +48,8 @@ export function useConfig(): UseConfigResult {
     config?.connection_deletion_behavior === 'allow_if_empty';
 
   // The API treats an unset value as `allow_if_empty`.
-  const organizationDeletionBehavior: UseConfigResult['organizationDeletionBehavior'] = config
-    ? (config.organization_deletion_behavior ?? 'allow_if_empty')
-    : undefined;
+  const organizationDeletionBehavior: UseConfigResult['organizationDeletionBehavior'] =
+    config && (config.organization_deletion_behavior ?? 'allow_if_empty');
 
   const isConfigValid = !!allowedStrategies?.length;
 
