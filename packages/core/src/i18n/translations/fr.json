@@ -302,7 +302,6 @@
       "menu_label": "Organisations",
       "error_message": "Un problème est survenu lors du chargement de vos organisations.",
       "retry_button_text": "Réessayer",
-      "load_more_button_text": "Afficher plus",
       "create_button_text": "Créer une organisation"
     }
   },

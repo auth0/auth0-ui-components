@@ -355,7 +355,6 @@
       "menu_label": "組織",
       "error_message": "組織の読み込み中に問題が発生しました。",
       "retry_button_text": "再試行",
-      "load_more_button_text": "さらに表示",
       "create_button_text": "組織を作成"
     }
   },

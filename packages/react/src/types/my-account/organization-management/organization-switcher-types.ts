@@ -45,7 +45,7 @@ export interface OrganizationSwitcherProps
    * It also keeps the switcher visible when the user belongs to only one organization.
    */
   onCreateOrganization?: () => void;
-  /** Number of organizations loaded per page. Defaults to 10. */
+  /** Number of organizations to load. Defaults to 10. */
   pageSize?: number;
 }
 
@@ -57,13 +57,8 @@ export interface UseOrganizationSwitcherServiceResult {
   organizations: UserOrganization[];
   isLoading: boolean;
   isError: boolean;
-  /** Whether the latest error came from loading the next page. */
-  isFetchNextPageError: boolean;
   /** Whether a retry is in flight after the first load failed. */
   isRetrying: boolean;
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  fetchNextPage: () => void;
   refetch: () => void;
 }
 

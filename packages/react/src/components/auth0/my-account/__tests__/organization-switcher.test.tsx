@@ -46,6 +46,22 @@ describe('OrganizationSwitcher', () => {
     return screen.findByRole('menu');
   };
 
+  describe('when there are more organizations than the first page', () => {
+    it('requests only the first page and offers no load more', async () => {
+      const user = userEvent.setup();
+      listOrganizations.mockResolvedValue(
+        createMockUserOrganizationsPage(organizations, 'next_token'),
+      );
+      renderSwitcher();
+
+      await openMenu(user);
+
+      expect(listOrganizations).toHaveBeenCalledTimes(1);
+      expect(listOrganizations).toHaveBeenCalledWith({ take: 10 });
+      expect(screen.getAllByRole('menuitem')).toHaveLength(organizations.length);
+    });
+  });
+
   describe('when the current organization is loaded', () => {
     it('shows its display name on the trigger', async () => {
       renderSwitcher({ currentOrganizationId: 'org_abc123' });
@@ -159,16 +175,6 @@ describe('OrganizationSwitcher', () => {
       );
     });
 
-    it('still renders when the single loaded organization has a next page', async () => {
-      listOrganizations.mockResolvedValue(
-        createMockUserOrganizationsPage([createMockUserOrganization()], 'next_token'),
-      );
-
-      renderSwitcher();
-
-      expect(await findTrigger()).toBeInTheDocument();
-    });
-
     it('still renders with one organization when there is a create item', async () => {
       const user = userEvent.setup();
       listOrganizations.mockResolvedValue(
@@ -192,32 +198,6 @@ describe('OrganizationSwitcher', () => {
       expect(screen.getByRole('menuitem', { name: 'create_button_text' })).toBeInTheDocument();
       expect(screen.getAllByRole('menuitem')).toHaveLength(1);
       expect(screen.queryByRole('separator')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('when there are more organizations', () => {
-    it('appends the next page on load more', async () => {
-      const user = userEvent.setup();
-      listOrganizations
-        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
-        .mockResolvedValueOnce(
-          createMockUserOrganizationsPage([
-            createMockUserOrganization({ id: 'org_xyz', name: 'initech', display_name: 'Initech' }),
-          ]),
-        );
-      renderSwitcher();
-
-      await openMenu(user);
-      await user.click(await screen.findByRole('menuitem', { name: 'load_more_button_text' }));
-
-      expect(await screen.findByRole('menuitem', { name: 'Initech' })).toBeInTheDocument();
-      expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
-      expect(listOrganizations).toHaveBeenLastCalledWith(
-        expect.objectContaining({ from: 'next_token' }),
-      );
-      expect(
-        screen.queryByRole('menuitem', { name: 'load_more_button_text' }),
-      ).not.toBeInTheDocument();
     });
   });
 
@@ -249,48 +229,19 @@ describe('OrganizationSwitcher', () => {
     });
   });
 
-  describe('when loading more fails', () => {
-    it('keeps the loaded organizations and retries the next page', async () => {
-      const user = userEvent.setup();
-      listOrganizations
-        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
-        .mockRejectedValueOnce(new Error('Network error'))
-        .mockResolvedValueOnce(
-          createMockUserOrganizationsPage([
-            createMockUserOrganization({ id: 'org_xyz', name: 'initech', display_name: 'Initech' }),
-          ]),
-        );
-      renderSwitcher();
-
-      await openMenu(user);
-      await user.click(await screen.findByRole('menuitem', { name: 'load_more_button_text' }));
-
-      expect(await screen.findByText('error_message')).toBeInTheDocument();
-      expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
-
-      await user.click(screen.getByRole('menuitem', { name: 'retry_button_text' }));
-
-      expect(await screen.findByRole('menuitem', { name: 'Initech' })).toBeInTheDocument();
-      expect(screen.queryByText('error_message')).not.toBeInTheDocument();
-      expect(listOrganizations).toHaveBeenLastCalledWith(
-        expect.objectContaining({ from: 'next_token' }),
-      );
-    });
-  });
-
   describe('when refreshing the loaded organizations fails', () => {
-    it('keeps them and still offers load more, without an error', async () => {
+    it('keeps them without an error', async () => {
       const user = userEvent.setup();
       const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
       listOrganizations
-        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations))
         .mockRejectedValueOnce(new Error('Network error'));
       renderWithProviders(<OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />, {
         queryClient,
       });
 
       await openMenu(user);
-      await screen.findByRole('menuitem', { name: 'load_more_button_text' });
+      await screen.findByRole('menuitem', { name: 'Acme Corp.' });
       await act(async () => {
         await queryClient.refetchQueries({ queryKey: userOrganizationQueryKeys.all });
       });
@@ -305,34 +256,6 @@ describe('OrganizationSwitcher', () => {
 
       expect(screen.queryByText('error_message')).not.toBeInTheDocument();
       expect(screen.getByRole('menuitem', { name: 'Acme Corp.' })).toBeInTheDocument();
-      expect(screen.getByRole('menuitem', { name: 'load_more_button_text' })).toBeInTheDocument();
-    });
-  });
-
-  describe('when two switchers share the list and loading more fails', () => {
-    it('shows the error and retry in both', async () => {
-      const user = userEvent.setup();
-      listOrganizations
-        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
-        .mockRejectedValueOnce(new Error('Network error'));
-      renderWithProviders(
-        <>
-          <OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />
-          <OrganizationSwitcher onSwitchOrganization={onSwitchOrganization} />
-        </>,
-      );
-
-      const [first, second] = await screen.findAllByRole('button', {
-        name: /^trigger_(label|placeholder)$/,
-      });
-      await user.click(first!);
-      await user.click(await screen.findByRole('menuitem', { name: 'load_more_button_text' }));
-      expect(await screen.findByText('error_message')).toBeInTheDocument();
-      await user.keyboard('{Escape}');
-
-      await user.click(second!);
-      expect(await screen.findByText('error_message')).toBeInTheDocument();
-      expect(screen.getByRole('menuitem', { name: 'retry_button_text' })).toBeInTheDocument();
     });
   });
 

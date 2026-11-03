@@ -368,7 +368,6 @@
       "menu_label": "Organizations",
       "error_message": "There was an issue loading your organizations.",
       "retry_button_text": "Try again",
-      "load_more_button_text": "Load more",
       "create_button_text": "Create Organization"
     }
   },

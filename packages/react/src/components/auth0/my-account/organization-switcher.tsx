@@ -90,11 +90,7 @@ function OrganizationSwitcherView({
     currentOrganization,
     isLoading,
     isError,
-    isFetchNextPageError,
     isRetrying,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
     refetch,
     handleSelect,
   } = organizationSwitcher;
@@ -108,7 +104,7 @@ function OrganizationSwitcherView({
   const currentName =
     currentOrganization?.display_name || currentOrganization?.name || currentOrganizationName;
 
-  // Keep the menu open while paging or retrying.
+  // Keep the menu open while retrying.
   const keepOpen = (handler: () => void) => (event: Event) => {
     event.preventDefault();
     handler();
@@ -117,11 +113,8 @@ function OrganizationSwitcherView({
   // Keep the error state on screen while a retry is in flight, so the control doesn't vanish.
   const hasFailed = (isError && organizations.length === 0) || isRetrying;
 
-  // A failed "Load more" keeps the organizations already loaded and offers a retry in its place.
-  const loadMoreFailed = isFetchNextPageError && organizations.length > 0;
-
   // Render nothing until the first page loads, and when there is nothing to switch to or create.
-  const hasNothingToDo = organizations.length <= 1 && !hasNextPage && !onCreateOrganization;
+  const hasNothingToDo = organizations.length <= 1 && !onCreateOrganization;
   if ((isLoading && !isRetrying) || (!hasFailed && hasNothingToDo)) {
     return null;
   }
@@ -184,22 +177,6 @@ function OrganizationSwitcherView({
                   </DropdownMenuItem>
                 );
               })}
-              {hasNextPage && (
-                <>
-                  {loadMoreFailed && (
-                    <p className="px-2 py-1.5 text-sm text-destructive-foreground">
-                      {t('error_message')}
-                    </p>
-                  )}
-                  <DropdownMenuItem
-                    disabled={isFetchingNextPage}
-                    onSelect={keepOpen(fetchNextPage)}
-                  >
-                    {isFetchingNextPage && <Spinner size="sm" className="mr-2" />}
-                    {loadMoreFailed ? t('retry_button_text') : t('load_more_button_text')}
-                  </DropdownMenuItem>
-                </>
-              )}
             </div>
           )}
           {onCreateOrganization && (
@@ -250,8 +227,8 @@ function TruncatedText({ text }: { text: string }) {
  * Organization switcher.
  *
  * Compact control that shows the organization the user is signed in to and lets
- * them pick another organization they belong to (My Account API). Organizations
- * load a page at a time with "Load more". The switcher is hidden while loading and
+ * them pick another organization they belong to (My Account API). It lists the first
+ * organizations only (10 by default). The switcher is hidden while loading and
  * when there is nothing to switch to or create: a single organization and no
  * `onCreateOrganization`.
  * Requires the `read:me:organizations` scope on the My Account API token.

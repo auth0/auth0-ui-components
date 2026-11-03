@@ -1,12 +1,12 @@
 /**
  * Internal organization switcher service hook.
- * Loads the user's organizations page by page (My Account API) for "load more".
+ * Loads the first page of the user's organizations (My Account API).
  * @module use-organization-switcher-service
  * @internal
  */
 
-import { userOrganizationQueryKeys } from '@auth0/universal-components-core';
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { userOrganizationQueryKeys, type UserOrganization } from '@auth0/universal-components-core';
+import { useQuery } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import type {
@@ -14,54 +14,42 @@ import type {
   UseOrganizationSwitcherServiceResult,
 } from '@/types/my-account/organization-management/organization-switcher-types';
 
+const NO_ORGANIZATIONS: UserOrganization[] = [];
+
 /**
- * Internal service hook for the accumulated organization list.
+ * Internal service hook for the organization list.
+ * It uses the same query key and data shape as the first page of the organization table, so both
+ * share one request.
  * @param options - Service hook options.
- * @param options.pageSize - Organizations requested per page.
- * @returns Accumulated organizations and paging state.
+ * @param options.pageSize - Number of organizations to load.
+ * @returns Loaded organizations and query state.
  * @internal
  */
 export function useOrganizationSwitcherService({
   pageSize,
 }: UseOrganizationSwitcherServiceOptions): UseOrganizationSwitcherServiceResult {
   const { coreClient } = useCoreClient();
-  const queryClient = useQueryClient();
-  const queryKey = userOrganizationQueryKeys.infinite({ pageSize });
 
-  const organizationsQuery = useInfiniteQuery({
-    queryKey,
-    queryFn: async ({ pageParam }: { pageParam?: string }) => {
-      const { response } = await coreClient!.getMyAccountApiClient().organizations.list({
-        take: pageSize,
-        from: pageParam,
-      });
+  const organizationsQuery = useQuery({
+    queryKey: userOrganizationQueryKeys.list({ pageSize }),
+    queryFn: async () => {
+      const { response } = await coreClient!
+        .getMyAccountApiClient()
+        .organizations.list({ take: pageSize });
       return {
         organizations: response?.organizations ?? [],
-        next: response?.next,
+        next: response?.next ?? null,
       };
     },
-    // Required by TanStack Query v5; v4 ignores it and starts with an undefined pageParam.
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (lastPage) => lastPage.next || undefined,
     enabled: !!coreClient,
   });
 
   return {
-    organizations: organizationsQuery.data?.pages.flatMap((page) => page.organizations) ?? [],
+    organizations: organizationsQuery.data?.organizations ?? NO_ORGANIZATIONS,
     isLoading: organizationsQuery.isLoading,
     isError: organizationsQuery.isError,
-    // The query records which way its last fetch went, so every switcher sharing it agrees.
-    // TanStack Query v5 exposes this as `isFetchNextPageError`; v4 does not.
-    isFetchNextPageError:
-      organizationsQuery.isError &&
-      queryClient.getQueryState(queryKey)?.fetchMeta?.fetchMore?.direction === 'forward',
     // Retrying after a failed first load puts the query back into its loading state.
     isRetrying: organizationsQuery.isLoading && organizationsQuery.errorUpdateCount > 0,
-    hasNextPage: !!organizationsQuery.hasNextPage,
-    isFetchingNextPage: organizationsQuery.isFetchingNextPage,
-    fetchNextPage: () => {
-      void organizationsQuery.fetchNextPage();
-    },
     refetch: () => {
       void organizationsQuery.refetch();
     },

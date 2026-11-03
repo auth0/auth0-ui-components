@@ -7,6 +7,4 @@ export const userOrganizationQueryKeys = {
   lists: () => [...userOrganizationQueryKeys.all, 'list'] as const,
   list: (params?: { pageSize?: number; fromToken?: string }) =>
     [...userOrganizationQueryKeys.lists(), params ?? {}] as const,
-  infinite: (params?: { pageSize?: number }) =>
-    [...userOrganizationQueryKeys.all, 'infinite', params ?? {}] as const,
 };

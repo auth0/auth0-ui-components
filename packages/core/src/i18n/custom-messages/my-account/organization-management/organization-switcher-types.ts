@@ -11,6 +11,5 @@ export interface OrganizationSwitcherMessages extends SharedMessages {
   menu_label?: string;
   error_message?: string;
   retry_button_text?: string;
-  load_more_button_text?: string;
   create_button_text?: string;
 }
