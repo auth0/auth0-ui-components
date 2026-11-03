@@ -1,4 +1,6 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { userOrganizationQueryKeys } from '@auth0/universal-components-core';
+import { QueryClient } from '@tanstack/react-query';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -19,11 +21,14 @@ describe('OrganizationTable', () => {
   const organizations = createMockUserOrganizations();
   let listOrganizations: ReturnType<typeof vi.fn>;
   let deleteOrganization: ReturnType<typeof vi.fn>;
+  let getOrganizationDetails: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     const mockCoreClient = initMockCoreClient();
     deleteOrganization = mockCoreClient.getMyOrganizationApiClient().organization
       .delete as ReturnType<typeof vi.fn>;
+    getOrganizationDetails = mockCoreClient.getMyOrganizationApiClient().organizationDetails
+      .get as ReturnType<typeof vi.fn>;
     listOrganizations = mockCoreClient.getMyAccountApiClient().organizations.list as ReturnType<
       typeof vi.fn
     >;
@@ -290,6 +295,146 @@ describe('OrganizationTable', () => {
 
       await waitFor(() => expect(onBefore).toHaveBeenCalledWith(organizations[0]));
       expect(deleteOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when deleteAction.onSwitchOrganization is provided', () => {
+    const openRowMenu = async (user: ReturnType<typeof userEvent.setup>, row: number) => {
+      const menus = await screen.findAllByRole('button', { name: 'table.actions.menu_label' });
+      await user.click(menus[row]!);
+      return screen.findByRole('menuitem', { name: /delete_button_text/ });
+    };
+
+    const confirmInDialog = async (user: ReturnType<typeof userEvent.setup>, name: string) => {
+      const dialog = await screen.findByRole('dialog');
+      await user.type(within(dialog).getByLabelText('organization_name_field_label'), name);
+      await user.click(within(dialog).getByRole('button', { name: 'delete_button_label' }));
+    };
+
+    it('enables delete for another organization and asks the host to switch to it', async () => {
+      const user = userEvent.setup();
+      const onSwitchOrganization = vi.fn();
+
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_abc123"
+          deleteAction={{ onSwitchOrganization }}
+        />,
+      );
+
+      const deleteItem = await openRowMenu(user, 1);
+      expect(deleteItem).not.toHaveAttribute('data-disabled');
+      expect(deleteItem).not.toHaveTextContent('delete_other_organization_hint');
+      await user.click(deleteItem);
+
+      expect(onSwitchOrganization).toHaveBeenCalledWith(organizations[1]);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(deleteOrganization).not.toHaveBeenCalled();
+    });
+
+    it('opens the confirmation for that organization once the user is signed in to it', async () => {
+      const user = userEvent.setup();
+      const onAfter = vi.fn();
+
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_def456"
+          deleteConfirmationOrganizationId="org_def456"
+          deleteAction={{ onSwitchOrganization: vi.fn(), onAfter }}
+        />,
+      );
+
+      await confirmInDialog(user, 'fabrikam');
+
+      await waitFor(() => expect(onAfter).toHaveBeenCalledWith(organizations[1]));
+      expect(deleteOrganization).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens it only once, even when the list refreshes after it was cancelled', async () => {
+      const user = userEvent.setup();
+      const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_def456"
+          deleteConfirmationOrganizationId="org_def456"
+          deleteAction={{ onSwitchOrganization: vi.fn() }}
+        />,
+        { queryClient },
+      );
+      const dialog = await screen.findByRole('dialog');
+      await user.click(within(dialog).getByRole('button', { name: 'cancel_button_label' }));
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+
+      // A refresh that brings changed data gives the row a new object.
+      listOrganizations.mockResolvedValue(
+        createMockUserOrganizationsPage([
+          organizations[0]!,
+          { ...organizations[1]!, display_name: 'Fabrikam (renamed)' },
+        ]),
+      );
+      const callsBefore = listOrganizations.mock.calls.length;
+      await act(async () => {
+        await queryClient.refetchQueries({ queryKey: userOrganizationQueryKeys.all });
+      });
+      await waitFor(() => expect(listOrganizations.mock.calls.length).toBeGreaterThan(callsBefore));
+      expect(await screen.findByText('Fabrikam (renamed)')).toBeInTheDocument();
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('does not open it for an organization the user is not signed in to', async () => {
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_abc123"
+          deleteConfirmationOrganizationId="org_def456"
+          deleteAction={{ onSwitchOrganization: vi.fn() }}
+        />,
+      );
+
+      await screen.findByText('Fabrikam Inc.');
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('uses the organization details when it is not on the loaded page', async () => {
+      const user = userEvent.setup();
+      getOrganizationDetails.mockResolvedValue({
+        id: 'org_zzz',
+        name: 'zeta',
+        display_name: 'Zeta',
+      });
+
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_zzz"
+          deleteConfirmationOrganizationId="org_zzz"
+          deleteAction={{ onSwitchOrganization: vi.fn() }}
+        />,
+      );
+
+      await confirmInDialog(user, 'zeta');
+
+      await waitFor(() => expect(deleteOrganization).toHaveBeenCalledTimes(1));
+    });
+
+    it('explains why it does not open when the user cannot delete that organization', async () => {
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_def456"
+          deleteConfirmationOrganizationId="org_def456"
+          deleteAction={{ onSwitchOrganization: vi.fn() }}
+        />,
+        { permissions: ['read:my_org:details'] },
+      );
+
+      await waitFor(() =>
+        expect(mockedShowToast).toHaveBeenCalledWith(
+          expect.objectContaining({ type: 'error', message: 'error.forbidden' }),
+        ),
+      );
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 

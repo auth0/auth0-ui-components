@@ -69,7 +69,7 @@ export function OrganizationTableActionsColumn({
           )}
           {deleteState && (
             <DropdownMenuItem
-              disabled={deleteState !== 'enabled'}
+              disabled={deleteState !== 'enabled' && deleteState !== 'switch_required'}
               onClick={() => onDelete?.(organization)}
               className="items-start text-destructive-foreground focus:text-destructive-foreground"
             >

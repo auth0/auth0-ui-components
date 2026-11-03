@@ -24,11 +24,23 @@ export interface OrganizationTableClasses {
  * the session's organization-scoped token, so `onAfter` should sign the user in to another
  * organization or out.
  */
-export interface OrganizationTableDeleteAction extends ComponentAction<UserOrganization> {}
+export interface OrganizationTableDeleteAction extends ComponentAction<UserOrganization> {
+  /**
+   * Enables Delete on organizations other than the signed-in one. The API only deletes the
+   * organization of the session, so this is called to sign the user in to that organization;
+   * bring them back to the table with its ID in `deleteConfirmationOrganizationId` to open the
+   * confirmation dialog. Without it, Delete on those rows is disabled with a hint to switch first.
+   */
+  onSwitchOrganization?: (organization: UserOrganization) => void;
+}
 
-/** Whether a row's Delete action is available, and why not. */
+/**
+ * Whether a row's Delete action is available, and why not. `switch_required` is available too: it
+ * signs the user in to that organization first.
+ */
 export type OrganizationTableDeleteState =
   | 'enabled'
+  | 'switch_required'
   | 'disabled'
   | 'forbidden'
   | 'other_organization';
@@ -56,11 +68,19 @@ export interface OrganizationTableProps
    * Requires `currentOrganizationId` and the `delete:my_org:organizations` permission.
    */
   deleteAction?: OrganizationTableDeleteAction;
+  /**
+   * Opens the delete confirmation for this organization once it is the signed-in organization,
+   * e.g. after `deleteAction.onSwitchOrganization` signed the user in to it. It only opens the
+   * dialog; the user still confirms by typing the name. Clear it once passed, so that a reload
+   * does not open the dialog again.
+   */
+  deleteConfirmationOrganizationId?: string;
 }
 
 export interface UseOrganizationTableOptions {
   currentOrganizationId?: OrganizationTableProps['currentOrganizationId'];
   deleteAction?: OrganizationTableProps['deleteAction'];
+  deleteConfirmationOrganizationId?: OrganizationTableProps['deleteConfirmationOrganizationId'];
   readOnly?: OrganizationTableProps['readOnly'];
   customMessages?: OrganizationTableProps['customMessages'];
 }

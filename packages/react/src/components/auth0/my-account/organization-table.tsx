@@ -44,11 +44,13 @@ function OrganizationTable(props: OrganizationTableProps) {
     onCreateOrganization,
     currentOrganizationId,
     deleteAction,
+    deleteConfirmationOrganizationId,
   } = props;
 
   const organizationTable = useOrganizationTable({
     currentOrganizationId,
     deleteAction,
+    deleteConfirmationOrganizationId,
     readOnly,
     customMessages,
   });
@@ -279,6 +281,7 @@ function OrganizationTableView({
  * @param props.onEditOrganization - Shows an "Edit" row action; also handles row clicks
  * @param props.currentOrganizationId - ID of the organization the user is signed in to
  * @param props.deleteAction - Shows a "Delete" row action for the signed-in organization
+ * @param props.deleteConfirmationOrganizationId - Opens the delete confirmation for this organization
  * @param props.onCreateOrganization - Shows a "Create Organization" header button
  * @returns Organization table component
  *

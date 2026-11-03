@@ -6,16 +6,21 @@
 
 import {
   getOrganizationDetailsPermissions,
+  OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
   userOrganizationQueryKeys,
   type UserOrganization,
 } from '@auth0/universal-components-core';
-import { useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { useCallback, useMemo, useState } from 'react';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useOrganizationTableService } from '@/hooks/my-account/shared/services/use-organization-table-service';
 import { useOrganizationDeleteMutation } from '@/hooks/my-organization/shared/services/use-organization-delete-mutation';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { usePermissions } from '@/hooks/shared/use-permissions';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
   OrganizationTableDeleteState,
@@ -65,6 +70,7 @@ function removeOrganizationFromLists(queryClient: QueryClient, organizationId: s
  * @param options - Hook options.
  * @param options.currentOrganizationId - ID of the organization the user is signed in to
  * @param options.deleteAction - Lifecycle hooks for deleting the signed-in organization
+ * @param options.deleteConfirmationOrganizationId - Opens the delete confirmation for this organization
  * @param options.readOnly - Whether the table is read-only
  * @param options.customMessages - Custom translation messages to override defaults
  * @returns Hook state and methods
@@ -72,10 +78,13 @@ function removeOrganizationFromLists(queryClient: QueryClient, organizationId: s
 export function useOrganizationTable({
   currentOrganizationId,
   deleteAction,
+  deleteConfirmationOrganizationId,
   readOnly = false,
   customMessages = {},
 }: UseOrganizationTableOptions = {}): UseOrganizationTableResult {
   const queryClient = useQueryClient();
+  const { coreClient } = useCoreClient();
+  const { t: tCommon } = useTranslator('common', customMessages.common);
   const {
     pageSize,
     fromToken,
@@ -102,24 +111,26 @@ export function useOrganizationTable({
     }
   }, [nextToken, canGoNext, goToNextPage]);
 
-  const { createPermissionResolver } = usePermissions();
+  const { createPermissionResolver, isLoading: isPermissionsLoading } = usePermissions();
   const permissions = useMemo(
     () => createPermissionResolver(getOrganizationDetailsPermissions, { readOnly }),
     [createPermissionResolver, readOnly],
   );
 
   // The API deletes the organization of the session's token, and the permissions belong to that
-  // session too, so only the signed-in organization can be deleted here.
+  // session too, so only the signed-in organization can be deleted here. Another one is deleted by
+  // signing in to it first, when the host supports that.
+  const hasSwitch = !!deleteAction?.onSwitchOrganization;
   const getDeleteState = useCallback(
     (organization: UserOrganization): OrganizationTableDeleteState => {
+      if (deleteAction?.disabled) return 'disabled';
       if (!currentOrganizationId || organization.id !== currentOrganizationId) {
-        return 'other_organization';
+        return hasSwitch ? 'switch_required' : 'other_organization';
       }
       if (!permissions.canDeleteOrganization) return 'forbidden';
-      if (deleteAction?.disabled) return 'disabled';
       return 'enabled';
     },
-    [currentOrganizationId, permissions.canDeleteOrganization, deleteAction?.disabled],
+    [currentOrganizationId, permissions.canDeleteOrganization, deleteAction?.disabled, hasSwitch],
   );
 
   const [deleteTarget, setDeleteTarget] = useState<UserOrganization | null>(null);
@@ -137,10 +148,65 @@ export function useOrganizationTable({
 
   const openDelete = useCallback(
     (organization: UserOrganization) => {
-      if (getDeleteState(organization) === 'enabled') setDeleteTarget(organization);
+      const state = getDeleteState(organization);
+      if (state === 'enabled') setDeleteTarget(organization);
+      if (state === 'switch_required') deleteAction?.onSwitchOrganization?.(organization);
     },
-    [getDeleteState],
+    [getDeleteState, deleteAction],
   );
+
+  // After the host signed the user in to the organization to delete, open its confirmation once.
+  // The name comes from the loaded rows, or from the organization's details when it is on another page.
+  const pendingId =
+    deleteConfirmationOrganizationId && deleteConfirmationOrganizationId === currentOrganizationId
+      ? deleteConfirmationOrganizationId
+      : undefined;
+  const pendingRow = pendingId
+    ? service.organizations.find(({ id }) => id === pendingId)
+    : undefined;
+  const pendingDetailsQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient && !!pendingId && !service.isFetching && !pendingRow,
+  });
+  const handledPendingIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!pendingId || handledPendingIdRef.current === pendingId) return;
+    if (service.isFetching || isPermissionsLoading) return;
+
+    const details = pendingDetailsQuery.data;
+    const organization =
+      pendingRow ??
+      (details?.name
+        ? { id: pendingId, name: details.name, display_name: details.display_name }
+        : undefined);
+    if (!organization) {
+      if (pendingDetailsQuery.isError) handledPendingIdRef.current = pendingId;
+      return;
+    }
+
+    handledPendingIdRef.current = pendingId;
+    const state = getDeleteState(organization);
+    if (state === 'enabled') {
+      setDeleteTarget(organization);
+    } else if (state === 'forbidden') {
+      // The user came here to delete it, so say why the dialog does not open.
+      showToast({ type: 'error', message: tCommon('error.forbidden') });
+    }
+  }, [
+    pendingId,
+    pendingRow,
+    pendingDetailsQuery.data,
+    pendingDetailsQuery.isError,
+    service.isFetching,
+    isPermissionsLoading,
+    getDeleteState,
+    tCommon,
+  ]);
 
   const closeDelete = useCallback(() => setDeleteTarget(null), []);
 
