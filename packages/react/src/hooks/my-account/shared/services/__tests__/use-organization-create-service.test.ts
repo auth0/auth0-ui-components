@@ -21,8 +21,14 @@ const values: OrganizationPrivate = {
 };
 const created = { id: 'org_123', name: 'bulba_leaf', display_name: 'Bulba Leaf' };
 
-const createApiError = (status: number) =>
-  Object.assign(new Error('Request failed'), { statusCode: status });
+// The error type the API returns when an organization with the same name exists.
+const CONFLICT_TYPE = 'https://auth0.com/api-errors/A0E-409-0001';
+
+const createApiError = (status: number, type?: string) =>
+  Object.assign(new Error('Request failed'), {
+    statusCode: status,
+    body: type ? { type, title: 'Error', detail: 'Request failed', status } : undefined,
+  });
 
 describe('useOrganizationCreateService', () => {
   let createOrganization: ReturnType<typeof vi.fn>;
@@ -111,8 +117,8 @@ describe('useOrganizationCreateService', () => {
   });
 
   describe('when creation fails', () => {
-    it('shows the conflict message for a 409', async () => {
-      createOrganization.mockRejectedValue(createApiError(409));
+    it('shows the conflict message when the API reports the conflict error type', async () => {
+      createOrganization.mockRejectedValue(createApiError(409, CONFLICT_TYPE));
       const onAfter = vi.fn();
       const { result } = render({ createAction: { onAfter } });
 
@@ -127,6 +133,38 @@ describe('useOrganizationCreateService', () => {
         type: 'error',
         message: 'notifications.conflict_error',
       });
+    });
+
+    it.each([CONFLICT_TYPE, 'https://auth0.com/api-errors#A0E-409-0001'])(
+      'recognises the conflict error type in %s',
+      async (type) => {
+        createOrganization.mockRejectedValue(createApiError(409, type));
+        const { result } = render();
+
+        await act(async () => {
+          await result.current.createOrganization(values);
+        });
+
+        expect(mockedShowToast).toHaveBeenCalledWith(
+          expect.objectContaining({ message: 'notifications.conflict_error' }),
+        );
+      },
+    );
+
+    it('uses the shared error handler for a 409 of another error type', async () => {
+      createOrganization.mockRejectedValue(
+        createApiError(409, 'https://auth0.com/api-errors/A0E-409-9999'),
+      );
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.createOrganization(values);
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledTimes(1);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'notifications.conflict_error' }),
+      );
     });
 
     it('uses the shared error handler for other errors', async () => {

@@ -6,7 +6,8 @@
  */
 
 import {
-  getStatusCode,
+  ERROR_CODES,
+  hasApiErrorBody,
   userOrganizationQueryKeys,
   UserOrganizationMappers,
   type OrganizationPrivate,
@@ -23,6 +24,14 @@ import type {
   UseOrganizationCreateServiceOptions,
   UseOrganizationCreateServiceResult,
 } from '@/types/my-account/organization-management/organization-create-types';
+
+/**
+ * Whether the API refused the create because an organization with that name already exists.
+ * @param error - Error thrown by the create request.
+ * @returns Whether the error is the conflict error type.
+ */
+const isNameConflictError = (error: unknown): boolean =>
+  hasApiErrorBody(error) && !!error.body?.type?.includes(ERROR_CODES.CONFLICT);
 
 /**
  * Internal service hook for the create organization mutation.
@@ -67,7 +76,7 @@ export function useOrganizationCreateService({
       }
     },
     onError: (error, values) => {
-      if (getStatusCode(error) === 409) {
+      if (isNameConflictError(error)) {
         showToast({
           type: 'error',
           message: t('notifications.conflict_error', { organizationName: values.name }),

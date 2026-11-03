@@ -78,6 +78,25 @@ describe('OrganizationTable', () => {
       expect(screen.queryByLabelText('Go to next page')).not.toBeInTheDocument();
     });
 
+    it('styles the error card with its own class, not the table class', async () => {
+      listOrganizations.mockRejectedValue(new Error('Network error'));
+
+      const { container } = renderWithProviders(
+        <OrganizationTable
+          styling={{
+            classes: {
+              'OrganizationTable-errorState': 'custom-error-state',
+              'OrganizationTable-table': 'custom-table',
+            },
+          }}
+        />,
+      );
+
+      const message = await screen.findByText('table.error_message');
+      expect(container.querySelector('.custom-error-state')).toContainElement(message);
+      expect(container.querySelector('.custom-table')).toBeNull();
+    });
+
     it('keeps showing the loaded organizations when a refresh fails', async () => {
       const user = userEvent.setup();
 

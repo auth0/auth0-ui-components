@@ -5,7 +5,7 @@
 
 import type { OrganizationPrivate } from '../../my-organization/organization-management/organization-details-types';
 
-import type { CreateUserOrganizationRequest } from './organization-management-types';
+import type { CreateOrganizationRequestContent } from './organization-management-types';
 
 const hasValue = (value: string | undefined): value is string => !!value && value.trim() !== '';
 
@@ -16,7 +16,7 @@ export const UserOrganizationMappers = {
    * @param formValues - Values from the organization form.
    * @returns Create organization request body.
    */
-  createToAPI(formValues: OrganizationPrivate): CreateUserOrganizationRequest {
+  createToAPI(formValues: OrganizationPrivate): CreateOrganizationRequestContent {
     const { display_name: displayName } = formValues;
     const { logo_url: logoUrl, colors } = formValues.branding;
     const { primary, page_background } = colors;
