@@ -3,9 +3,7 @@
  * @module organization-switcher-types
  * @internal
  */
-import type { SharedMessages } from '../../shared/shared-types';
-
-export interface OrganizationSwitcherMessages extends SharedMessages {
+export interface OrganizationSwitcherMessages {
   trigger_placeholder?: string;
   trigger_label?: string;
   menu_label?: string;
