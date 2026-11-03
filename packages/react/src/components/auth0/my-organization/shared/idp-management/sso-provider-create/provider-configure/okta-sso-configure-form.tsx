@@ -4,32 +4,22 @@
  * @internal
  */
 
-import {
-  createProviderConfigureSchema,
-  type OktaConfigureFormValues,
-} from '@auth0/universal-components-core';
-import { zodResolver } from '@hookform/resolvers/zod';
+import type { OktaConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { SsoCallbackUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field';
+import { SsoClientCredentialsFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields';
 import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
-import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Link } from '@/components/ui/link';
-import { TextField } from '@/components/ui/text-field';
+import { SsoIdpDomainField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field';
+import { Form, FormField } from '@/components/ui/form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
+import {
+  useStrategyConfigureForm,
+  type StrategyConfigureFormHandle,
+} from '@/hooks/my-organization/use-strategy-configure-form';
+import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -39,12 +29,7 @@ const OKTA_HELP_LINKS = {
   client_secret: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
 } as const;
 
-export interface OktaConfigureFormHandle {
-  validate: () => Promise<boolean>;
-  getData: () => OktaConfigureFormValues;
-  isDirty: () => boolean;
-  reset: (data?: OktaConfigureFormValues) => void;
-}
+export type OktaConfigureFormHandle = StrategyConfigureFormHandle<OktaConfigureFormValues>;
 
 interface OktaConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
   showCrossAppAccess?: boolean;
@@ -68,25 +53,15 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     },
     ref,
   ) {
-    const { t } = useTranslator(
-      'idp_management.create_sso_provider.provider_configure',
-      customMessages,
-    );
-
-    const { coreClient } = useCoreClient();
     const { showCopyButtons } = useProviderFormMode(mode);
-
-    const callbackUrl = React.useMemo(() => {
-      const domain = coreClient?.getDomain() || 'YOUR_DOMAIN';
-      return `https://${domain}/login/callback`;
-    }, [coreClient]);
+    const { callbackUrl } = useServiceProviderValues();
 
     const oktaData = initialData as OktaConfigureFormValues | undefined;
 
-    const form = useForm<OktaConfigureFormValues>({
-      resolver: zodResolver(createProviderConfigureSchema('okta')),
+    const form = useStrategyConfigureForm<OktaConfigureFormValues>(ref, {
+      strategy: 'okta',
       mode: readOnly ? undefined : FORM_VALIDATION_MODE,
-      reValidateMode: FORM_REVALIDATE_MODE,
+      onFormDirty,
       defaultValues: {
         domain: oktaData?.domain || '',
         client_id: oktaData?.client_id || '',
@@ -104,176 +79,29 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       },
     });
 
-    const { isDirty } = form.formState;
-
-    React.useEffect(() => {
-      onFormDirty?.(isDirty);
-    }, [isDirty, onFormDirty]);
-
-    React.useImperativeHandle(ref, () => ({
-      validate: async () => {
-        return await form.trigger();
-      },
-      getData: () => form.getValues(),
-      isDirty: () => form.formState.isDirty,
-      reset: (data) => {
-        if (data) {
-          form.reset(data);
-        } else {
-          form.reset();
-        }
-      },
-    }));
-
     return (
       <Form {...form}>
         <div className={cn('space-y-6', className)}>
-          <FormField
-            control={form.control}
+          <SsoIdpDomainField
             name="domain"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-label font-medium">
-                  {t('fields.okta.domain.label')}
-                </FormLabel>
-                <FormControl>
-                  <TextField
-                    type="text"
-                    placeholder={t('fields.okta.domain.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={readOnly}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage role="alert" className="text-left text-paragraph" />
-                <FormDescription className="text-paragraph font-normal text-left">
-                  <>
-                    {t.trans('fields.okta.domain.helper_text', {
-                      components: {
-                        link: (children: string) => (
-                          <Link
-                            key="okta-domain-link"
-                            href={OKTA_HELP_LINKS.domain}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {children}
-                          </Link>
-                        ),
-                      },
-                    })}
-                  </>
-                </FormDescription>
-              </FormItem>
-            )}
+            messageKey="fields.okta.domain"
+            helpUrl={OKTA_HELP_LINKS.domain}
+            readOnly={readOnly}
+            customMessages={customMessages}
           />
 
-          <FormField
-            control={form.control}
-            name="client_id"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-label font-medium">
-                  {t('fields.okta.client_id.label')}
-                </FormLabel>
-                <FormControl>
-                  <CopyableTextField
-                    type="text"
-                    placeholder={t('fields.okta.client_id.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={readOnly}
-                    showCopyButton={showCopyButtons}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage role="alert" className="text-left text-paragraph" />
-                <FormDescription className="text-paragraph font-normal text-left">
-                  <>
-                    {t.trans('fields.okta.client_id.helper_text', {
-                      components: {
-                        link: (children: string) => (
-                          <Link
-                            key="okta-client-id-link"
-                            href={OKTA_HELP_LINKS.client_id}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {children}
-                          </Link>
-                        ),
-                      },
-                    })}
-                  </>
-                </FormDescription>
-              </FormItem>
-            )}
+          <SsoClientCredentialsFields
+            messageKey="fields.okta"
+            helpUrls={{
+              clientId: OKTA_HELP_LINKS.client_id,
+              clientSecret: OKTA_HELP_LINKS.client_secret,
+            }}
+            showCopyButton={showCopyButtons}
+            readOnly={readOnly}
+            customMessages={customMessages}
           />
 
-          <FormField
-            control={form.control}
-            name="client_secret"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-label font-medium">
-                  {t('fields.okta.client_secret.label')}
-                </FormLabel>
-                <FormControl>
-                  <CopyableTextField
-                    type="password"
-                    placeholder={t('fields.okta.client_secret.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={readOnly}
-                    showCopyButton={showCopyButtons}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage role="alert" className="text-left text-paragraph" />
-                <FormDescription className="text-paragraph font-normal text-left">
-                  <>
-                    {t.trans('fields.okta.client_secret.helper_text', {
-                      components: {
-                        link: (children: string) => (
-                          <Link
-                            key="okta-client-secret-link"
-                            href={OKTA_HELP_LINKS.client_secret}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {children}
-                          </Link>
-                        ),
-                      },
-                    })}
-                  </>
-                </FormDescription>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="callback_url"
-            render={({ field, fieldState }) => (
-              <FormItem>
-                <FormLabel className="text-label font-medium">
-                  {t('fields.okta.callback_url.label')}
-                </FormLabel>
-                <FormControl>
-                  <CopyableTextField
-                    type="text"
-                    placeholder={t('fields.okta.callback_url.placeholder')}
-                    error={Boolean(fieldState.error)}
-                    readOnly={true}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage role="alert" className="text-left text-paragraph" />
-                <FormDescription className="text-paragraph font-normal text-left">
-                  {t('fields.okta.callback_url.helper_text')}
-                </FormDescription>
-              </FormItem>
-            )}
-          />
+          <SsoCallbackUrlField messageKey="fields.okta" customMessages={customMessages} />
 
           <CommonConfigureFields
             idpConfig={idpConfig}

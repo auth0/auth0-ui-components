@@ -28,12 +28,13 @@ export interface StrategyConfigureFormHandle<TValues> {
 export interface UseStrategyConfigureFormOptions<TValues extends FieldValues> {
   strategy: IdpStrategy;
   defaultValues: DefaultValues<TValues>;
-  /** Validation mode; defaults to `onTouched`. */
+  /**
+   * Validation mode; defaults to `onTouched` when the option is omitted.
+   * Pass `undefined`to use react-hook-form's own default (validate on submit).
+   */
   mode?: Mode;
   onFormDirty?: (isDirty: boolean) => void;
-  /** Replaces the default `getData` (current form values). */
   getData?: (form: UseFormReturn<TValues>) => TValues;
-  /** Replaces the default `reset` (`form.reset(data)`, or to defaults without data). */
   reset?: (form: UseFormReturn<TValues>, data?: TValues) => void;
 }
 
@@ -52,15 +53,11 @@ export interface UseStrategyConfigureFormOptions<TValues extends FieldValues> {
  */
 export function useStrategyConfigureForm<TValues extends FieldValues>(
   ref: React.ForwardedRef<StrategyConfigureFormHandle<TValues>>,
-  {
-    strategy,
-    defaultValues,
-    mode = FORM_VALIDATION_MODE,
-    onFormDirty,
-    getData,
-    reset,
-  }: UseStrategyConfigureFormOptions<TValues>,
+  options: UseStrategyConfigureFormOptions<TValues>,
 ): UseFormReturn<TValues> {
+  const { strategy, defaultValues, onFormDirty, getData, reset } = options;
+  const mode = 'mode' in options ? options.mode : FORM_VALIDATION_MODE;
+
   const form = useForm<TValues>({
     resolver: zodResolver(createProviderConfigureSchema(strategy)) as unknown as Resolver<TValues>,
     mode,
