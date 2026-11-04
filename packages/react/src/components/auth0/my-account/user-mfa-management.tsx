@@ -12,11 +12,53 @@ import {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
-import { EnrollFactorModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal';
+import {
+  DeleteDialog,
+  DeleteDialogCancel,
+  DeleteDialogConfirm,
+  DeleteDialogContent,
+  DeleteDialogDescription,
+  DeleteDialogFooter,
+  DeleteDialogHeader,
+  DeleteDialogSeparator,
+  DeleteDialogTitle,
+} from '@/components/auth0/my-account/shared/user-mfa-management/delete-dialog-parts';
+import {
+  EnrollContact,
+  EnrollDialog,
+  EnrollDialogContent,
+  EnrollDialogDescription,
+  EnrollDialogHeader,
+  EnrollDialogSeparator,
+  EnrollDialogTitle,
+  EnrollInstallation,
+  EnrollPhase,
+  EnrollQr,
+  EnrollRecovery,
+} from '@/components/auth0/my-account/shared/user-mfa-management/enroll-dialog-parts';
+import {
+  DeleteAction,
+  EnrolledFactor,
+  EnrolledFactorCreatedAt,
+  EnrolledFactorDetails,
+  EnrolledFactorIcon,
+  EnrolledFactorLastUsedAt,
+  EnrolledFactorMenu,
+  EnrolledFactorMenuContent,
+  EnrolledFactorMenuDelete,
+  EnrolledFactorMenuTrigger,
+  EnrolledFactorMeta,
+  EnrolledFactorName,
+  EnrolledFactorScope,
+} from '@/components/auth0/my-account/shared/user-mfa-management/enrolled-factor-parts';
 import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
-import { getAuthenticatorLabel } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factor-label';
-import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
+import {
+  FactorProvider,
+  MFAProvider,
+  useEnrolledFactorContext,
+  useFactorContext,
+  useMFAContext,
+} from '@/components/auth0/my-account/shared/user-mfa-management/mfa-context';
 import {
   CompoundHeader,
   CompoundHeaderActions,
@@ -41,12 +83,9 @@ import { createUserMFAModel, useUserMFAModel } from '@/hooks/my-account/use-user
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { createCompoundContext } from '@/lib/composability/create-compound-context';
 import { getButtonContract, useRender } from '@/lib/composability/use-render';
 import { cn } from '@/lib/utils';
-import { useId } from '@/lib/utils/use-id-compat';
 import type {
-  MFAFactorModel,
   UserMFAEnrolledFactorContextValue,
   UserMFAManagementActionProps,
   UserMFAManagementContextValue,
@@ -60,25 +99,13 @@ import type {
   UserMFAManagementRootProps,
   UserMFAManagementViewProps,
   UserMFAModel,
+  MFAFactorModel,
 } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
-
-const COMPONENT = 'UserMFAManagement';
 
 const DEFAULT_STYLING: NonNullable<UserMFAManagementProps['styling']> = {
   variables: { common: {}, light: {}, dark: {} },
   classes: {},
 };
-
-const [MFAProvider, useMFAContext] =
-  createCompoundContext<UserMFAManagementContextValue>(COMPONENT);
-
-const [FactorProvider, useFactorContext] = createCompoundContext<MFAFactorModel>(
-  COMPONENT,
-  'Factor',
-);
-
-const [EnrolledFactorProvider, useEnrolledFactorContext] =
-  createCompoundContext<UserMFAEnrolledFactorContextValue>(COMPONENT, 'FactorList');
 
 /**
  * Reads the MFA management context. Use it in host components rendered inside
@@ -113,6 +140,7 @@ interface MFAScopeProps {
   styling: UserMFAManagementProps['styling'];
   schema: UserMFAManagementProps['schema'];
   hideHeader: boolean;
+  mountDialogs: boolean;
   children: React.ReactNode;
 }
 
@@ -129,6 +157,7 @@ function MFAScope({
   styling = DEFAULT_STYLING,
   schema,
   hideHeader,
+  mountDialogs,
   children,
 }: MFAScopeProps) {
   const { isDarkMode } = useTheme();
@@ -143,47 +172,31 @@ function MFAScope({
       customMessages,
       styling,
       classes: currentStyles.classes ?? {},
+      variables: currentStyles.variables,
+      schema,
       hideHeader,
     }),
-    [model, customMessages, styling, currentStyles.classes, hideHeader],
+    [
+      model,
+      customMessages,
+      styling,
+      currentStyles.classes,
+      currentStyles.variables,
+      schema,
+      hideHeader,
+    ],
   );
 
   return (
     <MFAProvider value={value}>
       <StyledScope style={currentStyles.variables}>
         {children}
-        {model.enrollFactor && (
-          <EnrollFactorModal
-            open={model.isEnrollDialogOpen}
-            onClose={model.handleCloseEnrollDialog}
-            factorType={model.enrollFactor}
-            enrollmentPhase={model.enrollmentPhase}
-            contact={model.contact}
-            otpData={model.otpData}
-            recoveryCode={model.recoveryCode}
-            isEnrolling={model.isEnrolling}
-            isConfirming={model.isConfirming}
-            onSubmitContact={model.handleSendCode}
-            onResendCode={model.handleResendCode}
-            onConfirmOtp={model.handleConfirmOtp}
-            onContinueQRScan={model.handleConfirmPush}
-            onConfirmRecoveryCode={model.handleConfirmRecoveryCode}
-            onStartQREnrollment={model.handleEnterQRPhase}
-            schema={schema}
-            styling={styling}
-            customMessages={customMessages}
-          />
+        {mountDialogs && (
+          <>
+            <EnrollDialog />
+            <DeleteDialog />
+          </>
         )}
-        <FactorDeleteModal
-          open={model.isDeleteDialogOpen}
-          onOpenChange={(open) => !open && model.handleCancelDelete()}
-          factorToDelete={model.factorToDelete}
-          isDeletingFactor={model.isDeleting}
-          onConfirm={model.handleConfirmDelete}
-          onCancel={model.handleCancelDelete}
-          styling={styling}
-          customMessages={customMessages}
-        />
       </StyledScope>
     </MFAProvider>
   );
@@ -192,7 +205,9 @@ function MFAScope({
 /**
  * Owns data, state and the enroll and delete dialogs for every composition level.
  * Error and MFA step-up states replace the children; loading is shown by `Factors`,
- * so host content inside `Root` stays visible.
+ * so host content inside `Root` stays visible. The default dialogs are mounted here, so
+ * they work however the parts are arranged; set `mountDialogs` to `false` to render
+ * `EnrollDialog` and `DeleteDialog` yourself.
  *
  * @param props - {@link UserMFAManagementRootProps}
  * @returns Root element.
@@ -202,6 +217,7 @@ function Root({
   customMessages = {},
   styling = DEFAULT_STYLING,
   hideHeader = false,
+  mountDialogs = true,
   showActiveOnly = false,
   disableEnroll = false,
   disableDelete = false,
@@ -231,6 +247,7 @@ function Root({
         styling={styling}
         schema={schema}
         hideHeader={hideHeader}
+        mountDialogs={mountDialogs}
       >
         {children}
       </MFAScope>
@@ -573,132 +590,28 @@ const EnrollAction = React.forwardRef<HTMLButtonElement, UserMFAManagementAction
 
 /**
  * Enrolled authenticators of the current factor type. Renders nothing while none
- * are enrolled. Defaults to the built-in list with a remove menu; pass a function
- * to render each authenticator yourself, with `DeleteAction` for removal.
+ * are enrolled. Each row defaults to `EnrolledFactor`, with a remove menu; pass a
+ * function to render each authenticator yourself from the row parts, with
+ * `DeleteAction` for removal.
  *
  * @param props - {@link UserMFAManagementFactorListProps}
  * @returns Factor list element or null.
  */
 function FactorList({ children, className }: UserMFAManagementFactorListProps) {
-  const { model, customMessages, styling } = useMFAContext('FactorList');
-  const { factorType, activeFactors, hasActiveFactors, isEnabled } = useFactorContext('FactorList');
+  const { factorType, activeFactors, hasActiveFactors } = useFactorContext('FactorList');
+  useMFAContext('FactorList');
   if (!hasActiveFactors) return null;
-
-  if (!children) {
-    return (
-      <CardContent className={className}>
-        <FactorsList
-          factors={activeFactors}
-          factorType={factorType}
-          readOnly={model.readOnly}
-          isEnabledFactor={isEnabled}
-          onDeleteFactor={model.handleDeleteFactor}
-          isDeletingFactor={model.isDeleting}
-          disableDelete={model.disableDelete}
-          styling={styling}
-          customMessages={customMessages}
-        />
-      </CardContent>
-    );
-  }
 
   return (
     <CardContent className={cn('space-y-2', className)}>
       {activeFactors.map((factor: Authenticator) => (
         <EnrolledFactorScope key={factor.id} factor={factor} factorType={factorType}>
-          {children(factor)}
+          {children ? children(factor) : <EnrolledFactor />}
         </EnrolledFactorScope>
       ))}
     </CardContent>
   );
 }
-
-/**
- * Provides one enrolled authenticator's context.
- * @param props - Authenticator, factor type and row content.
- * @param props.factor - The enrolled authenticator.
- * @param props.factorType - Factor type of the authenticator.
- * @param props.children - Row content.
- * @returns Enrolled factor context provider.
- * @internal
- */
-function EnrolledFactorScope({
-  factor,
-  factorType,
-  children,
-}: {
-  factor: Authenticator;
-  factorType: MFAType;
-  children: React.ReactNode;
-}) {
-  const { model, customMessages } = useMFAContext('FactorList');
-  const { t } = useTranslator('user_mfa_management', customMessages);
-  const labelId = useId();
-  const label = getAuthenticatorLabel(factor, factorType, t);
-
-  return (
-    <EnrolledFactorProvider
-      value={{ ...model.getEnrolledFactorProps(factor, factorType), label, labelId }}
-    >
-      {children}
-    </EnrolledFactorProvider>
-  );
-}
-
-/**
- * Name of the current enrolled authenticator, for `FactorList` render functions:
- * the phone number, the email or the factor title. `DeleteAction` is described by it,
- * so screen readers say which authenticator a remove button acts on. Children replace
- * the text and keep the id.
- *
- * @param props - {@link UserMFAManagementPartProps}
- * @returns Authenticator name element.
- */
-function EnrolledFactorName({ children, className }: UserMFAManagementPartProps) {
-  const { label, labelId } = useEnrolledFactorContext('EnrolledFactorName');
-  return (
-    <span id={labelId} className={cn('font-medium text-body text-foreground truncate', className)}>
-      {children ?? label}
-    </span>
-  );
-}
-
-/**
- * Removes the current enrolled authenticator, for `FactorList` render functions.
- * Opens the confirmation dialog mounted by `Root`. Hidden when `readOnly`. Described by
- * `EnrolledFactorName` when the row renders one.
- *
- * @param props - {@link UserMFAManagementActionProps}
- * @returns Delete action element or null.
- */
-const DeleteAction = React.forwardRef<HTMLButtonElement, UserMFAManagementActionProps>(
-  function DeleteAction({ render, children, className }, ref) {
-    const { customMessages } = useMFAContext('DeleteAction');
-    const { deleteAction, labelId } = useEnrolledFactorContext('DeleteAction');
-    const { t } = useTranslator('user_mfa_management', customMessages);
-
-    const element = useRender({
-      render,
-      ref,
-      state: {
-        pending: deleteAction.pending,
-        disabled: deleteAction.disabled || deleteAction.pending,
-      },
-      props: {
-        ...getButtonContract(deleteAction),
-        'aria-describedby': labelId,
-        className,
-      },
-      defaultRender: (props) => (
-        <Button size="sm" variant="outline" {...props}>
-          {children ?? t('actions.remove_button_label')}
-        </Button>
-      ),
-    });
-
-    return deleteAction.hidden ? null : element;
-  },
-);
 
 /**
  * Presentational MFA management, driven entirely by props. Renders the same layout
@@ -752,6 +665,7 @@ function UserMFAManagementView(props: UserMFAManagementViewProps) {
       styling={props.styling}
       schema={props.schema}
       hideHeader={props.hideHeader}
+      mountDialogs
     >
       <DefaultLayout />
     </MFAScope>
@@ -846,8 +760,38 @@ const UserMFAManagement = Object.assign(UserMFAManagementDefault, {
   FactorActions,
   EnrollAction,
   FactorList,
+  EnrolledFactor,
+  EnrolledFactorIcon,
+  EnrolledFactorDetails,
   EnrolledFactorName,
+  EnrolledFactorMeta,
+  EnrolledFactorCreatedAt,
+  EnrolledFactorLastUsedAt,
+  EnrolledFactorMenu,
+  EnrolledFactorMenuTrigger,
+  EnrolledFactorMenuContent,
+  EnrolledFactorMenuDelete,
   DeleteAction,
+  EnrollDialog,
+  EnrollDialogContent,
+  EnrollDialogHeader,
+  EnrollDialogTitle,
+  EnrollDialogDescription,
+  EnrollDialogSeparator,
+  EnrollPhase,
+  EnrollInstallation,
+  EnrollContact,
+  EnrollQr,
+  EnrollRecovery,
+  DeleteDialog,
+  DeleteDialogContent,
+  DeleteDialogHeader,
+  DeleteDialogTitle,
+  DeleteDialogSeparator,
+  DeleteDialogDescription,
+  DeleteDialogFooter,
+  DeleteDialogCancel,
+  DeleteDialogConfirm,
 });
 
 export {

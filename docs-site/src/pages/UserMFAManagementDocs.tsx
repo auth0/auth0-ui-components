@@ -569,6 +569,69 @@ interface UserMFAManagementClasses {
           </div>
 
           <div>
+            <h3 className="text-lg font-medium mb-4">Compose the dialogs</h3>
+            <p className="text-gray-600 mb-4">
+              <code>Root</code> mounts the default enroll and delete dialogs. To change a dialog,
+              set <code>mountDialogs</code> to <code>false</code> on <code>Root</code> and render{' '}
+              <code>EnrollDialog</code> and <code>DeleteDialog</code> yourself, with the parts you
+              want. They stay driven by the same state, so they open from the enroll buttons, the
+              row menu, <code>DeleteAction</code> or your own code. Text, buttons and the order of
+              the parts are yours, and <code>EnrollPhase</code> lets you replace a single enrollment
+              phase.
+            </p>
+            <CodeBlock
+              code={`<UserMFAManagement.Root mountDialogs={false}>
+  <UserMFAManagement.DefaultLayout />
+
+  <UserMFAManagement.EnrollDialog>
+    <UserMFAManagement.EnrollDialogContent>
+      <UserMFAManagement.EnrollDialogHeader />
+      <UserMFAManagement.EnrollPhase>
+        {(phase) =>
+          phase === 'showRecovery' ? (
+            <HostRecoveryCodeStep />
+          ) : (
+            <UserMFAManagement.EnrollPhase />
+          )
+        }
+      </UserMFAManagement.EnrollPhase>
+    </UserMFAManagement.EnrollDialogContent>
+  </UserMFAManagement.EnrollDialog>
+
+  <UserMFAManagement.DeleteDialog>
+    <UserMFAManagement.DeleteDialogContent>
+      <UserMFAManagement.DeleteDialogHeader>
+        <UserMFAManagement.DeleteDialogTitle>Remove this method?</UserMFAManagement.DeleteDialogTitle>
+      </UserMFAManagement.DeleteDialogHeader>
+      <UserMFAManagement.DeleteDialogDescription />
+      <UserMFAManagement.DeleteDialogFooter>
+        <UserMFAManagement.DeleteDialogCancel
+          render={<ProductButton variant="outline">Keep it</ProductButton>}
+        />
+        <UserMFAManagement.DeleteDialogConfirm
+          render={(props, state) => (
+            <ProductButton {...props} loading={state.pending}>
+              Remove
+            </ProductButton>
+          )}
+        />
+      </UserMFAManagement.DeleteDialogFooter>
+    </UserMFAManagement.DeleteDialogContent>
+  </UserMFAManagement.DeleteDialog>
+</UserMFAManagement.Root>`}
+              language="tsx"
+              title="Replace one enrollment step and the remove confirmation"
+            />
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+              <p className="text-yellow-800 text-sm">
+                With <code>mountDialogs=&#123;false&#125;</code> and no dialog rendered, nothing
+                confirms a removal or collects the enrollment. Render both dialogs inside{' '}
+                <code>Root</code>.
+              </p>
+            </div>
+          </div>
+
+          <div>
             <h3 className="text-lg font-medium mb-4">Parts</h3>
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-200 rounded-lg">
@@ -584,7 +647,10 @@ interface UserMFAManagementClasses {
                 </thead>
                 <tbody className="divide-y divide-gray-200 text-sm">
                   {[
-                    ['Root', 'Owns data, state, telemetry and the enroll and delete dialogs.'],
+                    [
+                      'Root',
+                      'Owns data, state and telemetry, and mounts the enroll and delete dialogs unless mountDialogs is false.',
+                    ],
                     [
                       'DefaultLayout',
                       'The layout of the drop-in component. Takes enrollAction and renderFactor.',
@@ -611,11 +677,39 @@ interface UserMFAManagementClasses {
                     ],
                     [
                       'FactorList',
-                      'Enrolled authenticators of the current factor. Pass a function to draw each row yourself.',
+                      'Enrolled authenticators of the current factor. Each row defaults to EnrolledFactor. Pass a function to draw each row yourself.',
                     ],
                     [
-                      'EnrolledFactorName, DeleteAction',
-                      'For custom rows: the authenticator name, and removal with the confirmation dialog. Hidden when readOnly.',
+                      'EnrolledFactor, EnrolledFactorIcon, EnrolledFactorDetails, EnrolledFactorName',
+                      'One enrolled authenticator row and its icon, details and name.',
+                    ],
+                    [
+                      'EnrolledFactorMeta, EnrolledFactorCreatedAt, EnrolledFactorLastUsedAt',
+                      'The dates under the name. EnrolledFactorMeta lays the two out with a bullet, or takes your own arrangement of them.',
+                    ],
+                    [
+                      'EnrolledFactorMenu, EnrolledFactorMenuTrigger, EnrolledFactorMenuContent, EnrolledFactorMenuDelete',
+                      'The row menu. Put your own menu items next to EnrolledFactorMenuDelete inside EnrolledFactorMenuContent.',
+                    ],
+                    [
+                      'DeleteAction',
+                      'Removes the authenticator of the row, as a button instead of the menu. Opens the confirmation dialog. Hidden when readOnly. Described by EnrolledFactorName.',
+                    ],
+                    [
+                      'EnrollDialog, EnrollDialogContent, EnrollDialogHeader, EnrollDialogTitle, EnrollDialogDescription, EnrollDialogSeparator',
+                      'The enroll dialog and its pieces. The title follows the factor and the step of the enrollment. Root mounts the default one.',
+                    ],
+                    [
+                      'EnrollPhase, EnrollInstallation, EnrollContact, EnrollQr, EnrollRecovery',
+                      'The enrollment phases. EnrollPhase renders the part for the current phase, or takes a function so you can replace one phase and keep the rest.',
+                    ],
+                    [
+                      'DeleteDialog, DeleteDialogContent, DeleteDialogHeader, DeleteDialogTitle, DeleteDialogSeparator, DeleteDialogDescription, DeleteDialogFooter',
+                      'The remove confirmation dialog and its pieces. Root mounts the default one.',
+                    ],
+                    [
+                      'DeleteDialogCancel, DeleteDialogConfirm',
+                      'The dialog buttons. Both accept render. Confirm is disabled and reads as deleting while the removal runs.',
                     ],
                   ].map(([part, description]) => (
                     <tr key={part}>

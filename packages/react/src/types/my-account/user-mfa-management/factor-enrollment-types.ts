@@ -9,11 +9,7 @@ import type {
   SharedComponentProps,
 } from '@auth0/universal-components-core';
 
-import type {
-  EnrollmentPhase,
-  OtpData,
-  UserMFAManagementClasses,
-} from './user-mfa-management-types';
+import type { OtpData } from './user-mfa-management-types';
 
 export type ContactPhase = 'enterContact' | 'enterOtp';
 export type QRPhase = 'scan' | 'enter-otp';
@@ -59,37 +55,6 @@ export interface QRCodeEnrollmentFormProps extends SharedComponentProps<UserMfaM
   onConfirmOtp: (otpCode: string) => Promise<void>;
   onClose: () => void;
   onPhaseChange: (phase: QRPhase) => void;
-}
-
-/** Props for EnrollFactorModal component. */
-export interface EnrollFactorModalProps
-  extends SharedComponentProps<
-    UserMfaManagementMessages,
-    UserMFAManagementClasses,
-    { email?: RegExp; phone?: RegExp }
-  > {
-  open: boolean;
-  onClose: () => void;
-  factorType: MFAType;
-  enrollmentPhase: EnrollmentPhase;
-  contact: string;
-  otpData: OtpData;
-  recoveryCode: string;
-  isEnrolling: boolean;
-  isConfirming: boolean;
-  onSubmitContact: (options: Record<string, string>) => Promise<boolean>;
-  onResendCode?: () => Promise<void>;
-  onConfirmOtp: (otpCode: string) => Promise<void>;
-  onContinueQRScan: () => Promise<void>;
-  onConfirmRecoveryCode: () => Promise<void>;
-  onStartQREnrollment: () => Promise<void>;
-}
-
-/** Props for InstallationPhase component. */
-export interface InstallationPhaseProps
-  extends SharedComponentProps<UserMfaManagementMessages, UserMFAManagementClasses> {
-  onClose: () => void;
-  onStartQREnrollment: () => Promise<void>;
 }
 
 /** Props for ShowRecoveryCode component. */

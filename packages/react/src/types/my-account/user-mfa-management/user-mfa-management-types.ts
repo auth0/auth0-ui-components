@@ -13,11 +13,16 @@ import type {
   ConfirmEnrollmentOptions,
   UserMfaManagementMessages,
   SharedComponentProps,
+  getComponentStyles,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
 import type * as React from 'react';
 
 import type { ActionPartProps } from '@/types/composability-types';
+import type {
+  ContactPhase,
+  QRPhase,
+} from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
 export type EnrollmentPhase = 'enterContact' | 'showQr' | 'showRecovery' | 'installation' | null;
 
@@ -209,12 +214,43 @@ export interface UserMFAManagementContextValue {
   customMessages: NonNullable<UserMFAManagementProps['customMessages']>;
   styling: NonNullable<UserMFAManagementProps['styling']>;
   classes: UserMFAManagementClasses;
+  /** CSS variables of the `styling` prop, applied to dialog panels, which render in a portal. */
+  variables: ReturnType<typeof getComponentStyles>['variables'];
+  /** Validation schema overrides for the enrollment forms. */
+  schema: UserMFAManagementProps['schema'];
   hideHeader: boolean;
+}
+
+/** Value read by parts inside `UserMFAManagement.EnrollDialog`. */
+export interface UserMFAEnrollDialogContextValue {
+  /** Step of the QR enrollment: scanning the code, or entering the one-time code. */
+  qrPhase: QRPhase;
+  setQrPhase: (phase: QRPhase) => void;
+  /** Step of the phone or email enrollment: entering the contact, or the one-time code. */
+  contactPhase: ContactPhase;
+  setContactPhase: (phase: ContactPhase) => void;
 }
 
 /** Props for `UserMFAManagement.Root`. */
 export interface UserMFAManagementRootProps extends UserMFAManagementProps {
   children?: React.ReactNode;
+  /**
+   * Mount the default enroll and delete dialogs. Set to `false` to render
+   * `UserMFAManagement.EnrollDialog` and `UserMFAManagement.DeleteDialog` yourself, with
+   * the default content or with parts you arrange. Defaults to `true`.
+   */
+  mountDialogs?: boolean;
+}
+
+/** Props for parts that only take content. */
+export interface UserMFAManagementChildrenProps {
+  children?: React.ReactNode;
+}
+
+/** Props for `UserMFAManagement.EnrollPhase`. */
+export interface UserMFAManagementEnrollPhaseProps {
+  /** Renders the current enrollment phase. Defaults to the part for that phase. */
+  children?: (phase: NonNullable<EnrollmentPhase>) => React.ReactNode;
 }
 
 /** Props for `UserMFAManagement.DefaultLayout`. */
@@ -260,7 +296,10 @@ export interface UserMFAManagementHeaderActionsProps extends UserMFAManagementPa
   align?: 'start' | 'end';
 }
 
-/** Props for `UserMFAManagement.EnrollAction` and `UserMFAManagement.DeleteAction`. */
+/**
+ * Props for the action parts: `EnrollAction`, `DeleteAction`, `EnrolledFactorMenuDelete`,
+ * `DeleteDialogCancel` and `DeleteDialogConfirm`.
+ */
 export type UserMFAManagementActionProps = ActionPartProps;
 
 /** Return type of useUserMFAService hook. */

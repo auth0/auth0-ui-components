@@ -33,19 +33,24 @@
           "target": "components/auth0/my-account/user-mfa-management.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/delete-dialog-parts.tsx",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/delete-dialog-parts.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/enroll-dialog-parts.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/user-mfa-management/enroll-dialog-parts.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/enrolled-factor-parts.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-account/shared/user-mfa-management/enrolled-factor-parts.tsx"
         },
         {
           "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/contact-input-form.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/contact-input-form.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal.tsx"
         },
         {
           "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/otp-verification-form.tsx",
@@ -73,9 +78,9 @@
           "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/factor-label.ts"
         },
         {
-          "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx",
+          "path": "src/components/auth0/my-account/shared/user-mfa-management/mfa-context.ts",
           "type": "registry:component",
-          "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx"
+          "target": "components/auth0/my-account/shared/user-mfa-management/mfa-context.ts"
         },
         {
           "path": "src/components/auth0/shared/compound-header.tsx",
@@ -288,19 +293,9 @@
           "target": "types/i18n-types.ts"
         },
         {
-          "path": "src/types/my-account/user-mfa-management/factor-delete-modal-types.ts",
-          "type": "registry:component",
-          "target": "types/my-account/user-mfa-management/factor-delete-modal-types.ts"
-        },
-        {
           "path": "src/types/my-account/user-mfa-management/factor-enrollment-types.ts",
           "type": "registry:component",
           "target": "types/my-account/user-mfa-management/factor-enrollment-types.ts"
-        },
-        {
-          "path": "src/types/my-account/user-mfa-management/factors-list-types.ts",
-          "type": "registry:component",
-          "target": "types/my-account/user-mfa-management/factors-list-types.ts"
         },
         {
           "path": "src/types/my-account/user-mfa-management/user-mfa-management-types.ts",
