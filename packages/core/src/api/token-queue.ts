@@ -50,19 +50,25 @@ export function createTokenQueue(holdMs: number = TOKEN_QUEUE_HOLD_MS): TokenQue
 export const tokenQueue = createTokenQueue();
 
 /**
- * Resolves when the promise settles or after the given time, whichever comes first.
+ * Resolves with the promise's value when it settles, or with `undefined` after the given time,
+ * whichever comes first. A promise that rejects also gives `undefined`.
  * @param promise - Promise to wait for
  * @param timeoutMs - Longest time to wait
  * @returns Promise that never rejects
  * @internal
  */
-export function waitFor(promise: Promise<unknown>, timeoutMs: number): Promise<void> {
-  return new Promise<void>((resolve) => {
-    const timer = setTimeout(resolve, timeoutMs);
-    const done = () => {
-      clearTimeout(timer);
-      resolve();
-    };
-    promise.then(done, done);
+export function waitFor<T>(promise: Promise<T>, timeoutMs: number): Promise<T | undefined> {
+  return new Promise<T | undefined>((resolve) => {
+    const timer = setTimeout(() => resolve(undefined), timeoutMs);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        clearTimeout(timer);
+        resolve(undefined);
+      },
+    );
   });
 }

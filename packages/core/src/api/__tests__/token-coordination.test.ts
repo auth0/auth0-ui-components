@@ -240,6 +240,84 @@ describe('token-coordination', () => {
       await expect(follower).resolves.toBeInstanceOf(Response);
     });
 
+    describe('when the first request of a group fails', () => {
+      const group = () => {
+        const leader = request('leader', { audience: ORG_API, scope: ['a'] });
+        void leader.catch(() => undefined);
+        const first = request('first', { audience: ORG_API, scope: ['b'] });
+        const second = request('second', { audience: ORG_API, scope: ['c'] });
+        return { leader, first, second };
+      };
+
+      it('lets the next request lead the rest, instead of sending them all together', async () => {
+        const { first, second } = group();
+
+        await flushTick();
+        sent[0]!.response.reject(new Error('network error'));
+        await flushTick();
+
+        expect(sentNames()).toEqual(['leader', 'first']);
+        expect(scopeOf('first')).toEqual(['b', 'c']);
+
+        respond('first');
+        await flushTick();
+        expect(sentNames()).toEqual(['leader', 'first', 'second']);
+        expect(scopeOf('second')).toEqual(['c']);
+        respond('second');
+        await Promise.all([first, second]);
+      });
+
+      it('does the same when the response is a server error', async () => {
+        const { first, second } = group();
+
+        await flushTick();
+        sent[0]!.response.resolve(new Response('unavailable', { status: 503 }));
+        await flushTick();
+
+        expect(sentNames()).toEqual(['leader', 'first']);
+        respond('first');
+        await flushTick();
+        respond('second');
+        await Promise.all([first, second]);
+      });
+
+      it('sends the rest together when the response is an API error, since the session was refreshed', async () => {
+        const { first, second } = group();
+
+        await flushTick();
+        sent[0]!.response.resolve(new Response('forbidden', { status: 403 }));
+        await flushTick();
+
+        expect(sentNames()).toEqual(['leader', 'first', 'second']);
+        expect(scopeOf('first')).toEqual(['b']);
+        respond('first');
+        respond('second');
+        await Promise.all([first, second]);
+      });
+
+      it('lets the next request lead when the first was aborted before it was sent', async () => {
+        const controller = new AbortController();
+        const leader = request(
+          'leader',
+          { audience: ORG_API, scope: ['a'] },
+          { signal: controller.signal },
+        );
+        void leader.catch(() => undefined);
+        const first = request('first', { audience: ORG_API, scope: ['b'] });
+        const second = request('second', { audience: ORG_API, scope: ['c'] });
+
+        controller.abort();
+        await flushTick();
+
+        expect(sentNames()).toEqual(['first']);
+        expect(scopeOf('first')).toEqual(['b', 'c']);
+        respond('first');
+        await flushTick();
+        respond('second');
+        await Promise.all([first, second]);
+      });
+    });
+
     it('gives the caller the error when the send function throws straight away', async () => {
       const failing = coordinateProxyRequest({ audience: ORG_API, scope: ['a'] }, undefined, () => {
         throw new Error('cannot send');

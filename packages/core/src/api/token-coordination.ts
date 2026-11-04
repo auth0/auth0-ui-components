@@ -77,24 +77,30 @@ const union = (scopes: string[][]): string[] => [...new Set(scopes.flat())];
  * Sends a waiting request unless its caller aborted it, and hands the outcome to the caller.
  * @param request - The waiting request
  * @param scope - Scope to send it with
- * @returns Promise that settles when the request has been answered; it never rejects
+ * @returns Promise that settles when the request has been answered, with whether it was answered
+ * without a failure (not aborted, not rejected, no server error); it never rejects
  * @internal
  */
-async function sendUnlessAborted(request: PendingRequest, scope: string[]): Promise<void> {
+async function sendUnlessAborted(request: PendingRequest, scope: string[]): Promise<boolean> {
   if (request.signal?.aborted) {
     request.reject(abortReason(request.signal));
-    return;
+    return false;
   }
   try {
-    request.resolve(await request.send(scope));
+    const response = await request.send(scope);
+    request.resolve(response);
+    return response.status < 500;
   } catch (error) {
     request.reject(error);
+    return false;
   }
 }
 
 /**
  * Sends the first request of a group with the scopes of the whole group, in its turn in the queue,
- * then sends the rest with their own scope once it has been answered.
+ * then sends the rest with their own scope once it has been answered. If the first request fails,
+ * the session was not refreshed, so the next request leads the rest instead of all of them going out
+ * together. The rest also go out when the first one does not start or answer in time.
  * @param group - Requests for the same API that arrived together
  * @internal
  */
@@ -112,11 +118,17 @@ function warmGroup(group: PendingRequest[]): void {
     return sendUnlessAborted(leader, union(group.map((request) => request.scope)));
   });
 
-  followers.forEach((follower) => {
-    void waitFor(started, LEADER_START_WAIT_MS)
-      .then(() => waitFor(leaderDone, TOKEN_QUEUE_HOLD_MS))
-      .then(() => sendUnlessAborted(follower, follower.scope));
-  });
+  if (followers.length === 0) return;
+
+  void waitFor(started, LEADER_START_WAIT_MS)
+    .then(() => waitFor(leaderDone, TOKEN_QUEUE_HOLD_MS))
+    .then((leaderSucceeded) => {
+      if (leaderSucceeded === false) {
+        warmGroup(followers);
+        return;
+      }
+      followers.forEach((follower) => void sendUnlessAborted(follower, follower.scope));
+    });
 }
 
 /**

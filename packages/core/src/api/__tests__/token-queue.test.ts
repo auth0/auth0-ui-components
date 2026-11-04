@@ -110,13 +110,22 @@ describe('token-queue', () => {
       expect(done).toHaveBeenCalled();
     });
 
+    it('resolves with the value of the promise', async () => {
+      const done = vi.fn();
+      void waitFor(Promise.resolve(false), 1000).then(done);
+
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(done).toHaveBeenCalledWith(false);
+    });
+
     it('resolves, without throwing, when the promise rejects', async () => {
       const done = vi.fn();
       void waitFor(Promise.reject(new Error('nope')), 1000).then(done);
 
       await vi.advanceTimersByTimeAsync(0);
 
-      expect(done).toHaveBeenCalled();
+      expect(done).toHaveBeenCalledWith(undefined);
     });
 
     it('resolves after the timeout when the promise never settles', async () => {
@@ -127,7 +136,7 @@ describe('token-queue', () => {
       expect(done).not.toHaveBeenCalled();
 
       await vi.advanceTimersByTimeAsync(1);
-      expect(done).toHaveBeenCalled();
+      expect(done).toHaveBeenCalledWith(undefined);
     });
   });
 });
