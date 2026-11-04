@@ -167,6 +167,6 @@ export function createUserPasskeyModel(state: UseUserPasskeyReturn): UserPasskey
  * );
  * ```
  */
-export function useUserPasskeyModel(options: UseUserPasskeyModelOptions): UserPasskeyModel {
+export function useUserPasskeyModel(options: UseUserPasskeyModelOptions = {}): UserPasskeyModel {
   return createUserPasskeyModel(useUserPasskey(options));
 }

@@ -200,6 +200,33 @@ describe('UserPasskeyManagement composition', () => {
       expect(first).toHaveAccessibleDescription('passkey_name');
     });
 
+    it('passes pending state to a function render of RevokeAction while revoking', async () => {
+      api.authenticationMethods.delete = vi.fn().mockReturnValue(new Promise(() => {}));
+      const user = userEvent.setup();
+      renderWithProviders(
+        <UserPasskeyManagement.Root>
+          <UserPasskeyManagement.List>
+            {() => (
+              <UserPasskeyManagement.RevokeAction
+                render={(props, state) => (
+                  <button {...props}>{state.pending ? 'Revoking…' : 'Revoke'}</button>
+                )}
+              />
+            )}
+          </UserPasskeyManagement.List>
+        </UserPasskeyManagement.Root>,
+      );
+
+      const [first, second] = await screen.findAllByRole('button', { name: 'Revoke' });
+      await user.click(first!);
+      await user.click(await screen.findByRole('button', { name: 'confirm' }));
+
+      const revoking = await screen.findByRole('button', { name: 'Revoking…', hidden: true });
+      expect(revoking).toBeDisabled();
+      expect(revoking).toHaveAttribute('aria-busy', 'true');
+      expect(second).toHaveTextContent('Revoke');
+    });
+
     it('lets host components read the model and the current row', async () => {
       function Count() {
         const { model } = useUserPasskeyManagementContext();
@@ -309,6 +336,14 @@ describe('UserPasskeyManagement composition', () => {
 
       await act(() => result.current.handleConfirmRevoke());
       expect(api.authenticationMethods.delete).toHaveBeenCalledWith('pk-2');
+    });
+
+    it('works without options', async () => {
+      const { result } = renderHook(() => useUserPasskeyModel(), { wrapper });
+      await waitFor(() => expect(result.current.hasPasskeys).toBe(true));
+
+      expect(result.current.getAddActionProps()).toMatchObject({ hidden: false });
+      expect(result.current.passkeys).toHaveLength(2);
     });
 
     it('does not run a hidden add action', async () => {
