@@ -18,7 +18,10 @@ const PROPS: Array<[prop: string, type: string, description: string]> = [
 ];
 
 const PARTS: Array<[parts: string, description: string]> = [
-  ['Root', 'Owns data, state, telemetry and the revoke dialog.'],
+  [
+    'Root',
+    'Owns data, state and telemetry, and mounts the revoke dialog unless mountDialogs is false.',
+  ],
   ['DefaultLayout', 'The layout of the drop-in component. Takes addAction and renderItem.'],
   [
     'Header, HeaderContent, Title, Description, HeaderActions',
@@ -34,13 +37,26 @@ const PARTS: Array<[parts: string, description: string]> = [
     'Starts passkey enrollment. Hidden when addAction.disabled is set. Place it anywhere inside Root.',
   ],
   ['List', 'The passkey rows. Its child is a function of the passkey.'],
+  ['Item, ItemIcon, ItemDetails, ItemName', 'One row and its icon, details and name.'],
   [
-    'Item, ItemIcon, ItemDetails, ItemName, ItemMeta, ItemMenu',
-    'One row and its pieces. ItemMenu is the default menu with the revoke command.',
+    'ItemMeta, ItemDevice, ItemCreatedAt, ItemLastUsedAt',
+    'The device and dates under the name. ItemMeta lays the three out with bullets, or takes your own arrangement of them.',
+  ],
+  [
+    'ItemMenu, ItemMenuTrigger, ItemMenuContent, ItemMenuRevoke',
+    'The row menu. Put your own menu items next to ItemMenuRevoke inside ItemMenuContent.',
   ],
   [
     'RevokeAction',
-    'Revokes the passkey of the row, as a button instead of the menu. Opens the confirmation dialog mounted by Root. Described by ItemName.',
+    'Revokes the passkey of the row, as a button instead of the menu. Opens the confirmation dialog. Described by ItemName.',
+  ],
+  [
+    'RevokeDialog, RevokeDialogContent, RevokeDialogHeader, RevokeDialogTitle, RevokeDialogDescription, RevokeDialogFooter',
+    'The revoke confirmation dialog and its pieces. Root mounts the default one.',
+  ],
+  [
+    'RevokeDialogCancel, RevokeDialogConfirm',
+    'The dialog buttons. Both accept render. Confirm shows a spinner and is disabled while the revoke runs.',
   ],
 ];
 
@@ -283,6 +299,57 @@ export function SecurityPage() {
               <code>useUserPasskeyManagementContext()</code> and{' '}
               <code>useUserPasskeyItemContext()</code>.
             </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">Compose the revoke dialog</h3>
+            <p className="text-gray-600 mb-4">
+              <code>Root</code> mounts the default revoke dialog. To change the dialog, set{' '}
+              <code>mountDialogs</code> to <code>false</code> on <code>Root</code> and render{' '}
+              <code>RevokeDialog</code> yourself, with the parts you want. The dialog stays driven
+              by the same state, so it opens from the row menu, from <code>RevokeAction</code> or
+              from your own code. Text, buttons and the order of the parts are yours.
+            </p>
+            <CodeBlock
+              code={`<UserPasskeyManagement.Root mountDialogs={false}>
+  <UserPasskeyManagement.DefaultLayout />
+
+  <UserPasskeyManagement.RevokeDialog>
+    <UserPasskeyManagement.RevokeDialogContent>
+      <UserPasskeyManagement.RevokeDialogHeader>
+        <UserPasskeyManagement.RevokeDialogTitle>
+          Remove this passkey?
+        </UserPasskeyManagement.RevokeDialogTitle>
+      </UserPasskeyManagement.RevokeDialogHeader>
+
+      <UserPasskeyManagement.RevokeDialogDescription>
+        You will not be able to sign in with it again.
+      </UserPasskeyManagement.RevokeDialogDescription>
+
+      <UserPasskeyManagement.RevokeDialogFooter>
+        <UserPasskeyManagement.RevokeDialogCancel
+          render={<ProductButton variant="outline">Keep it</ProductButton>}
+        />
+        <UserPasskeyManagement.RevokeDialogConfirm
+          render={(props, state) => (
+            <ProductButton {...props} loading={state.pending}>
+              Remove
+            </ProductButton>
+          )}
+        />
+      </UserPasskeyManagement.RevokeDialogFooter>
+    </UserPasskeyManagement.RevokeDialogContent>
+  </UserPasskeyManagement.RevokeDialog>
+</UserPasskeyManagement.Root>`}
+              language="tsx"
+              title="A revoke dialog with host text and host buttons"
+            />
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+              <p className="text-yellow-800 text-sm">
+                With <code>mountDialogs=&#123;false&#125;</code> and no <code>RevokeDialog</code>,
+                nothing confirms a revoke. Render one inside <code>Root</code>.
+              </p>
+            </div>
           </div>
 
           <div>

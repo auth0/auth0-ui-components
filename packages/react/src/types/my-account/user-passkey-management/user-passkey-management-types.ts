@@ -15,6 +15,11 @@ import type * as React from 'react';
 
 import type { ActionPartProps } from '@/types/composability-types';
 
+/**
+ * Props of the revoke confirmation dialog.
+ * @deprecated The dialog is now `UserPasskeyManagement.RevokeDialog`, composed from public
+ * parts and driven by the model. This type is no longer used by the component.
+ */
 export interface PasskeyActionModalProps
   extends SharedComponentProps<
     UserPasskeyManagementRevokeModalMessages,
@@ -142,6 +147,12 @@ export interface UserPasskeyItemContextValue extends PasskeyItemModel {
 /** Props for `UserPasskeyManagement.Root`. */
 export interface UserPasskeyManagementRootProps extends UserPasskeyManagementProps {
   children?: React.ReactNode;
+  /**
+   * Mount the default revoke dialog. Set to `false` to render
+   * `UserPasskeyManagement.RevokeDialog` yourself, with the default content or with
+   * parts you arrange. Defaults to `true`.
+   */
+  mountDialogs?: boolean;
 }
 
 /** Props for `UserPasskeyManagement.DefaultLayout`. */
@@ -157,6 +168,11 @@ export interface UserPasskeyManagementListProps {
   /** Renders each row. Defaults to `<UserPasskeyManagement.Item />`. */
   children?: (passkey: Passkey) => React.ReactNode;
   className?: string;
+}
+
+/** Props for parts that only take content. */
+export interface UserPasskeyManagementChildrenProps {
+  children?: React.ReactNode;
 }
 
 /** Props for parts that only take content and a class name. */
@@ -177,7 +193,10 @@ export interface UserPasskeyManagementHeaderActionsProps extends UserPasskeyMana
   align?: 'start' | 'end';
 }
 
-/** Props for `UserPasskeyManagement.AddAction` and `UserPasskeyManagement.RevokeAction`. */
+/**
+ * Props for the action parts: `AddAction`, `RevokeAction`, `ItemMenuRevoke`,
+ * `RevokeDialogCancel` and `RevokeDialogConfirm`.
+ */
 export type UserPasskeyManagementActionProps = ActionPartProps;
 
 export interface UseUserPasskeyServiceResult {

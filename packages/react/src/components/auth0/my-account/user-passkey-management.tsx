@@ -6,11 +6,13 @@
  * @module user-passkey-management
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  type UserPasskeyManagementRevokeModalMessages,
+} from '@auth0/universal-components-core';
 import { MoreVertical, Trash2, UserRoundKey } from 'lucide-react';
 import * as React from 'react';
 
-import { PasskeyActionModal } from '@/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal';
 import {
   CompoundHeader,
   CompoundHeaderActions,
@@ -31,6 +33,14 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -50,6 +60,7 @@ import type {
   Passkey,
   UserPasskeyItemContextValue,
   UserPasskeyManagementActionProps,
+  UserPasskeyManagementChildrenProps,
   UserPasskeyManagementContextValue,
   UserPasskeyManagementDefaultLayoutProps,
   UserPasskeyManagementHeaderActionsProps,
@@ -97,6 +108,7 @@ interface PasskeyScopeProps {
   customMessages: UserPasskeyManagementProps['customMessages'];
   styling: UserPasskeyManagementProps['styling'];
   hideHeader: boolean;
+  mountDialogs: boolean;
   children: React.ReactNode;
 }
 
@@ -112,6 +124,7 @@ function PasskeyScope({
   customMessages = {},
   styling = DEFAULT_STYLING,
   hideHeader,
+  mountDialogs,
   children,
 }: PasskeyScopeProps) {
   const { isDarkMode } = useTheme();
@@ -135,15 +148,7 @@ function PasskeyScope({
     <PasskeyProvider value={value}>
       <StyledScope style={currentStyles.variables}>
         {children}
-        <PasskeyActionModal
-          open={model.isRevokeModalOpen}
-          onOpenChange={model.setIsRevokeModalOpen}
-          isPending={model.isRevoking}
-          onConfirm={model.handleConfirmRevoke}
-          name={model.currentPasskey?.name}
-          styling={styling}
-          customMessages={customMessages?.modals?.revoke}
-        />
+        {mountDialogs && <RevokeDialog />}
       </StyledScope>
     </PasskeyProvider>
   );
@@ -152,7 +157,9 @@ function PasskeyScope({
 /**
  * Owns data, state and the revoke dialog for every composition level. Error and
  * MFA step-up states replace the children; loading is shown by the data parts
- * (`Section`, `List`), so host content inside `Root` stays visible.
+ * (`Section`, `List`), so host content inside `Root` stays visible. The default
+ * revoke dialog is mounted here, so it works however the parts are arranged; set
+ * `mountDialogs` to `false` to render `RevokeDialog` yourself.
  *
  * @param props - {@link UserPasskeyManagementRootProps}
  * @returns Root element.
@@ -162,6 +169,7 @@ function Root({
   customMessages = {},
   styling = DEFAULT_STYLING,
   hideHeader = false,
+  mountDialogs = true,
   addAction,
   revokeAction,
   onFetch,
@@ -176,6 +184,7 @@ function Root({
         customMessages={customMessages}
         styling={styling}
         hideHeader={hideHeader}
+        mountDialogs={mountDialogs}
       >
         {children}
       </PasskeyScope>
@@ -562,29 +571,33 @@ function ItemName({ children, className }: UserPasskeyManagementPartProps) {
 }
 
 /**
- * Device, created and last used dates. Renders nothing when none are known.
+ * Device, created and last used dates, separated by bullets. Renders nothing when none
+ * are known. Children replace the default segments; compose `ItemDevice`,
+ * `ItemCreatedAt` and `ItemLastUsedAt` to reorder or drop them.
  * @param props - {@link UserPasskeyManagementPartProps}
  * @returns Meta element or null.
  */
-function ItemMeta({ className }: Omit<UserPasskeyManagementPartProps, 'children'>) {
-  const { customMessages } = usePasskeyContext('ItemMeta');
+function ItemMeta({ children, className }: UserPasskeyManagementPartProps) {
   const { passkey } = usePasskeyItemContext('ItemMeta');
-  const { t } = useTranslator('passkey', customMessages);
-  if (!passkey.deviceInfo && !passkey.createdAt && !passkey.lastUsedAt) return null;
+  if (!children && !passkey.deviceInfo && !passkey.createdAt && !passkey.lastUsedAt) return null;
 
   return (
     <CardDescription className={cn('flex flex-wrap items-center gap-x-1.5', className)}>
-      {passkey.deviceInfo && <span>{passkey.deviceInfo}</span>}
-      {passkey.createdAt && (
+      {children ?? (
         <>
-          {passkey.deviceInfo && <span aria-hidden="true">•</span>}
-          <span>{t('created_at', { date: new Date(passkey.createdAt).toLocaleDateString() })}</span>
-        </>
-      )}
-      {passkey.lastUsedAt && (
-        <>
-          {(passkey.deviceInfo || passkey.createdAt) && <span aria-hidden="true">•</span>}
-          <span>{t('last_used', { date: new Date(passkey.lastUsedAt).toLocaleDateString() })}</span>
+          <ItemDevice />
+          {passkey.createdAt && (
+            <>
+              {passkey.deviceInfo && <span aria-hidden="true">•</span>}
+              <ItemCreatedAt />
+            </>
+          )}
+          {passkey.lastUsedAt && (
+            <>
+              {(passkey.deviceInfo || passkey.createdAt) && <span aria-hidden="true">•</span>}
+              <ItemLastUsedAt />
+            </>
+          )}
         </>
       )}
     </CardDescription>
@@ -592,43 +605,164 @@ function ItemMeta({ className }: Omit<UserPasskeyManagementPartProps, 'children'
 }
 
 /**
- * Row menu with the revoke command. Hidden when `revokeAction.disabled` is set.
- * Use `RevokeAction` instead to show revoke as a button.
+ * Device the passkey was created on. Renders nothing when unknown.
  * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Device element or null.
+ */
+function ItemDevice({ children, className }: UserPasskeyManagementPartProps) {
+  const { passkey } = usePasskeyItemContext('ItemDevice');
+  const device = children ?? passkey.deviceInfo;
+  if (!device) return null;
+
+  return <span className={className}>{device}</span>;
+}
+
+/**
+ * Date the passkey was created. Renders nothing when unknown.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Created date element or null.
+ */
+function ItemCreatedAt({ children, className }: UserPasskeyManagementPartProps) {
+  const { customMessages } = usePasskeyContext('ItemCreatedAt');
+  const { passkey } = usePasskeyItemContext('ItemCreatedAt');
+  const { t } = useTranslator('passkey', customMessages);
+  if (!children && !passkey.createdAt) return null;
+
+  return (
+    <span className={className}>
+      {children ??
+        t('created_at', { date: new Date(passkey.createdAt ?? '').toLocaleDateString() })}
+    </span>
+  );
+}
+
+/**
+ * Date the passkey was last used. Renders nothing when unknown.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Last used date element or null.
+ */
+function ItemLastUsedAt({ children, className }: UserPasskeyManagementPartProps) {
+  const { customMessages } = usePasskeyContext('ItemLastUsedAt');
+  const { passkey } = usePasskeyItemContext('ItemLastUsedAt');
+  const { t } = useTranslator('passkey', customMessages);
+  if (!children && !passkey.lastUsedAt) return null;
+
+  return (
+    <span className={className}>
+      {children ??
+        t('last_used', { date: new Date(passkey.lastUsedAt ?? '').toLocaleDateString() })}
+    </span>
+  );
+}
+
+/**
+ * Row menu. Defaults to the kebab trigger and a content with the revoke item, and renders
+ * nothing when `revokeAction.disabled` is set. Children replace the default; compose
+ * `ItemMenuTrigger`, `ItemMenuContent` and `ItemMenuRevoke`, with your own menu items
+ * next to the revoke item. Use `RevokeAction` instead to show revoke as a button.
+ * @param props - {@link UserPasskeyManagementChildrenProps}
  * @returns Menu element or null.
  */
-function ItemMenu({ className }: Omit<UserPasskeyManagementPartProps, 'children'>) {
-  const { customMessages } = usePasskeyContext('ItemMenu');
-  const { passkey, revokeAction } = usePasskeyItemContext('ItemMenu');
-  const { t } = useTranslator('passkey', customMessages);
-  if (revokeAction.hidden) return null;
+function ItemMenu({ children }: UserPasskeyManagementChildrenProps) {
+  const { revokeAction } = usePasskeyItemContext('ItemMenu');
+  if (!children && revokeAction.hidden) return null;
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        aria-label={passkey.name}
-        className={cn(
-          'h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0',
-          className,
-        )}
-      >
-        <MoreVertical className="h-4 w-4 text-primary-foreground" />
-      </DropdownMenuTrigger>
-      <DropdownMenuPortal>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            onClick={revokeAction.onClick}
-            disabled={revokeAction.disabled}
-            className="text-destructive-foreground focus:text-destructive-foreground"
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            {t('actions.revoke')}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenuPortal>
+      {children ?? (
+        <>
+          <ItemMenuTrigger />
+          <ItemMenuContent />
+        </>
+      )}
     </DropdownMenu>
   );
 }
+
+/**
+ * Button that opens the row menu. Children replace the kebab icon.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Menu trigger element.
+ */
+function ItemMenuTrigger({ children, className }: UserPasskeyManagementPartProps) {
+  const { passkey } = usePasskeyItemContext('ItemMenuTrigger');
+
+  return (
+    <DropdownMenuTrigger
+      aria-label={passkey.name}
+      className={cn(
+        'h-8 w-8 p-0 rounded-xl bg-primary border border-primary/20 shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary/50 shrink-0',
+        className,
+      )}
+    >
+      {children ?? <MoreVertical className="h-4 w-4 text-primary-foreground" />}
+    </DropdownMenuTrigger>
+  );
+}
+
+/**
+ * Popup of the row menu. Defaults to the revoke item.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Menu content element.
+ */
+function ItemMenuContent({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyItemContext('ItemMenuContent');
+
+  return (
+    <DropdownMenuPortal>
+      <DropdownMenuContent align="end" className={className}>
+        {children ?? <ItemMenuRevoke />}
+      </DropdownMenuContent>
+    </DropdownMenuPortal>
+  );
+}
+
+/**
+ * Revoke command as a menu item. Opens the confirmation dialog. Hidden when
+ * `revokeAction.disabled` is set. Use `render` to replace the item while keeping the
+ * behaviour.
+ *
+ * @param props - {@link UserPasskeyManagementActionProps}
+ * @returns Menu item element or null.
+ */
+const ItemMenuRevoke = React.forwardRef<HTMLDivElement, UserPasskeyManagementActionProps>(
+  function ItemMenuRevoke({ render, children, className }, ref) {
+    const { customMessages } = usePasskeyContext('ItemMenuRevoke');
+    const { revokeAction } = usePasskeyItemContext('ItemMenuRevoke');
+    const { t } = useTranslator('passkey', customMessages);
+    const disabled = revokeAction.disabled || revokeAction.pending;
+
+    const element = useRender({
+      render,
+      ref,
+      state: { pending: revokeAction.pending, disabled },
+      props: {
+        disabled,
+        'aria-busy': revokeAction.pending || undefined,
+        onClick: revokeAction.onClick,
+        className,
+      },
+      defaultRender: (props) => (
+        <DropdownMenuItem
+          {...props}
+          className={cn(
+            'text-destructive-foreground focus:text-destructive-foreground',
+            props.className,
+          )}
+        >
+          {children ?? (
+            <>
+              <Trash2 className="mr-2 h-4 w-4" />
+              {t('actions.revoke')}
+            </>
+          )}
+        </DropdownMenuItem>
+      ),
+    });
+
+    return revokeAction.hidden ? null : element;
+  },
+);
 
 /**
  * Revoke command for the current row as a button, for layouts without the menu.
@@ -668,6 +802,214 @@ const RevokeAction = React.forwardRef<HTMLButtonElement, UserPasskeyManagementAc
 );
 
 /**
+ * Translator for the revoke dialog, with the consumer's overrides for it.
+ * @returns The translator of the `passkey.modals.revoke` namespace.
+ * @internal
+ */
+function useRevokeTranslator() {
+  const { customMessages } = usePasskeyContext('RevokeDialog');
+  const overrides: Partial<UserPasskeyManagementRevokeModalMessages> | undefined =
+    customMessages.modals?.revoke;
+  return useTranslator('passkey.modals.revoke', overrides);
+}
+
+/**
+ * Confirmation dialog for revoking a passkey, driven by the model. `Root` mounts it, so it
+ * works however the parts are arranged. To compose it, set `Root`'s `mountDialogs` to
+ * `false` and render it yourself. Children replace the default content.
+ * @param props - {@link UserPasskeyManagementChildrenProps}
+ * @returns Dialog element.
+ */
+function RevokeDialog({ children }: UserPasskeyManagementChildrenProps) {
+  const { model } = usePasskeyContext('RevokeDialog');
+  const { isRevoking, setIsRevokeModalOpen } = model;
+
+  const handleOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (!isRevoking) setIsRevokeModalOpen(open);
+    },
+    [isRevoking, setIsRevokeModalOpen],
+  );
+
+  return (
+    <Dialog open={model.isRevokeModalOpen} onOpenChange={handleOpenChange}>
+      {children ?? <RevokeDialogContent />}
+    </Dialog>
+  );
+}
+
+/**
+ * Panel of the revoke dialog. Defaults to header, description and footer.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Dialog content element.
+ */
+function RevokeDialogContent({ children, className }: UserPasskeyManagementPartProps) {
+  const { classes } = usePasskeyContext('RevokeDialogContent');
+
+  return (
+    <DialogContent className={cn(classes['PasskeyActionModal-modalContent'], className)}>
+      {children ?? (
+        <>
+          <RevokeDialogHeader />
+          <RevokeDialogDescription />
+          <RevokeDialogFooter />
+        </>
+      )}
+    </DialogContent>
+  );
+}
+
+/**
+ * Header of the revoke dialog. Defaults to the title.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Dialog header element.
+ */
+function RevokeDialogHeader({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyContext('RevokeDialogHeader');
+  return <DialogHeader className={className}>{children ?? <RevokeDialogTitle />}</DialogHeader>;
+}
+
+/**
+ * Title of the revoke dialog. Children replace the translated text.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Dialog title element.
+ */
+function RevokeDialogTitle({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyContext('RevokeDialogTitle');
+  const { t } = useRevokeTranslator();
+  return <DialogTitle className={className}>{children ?? t('title')}</DialogTitle>;
+}
+
+/**
+ * Consent message of the revoke dialog, naming the passkey. Children replace the text.
+ * It describes the dialog to assistive technology.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Dialog description element.
+ */
+function RevokeDialogDescription({ children, className }: UserPasskeyManagementPartProps) {
+  const { model } = usePasskeyContext('RevokeDialogDescription');
+  const { t } = useRevokeTranslator();
+
+  return (
+    <DialogDescription className={cn('py-4 text-paragraph font-normal text-primary', className)}>
+      {children ?? (
+        <>
+          {t.trans('consent', {
+            components: {
+              bold: (text: string) => <strong key="passkey-name">{text}</strong>,
+            },
+            vars: { name: model.currentPasskey?.name ?? '' },
+          })}
+        </>
+      )}
+    </DialogDescription>
+  );
+}
+
+/**
+ * Action region of the revoke dialog. Defaults to cancel and confirm.
+ * @param props - {@link UserPasskeyManagementPartProps}
+ * @returns Dialog footer element.
+ */
+function RevokeDialogFooter({ children, className }: UserPasskeyManagementPartProps) {
+  usePasskeyContext('RevokeDialogFooter');
+
+  return (
+    <DialogFooter className={className}>
+      <div className="flex flex-row items-center justify-end gap-2 p-2">
+        {children ?? (
+          <>
+            <RevokeDialogCancel />
+            <RevokeDialogConfirm />
+          </>
+        )}
+      </div>
+    </DialogFooter>
+  );
+}
+
+/**
+ * Closes the revoke dialog without revoking. Disabled while a revoke is running. Use
+ * `render` to replace the button while keeping the behaviour.
+ *
+ * @param props - {@link UserPasskeyManagementActionProps}
+ * @returns Cancel action element.
+ */
+const RevokeDialogCancel = React.forwardRef<HTMLButtonElement, UserPasskeyManagementActionProps>(
+  function RevokeDialogCancel({ render, children, className }, ref) {
+    const { model } = usePasskeyContext('RevokeDialogCancel');
+    const { t } = useRevokeTranslator();
+    const { isRevoking, setIsRevokeModalOpen } = model;
+
+    return useRender({
+      render,
+      ref,
+      state: { pending: false, disabled: isRevoking },
+      props: {
+        ...getButtonContract({
+          onClick: () => setIsRevokeModalOpen(false),
+          disabled: isRevoking,
+          pending: false,
+        }),
+        className,
+      },
+      defaultRender: (props) => (
+        <Button
+          variant="outline"
+          {...props}
+          className={cn('FormActions-previous', props.className)}
+        >
+          {children ?? t('cancel')}
+        </Button>
+      ),
+    });
+  },
+);
+
+/**
+ * Revokes the passkey the dialog is about. Shows a spinner and is disabled while the
+ * revoke runs. Use `render` to replace the button while keeping the behaviour.
+ *
+ * @param props - {@link UserPasskeyManagementActionProps}
+ * @returns Confirm action element.
+ */
+const RevokeDialogConfirm = React.forwardRef<HTMLButtonElement, UserPasskeyManagementActionProps>(
+  function RevokeDialogConfirm({ render, children, className }, ref) {
+    const { model } = usePasskeyContext('RevokeDialogConfirm');
+    const { t } = useRevokeTranslator();
+    const pending = model.isRevoking;
+
+    return useRender({
+      render,
+      ref,
+      state: { pending, disabled: pending },
+      props: {
+        ...getButtonContract({
+          onClick: () => void model.handleConfirmRevoke(),
+          disabled: false,
+          pending,
+        }),
+        className,
+      },
+      defaultRender: (props) => (
+        <Button
+          variant="destructive"
+          {...props}
+          className={cn('FormActions-next min-w-17.5', props.className)}
+          aria-label={pending ? t('confirm') : undefined}
+        >
+          {pending ? (
+            <Spinner colorScheme="primary" size="sm" aria-hidden="true" />
+          ) : (
+            (children ?? t('confirm'))
+          )}
+        </Button>
+      ),
+    });
+  },
+);
+
+/**
  * Presentational passkey management, driven entirely by props. Renders the same
  * layout as `<UserPasskeyManagement />` without fetching, for docs and tests.
  * @param props - {@link UserPasskeyManagementViewProps}
@@ -691,6 +1033,7 @@ function UserPasskeyManagementView({
       customMessages={customMessages}
       styling={styling}
       hideHeader={hideHeader}
+      mountDialogs
     >
       <DefaultLayout />
     </PasskeyScope>
@@ -781,8 +1124,22 @@ const UserPasskeyManagement = Object.assign(UserPasskeyManagementDefault, {
   ItemDetails,
   ItemName,
   ItemMeta,
+  ItemDevice,
+  ItemCreatedAt,
+  ItemLastUsedAt,
   ItemMenu,
+  ItemMenuTrigger,
+  ItemMenuContent,
+  ItemMenuRevoke,
   RevokeAction,
+  RevokeDialog,
+  RevokeDialogContent,
+  RevokeDialogHeader,
+  RevokeDialogTitle,
+  RevokeDialogDescription,
+  RevokeDialogFooter,
+  RevokeDialogCancel,
+  RevokeDialogConfirm,
 });
 
 export {

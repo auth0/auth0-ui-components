@@ -405,7 +405,6 @@
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-slot@1.2.3",
-        "@radix-ui/react-tooltip@1.2.7",
         "class-variance-authority@0.7.1",
         "clsx@2.1.1",
         "lucide-react@1.16.0",
@@ -419,19 +418,9 @@
           "target": "components/auth0/my-account/user-passkey-management.tsx"
         },
         {
-          "path": "src/components/auth0/my-account/shared/user-passkey-management/passkey-action-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-account/shared/user-passkey-management/passkey-action-modal.tsx"
-        },
-        {
           "path": "src/components/auth0/shared/compound-header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/compound-header.tsx"
-        },
-        {
-          "path": "src/components/auth0/shared/form-actions.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/form-actions.tsx"
         },
         {
           "path": "src/components/auth0/shared/gate-keeper/gate-keeper.tsx",
@@ -479,19 +468,9 @@
           "target": "components/ui/dropdown-menu.tsx"
         },
         {
-          "path": "src/components/ui/modal.tsx",
-          "type": "registry:component",
-          "target": "components/ui/modal.tsx"
-        },
-        {
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "components/ui/spinner.tsx"
-        },
-        {
-          "path": "src/components/ui/tooltip.tsx",
-          "type": "registry:component",
-          "target": "components/ui/tooltip.tsx"
         },
         {
           "path": "src/hooks/my-account/shared/services/use-user-passkey-service.ts",

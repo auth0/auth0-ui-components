@@ -2,22 +2,8 @@ import { vi } from 'vitest';
 
 import type {
   Passkey,
-  PasskeyActionModalProps,
   UserPasskeyManagementViewProps,
 } from '@/types/my-account/user-passkey-management/user-passkey-management-types';
-
-export const createMockPasskeyActionModalProps = (
-  overrides?: Partial<PasskeyActionModalProps>,
-): PasskeyActionModalProps => ({
-  open: true,
-  onOpenChange: vi.fn(),
-  isPending: false,
-  onConfirm: vi.fn().mockResolvedValue(undefined),
-  name: 'My Passkey',
-  styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
-  customMessages: {},
-  ...overrides,
-});
 
 export const createMockPasskey = (overrides?: Partial<Passkey>): Passkey => ({
   id: 'pk-1',
