@@ -219,6 +219,18 @@ describe('token-coordination', () => {
       await Promise.all([first, second]);
     });
 
+    it('groups requests that arrive a few microtasks apart in the same tick', async () => {
+      void request('first', { audience: ORG_API, scope: ['a'] });
+      await Promise.resolve();
+      await Promise.resolve();
+      void request('second', { audience: ORG_API, scope: ['b'] });
+
+      await flushTick();
+
+      expect(sentNames()).toEqual(['first']);
+      expect(scopeOf('first')).toEqual(['a', 'b']);
+    });
+
     it('treats requests from a later tick as a new group', async () => {
       const first = request('first', { audience: ORG_API, scope: ['a'] });
       await flushTick();
