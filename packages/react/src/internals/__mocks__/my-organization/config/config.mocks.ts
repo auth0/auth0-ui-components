@@ -14,6 +14,7 @@ export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUse
   isLoadingConfig: false,
   shouldAllowDeletion: true,
   organizationDeletionBehavior: 'allow_if_empty',
+  shouldAllowOrganizationDeletion: true,
   isConfigValid: true,
   config: {
     connection_deletion_behavior: 'allow',

@@ -43,7 +43,7 @@ export type UseOrganizationDeleteServiceOptions = Pick<
 
 export interface UseOrganizationDeleteResult {
   organization: OrganizationPrivate;
-  /** Whether the user may delete: granted the scope, not read-only, and not disabled via `deleteAction`. */
+  /** Whether the user may delete: granted the scope, not read-only, not disabled via `deleteAction`, and allowed by the deletion behavior. */
   canDelete: boolean;
   /** Whether the delete scope is missing (drives the permission-denied tooltip; always `false` in read-only mode). */
   permissionDenied: boolean;

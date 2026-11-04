@@ -65,6 +65,37 @@ describe('OrganizationDelete', () => {
     });
   });
 
+  describe('when the organization deletion behavior is not one that permits deleting', () => {
+    it('disables the delete button', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.configuration.get as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({ allowed_strategies: [], organization_deletion_behavior: 'deny' });
+
+      renderWithProviders(<OrganizationDelete />);
+
+      expect(await findSectionDeleteButton()).toBeDisabled();
+    });
+  });
+
+  describe('when the organization deletion behavior permits deleting', () => {
+    it('enables the delete button', async () => {
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.configuration.get as ReturnType<
+          typeof vi.fn
+        >
+      ).mockResolvedValue({
+        allowed_strategies: [],
+        organization_deletion_behavior: 'allow_if_empty',
+      });
+
+      renderWithProviders(<OrganizationDelete />);
+
+      expect(await findSectionDeleteButton()).toBeEnabled();
+    });
+  });
+
   describe('when readOnly is true', () => {
     it('disables the delete button', async () => {
       renderWithProviders(<OrganizationDelete readOnly />);

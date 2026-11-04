@@ -4,11 +4,17 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useOrganizationDelete } from '@/hooks/my-organization/use-organization-delete';
 import { PermissionContext } from '@/providers/permission-provider';
+import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import type { UseOrganizationDeleteOptions } from '@/types/my-organization/organization-management/organization-delete-types';
 
 const mockOrganization = createMockOrganization();
 const mockServiceDelete = vi.fn();
+const mockUseConfig = vi.fn();
+
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: () => mockUseConfig(),
+}));
 
 vi.mock('@/hooks/my-organization/shared/services/use-organization-delete-service', () => ({
   useOrganizationDeleteService: () => ({
@@ -32,6 +38,7 @@ const renderWithGranted = (permissions: string[], options: UseOrganizationDelete
 describe('useOrganizationDelete', () => {
   beforeEach(() => {
     mockServiceDelete.mockResolvedValue(true);
+    mockUseConfig.mockReturnValue(createMockUseConfig());
   });
 
   describe('when the delete scope is granted', () => {
@@ -101,6 +108,37 @@ describe('useOrganizationDelete', () => {
       });
 
       expect(mockServiceDelete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when the organization deletion behavior does not permit deleting', () => {
+    beforeEach(() => {
+      mockUseConfig.mockReturnValue(
+        createMockUseConfig({ shouldAllowOrganizationDeletion: false }),
+      );
+    });
+
+    it('blocks deletion without reporting a permission denial', async () => {
+      const { result } = renderWithGranted(['delete:my_org:organizations']);
+
+      expect(result.current.canDelete).toBe(false);
+      expect(result.current.permissionDenied).toBe(false);
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockServiceDelete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('while the configuration loads', () => {
+    it('reports loading', () => {
+      mockUseConfig.mockReturnValue(createMockUseConfig({ isLoadingConfig: true }));
+
+      const { result } = renderWithGranted(['delete:my_org:organizations']);
+
+      expect(result.current.isLoading).toBe(true);
     });
   });
 });
