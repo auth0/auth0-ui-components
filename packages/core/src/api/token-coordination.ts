@@ -40,7 +40,12 @@ export function createCoordinatedTokenGetter(
     if (cached) return cached;
 
     const token = await tokenQueue.run(() => getAccessTokenSilently(options));
-    if (!token) throw new Error('No access token was returned.');
+    if (!token) {
+      const { audience, scope } = options.authorizationParams;
+      throw new Error(
+        `No access token was returned (audience: ${audience ?? 'default'}, scope: ${scope ?? 'default'}).`,
+      );
+    }
     return token;
   };
 }

@@ -93,11 +93,19 @@ describe('token-coordination', () => {
       expect(peak).toBe(1);
     });
 
-    it('fails when no token is returned', async () => {
+    it('fails with the audience and scope when no token is returned', async () => {
       const getToken = createCoordinatedTokenGetter(vi.fn().mockResolvedValue(undefined));
 
-      await expect(getToken({ audience: ORG_API, scope: ['x'] })).rejects.toThrow(
-        'No access token was returned.',
+      await expect(getToken({ audience: ORG_API, scope: ['x', 'y'] })).rejects.toThrow(
+        `No access token was returned (audience: ${ORG_API}, scope: x y).`,
+      );
+    });
+
+    it('names the defaults when the request has no audience or scope', async () => {
+      const getToken = createCoordinatedTokenGetter(vi.fn().mockResolvedValue(undefined));
+
+      await expect(getToken()).rejects.toThrow(
+        'No access token was returned (audience: default, scope: default).',
       );
     });
 
