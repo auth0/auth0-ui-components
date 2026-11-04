@@ -206,7 +206,8 @@ function OrganizationTableView({
         <DataTable
           columns={columns}
           data={organizations}
-          loading={isLoading}
+          // `isLoading` is only the first load; a page change keeps the old rows until `isFetching` ends.
+          loading={isLoading || isFetching}
           emptyState={{ title: t('table.empty_message') }}
           className={currentStyles.classes?.['OrganizationTable-table']}
           onRowClick={readOnly ? undefined : onEditOrganization}
@@ -214,7 +215,7 @@ function OrganizationTableView({
         />
       )}
 
-      {!showError && organizations.length > 0 && (
+      {!showError && (organizations.length > 0 || pagination.hasPreviousPage) && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"

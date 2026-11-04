@@ -218,6 +218,43 @@ describe('OrganizationTable', () => {
     });
   });
 
+  describe('while another page loads', () => {
+    it('hides the previous rows so they cannot be clicked', async () => {
+      const user = userEvent.setup();
+      const onEditOrganization = vi.fn();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockReturnValueOnce(new Promise(() => {}));
+
+      renderWithProviders(<OrganizationTable onEditOrganization={onEditOrganization} />);
+      await screen.findByText('Acme Corp.');
+
+      await user.click(screen.getByLabelText('Go to next page'));
+
+      await waitFor(() => expect(screen.queryByText('Acme Corp.')).not.toBeInTheDocument());
+      expect(onEditOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('when a later page is empty', () => {
+    it('keeps Previous available so the user can go back', async () => {
+      const user = userEvent.setup();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockResolvedValueOnce(createMockUserOrganizationsPage([]));
+
+      renderWithProviders(<OrganizationTable />);
+      await screen.findByText('Acme Corp.');
+
+      await user.click(screen.getByLabelText('Go to next page'));
+
+      expect(await screen.findByText('table.empty_message')).toBeInTheDocument();
+      await user.click(screen.getByLabelText('Go to previous page'));
+
+      expect(await screen.findByText('Acme Corp.')).toBeInTheDocument();
+    });
+  });
+
   describe('when readOnly is true', () => {
     it('hides the create button and row actions, and ignores row clicks', async () => {
       const user = userEvent.setup();
