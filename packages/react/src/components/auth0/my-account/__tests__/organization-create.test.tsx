@@ -186,6 +186,22 @@ describe('OrganizationCreate', () => {
     });
   });
 
+  describe('when isLoading is true', () => {
+    it('shows no form until loading ends', async () => {
+      const { rerender } = renderWithProviders(<OrganizationCreate isLoading />);
+
+      expect(
+        screen.queryByLabelText('sections.settings.fields.name.label'),
+      ).not.toBeInTheDocument();
+      expect(screen.queryByText('header.title')).not.toBeInTheDocument();
+
+      rerender(<OrganizationCreate isLoading={false} />);
+
+      expect(await screen.findByText('header.title')).toBeInTheDocument();
+      expect(getNameInput()).toBeInTheDocument();
+    });
+  });
+
   describe('when readOnly is true', () => {
     it('hides the create button', async () => {
       renderWithProviders(<OrganizationCreate readOnly />);

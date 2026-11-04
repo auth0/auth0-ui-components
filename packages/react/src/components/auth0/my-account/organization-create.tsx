@@ -32,6 +32,7 @@ import type {
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.hideHeader - Whether to hide the header
+ * @param props.isLoading - Shows a spinner instead of the form while true
  * @param props.backButton - Configuration for the back button
  * @param props.createAction - Lifecycle hooks for the create action
  * @returns JSX element
@@ -49,6 +50,7 @@ function OrganizationCreate(props: OrganizationCreateProps): React.JSX.Element {
     },
     readOnly = false,
     hideHeader = false,
+    isLoading,
     backButton,
     createAction,
   } = props;
@@ -60,7 +62,7 @@ function OrganizationCreate(props: OrganizationCreateProps): React.JSX.Element {
   });
 
   return (
-    <GateKeeper styling={styling}>
+    <GateKeeper isLoading={isLoading} styling={styling}>
       <OrganizationCreateView
         organization={organization}
         schema={schema}
