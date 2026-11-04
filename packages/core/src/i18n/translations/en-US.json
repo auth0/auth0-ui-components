@@ -1012,6 +1012,55 @@
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
       "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
+    },
+    "sso_guided_setup": {
+      "stepper_label": "Setup steps",
+      "back": "Back",
+      "next": "Next",
+      "create_provider": "Create Provider",
+      "done": "Done",
+      "unavailable": "Guided setup isn't available for this provider. Use the form instead.",
+      "load_error": "We couldn't load the setup instructions. Try again later or use the form instead.",
+      "company_fallback": "your organization",
+      "create_modal": {
+        "title": "Before Creating the Provider, Please Note:",
+        "description": "Creating this provider will enable SSO access to ${companyName}. To prioritize security, assign access and test the provider as soon as possible once the provider is active.",
+        "cancel": "Cancel",
+        "proceed": "Proceed"
+      },
+      "copy_values": {
+        "callback_url": {
+          "label": "Callback URL",
+          "helper_text": "Use this URL as the redirect or callback URL in your identity provider."
+        },
+        "sso_url": {
+          "label": "Single Sign-On URL",
+          "helper_text": "Endpoint users are redirected to for single sign-on. Also known as: Assertion Consumer Service URL, Callback URL."
+        },
+        "service_provider_entity_id": {
+          "label": "Service Provider Entity ID",
+          "helper_text": "Unique identifier for the service provider. Also known as: Audience URI."
+        },
+        "adfs_ws_federation_url": {
+          "label": "Relying Party WS-Federation Passive Protocol URL"
+        },
+        "adfs_relying_party_identifier": {
+          "label": "Relying Party Trust Identifier"
+        },
+        "google_javascript_origin": {
+          "label": "Authorized JavaScript Origins URI"
+        },
+        "google_redirect_uri": {
+          "label": "Authorized Redirect URI"
+        },
+        "pingfederate_partner_entity_id": {
+          "label": "Partners Entity ID"
+        },
+        "pingfederate_endpoint_url": {
+          "label": "Endpoint URL"
+        }
+      },
+      "attribute_mapping_pending": "Attribute mappings appear here once the provider is created."
     }
   },
   "user_mfa_management": {
