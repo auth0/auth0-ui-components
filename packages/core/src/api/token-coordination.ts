@@ -21,8 +21,9 @@ const LEADER_START_WAIT_MS = 10_000;
  * returned right away. Only a request that needs a refresh waits in the shared queue, so refreshes
  * for different APIs run one after the other.
  *
- * Needs `@auth0/auth0-spa-js` 2.5 or later, where the SDK fetcher passes the audience and scope to
- * its token function. The `@auth0/auth0-react` peer range already requires it.
+ * Needs `@auth0/auth0-spa-js` 2.7 or later, where the SDK fetcher passes the audience and scope to
+ * its token function and accepts a detailed token response. The `@auth0/auth0-react` peer range
+ * already requires it.
  * @param getAccessTokenSilently - The auth context's token function
  * @returns Function that returns the detailed token response for the requested audience and scope
  * @internal
