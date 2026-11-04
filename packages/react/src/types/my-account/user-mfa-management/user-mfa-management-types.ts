@@ -166,6 +166,18 @@ export interface MFAEnrolledFactorModel {
   deleteAction: MFAActionModel;
 }
 
+/** Value read by `useUserMFAEnrolledFactorContext` inside `UserMFAManagement.FactorList`. */
+export interface UserMFAEnrolledFactorContextValue extends MFAEnrolledFactorModel {
+  /** Display label, such as the phone number, the email or the factor title. */
+  label: string;
+  /**
+   * Id of the element showing `label`. `UserMFAManagement.EnrolledFactorName` sets it,
+   * and `DeleteAction` is described by it. Put it on your own name element if you do not
+   * render `EnrolledFactorName`.
+   */
+  labelId: string;
+}
+
 /** Options for `useUserMFAModel`. */
 export interface UseUserMFAModelOptions extends UseUserMFAOptions {
   disableEnroll?: UserMFAManagementProps['disableEnroll'];

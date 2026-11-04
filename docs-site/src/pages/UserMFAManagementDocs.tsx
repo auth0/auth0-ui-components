@@ -416,6 +416,261 @@ interface UserMFAManagementClasses {
         </details>
       </section>
 
+      {/* Composition */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-semibold text-gray-900">Composition</h2>
+        <p className="text-gray-600">
+          <code>UserMFAManagement</code> is built from public parts, so you can go from the drop-in
+          component to your own markup one step at a time. Pick the lowest level that fits. Every
+          level uses the same data, the same enroll and delete dialogs and the same permissions, and
+          the component keeps your application theme.
+        </p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-200 rounded-lg">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  You want to
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Use
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 text-sm">
+              <tr>
+                <td className="px-4 py-2 text-gray-700">Use the component as it is</td>
+                <td className="px-4 py-2 text-gray-700">
+                  Level 1: <code>&lt;UserMFAManagement /&gt;</code>
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 text-gray-700">
+                  Replace one element, such as the enroll button, and keep its behavior
+                </td>
+                <td className="px-4 py-2 text-gray-700">
+                  Level 2: <code>render</code> on an action part
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 text-gray-700">
+                  Add, omit, move or gate a region, such as the header or one factor
+                </td>
+                <td className="px-4 py-2 text-gray-700">
+                  Level 3: parts inside <code>UserMFAManagement.Root</code>
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 text-gray-700">Own all the markup</td>
+                <td className="px-4 py-2 text-gray-700">
+                  Level 4: <code>useUserMFAModel()</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-lg font-medium mb-4">Level 2: replace one element</h3>
+            <p className="text-gray-600 mb-4">
+              <code>EnrollAction</code> and <code>DeleteAction</code> accept <code>render</code>.
+              Pass an element, or a function that receives the props to spread and the action state.
+              The part keeps the click handler, the disabled and pending state and the accessible
+              name. Your element supplies its own content, because the part does not insert its
+              label into it. <code>DefaultLayout</code> renders your <code>enrollAction</code>{' '}
+              inside every factor, so one element replaces the button of each factor.
+            </p>
+            <CodeBlock
+              code={`import { UserMFAManagement } from '@auth0/universal-components-react';
+
+<UserMFAManagement.Root>
+  <UserMFAManagement.DefaultLayout
+    enrollAction={
+      <UserMFAManagement.EnrollAction
+        render={(props, state) => (
+          <ProductButton {...props} loading={state.pending}>
+            Set up
+          </ProductButton>
+        )}
+      />
+    }
+  />
+</UserMFAManagement.Root>`}
+              language="tsx"
+              title="Use your own button for every enroll action"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">Level 3: arrange the parts</h3>
+            <p className="text-gray-600 mb-4">
+              Place the parts you want inside <code>Root</code>. Content that is not a part, such as
+              the banner below, stays visible while data loads. <code>Root</code> mounts the enroll
+              and delete dialogs, so they work however you arrange the parts. Error and MFA step-up
+              states replace the whole tree.
+            </p>
+            <CodeBlock
+              code={`<UserMFAManagement.Root readOnly={!canEdit}>
+  <UserMFAManagement.Header>
+    <UserMFAManagement.HeaderContent>
+      <UserMFAManagement.Title />
+      <UserMFAManagement.Description />
+    </UserMFAManagement.HeaderContent>
+    <UserMFAManagement.HeaderActions>
+      <HelpLink />
+    </UserMFAManagement.HeaderActions>
+  </UserMFAManagement.Header>
+
+  <HostOwnedBanner />
+
+  <UserMFAManagement.Factors>
+    {(factorType) =>
+      factorType === 'recovery-code' ? null : (
+        <UserMFAManagement.Factor>
+          <UserMFAManagement.FactorHeader>
+            <UserMFAManagement.FactorTitle />
+            <UserMFAManagement.FactorActions>
+              <UserMFAManagement.EnrollAction render={<ProductButton>Set up</ProductButton>} />
+            </UserMFAManagement.FactorActions>
+          </UserMFAManagement.FactorHeader>
+
+          <UserMFAManagement.FactorList>
+            {() => (
+              <div className="flex items-center justify-between">
+                <UserMFAManagement.EnrolledFactorName />
+                <UserMFAManagement.DeleteAction
+                  render={(props, state) => (
+                    <ProductButton {...props} loading={state.pending}>
+                      Remove
+                    </ProductButton>
+                  )}
+                />
+              </div>
+            )}
+          </UserMFAManagement.FactorList>
+        </UserMFAManagement.Factor>
+      )
+    }
+  </UserMFAManagement.Factors>
+</UserMFAManagement.Root>`}
+              language="tsx"
+              title="A custom header, a host banner and a custom enrolled row"
+            />
+            <p className="text-gray-600 mt-4 text-sm">
+              <code>EnrolledFactorName</code> shows the phone number, the email or the factor title
+              of the authenticator, and <code>DeleteAction</code> is described by it, so screen
+              readers say which authenticator a remove button acts on. Render it in every custom
+              row. Host components inside <code>Root</code> can read the same data with{' '}
+              <code>useUserMFAManagementContext()</code>, <code>useUserMFAFactorContext()</code> and{' '}
+              <code>useUserMFAEnrolledFactorContext()</code>.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">Parts</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full border border-gray-200 rounded-lg">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Part
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      What it is
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 text-sm">
+                  {[
+                    ['Root', 'Owns data, state, telemetry and the enroll and delete dialogs.'],
+                    [
+                      'DefaultLayout',
+                      'The layout of the drop-in component. Takes enrollAction and renderFactor.',
+                    ],
+                    [
+                      'Header, HeaderContent, Title, Description, HeaderActions',
+                      'Page header. Title and Description show the translated text unless you pass children.',
+                    ],
+                    [
+                      'Factors',
+                      'One entry per visible factor type. Shows the loading state. Its child is a function of the factor type.',
+                    ],
+                    [
+                      'EmptyState',
+                      'Message shown when showActiveOnly is set and nothing is enrolled.',
+                    ],
+                    [
+                      'Factor, FactorHeader, FactorTitle, FactorStatus, FactorDescription, FactorActions',
+                      'One factor card and its header.',
+                    ],
+                    [
+                      'EnrollAction',
+                      'Starts enrollment of the current factor. Hidden when readOnly, disabled by disableEnroll or a disabled factor.',
+                    ],
+                    [
+                      'FactorList',
+                      'Enrolled authenticators of the current factor. Pass a function to draw each row yourself.',
+                    ],
+                    [
+                      'EnrolledFactorName, DeleteAction',
+                      'For custom rows: the authenticator name, and removal with the confirmation dialog. Hidden when readOnly.',
+                    ],
+                  ].map(([part, description]) => (
+                    <tr key={part}>
+                      <td className="px-4 py-2 text-gray-700 align-top">
+                        <code>{part}</code>
+                      </td>
+                      <td className="px-4 py-2 text-gray-700">{description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-medium mb-4">Level 4: headless</h3>
+            <p className="text-gray-600 mb-4">
+              <code>useUserMFAModel()</code> returns the data, the enroll and delete flow state, the
+              flags and a prop getter for each factor and each enrolled authenticator. You own the
+              markup, the loading and error states and the dialogs.
+            </p>
+            <CodeBlock
+              code={`import { useUserMFAModel } from '@auth0/universal-components-react';
+
+function HostMFA() {
+  const model = useUserMFAModel({ readOnly });
+
+  return model.visibleFactorTypes.map((factorType) => {
+    const { enrollAction } = model.getFactorProps(factorType);
+    return enrollAction.hidden ? null : (
+      <HostButton
+        key={factorType}
+        onClick={enrollAction.onClick}
+        disabled={enrollAction.disabled}
+        loading={enrollAction.pending}
+      />
+    );
+  });
+}`}
+              language="tsx"
+              title="Headless usage"
+            />
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+              <p className="text-yellow-800 text-sm">
+                A headless host must honor the whole model: respect <code>hidden</code>,{' '}
+                <code>disabled</code> and <code>pending</code> on every action, render the enroll
+                flow from <code>isEnrollDialogOpen</code> and <code>enrollmentPhase</code>, and
+                render a confirmation from <code>isDeleteDialogOpen</code> and{' '}
+                <code>factorToDelete</code> before calling <code>handleConfirmDelete</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Advanced Configuration */}
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold text-gray-900">Advanced Configuration</h2>

@@ -212,6 +212,140 @@ describe('UserMFAManagement composition', () => {
       );
     });
 
+    it('describes each DeleteAction by its authenticator', async () => {
+      // The API returns the number in `phone_number`; core maps it to the display name.
+      const firstPhone = {
+        ...createMockAuthenticator({ id: 'auth_phone_1', type: 'phone', enrolled: true }),
+        phone_number: '+15550000001',
+      };
+      const secondPhone = {
+        ...createMockAuthenticator({ id: 'auth_phone_2', type: 'phone', enrolled: true }),
+        phone_number: '+15550000002',
+      };
+      api.authenticationMethods.list = vi
+        .fn()
+        .mockResolvedValue(createMockAuthenticationMethodsResponse([firstPhone, secondPhone]));
+      renderWithProviders(
+        <UserMFAManagement.Root>
+          <UserMFAManagement.Factors>
+            {() => (
+              <UserMFAManagement.Factor>
+                <UserMFAManagement.FactorList>
+                  {() => (
+                    <div>
+                      <UserMFAManagement.EnrolledFactorName />
+                      <UserMFAManagement.DeleteAction render={<button>Remove</button>} />
+                    </div>
+                  )}
+                </UserMFAManagement.FactorList>
+              </UserMFAManagement.Factor>
+            )}
+          </UserMFAManagement.Factors>
+        </UserMFAManagement.Root>,
+      );
+
+      const [first, second] = await screen.findAllByRole('button', { name: 'Remove' });
+      expect(first).toHaveAccessibleDescription('+15550000001');
+      expect(second).toHaveAccessibleDescription('+15550000002');
+    });
+
+    it('keeps the id of EnrolledFactorName when its text is replaced', async () => {
+      renderWithProviders(
+        <UserMFAManagement.Root>
+          <UserMFAManagement.Factors>
+            {() => (
+              <UserMFAManagement.Factor>
+                <UserMFAManagement.FactorList>
+                  {() => (
+                    <div>
+                      <UserMFAManagement.EnrolledFactorName>
+                        My authenticator
+                      </UserMFAManagement.EnrolledFactorName>
+                      <UserMFAManagement.DeleteAction render={<button>Remove</button>} />
+                    </div>
+                  )}
+                </UserMFAManagement.FactorList>
+              </UserMFAManagement.Factor>
+            )}
+          </UserMFAManagement.Factors>
+        </UserMFAManagement.Root>,
+      );
+
+      expect(await screen.findByRole('button', { name: 'Remove' })).toHaveAccessibleDescription(
+        'My authenticator',
+      );
+    });
+
+    it('gives host rows the label of each authenticator', async () => {
+      const email = {
+        ...createMockAuthenticator({ id: 'auth_email_1', type: 'email', enrolled: true }),
+        email: 'user@example.com',
+      };
+      api.authenticationMethods.list = vi
+        .fn()
+        .mockResolvedValue(
+          createMockAuthenticationMethodsResponse([
+            createMockAuthenticator({ id: 'auth_totp_1', type: 'totp', enrolled: true }),
+            email,
+          ]),
+        );
+      function RowLabel() {
+        const { label, factorType } = useUserMFAEnrolledFactorContext();
+        return <li data-factor={factorType}>{label}</li>;
+      }
+      renderWithProviders(
+        <UserMFAManagement.Root>
+          <UserMFAManagement.Factors>
+            {() => (
+              <UserMFAManagement.Factor>
+                <UserMFAManagement.FactorList>{() => <RowLabel />}</UserMFAManagement.FactorList>
+              </UserMFAManagement.Factor>
+            )}
+          </UserMFAManagement.Factors>
+        </UserMFAManagement.Root>,
+      );
+
+      expect(await screen.findByText('user@example.com')).toHaveAttribute('data-factor', 'email');
+      expect(screen.getByText('factors.totp.title', { selector: 'li' })).toHaveAttribute(
+        'data-factor',
+        'totp',
+      );
+    });
+
+    it('passes pending state to a function render of DeleteAction while deleting', async () => {
+      api.authenticationMethods.delete = vi.fn().mockReturnValue(new Promise(() => {}));
+      const user = userEvent.setup();
+      renderWithProviders(
+        <UserMFAManagement.Root>
+          <UserMFAManagement.Factors>
+            {() => (
+              <UserMFAManagement.Factor>
+                <UserMFAManagement.FactorList>
+                  {() => (
+                    <UserMFAManagement.DeleteAction
+                      render={(props, state) => (
+                        <button {...props}>{state.pending ? 'Removing…' : 'Remove'}</button>
+                      )}
+                    />
+                  )}
+                </UserMFAManagement.FactorList>
+              </UserMFAManagement.Factor>
+            )}
+          </UserMFAManagement.Factors>
+        </UserMFAManagement.Root>,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'Remove' }));
+      const dialog = await screen.findByRole('dialog');
+      await user.click(
+        within(dialog).getByRole('button', { name: 'actions.confirm_button_label' }),
+      );
+
+      const removing = await screen.findByRole('button', { name: 'Removing…', hidden: true });
+      expect(removing).toBeDisabled();
+      expect(removing).toHaveAttribute('aria-busy', 'true');
+    });
+
     it('hides DeleteAction when readOnly and disables it when disableDelete', async () => {
       const layout = (
         <UserMFAManagement.Factors>

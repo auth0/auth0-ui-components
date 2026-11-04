@@ -15,6 +15,7 @@ import * as React from 'react';
 import { FactorDeleteModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-delete/factor-delete-modal';
 import { EnrollFactorModal } from '@/components/auth0/my-account/shared/user-mfa-management/factor-enrollment/enroll-factor-modal';
 import { MFAEmptyState } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/empty-state';
+import { getAuthenticatorLabel } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factor-label';
 import { FactorsList } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list';
 import {
   CompoundHeader,
@@ -43,9 +44,10 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import { createCompoundContext } from '@/lib/composability/create-compound-context';
 import { getButtonContract, useRender } from '@/lib/composability/use-render';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type {
-  MFAEnrolledFactorModel,
   MFAFactorModel,
+  UserMFAEnrolledFactorContextValue,
   UserMFAManagementActionProps,
   UserMFAManagementContextValue,
   UserMFAManagementDefaultLayoutProps,
@@ -76,7 +78,7 @@ const [FactorProvider, useFactorContext] = createCompoundContext<MFAFactorModel>
 );
 
 const [EnrolledFactorProvider, useEnrolledFactorContext] =
-  createCompoundContext<MFAEnrolledFactorModel>(COMPONENT, 'FactorList');
+  createCompoundContext<UserMFAEnrolledFactorContextValue>(COMPONENT, 'FactorList');
 
 /**
  * Reads the MFA management context. Use it in host components rendered inside
@@ -98,9 +100,10 @@ function useUserMFAFactorContext(): MFAFactorModel {
 /**
  * Reads the current enrolled authenticator inside a `UserMFAManagement.FactorList`
  * render function.
- * @returns The enrolled factor model, see {@link MFAEnrolledFactorModel}.
+ * @returns The enrolled factor, its label and delete action, see
+ * {@link UserMFAEnrolledFactorContextValue}.
  */
-function useUserMFAEnrolledFactorContext(): MFAEnrolledFactorModel {
+function useUserMFAEnrolledFactorContext(): UserMFAEnrolledFactorContextValue {
   return useEnrolledFactorContext('useUserMFAEnrolledFactorContext');
 }
 
@@ -602,20 +605,68 @@ function FactorList({ children, className }: UserMFAManagementFactorListProps) {
   return (
     <CardContent className={cn('space-y-2', className)}>
       {activeFactors.map((factor: Authenticator) => (
-        <EnrolledFactorProvider
-          key={factor.id}
-          value={model.getEnrolledFactorProps(factor, factorType)}
-        >
+        <EnrolledFactorScope key={factor.id} factor={factor} factorType={factorType}>
           {children(factor)}
-        </EnrolledFactorProvider>
+        </EnrolledFactorScope>
       ))}
     </CardContent>
   );
 }
 
 /**
+ * Provides one enrolled authenticator's context.
+ * @param props - Authenticator, factor type and row content.
+ * @param props.factor - The enrolled authenticator.
+ * @param props.factorType - Factor type of the authenticator.
+ * @param props.children - Row content.
+ * @returns Enrolled factor context provider.
+ * @internal
+ */
+function EnrolledFactorScope({
+  factor,
+  factorType,
+  children,
+}: {
+  factor: Authenticator;
+  factorType: MFAType;
+  children: React.ReactNode;
+}) {
+  const { model, customMessages } = useMFAContext('FactorList');
+  const { t } = useTranslator('user_mfa_management', customMessages);
+  const labelId = useId();
+  const label = getAuthenticatorLabel(factor, factorType, t);
+
+  return (
+    <EnrolledFactorProvider
+      value={{ ...model.getEnrolledFactorProps(factor, factorType), label, labelId }}
+    >
+      {children}
+    </EnrolledFactorProvider>
+  );
+}
+
+/**
+ * Name of the current enrolled authenticator, for `FactorList` render functions:
+ * the phone number, the email or the factor title. `DeleteAction` is described by it,
+ * so screen readers say which authenticator a remove button acts on. Children replace
+ * the text and keep the id.
+ *
+ * @param props - {@link UserMFAManagementPartProps}
+ * @returns Authenticator name element.
+ */
+function EnrolledFactorName({ children, className }: UserMFAManagementPartProps) {
+  const { label, labelId } = useEnrolledFactorContext('EnrolledFactorName');
+  return (
+    <span id={labelId} className={cn('font-medium text-body text-foreground truncate', className)}>
+      {children ?? label}
+    </span>
+  );
+}
+
+/**
  * Removes the current enrolled authenticator, for `FactorList` render functions.
- * Opens the confirmation dialog mounted by `Root`. Hidden when `readOnly`.
+ * Opens the confirmation dialog mounted by `Root`. Hidden when `readOnly`. Described by
+ * `EnrolledFactorName` when the row renders one.
  *
  * @param props - {@link UserMFAManagementActionProps}
  * @returns Delete action element or null.
@@ -623,7 +674,7 @@ function FactorList({ children, className }: UserMFAManagementFactorListProps) {
 const DeleteAction = React.forwardRef<HTMLButtonElement, UserMFAManagementActionProps>(
   function DeleteAction({ render, children, className }, ref) {
     const { customMessages } = useMFAContext('DeleteAction');
-    const { deleteAction } = useEnrolledFactorContext('DeleteAction');
+    const { deleteAction, labelId } = useEnrolledFactorContext('DeleteAction');
     const { t } = useTranslator('user_mfa_management', customMessages);
 
     const element = useRender({
@@ -635,6 +686,7 @@ const DeleteAction = React.forwardRef<HTMLButtonElement, UserMFAManagementAction
       },
       props: {
         ...getButtonContract(deleteAction),
+        'aria-describedby': labelId,
         className,
       },
       defaultRender: (props) => (
@@ -794,6 +846,7 @@ const UserMFAManagement = Object.assign(UserMFAManagementDefault, {
   FactorActions,
   EnrollAction,
   FactorList,
+  EnrolledFactorName,
   DeleteAction,
 });
 

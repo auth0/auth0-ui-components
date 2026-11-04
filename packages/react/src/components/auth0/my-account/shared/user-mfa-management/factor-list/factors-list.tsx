@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 
+import { getAuthenticatorLabel } from '@/components/auth0/my-account/shared/user-mfa-management/factor-list/factor-label';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   DropdownMenu,
@@ -34,8 +35,6 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { formatDate } from '@/lib/utils/date';
 import type { FactorsListProps } from '@/types/my-account/user-mfa-management/factors-list-types';
-
-const FACTOR_TITLE_KEY_TYPES = new Set([FACTOR_TYPE_TOTP, FACTOR_TYPE_PUSH_NOTIFICATION]);
 
 const FACTOR_ICONS = {
   [FACTOR_TYPE_PHONE]: Smartphone,
@@ -81,12 +80,6 @@ export function FactorsList({
   const { isDarkMode } = useTheme();
   const IconComponent = FACTOR_ICONS[factorType as keyof typeof FACTOR_ICONS];
 
-  const getFactorLabel = (factor: { name?: string; id: string }) => {
-    if (factorType === FACTOR_TYPE_RECOVERY_CODE) return t('factors.recovery-code.item_label');
-    if (FACTOR_TITLE_KEY_TYPES.has(factorType)) return t(`factors.${factorType}.title`);
-    return factor.name || factor.id;
-  };
-
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
@@ -95,7 +88,7 @@ export function FactorsList({
   return (
     <div className="space-y-2" style={currentStyles?.variables}>
       {factors.map((factor) => {
-        const label = getFactorLabel(factor);
+        const label = getAuthenticatorLabel(factor, factorType, t);
         return (
           <Card
             key={factor.id}
