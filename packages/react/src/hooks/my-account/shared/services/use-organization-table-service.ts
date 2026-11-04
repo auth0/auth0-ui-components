@@ -9,6 +9,8 @@ import { userOrganizationQueryKeys } from '@auth0/universal-components-core';
 import { useQuery } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
   UseOrganizationTableServiceOptions,
@@ -28,6 +30,7 @@ export function useOrganizationTableService({
   paginationParams,
 }: UseOrganizationTableServiceOptions = {}): UseOrganizationTableServiceResult {
   const { coreClient } = useCoreClient();
+  const { t: tCommon } = useTranslator('common');
 
   const organizationsQuery = useQuery({
     queryKey: userOrganizationQueryKeys.list({
@@ -47,6 +50,17 @@ export function useOrganizationTableService({
     enabled: !!coreClient,
     ...keepPreviousDataOption,
   });
+
+  // Only a failed refresh needs a toast; a failed first load already shows the error card. The
+  // `isFetching` check re-arms it, since a failed query stays in error until a refetch succeeds.
+  const hasRows = (organizationsQuery.data?.organizations.length ?? 0) > 0;
+  useQueryErrorToast(
+    {
+      isError: organizationsQuery.isError && hasRows && !organizationsQuery.isFetching,
+      error: organizationsQuery.error,
+    },
+    tCommon('error.generic'),
+  );
 
   return {
     organizations: organizationsQuery.data?.organizations ?? [],

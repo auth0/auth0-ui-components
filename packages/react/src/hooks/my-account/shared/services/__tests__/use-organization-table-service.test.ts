@@ -1,20 +1,24 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useOrganizationTableService } from '@/hooks/my-account/shared/services/use-organization-table-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import * as useErrorHandlerModule from '@/hooks/shared/use-error-handler';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import {
   createMockUserOrganizations,
   createMockUserOrganizationsPage,
 } from '@/tests/utils/__mocks__/my-account/organization-management/organization-table.mocks';
 import { createQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore } from '@/tests/utils/test-setup';
+import { setupMockUseErrorHandler, setupMockUseTranslator } from '@/tests/utils/test-utilities';
 
 const { initMockCoreClient } = mockCore();
 
 describe('useOrganizationTableService', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
   let listOrganizations: ReturnType<typeof vi.fn>;
+  let mockHandleError: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     mockCoreClient = initMockCoreClient();
@@ -24,6 +28,8 @@ describe('useOrganizationTableService', () => {
     vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
       coreClient: mockCoreClient,
     });
+    setupMockUseTranslator(useTranslatorModule);
+    mockHandleError = setupMockUseErrorHandler(useErrorHandlerModule);
   });
 
   const render = (options: Parameters<typeof useOrganizationTableService>[0] = {}) => {
@@ -87,6 +93,57 @@ describe('useOrganizationTableService', () => {
     });
   });
 
+  describe('when a refresh fails', () => {
+    const loadFirstPage = async () => {
+      const view = render();
+      await waitFor(() => expect(view.result.current.isLoading).toBe(false));
+      return view;
+    };
+
+    it('reports the error and keeps the rows that were loaded', async () => {
+      const error = new Error('Network error');
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(createMockUserOrganizations()))
+        .mockRejectedValueOnce(error);
+      const { result } = await loadFirstPage();
+
+      act(() => {
+        result.current.refetch();
+      });
+
+      await waitFor(() =>
+        expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'error.generic' }),
+      );
+      expect(result.current.organizations).toHaveLength(3);
+    });
+
+    it('reports each failed refresh, not only the first', async () => {
+      const firstError = new Error('First failure');
+      const secondError = new Error('Second failure');
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(createMockUserOrganizations()))
+        .mockRejectedValueOnce(firstError)
+        // Delayed like a real request: an instant rejection never renders the in-flight state.
+        .mockImplementationOnce(
+          () => new Promise((_, reject) => setTimeout(() => reject(secondError), 20)),
+        );
+      const { result } = await loadFirstPage();
+
+      act(() => {
+        result.current.refetch();
+      });
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledTimes(1));
+
+      act(() => {
+        result.current.refetch();
+      });
+      await waitFor(() => expect(mockHandleError).toHaveBeenCalledTimes(2));
+      expect(mockHandleError).toHaveBeenLastCalledWith(secondError, {
+        fallbackMessage: 'error.generic',
+      });
+    });
+  });
+
   describe('when the list fails to load', () => {
     it('reports the error without data', async () => {
       listOrganizations.mockRejectedValue(new Error('Network error'));
@@ -95,6 +152,15 @@ describe('useOrganizationTableService', () => {
 
       await waitFor(() => expect(result.current.isError).toBe(true));
       expect(result.current.organizations).toEqual([]);
+    });
+
+    it('leaves it to the error card, with no toast, when there are no rows to keep', async () => {
+      listOrganizations.mockRejectedValue(new Error('Network error'));
+
+      const { result } = render();
+
+      await waitFor(() => expect(result.current.isError).toBe(true));
+      expect(mockHandleError).not.toHaveBeenCalled();
     });
   });
 });
