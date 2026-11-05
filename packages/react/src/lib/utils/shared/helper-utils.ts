@@ -97,3 +97,25 @@ export function getRelativeTimeLabel(fromTime: number, t: EnhancedTranslationFun
   const diffInYears = Math.floor(totalDays / 365);
   return join(unitLabel(diffInYears, 'year', 'years', 'year', 'years'));
 }
+
+/**
+ * Opens an https URL in a new tab, without giving the new page access to this window or sending it
+ * this page's URL as the referrer.
+ * URLs that are not https (for example `javascript:`) are never opened.
+ *
+ * @param url - URL to open.
+ * @returns `false` if the URL is not a valid https URL and was not opened; otherwise `true`, even if
+ * the browser blocked the new tab.
+ */
+export function openHttpsUrlInNewTab(url: string): boolean {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return false;
+  }
+  if (parsed.protocol !== 'https:') return false;
+
+  window.open(parsed.href, '_blank', 'noopener,noreferrer');
+  return true;
+}

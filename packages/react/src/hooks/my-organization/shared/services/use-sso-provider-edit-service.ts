@@ -6,6 +6,7 @@
  */
 
 import {
+  PROVISIONING_METHODS,
   SsoProviderMappers,
   ssoProviderQueryKeys,
   type IdpKnownResponse,
@@ -58,7 +59,7 @@ export function useSsoProviderEditService(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
-  const { idpConfig } = useIdpConfig();
+  const { idpConfig, isLoadingIdpConfig, getProvisioningMethods } = useIdpConfig();
 
   /**
    * Provider query - fetches the identity provider details.
@@ -98,7 +99,17 @@ export function useSsoProviderEditService(
         throw error;
       }
     },
-    enabled: !!coreClient && !!idpId && !skipProvisioningFetch,
+    // Google Workspace providers use directory provisioning instead, so wait until the provider and
+    // IdP config are known before fetching it here.
+    enabled:
+      !!coreClient &&
+      !!idpId &&
+      !skipProvisioningFetch &&
+      !!providerQuery.data &&
+      !isLoadingIdpConfig &&
+      !getProvisioningMethods(providerQuery.data.strategy).includes(
+        PROVISIONING_METHODS.GOOGLE_WORKSPACE,
+      ),
   });
 
   useQueryErrorToast(providerQuery, t('general_error'));

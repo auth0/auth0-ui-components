@@ -2,11 +2,12 @@
 
 'use client';
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { PROVISIONING_METHODS, getComponentStyles } from '@auth0/universal-components-core';
 import { useState, useMemo } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
+import { SsoProvisioningGoogleSyncPanel } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
@@ -141,6 +142,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    provisioningMethods,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     showCrossAppAccess,
@@ -284,27 +286,37 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
           {showProvisioningTab && (
             <TabsContent value="provisioning">
-              <SsoProvisioningTab
-                provider={provider!}
-                readOnly={readOnly}
-                isProvisioningUpdating={isProvisioningUpdating}
-                isProvisioningDeleting={isProvisioningDeleting}
-                isScimTokensLoading={isScimTokensLoading}
-                isScimTokenCreating={isScimTokenCreating}
-                isScimTokenDeleting={isScimTokenDeleting}
-                hideAttributeMappings={hideAttributeMappings}
-                hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
-                onAttributeSync={syncProvisioningAttributes}
-                isSyncingAttributes={isProvisioningAttributesSyncing}
-                onCreateProvisioning={createProvisioning}
-                onDeleteProvisioning={deleteProvisioning}
-                onListScimTokens={listScimTokens}
-                onCreateScimToken={createScimToken}
-                onDeleteScimToken={deleteScimToken}
-                customMessages={customMessages?.tabs?.provisioning?.content}
-                styling={styling}
-                permissions={permissions}
-              />
+              {provisioningMethods.includes(PROVISIONING_METHODS.GOOGLE_WORKSPACE) ? (
+                <SsoProvisioningGoogleSyncPanel
+                  provider={provider!}
+                  permissions={permissions}
+                  readOnly={readOnly}
+                  customMessages={customMessages?.tabs?.provisioning?.content?.google_workspace}
+                  styling={styling}
+                />
+              ) : (
+                <SsoProvisioningTab
+                  provider={provider!}
+                  readOnly={readOnly}
+                  isProvisioningUpdating={isProvisioningUpdating}
+                  isProvisioningDeleting={isProvisioningDeleting}
+                  isScimTokensLoading={isScimTokensLoading}
+                  isScimTokenCreating={isScimTokenCreating}
+                  isScimTokenDeleting={isScimTokenDeleting}
+                  hideAttributeMappings={hideAttributeMappings}
+                  hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+                  onAttributeSync={syncProvisioningAttributes}
+                  isSyncingAttributes={isProvisioningAttributesSyncing}
+                  onCreateProvisioning={createProvisioning}
+                  onDeleteProvisioning={deleteProvisioning}
+                  onListScimTokens={listScimTokens}
+                  onCreateScimToken={createScimToken}
+                  onDeleteScimToken={deleteScimToken}
+                  customMessages={customMessages?.tabs?.provisioning?.content}
+                  styling={styling}
+                  permissions={permissions}
+                />
+              )}
             </TabsContent>
           )}
 

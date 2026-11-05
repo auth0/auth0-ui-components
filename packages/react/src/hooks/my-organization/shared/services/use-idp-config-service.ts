@@ -4,9 +4,11 @@
  */
 
 import {
+  PROVISIONING_METHODS,
   hasApiErrorBody,
   idpConfigQueryKeys,
   type GetIdpConfigurationResponseContent,
+  type IdentityProvidersConfigProvisioningMethod,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
   type CrossAppAccessResourceAppConfig,
@@ -32,6 +34,9 @@ const STRATEGY_TO_CONFIG_KEY: Record<
   samlp: 'samlp',
   waad: 'waad',
 };
+
+const SUPPORTED_PROVISIONING_METHODS: IdentityProvidersConfigProvisioningMethod[] =
+  Object.values(PROVISIONING_METHODS);
 
 /**
  * Hook for fetching IDP configuration and provisioning settings.
@@ -79,8 +84,15 @@ export function useIdpConfig(): UseConfigIdpResult {
   const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean =>
     getStrategyFor(strategy)?.enabled_features.includes('provisioning') ?? false;
 
+  const getProvisioningMethods = (
+    strategy: IdpStrategy | undefined,
+  ): IdentityProvidersConfigProvisioningMethod[] =>
+    getStrategyFor(strategy)?.provisioning_methods ?? [];
+
   const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean =>
-    getStrategyFor(strategy)?.provisioning_methods.includes('scim') ?? false;
+    getProvisioningMethods(strategy).some((method) =>
+      SUPPORTED_PROVISIONING_METHODS.includes(method),
+    );
 
   const getCrossAppAccessConfig = (
     strategy: IdpStrategy | undefined,
@@ -116,6 +128,7 @@ export function useIdpConfig(): UseConfigIdpResult {
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    getProvisioningMethods,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
     getCrossAppAccessDefaultValue,
