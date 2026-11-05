@@ -1,5 +1,5 @@
 import type { ComponentAction, OrganizationPrivate } from '@auth0/universal-components-core';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
@@ -733,6 +733,110 @@ describe('OrganizationDetailsEdit', () => {
         await waitForComponentToLoad();
 
         expect(screen.getByRole('button', { name: 'Remove organization' })).toBeInTheDocument();
+      });
+
+      it('deletes the organization and calls deleteAction.onAfter', async () => {
+        const user = userEvent.setup();
+        const onAfter = vi.fn();
+        const deleteOrganization = mockCoreClient.getMyOrganizationApiClient().organization
+          .delete as ReturnType<typeof vi.fn>;
+        deleteOrganization.mockResolvedValue(undefined);
+
+        renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter } })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+        await user.click(screen.getByRole('button', { name: 'delete_button_label' }));
+        const dialog = screen.getByRole('dialog');
+        await user.type(
+          within(dialog).getByLabelText('organization_name_field_label'),
+          mockOrganization.name,
+        );
+        await user.click(within(dialog).getByRole('button', { name: 'delete_button_label' }));
+
+        await waitFor(() => {
+          expect(onAfter).toHaveBeenCalledWith(
+            expect.objectContaining({ name: mockOrganization.name }),
+          );
+        });
+        expect(deleteOrganization).toHaveBeenCalledTimes(1);
+      });
+
+      it('disables delete when readOnly is true', async () => {
+        renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({
+              deleteAction: { onAfter: vi.fn() },
+              readOnly: true,
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+      });
+
+      it('applies the OrganizationDelete-root class to the delete section', async () => {
+        const { container } = renderWithProviders(
+          <OrganizationDetailsEdit
+            {...createMockOrganizationDetailsEditProps({
+              deleteAction: { onAfter: vi.fn() },
+              styling: {
+                variables: { common: {}, light: {}, dark: {} },
+                classes: { 'OrganizationDelete-root': 'custom-delete-root' },
+              },
+            })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(container.querySelector('.custom-delete-root')).toBeInTheDocument();
+      });
+
+      describe('when the organization deletion behavior', () => {
+        const mockDeletionBehavior = (behavior: string) => {
+          (
+            mockCoreClient.getMyOrganizationApiClient().organization.configuration
+              .get as ReturnType<typeof vi.fn>
+          ).mockResolvedValue({
+            allowed_strategies: ['samlp'],
+            connection_deletion_behavior: 'allow',
+            organization_deletion_behavior: behavior,
+          });
+        };
+
+        it('is not one that permits deleting, disables delete', async () => {
+          mockDeletionBehavior('deny');
+
+          renderWithProviders(
+            <OrganizationDetailsEdit
+              {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter: vi.fn() } })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+        });
+
+        it('permits deleting, enables delete', async () => {
+          mockDeletionBehavior('allow_if_empty');
+
+          renderWithProviders(
+            <OrganizationDetailsEdit
+              {...createMockOrganizationDetailsEditProps({ deleteAction: { onAfter: vi.fn() } })}
+            />,
+          );
+
+          await waitForComponentToLoad();
+
+          expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
+        });
       });
     });
   });

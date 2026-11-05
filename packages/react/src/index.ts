@@ -36,10 +36,6 @@ export {
   OrganizationDetailsEdit,
   OrganizationDetailsEditView,
 } from './components/auth0/my-organization/organization-details-edit';
-export {
-  OrganizationDelete,
-  OrganizationDeleteView,
-} from './components/auth0/my-organization/organization-delete';
 
 // Providers
 export { PermissionProvider } from './providers/permission-provider';

@@ -8,7 +8,6 @@ import type {
   ComponentStyling,
   OrganizationDeleteMessages,
   OrganizationPrivate,
-  SharedComponentProps,
 } from '@auth0/universal-components-core';
 
 /** CSS classes for OrganizationDelete. */
@@ -23,17 +22,11 @@ export interface OrganizationDeleteClasses {
  */
 export interface OrganizationDeleteAction extends ComponentAction<OrganizationPrivate> {}
 
-/** Props for the OrganizationDelete block component. */
-export interface OrganizationDeleteProps
-  extends SharedComponentProps<OrganizationDeleteMessages, OrganizationDeleteClasses> {
+export interface UseOrganizationDeleteOptions {
   /** Lifecycle hooks for the delete operation. Use `onAfter` to redirect after deletion. */
   deleteAction?: OrganizationDeleteAction;
-}
-
-export interface UseOrganizationDeleteOptions {
-  deleteAction?: OrganizationDeleteProps['deleteAction'];
-  readOnly?: OrganizationDeleteProps['readOnly'];
-  customMessages?: OrganizationDeleteProps['customMessages'];
+  readOnly?: boolean;
+  customMessages?: Partial<OrganizationDeleteMessages>;
 }
 
 export type UseOrganizationDeleteServiceOptions = Pick<
@@ -53,10 +46,10 @@ export interface UseOrganizationDeleteResult {
   deleteOrganization: () => Promise<boolean>;
 }
 
-/** Props for the delete section rendered inside OrganizationDelete and OrganizationDetailsEdit. */
+/** Props for the delete section rendered inside OrganizationDetailsEdit. */
 export interface OrganizationDeleteSectionProps {
   organization: OrganizationPrivate;
-  customMessages?: OrganizationDeleteProps['customMessages'];
+  customMessages?: Partial<OrganizationDeleteMessages>;
   styling?: ComponentStyling<OrganizationDeleteClasses>;
   readOnly?: boolean;
   canDelete: boolean;
@@ -71,11 +64,7 @@ export interface OrganizationDeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
   organization: OrganizationPrivate;
-  customMessages?: OrganizationDeleteProps['customMessages'];
+  customMessages?: Partial<OrganizationDeleteMessages>;
   isLoading: boolean;
   onDelete: () => Promise<boolean>;
-}
-
-export interface OrganizationDeleteViewProps extends OrganizationDeleteSectionProps {
-  styling: ComponentStyling<OrganizationDeleteClasses>;
 }
