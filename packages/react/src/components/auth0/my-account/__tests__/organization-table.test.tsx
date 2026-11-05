@@ -255,6 +255,47 @@ describe('OrganizationTable', () => {
     });
   });
 
+  describe('when a later page fails to load', () => {
+    it('keeps Previous available so the user can go back', async () => {
+      const user = userEvent.setup();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockRejectedValueOnce(new Error('Network error'));
+
+      renderWithProviders(<OrganizationTable />);
+      await screen.findByText('Acme Corp.');
+
+      await user.click(screen.getByLabelText('Go to next page'));
+
+      expect(await screen.findByText('table.error_message')).toBeInTheDocument();
+      await user.click(screen.getByLabelText('Go to previous page'));
+
+      expect(await screen.findByText('Acme Corp.')).toBeInTheDocument();
+    });
+  });
+
+  describe('when refreshing an empty later page fails', () => {
+    it('keeps Previous available so the user can go back', async () => {
+      const user = userEvent.setup();
+      listOrganizations
+        .mockResolvedValueOnce(createMockUserOrganizationsPage(organizations, 'next_token'))
+        .mockResolvedValueOnce(createMockUserOrganizationsPage([]))
+        .mockRejectedValueOnce(new Error('Network error'));
+
+      renderWithProviders(<OrganizationTable />);
+      await screen.findByText('Acme Corp.');
+      await user.click(screen.getByLabelText('Go to next page'));
+      await screen.findByText('table.empty_message');
+
+      await user.click(screen.getByRole('button', { name: /refresh/i }));
+
+      expect(await screen.findByText('table.error_message')).toBeInTheDocument();
+      await user.click(screen.getByLabelText('Go to previous page'));
+
+      expect(await screen.findByText('Acme Corp.')).toBeInTheDocument();
+    });
+  });
+
   describe('when readOnly is true', () => {
     it('hides the create button and row actions, and ignores row clicks', async () => {
       const user = userEvent.setup();

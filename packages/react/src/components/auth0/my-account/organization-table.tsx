@@ -215,7 +215,7 @@ function OrganizationTableView({
         />
       )}
 
-      {!showError && (organizations.length > 0 || pagination.hasPreviousPage) && (
+      {(organizations.length > 0 || pagination.hasPreviousPage) && (
         <div className="mt-4">
           <DataPagination
             type="checkpoint"
