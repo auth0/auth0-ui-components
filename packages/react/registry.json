@@ -2320,6 +2320,16 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx"
@@ -2842,6 +2852,16 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",

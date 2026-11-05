@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type WaadConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Form,
@@ -50,6 +52,13 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
       onFormDirty,
       idpConfig,
       mode = 'create',
+      showThirdPartyAccess = false,
+      isThirdPartyAccessReadOnly = false,
+      isOrganizationBlocked = false,
+      showCrossAppAccess = false,
+      isCrossAppAccessReadOnly = false,
+      crossAppAccessDefaultValue,
+      styling,
     },
     ref,
   ) {
@@ -79,6 +88,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
         callback_url: waadData?.callback_url || callbackUrl,
         show_as_button: waadData?.show_as_button ?? false,
         assign_membership_on_login: waadData?.assign_membership_on_login ?? false,
+        ...getConnectionAccessDefaults(STRATEGIES.WAAD, waadData, crossAppAccessDefaultValue),
       },
     });
 
@@ -209,6 +219,13 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
             idpConfig={idpConfig}
             readOnly={readOnly}
             customMessages={customMessages}
+            strategy={STRATEGIES.WAAD}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            isOrganizationBlocked={isOrganizationBlocked}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            classes={styling?.classes}
           />
         </div>
       </Form>
