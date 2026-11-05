@@ -260,6 +260,70 @@ describe('SsoProviderTab', () => {
     });
   });
 
+  describe('test provider', () => {
+    describe('when provider is provided', () => {
+      it('should render the test provider section', () => {
+        renderWithProviders(<SsoProviderTab {...mockProps} />);
+
+        expect(screen.getByRole('button', { name: 'test_button_label' })).toBeEnabled();
+      });
+    });
+
+    describe('when hideTestProvider is true', () => {
+      it('should not render the test provider section', () => {
+        renderWithProviders(<SsoProviderTab {...mockProps} hideTestProvider />);
+
+        expect(screen.queryByRole('button', { name: 'test_button_label' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when provider is not provided', () => {
+      it('should not render the test provider section', () => {
+        renderWithProviders(<SsoProviderTab {...mockProps} provider={null} />);
+
+        expect(screen.queryByRole('button', { name: 'test_button_label' })).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when the test scopes are not granted', () => {
+      it('should disable the test button and explain why', async () => {
+        const user = userEvent.setup();
+        const props = {
+          ...mockProps,
+          permissions: createIdpPermissions([
+            'read:my_org:identity_providers',
+            'create:my_org:identity_providers_tests',
+          ]),
+        };
+        renderWithProviders(<SsoProviderTab {...props} />);
+
+        const button = screen.getByRole('button', { name: 'test_button_label' });
+        expect(button).toBeDisabled();
+
+        await user.hover(button.parentElement!);
+
+        await waitFor(() => {
+          expect(screen.getAllByText('error.forbidden').length).toBeGreaterThan(0);
+        });
+      });
+    });
+
+    describe('when readOnly is true', () => {
+      it('should disable the test button without the permission tooltip', () => {
+        const props = {
+          ...mockProps,
+          readOnly: true,
+          permissions: createIdpPermissions(['read:my_org:identity_providers']),
+        };
+        renderWithProviders(<SsoProviderTab {...props} />);
+
+        const button = screen.getByRole('button', { name: 'test_button_label' });
+        expect(button).toBeDisabled();
+        expect(button.closest('[aria-describedby]')).toBeNull();
+      });
+    });
+  });
+
   describe('attribute sync warning', () => {
     it('should render SsoProviderAttributeSyncAlert when hasSsoAttributeSyncWarning is true', () => {
       const props = { ...mockProps, hasSsoAttributeSyncWarning: true };

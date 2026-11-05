@@ -975,6 +975,27 @@
         }
       }
     },
+    "test_sso_provider": {
+      "title": "Test SSO",
+      "description": "Test the provider to ensure SSO setup is successful.",
+      "test_button_label": "Test Provider",
+      "overlay": {
+        "title": "Testing your identity provider",
+        "description": "Complete sign-in in the new window. This page will update automatically once the test completes.",
+        "trouble_text": "Having trouble with your identity provider?",
+        "retry_button_label": "Close and Retry",
+        "popup_blocked_text": "Your browser blocked the test window.",
+        "open_window_link_label": "Open test window"
+      },
+      "result": {
+        "success_title": "Test Successful",
+        "success_description": "Please review the user information below and confirm that the correct attributes are being passed.",
+        "copy_button_label": "Copy JSON",
+        "try_again_text": "Please try again.",
+        "expired_error": "The test expired before it completed.",
+        "timeout_error": "The test timed out before sign-in completed."
+      }
+    },
     "notifications": {
       "delete_success": "${providerName} has been deleted.",
       "remove_success": "${providerName} has been removed from ${organizationName}",
@@ -1007,7 +1028,8 @@
       "scim_token_delete_success": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
-      "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
+      "provisioning_attributes_sync_success": "The provisioning mappings have been updated.",
+      "test_provider_start_error": "There was an issue starting the provider test."
     }
   },
   "user_mfa_management": {

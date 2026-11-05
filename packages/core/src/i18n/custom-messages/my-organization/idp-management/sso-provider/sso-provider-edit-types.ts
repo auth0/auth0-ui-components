@@ -16,6 +16,7 @@ import type {
   SsoProvideDeleteMessages,
   SsoProvideRemoveMessages,
 } from './sso-provider-delete-types';
+import type { SsoProviderTestMessages } from './sso-provider-test-types';
 
 export interface SsoProviderEditMessages extends SharedMessages {
   header?: {
@@ -43,6 +44,7 @@ export interface SsoProviderTabMessages {
   attribute_sync_alert?: AttributeSyncAlertMessages;
   delete?: SsoProvideDeleteMessages;
   remove?: SsoProvideRemoveMessages;
+  test_provider?: SsoProviderTestMessages;
   details?: SsoProviderDetailsMessages;
   description?: string;
 }
@@ -100,6 +102,7 @@ export interface SsoProviderNotificationMessages {
   scim_token_delete_success?: string;
   sso_attributes_sync_success?: string;
   provisioning_attributes_sync_success?: string;
+  test_provider_start_error?: string;
 }
 
 interface AttributeMappingSectionMessages {

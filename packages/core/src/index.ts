@@ -41,6 +41,7 @@ export * from './i18n/custom-messages/my-organization/idp-management/sso-provide
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-table-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-test-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 // i18n custom messages - my-organization organization-management
