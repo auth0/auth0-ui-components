@@ -818,6 +818,63 @@
                   "label": "SCIMエンドポイントURL"
                 }
               }
+            },
+            "google_workspace": {
+              "header": {
+                "title": "プロビジョニング",
+                "description_disabled": "Google Workspace ディレクトリからユーザーを自動的に同期します。SCIM の手動設定は不要です。",
+                "description_enabled": "Google Workspace ディレクトリからユーザーを自動的に同期します。",
+                "continue_button_label": "Google で続行",
+                "retry_button_label": "再試行",
+                "status": {
+                  "granted": "許可済み",
+                  "failed": "完了できませんでした"
+                },
+                "provider_disabled_tooltip": "プロビジョニングを設定するにはプロバイダーを有効にしてください",
+                "access_level_required_tooltip": "Google Workspace に接続するには、組織へのフルアクセスが必要です",
+                "enable_tooltip": "トグルでプロビジョニングを有効にします",
+                "disable_tooltip": "トグルでプロビジョニングを無効にします"
+              },
+              "connection_info": {
+                "last_synced_label": "最終同期:"
+              },
+              "status_alert": {
+                "previously_disabled": "この接続のプロビジョニングは以前に無効化されました。Google Workspace の認可は保存されたままで、再度有効にすると再利用されます。",
+                "reused_authorization": "以前の Google Workspace の認可を再利用しています。この認可は Google で再確認されていません。プロビジョニングが無効だった間に認可が取り消された場合、次回の定期同期は通知なく失敗します。再確認するには <link>Google で続行</link> してください。"
+              },
+              "auto_sync": {
+                "title": "Google Workspace からユーザーを自動的に同期",
+                "description": "有効にすると、Auth0 は 30 分ごとに Google Workspace ディレクトリを自動的に同期します。無効にすると、再度有効にするまでユーザーは同期されません。手動で同期するには管理者にお問い合わせください。",
+                "enable_tooltip": "トグルで自動同期を有効にします",
+                "disable_tooltip": "トグルで自動同期を無効にします"
+              },
+              "error": {
+                "title": "Google で問題が発生していますか?",
+                "retry_button_label": "閉じて再試行"
+              },
+              "modals": {
+                "enable_auto_sync": {
+                  "title": "Google へのアクセスが許可されました。自動同期を有効にしますか?",
+                  "content": {
+                    "description_enabled": "有効にすると、Auth0 は 30 分ごとに Google Workspace ディレクトリを自動的に同期します。",
+                    "description_skip": "スキップした場合、自動同期を有効にするまでユーザーは同期されません。手動で同期するには管理者にお問い合わせください。"
+                  },
+                  "actions": {
+                    "dismiss_button_label": "後で",
+                    "confirm_button_label": "自動同期を有効にする"
+                  }
+                },
+                "disable": {
+                  "title": "プロビジョニングを無効にする",
+                  "content": {
+                    "description": "プロビジョニングを無効にしてもよろしいですか?プロビジョニング設定が削除され、ユーザーの同期が停止します。Google Workspace の認可は保存されたままで、後でプロビジョニングを再度有効にすると自動的に再利用されます。"
+                  },
+                  "actions": {
+                    "cancel_button_label": "キャンセル",
+                    "confirm_button_label": "無効にする"
+                  }
+                }
+              }
             }
           }
         },
@@ -978,7 +1035,14 @@
       "scim_token_delete_success": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました",
       "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
-      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
+      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。",
+      "google_workspace_provisioning": {
+        "connected_success": "Google Workspace へのアクセスが許可されました。",
+        "connected_with_auto_sync_success": "Google へのアクセスが許可され、自動同期が有効になりました。",
+        "connect_error": "Google の認可を完了できませんでした。もう一度お試しください。",
+        "auto_sync_enabled_success": "自動同期が有効になりました。",
+        "auto_sync_disabled_success": "自動同期が無効になりました。"
+      }
     }
   },
   "user_mfa_management": {
