@@ -38,8 +38,13 @@ export function useOrganizationDelete({
     [createPermissionResolver, readOnly],
   );
 
+  // The service falls back to an empty organization until it loads.
+  const isLoaded = !!service.organization.name && !isLoadingConfig;
   const canDelete =
-    permissions.canDeleteOrganization && shouldAllowOrganizationDeletion && !deleteAction?.disabled;
+    isLoaded &&
+    permissions.canDeleteOrganization &&
+    shouldAllowOrganizationDeletion &&
+    !deleteAction?.disabled;
   const permissionDenied = !readOnly && !permissions.canDeleteOrganization;
 
   const deleteOrganization = useCallback(

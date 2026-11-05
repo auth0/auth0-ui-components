@@ -1,3 +1,7 @@
+import {
+  OrganizationDetailsFactory,
+  type OrganizationPrivate,
+} from '@auth0/universal-components-core';
 import { act, renderHook } from '@testing-library/react';
 import { createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -9,6 +13,7 @@ import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/
 import type { UseOrganizationDeleteOptions } from '@/types/my-organization/organization-management/organization-delete-types';
 
 const mockOrganization = createMockOrganization();
+let mockServiceOrganization: OrganizationPrivate = mockOrganization;
 const mockServiceDelete = vi.fn();
 const mockUseConfig = vi.fn();
 
@@ -18,7 +23,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
 
 vi.mock('@/hooks/my-organization/shared/services/use-organization-delete-service', () => ({
   useOrganizationDeleteService: () => ({
-    organization: mockOrganization,
+    organization: mockServiceOrganization,
     isLoading: false,
     isDeleteLoading: false,
     deleteOrganization: mockServiceDelete,
@@ -38,6 +43,7 @@ const renderWithGranted = (permissions: string[], options: UseOrganizationDelete
 describe('useOrganizationDelete', () => {
   beforeEach(() => {
     mockServiceDelete.mockResolvedValue(true);
+    mockServiceOrganization = mockOrganization;
     mockUseConfig.mockReturnValue(createMockUseConfig());
   });
 
@@ -132,13 +138,43 @@ describe('useOrganizationDelete', () => {
     });
   });
 
-  describe('while the configuration loads', () => {
-    it('reports loading', () => {
-      mockUseConfig.mockReturnValue(createMockUseConfig({ isLoadingConfig: true }));
+  describe('while the organization has not loaded', () => {
+    it('blocks deletion and does not call the service', async () => {
+      mockServiceOrganization = OrganizationDetailsFactory.create();
 
       const { result } = renderWithGranted(['delete:my_org:organizations']);
 
+      expect(result.current.canDelete).toBe(false);
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockServiceDelete).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('while the configuration loads', () => {
+    beforeEach(() => {
+      mockUseConfig.mockReturnValue(createMockUseConfig({ isLoadingConfig: true }));
+    });
+
+    it('reports loading', () => {
+      const { result } = renderWithGranted(['delete:my_org:organizations']);
+
       expect(result.current.isLoading).toBe(true);
+    });
+
+    it('blocks deletion and does not call the service', async () => {
+      const { result } = renderWithGranted(['delete:my_org:organizations']);
+
+      expect(result.current.canDelete).toBe(false);
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockServiceDelete).not.toHaveBeenCalled();
     });
   });
 });
