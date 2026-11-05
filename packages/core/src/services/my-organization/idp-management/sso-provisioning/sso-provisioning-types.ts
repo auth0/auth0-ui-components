@@ -19,3 +19,6 @@ export type IdpProvisioningConfig = MyOrganization.IdpProvisioningConfig;
 export type IdpScimTokenBase = MyOrganization.IdpScimTokenBase;
 export type IdpProvisioningUserAttributeMapItem =
   MyOrganization.IdpProvisioningUserAttributeMapItem;
+export type DirectoryProvisioningConfig = MyOrganization.DirectoryProvisioningConfig;
+export type DirectoryProvisioningConsentStatus =
+  MyOrganization.DirectoryProvisioningConsentStatusEnum;
