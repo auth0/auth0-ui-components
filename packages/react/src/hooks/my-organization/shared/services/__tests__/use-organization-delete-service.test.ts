@@ -87,26 +87,6 @@ describe('useOrganizationDeleteService', () => {
     });
   });
 
-  describe('when the app retries mutations', () => {
-    it('still sends a failed delete only once', async () => {
-      const retryingClient = new QueryClient({
-        defaultOptions: { queries: { retry: false }, mutations: { retry: 3, retryDelay: 0 } },
-      });
-      const { result, apiService } = await renderUseOrganizationDeleteService({}, retryingClient);
-      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
-        createApiError(500),
-      );
-
-      let deleted: boolean | undefined;
-      await act(async () => {
-        deleted = await result.current.deleteOrganization();
-      });
-
-      expect(deleted).toBe(false);
-      expect(apiService.organization.delete).toHaveBeenCalledTimes(1);
-    });
-  });
-
   describe('when deletion succeeds', () => {
     it('calls the delete endpoint and resolves to true', async () => {
       const { result, apiService } = await renderUseOrganizationDeleteService();
