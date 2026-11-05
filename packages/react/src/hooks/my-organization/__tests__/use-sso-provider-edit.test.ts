@@ -16,12 +16,15 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
     isLoadingConfig: false,
   }),
 }));
+const idpConfigMock = vi.hoisted(() => ({ provisioningMethods: ['scim'] as string[] }));
+
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     idpConfig: {},
     isLoadingIdpConfig: false,
     isProvisioningEnabled: vi.fn(() => true),
-    isProvisioningMethodEnabled: vi.fn(() => true),
+    isProvisioningMethodEnabled: vi.fn(() => idpConfigMock.provisioningMethods.length > 0),
+    getProvisioningMethods: vi.fn(() => idpConfigMock.provisioningMethods),
     showCrossAppAccess: vi.fn(() => false),
     isCrossAppAccessReadOnly: vi.fn(() => true),
     getCrossAppAccessDefaultValue: vi.fn(() => undefined),
@@ -49,6 +52,7 @@ let mockServiceReturn = createMockSsoProviderEditServiceReturn({
 describe('useSsoProviderEdit - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    idpConfigMock.provisioningMethods = ['scim'];
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       updateProvider: mockUpdateProvider,
       enableProvider: mockEnableProvider,
@@ -82,7 +86,24 @@ describe('useSsoProviderEdit - logic behavior', () => {
     expect(result.current.idpConfig).toEqual({});
     expect(result.current.isLoadingIdpConfig).toBe(false);
     expect(result.current.showProvisioningTab).toBe(true);
+    expect(result.current.provisioningMethods).toEqual(['scim']);
     expect(typeof result.current.handleToggleProvider).toBe('function');
+  });
+
+  it('should return the Google Workspace provisioning method when the strategy supports it', () => {
+    idpConfigMock.provisioningMethods = ['google_workspace'];
+    const { result } = render();
+
+    expect(result.current.showProvisioningTab).toBe(true);
+    expect(result.current.provisioningMethods).toEqual(['google_workspace']);
+  });
+
+  it('should hide the provisioning tab without a provisioning method', () => {
+    idpConfigMock.provisioningMethods = [];
+    const { result } = render();
+
+    expect(result.current.showProvisioningTab).toBe(false);
+    expect(result.current.provisioningMethods).toEqual([]);
   });
 
   it('should call enableProvider with correct params on handleToggleProvider', async () => {
