@@ -892,6 +892,63 @@
                   "label": "SCIM Endpoint URL"
                 }
               }
+            },
+            "google_workspace": {
+              "header": {
+                "title": "Provisioning",
+                "description_disabled": "Sync users automatically from your Google Workspace directory. No manual SCIM configuration required.",
+                "description_enabled": "Sync users automatically from your Google Workspace directory.",
+                "continue_button_label": "Continue with Google",
+                "retry_button_label": "Retry",
+                "status": {
+                  "granted": "Granted",
+                  "failed": "Could not be completed"
+                },
+                "provider_disabled_tooltip": "Enable provider to set up provisioning",
+                "access_level_required_tooltip": "Full organization access is required to connect Google Workspace",
+                "enable_tooltip": "Toggle to enable provisioning",
+                "disable_tooltip": "Toggle to disable provisioning"
+              },
+              "connection_info": {
+                "last_synced_label": "Last synced:"
+              },
+              "status_alert": {
+                "previously_disabled": "Provisioning was previously disabled for this connection. Your Google Workspace authorization is still on file and will be reused if you re-enable.",
+                "reused_authorization": "Reusing your previous Google Workspace authorization. This wasn't re-verified with Google. If that authorization was revoked while provisioning was disabled, syncing will fail silently at the next scheduled sync. <link>Continue with Google</link> to re-verify."
+              },
+              "auto_sync": {
+                "title": "Automatically sync users from Google Workspace",
+                "description": "When enabled, Auth0 will automatically sync your Google Workspace directory every 30 minutes. When disabled, users won't be synced until this is turned back on. To sync manually, contact your admin.",
+                "enable_tooltip": "Toggle to enable automatic sync",
+                "disable_tooltip": "Toggle to disable automatic sync"
+              },
+              "error": {
+                "title": "Having trouble with Google?",
+                "retry_button_label": "Close and Retry"
+              },
+              "modals": {
+                "enable_auto_sync": {
+                  "title": "Google access granted. Turn on automatic sync?",
+                  "content": {
+                    "description_enabled": "When enabled, Auth0 will automatically sync your Google Workspace directory every 30 minutes.",
+                    "description_skip": "If you skip this, users won't be synced until automatic synchronization is enabled. To sync manually, contact your admin."
+                  },
+                  "actions": {
+                    "dismiss_button_label": "Not now",
+                    "confirm_button_label": "Enable auto sync"
+                  }
+                },
+                "disable": {
+                  "title": "Disable Provisioning",
+                  "content": {
+                    "description": "Are you sure you want to disable provisioning? This will delete your provisioning configuration and stop syncing users. Your Google Workspace authorization remains stored and will be reused automatically if you re-enable provisioning later."
+                  },
+                  "actions": {
+                    "cancel_button_label": "Cancel",
+                    "confirm_button_label": "Disable"
+                  }
+                }
+              }
             }
           }
         },
@@ -1068,7 +1125,14 @@
       "scim_token_delete_success": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
-      "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
+      "provisioning_attributes_sync_success": "The provisioning mappings have been updated.",
+      "google_workspace_provisioning": {
+        "connected_success": "Google Workspace access has been granted.",
+        "connected_with_auto_sync_success": "Google access granted and auto sync turned on.",
+        "connect_error": "Google authorization could not be completed. Please try again.",
+        "auto_sync_enabled_success": "Automatic sync has been enabled.",
+        "auto_sync_disabled_success": "Automatic sync has been disabled."
+      }
     }
   },
   "user_mfa_management": {
