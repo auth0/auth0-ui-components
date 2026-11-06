@@ -54,6 +54,7 @@ function generateRandomSecret() {
 const MYORG_SCOPES = [
   "read:my_org:details",
   "update:my_org:details",
+  "delete:my_org:organizations",
   "read:my_org:identity_providers",
   "create:my_org:identity_providers",
   "update:my_org:identity_providers",
@@ -81,7 +82,6 @@ const MYORG_SCOPES = [
   "create:my_org:member_roles",
   "read:my_org:members",
   "delete:my_org:memberships",
-  'read:my_org:permissions',
   'read:my_org:user_stores',
 ]
 
@@ -92,6 +92,8 @@ const MYACCOUNT_SCOPES = [
   "delete:me:authentication_methods",
   "update:me:authentication_methods",
   "read:me:factors",
+  "read:me:organizations",
+  "create:me:organizations",
 ]
 
 /**
@@ -135,7 +137,9 @@ NEXT_PUBLIC_ENABLE_MY_ACCOUNT='${enableMyAccount}'
     // Default to SPA env vars
     envContent = `# Auth0 Configuration (managed by bootstrap script)
 VITE_AUTH0_DOMAIN='${domain}'
-VITE_AUTH0_CLIENT_ID='${dashboardClientId}'`
+VITE_AUTH0_CLIENT_ID='${dashboardClientId}'
+# Feature Flags
+VITE_ENABLE_MY_ACCOUNT='${featureConfig.enableMyAccount ? 'true' : 'false'}'`
   }
   return envContent;
 }

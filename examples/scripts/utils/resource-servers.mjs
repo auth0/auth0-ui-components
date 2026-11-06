@@ -8,6 +8,7 @@ import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 export const MYORG_API_SCOPES = [
 "read:my_org:details",
 "update:my_org:details",
+"delete:my_org:organizations",
 "create:my_org:identity_providers",
 "read:my_org:identity_providers",
 "update:my_org:identity_providers",
@@ -35,7 +36,6 @@ export const MYORG_API_SCOPES = [
 "create:my_org:member_roles",
 "read:my_org:members",
 "delete:my_org:memberships",
-'read:my_org:permissions',
 'read:my_org:user_stores',
 ]
 
