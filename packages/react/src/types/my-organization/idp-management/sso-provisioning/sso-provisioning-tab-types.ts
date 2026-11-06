@@ -18,6 +18,7 @@ import type {
   IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 
+import type { SsoProvisioningGoogleSyncPanelClasses } from '@/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
 import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 
 /** SSO provisioning tab edit action props. */
@@ -32,7 +33,7 @@ export interface SsoProvisioningTabEditProps {
 }
 
 /** CSS classes for SsoProvisioningTab. */
-export interface SsoProvisioningTabClasses {
+export interface SsoProvisioningTabClasses extends SsoProvisioningGoogleSyncPanelClasses {
   'SsoProvisioningTab-root'?: string;
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioning-attributeMapping'?: string;

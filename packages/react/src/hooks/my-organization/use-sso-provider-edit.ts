@@ -73,6 +73,7 @@ export function useSsoProviderEdit(
     isLoadingIdpConfig,
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    getProvisioningMethods,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
   } = useIdpConfig();
@@ -80,6 +81,8 @@ export function useSsoProviderEdit(
   const showProvisioningTab =
     isProvisioningEnabled(service.provider?.strategy) &&
     isProvisioningMethodEnabled(service.provider?.strategy);
+
+  const provisioningMethods = getProvisioningMethods(service.provider?.strategy);
 
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
@@ -140,6 +143,7 @@ export function useSsoProviderEdit(
     idpConfig,
     isLoadingIdpConfig,
     showProvisioningTab,
+    provisioningMethods,
     handleToggleProvider,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,

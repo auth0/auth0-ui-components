@@ -16,6 +16,7 @@ import type {
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
   GetIdPProvisioningConfigResponseContent,
+  IdentityProvidersConfigProvisioningMethod,
   SsoProviderAttributeMappingsMessages,
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
@@ -150,6 +151,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   showProvisioningTab: boolean;
+  provisioningMethods: IdentityProvidersConfigProvisioningMethod[];
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   showCrossAppAccess: boolean;
