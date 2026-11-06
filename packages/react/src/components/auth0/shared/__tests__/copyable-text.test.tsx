@@ -112,4 +112,12 @@ describe('CopyableText', () => {
     });
     expect(() => unmount()).not.toThrow();
   });
+
+  describe('when asCode is true', () => {
+    it('renders the value in an inline code chip', () => {
+      render(<CopyableText value="org_abc123" asCode />);
+
+      expect(screen.getByText('org_abc123').tagName).toBe('CODE');
+    });
+  });
 });
