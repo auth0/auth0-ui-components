@@ -282,7 +282,7 @@
       "cancel_button_label": "破棄"
     },
     "organization_delete": {
-      "title": "${organizationName}を削除",
+      "title": "この組織を削除",
       "description": "一度確認すると、この操作は元に戻すことができません。",
       "delete_button_label": "削除",
       "modal_title": "${organizationName}を削除",
@@ -290,7 +290,12 @@
       "organization_name_field_placeholder": "組織名を入力してください",
       "organization_name_field_label": "組織名",
       "organization_name_field_error": "削除を確認するために「${organizationName}」と入力してください",
-      "cancel_button_label": "キャンセル"
+      "cancel_button_label": "キャンセル",
+      "notifications": {
+        "success": "${organizationName}を削除しました。",
+        "not_empty_error": "他のメンバーがいるため、${organizationName}を削除できません。他のメンバーをすべて削除してから、もう一度お試しください。",
+        "general_error": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+      }
     },
     "organization_details_edit": {
       "header": {

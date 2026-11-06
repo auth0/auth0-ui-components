@@ -229,7 +229,7 @@
       "cancel_button_label": "Annuler"
     },
     "organization_delete": {
-      "title": "Supprimer ${organizationName}",
+      "title": "Supprimer cette organisation",
       "description": "Une fois confirmé, cette opération ne peut pas être annulée.",
       "delete_button_label": "Supprimer",
       "modal_title": "Supprimer ${organizationName}",
@@ -237,7 +237,12 @@
       "organization_name_field_placeholder": "Saisissez le nom de l'organisation",
       "organization_name_field_label": "Nom de l'organisation",
       "organization_name_field_error": "Veuillez saisir \"${organizationName}\" pour confirmer la suppression",
-      "cancel_button_label": "Annuler"
+      "cancel_button_label": "Annuler",
+      "notifications": {
+        "success": "${organizationName} a été supprimée.",
+        "not_empty_error": "${organizationName} ne peut pas être supprimée tant qu'elle compte d'autres membres. Retirez tous les autres membres, puis réessayez.",
+        "general_error": "Un problème est survenu lors du traitement de votre demande. Veuillez réessayer ou contacter le support si le problème persiste."
+      }
     },
     "organization_details_edit": {
       "header": {

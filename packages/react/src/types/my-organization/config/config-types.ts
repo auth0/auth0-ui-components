@@ -15,6 +15,9 @@ export interface UseConfigResult {
   fetchConfig: () => Promise<void>;
   filteredStrategies: IdpStrategy[];
   shouldAllowDeletion: boolean;
+  /** How organization deletion is restricted; `undefined` until the configuration has loaded. */
+  organizationDeletionBehavior: GetConfigurationResponseContent['organization_deletion_behavior'];
+  shouldAllowOrganizationDeletion: boolean;
   isConfigValid: boolean;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
