@@ -10,6 +10,8 @@ import {
   checkDashboardClientChanges,
   checkMyOrgClientGrantChanges,
   checkMyAccountClientGrantChanges,
+  checkOrganizationTemplateChanges,
+  fetchOrganizationTemplates,
 } from "./clients.mjs"
 import {
   checkConnectionProfileChanges,
@@ -24,10 +26,6 @@ import {
 } from "./resource-servers.mjs"
 import { checkAdminRoleChanges } from "./roles.mjs"
 import { checkOrgChanges } from "./orgs.mjs"
-import {
-  checkOrganizationTemplateChanges,
-  fetchOrganizationTemplates,
-} from "./organization-templates.mjs"
 import { checkOrgMembers } from "./members.mjs"
 import {
   checkPromptSettingsChanges,

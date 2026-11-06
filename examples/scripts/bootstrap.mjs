@@ -3,6 +3,7 @@ import {
   applyDashboardClientChanges,
   applyMyOrgClientGrantChanges,
   applyMyAccountClientGrantChanges,
+  applyOrganizationTemplateChanges,
 } from "./utils/clients.mjs"
 import {
   applyConnectionProfileChanges,
@@ -30,7 +31,6 @@ import {
 } from "./utils/roles.mjs"
 import { applyOrgsChanges} from "./utils/orgs.mjs"
 import { applyOrgMemberChanges} from "./utils/members.mjs"
-import { applyOrganizationTemplateChanges } from "./utils/organization-templates.mjs"
 import {
   applyPromptSettingsChanges,
   applyTenantSettingsChanges,
