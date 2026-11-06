@@ -354,7 +354,7 @@ resolve: {
                 </li>
                 <li className="flex items-center">
                   <code className="text-sm bg-white px-3 py-1 rounded border">
-                    @auth0/auth0-react ^2.0.0
+                    @auth0/auth0-react ^2.15.1
                   </code>
                 </li>
               </ul>

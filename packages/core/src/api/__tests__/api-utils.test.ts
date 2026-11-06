@@ -10,6 +10,7 @@ import { ContentType, HeaderName } from '../http-constants';
 import type { TelemetryConfig } from '../telemetry';
 
 import { stubFetch } from './__mocks__/api-utils.mocks';
+import { createDeferred } from './__mocks__/deferred';
 
 const defaultTelemetry: TelemetryConfig = {
   css: 'unknown',
@@ -188,6 +189,20 @@ describe('api-utils', () => {
       expect(decoded.component).toBe('organization-sso-configuration');
       expect(decoded.css).toBe('scoped');
       expect(decoded.distribution).toBe('shadcn');
+    });
+
+    it('returns a rejected promise when the custom fetcher throws straight away', async () => {
+      const fetcher = createProxyFetcher({
+        customFetcher: () => {
+          throw new Error('cannot fetch');
+        },
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await expect(fetcher('https://example.com/api', undefined, undefined)).rejects.toThrow(
+        'cannot fetch',
+      );
     });
 
     it('uses custom fetcher when provided', async () => {
@@ -477,6 +492,117 @@ describe('api-utils', () => {
 
       const [, requestInit] = mockFetchWithAuth.mock.calls[0]!;
       expect((requestInit?.headers as Headers).get(HeaderName.Auth0Client)).toBeNull();
+    });
+  });
+  describe('token coordination', () => {
+    const ACCOUNT_API = 'https://tenant.example.com/me/';
+    const ORG_API = 'https://tenant.example.com/my-org/';
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    describe('createProxyFetcher', () => {
+      it('lets requests for different APIs take turns', async () => {
+        const firstResponse = createDeferred<Response>();
+        const mockFetch = vi
+          .fn()
+          .mockReturnValueOnce(firstResponse.promise)
+          .mockResolvedValue(new Response());
+        vi.stubGlobal('fetch', mockFetch);
+        const fetcher = createProxyFetcher({
+          telemetry: defaultTelemetry,
+          getComponent: mockGetComponent,
+        });
+
+        const account = fetcher('https://example.com/me/v1/a', undefined, {
+          audience: ACCOUNT_API,
+          scope: ['read:me:organizations'],
+        });
+        const org = fetcher('https://example.com/my-org/v1/b', undefined, {
+          audience: ORG_API,
+          scope: ['read:my_org:details'],
+        });
+
+        await vi.waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+
+        firstResponse.resolve(new Response());
+        await Promise.all([account, org]);
+        expect(mockFetch).toHaveBeenCalledTimes(2);
+      });
+
+      it('sends the scopes of the whole group on the first request of an API', async () => {
+        const mockFetch = stubFetch();
+        const fetcher = createProxyFetcher({
+          telemetry: defaultTelemetry,
+          getComponent: mockGetComponent,
+        });
+
+        await Promise.all([
+          fetcher('https://example.com/me/v1/a', undefined, {
+            audience: ACCOUNT_API,
+            scope: ['read:me:organizations'],
+          }),
+          fetcher('https://example.com/me/v1/b', undefined, {
+            audience: ACCOUNT_API,
+            scope: ['read:me:factors'],
+          }),
+        ]);
+
+        const scopeOf = (call: number) =>
+          (mockFetch.mock.calls[call]![1]?.headers as Headers).get(AUTH0_SCOPE_HEADER);
+        expect(scopeOf(0)).toBe('read:me:organizations read:me:factors');
+        expect(scopeOf(1)).toBe('read:me:factors');
+      });
+    });
+
+    describe('createSpaFetcher', () => {
+      const mockCreateFetcher = vi.fn();
+
+      beforeEach(() => {
+        vi.clearAllMocks();
+        mockCreateFetcher.mockReturnValue({ fetchWithAuth: vi.fn() });
+      });
+
+      it('gives the SDK a coordinated token function when the context can provide tokens', async () => {
+        const getAccessTokenSilently = vi
+          .fn()
+          .mockResolvedValue({ access_token: 'cached', token_type: 'Bearer' });
+        const config: SpaAuthConfig = {
+          mode: 'spa',
+          domain: TEST_DOMAIN,
+          contextInterface: {
+            ...createMockContextInterface(),
+            createFetcher: mockCreateFetcher,
+            getAccessTokenSilently,
+          },
+        };
+
+        createSpaFetcher(config, '__test_nonce__', defaultTelemetry, mockGetComponent);
+
+        const { getAccessToken, dpopNonceId } = mockCreateFetcher.mock.calls[0]![0];
+        expect(dpopNonceId).toBe('__test_nonce__');
+        await expect(
+          getAccessToken({ audience: ORG_API, scope: ['read:my_org:details'] }),
+        ).resolves.toEqual({ access_token: 'cached', token_type: 'Bearer' });
+        expect(getAccessTokenSilently).toHaveBeenCalledWith(
+          expect.objectContaining({ cacheMode: 'cache-only', detailedResponse: true }),
+        );
+      });
+
+      it('leaves the SDK default when the context cannot provide tokens', () => {
+        const config: SpaAuthConfig = {
+          mode: 'spa',
+          domain: TEST_DOMAIN,
+          contextInterface: { ...createMockContextInterface(), createFetcher: mockCreateFetcher },
+        };
+
+        createSpaFetcher(config, '__test_nonce__', defaultTelemetry, mockGetComponent);
+
+        expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId: '__test_nonce__' });
+      });
     });
   });
 });
