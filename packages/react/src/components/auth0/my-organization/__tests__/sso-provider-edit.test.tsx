@@ -387,6 +387,41 @@ describe('SsoProviderEdit', () => {
         });
       });
 
+      describe('when the strategy uses Google Workspace directory provisioning', () => {
+        it('should render the Google Workspace provisioning panel instead of the SCIM tab', async () => {
+          const user = userEvent.setup();
+          const apiService = mockCoreClient.getMyOrganizationApiClient().organization;
+          apiService.configuration.identityProviders.get = vi.fn().mockResolvedValue({
+            strategies: {
+              googleapps: {
+                enabled_features: ['provisioning'],
+                provisioning_methods: ['google_workspace'],
+              },
+            },
+          });
+          apiService.identityProviders.get = vi
+            .fn()
+            .mockResolvedValue(
+              createMockIdentityProvider({ strategy: 'google-apps', is_enabled: true }),
+            );
+          const scimGet = vi.fn().mockResolvedValue(null);
+          const directoryProvisioningGet = vi.fn().mockRejectedValue({ statusCode: 404 });
+          Object.assign(apiService.identityProviders, {
+            provisioning: { ...apiService.identityProviders.provisioning, get: scimGet },
+            directoryProvisioning: { get: directoryProvisioningGet },
+          });
+
+          renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+          await waitForComponentToLoad();
+
+          await user.click(await screen.findByText(/tabs.provisioning.name/i));
+
+          expect(await screen.findByText('header.description_disabled')).toBeInTheDocument();
+          expect(directoryProvisioningGet).toHaveBeenCalled();
+          expect(scimGet).not.toHaveBeenCalled();
+        });
+      });
+
       describe('when provisioning is not enabled for strategy', () => {
         it('should not display provisioning tab when conditions are not met', async () => {
           const providerWithoutProvisioning = createMockIdentityProviderWithoutProvisioning();

@@ -129,9 +129,38 @@ describe('useIdpConfig', () => {
     });
   });
 
+  describe('getProvisioningMethods', () => {
+    it('returns the provisioning methods of the strategy', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            googleapps: {
+              enabled_features: ['provisioning'],
+              provisioning_methods: ['google_workspace'],
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getProvisioningMethods('google-apps')).toEqual(['google_workspace']);
+    });
+
+    it('returns an empty list for strategy not in config or undefined strategy', async () => {
+      mockGet.mockResolvedValue(createMockIdpConfig());
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getProvisioningMethods('google-apps')).toEqual([]);
+      expect(result.current.getProvisioningMethods(undefined)).toEqual([]);
+    });
+  });
+
   describe('isProvisioningMethodEnabled', () => {
     it.each([
       ['okta', ['scim'], true],
+      ['okta', ['google_workspace'], true],
       ['okta', ['jit'], false],
       ['okta', [], false],
     ])('returns %s for strategy=%s with methods=%s', async (strategy, methods, expected) => {
