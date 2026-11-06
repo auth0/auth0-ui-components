@@ -124,7 +124,8 @@ function warmGroup(group: PendingRequest[]): void {
 
   const leaderDone = tokenQueue.run(() => {
     markStarted();
-    return sendUnlessAborted(leader, union(group.map((request) => request.scope)));
+    const live = group.filter((request) => !request.signal?.aborted);
+    return sendUnlessAborted(leader, union(live.map((request) => request.scope)));
   });
 
   if (followers.length === 0) return;

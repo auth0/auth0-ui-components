@@ -354,6 +354,25 @@ describe('token-coordination', () => {
       await expect(follower).resolves.toBeInstanceOf(Response);
     });
 
+    it("leaves an aborted follower's scope out of the leader's request", async () => {
+      const controller = new AbortController();
+      const leader = request('leader', { audience: ORG_API, scope: ['a'] });
+      const follower = request(
+        'follower',
+        { audience: ORG_API, scope: ['b'] },
+        { signal: controller.signal },
+      );
+      const followerResult = follower.catch((error: unknown) => error);
+
+      controller.abort();
+      await flushTick();
+
+      expect(scopeOf('leader')).toEqual(['a']);
+      expect(await followerResult).toBeInstanceOf(DOMException);
+      respond('leader');
+      await leader;
+    });
+
     it('does not send a request that was aborted while waiting', async () => {
       const controller = new AbortController();
       const leader = request('leader', { audience: ORG_API, scope: ['a'] });
