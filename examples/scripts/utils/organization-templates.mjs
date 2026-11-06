@@ -1,6 +1,6 @@
 import ora from "ora"
 
-import { auth0ApiCall } from "./auth0-api.mjs"
+import { auth0ApiCall, auth0ApiGetAll } from "./auth0-api.mjs"
 import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 
 // Constants
@@ -10,14 +10,12 @@ export const DEMO_ORGANIZATION_TEMPLATE_NAME = "Universal-Components-Org-Profile
 const DEMO_ORGANIZATION_DELETION_BEHAVIOR = "allow_if_empty"
 
 /**
- * Normalize the organization templates list response.
- * Returns null when templates are unavailable (feature flag off or missing scope).
+ * Read every page of the organization templates list.
+ * Returns null when templates are unavailable (feature flag off or missing scope) or can't be read in full.
  */
 export async function fetchOrganizationTemplates() {
   try {
-    const response = await auth0ApiCall("get", "organization-templates")
-    if (!response) return null
-    return Array.isArray(response) ? response : response.organization_templates || []
+    return await auth0ApiGetAll("organization-templates", "organization_templates")
   } catch {
     return null
   }
