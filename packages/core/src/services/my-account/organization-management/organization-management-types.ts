@@ -11,3 +11,7 @@ export type UserOrganization = MyAccount.Organization;
 export type ListOrganizationsRequestParameters = MyAccount.ListOrganizationsRequestParameters;
 
 export type ListOrganizationsResponseContent = MyAccount.ListOrganizationsResponseContent;
+
+export type CreateOrganizationRequestContent = MyAccount.CreateOrganizationRequestContent;
+
+export type CreateOrganizationResponseContent = MyAccount.CreateOrganizationResponseContent;

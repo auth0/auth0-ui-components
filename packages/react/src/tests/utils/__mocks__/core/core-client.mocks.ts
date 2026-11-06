@@ -33,6 +33,7 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
     },
     organizations: {
       list: vi.fn().mockResolvedValue(createMockUserOrganizationsPage([])),
+      create: vi.fn().mockResolvedValue({ id: 'org_new123', name: 'new-org' }),
     },
   } as unknown as NonNullable<CoreClientInterface['myAccountApiClient']>;
   return service;

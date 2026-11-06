@@ -12,6 +12,7 @@ import type { ApiError } from './api-types';
 export const ERROR_CODES = {
   FORBIDDEN: 'A0E-403-0001',
   INSUFFICIENT_SCOPE: 'A0E-403-0002',
+  CONFLICT: 'A0E-409-0001',
 };
 
 export const ERROR_CODE_TRANSLATION_KEYS: Record<string, string> = {

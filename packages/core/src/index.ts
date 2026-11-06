@@ -33,6 +33,7 @@ export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-en
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-factors-list-types';
 export * from './i18n/custom-messages/my-account/user-passkey-management/user-passkey-management-types';
 export * from './i18n/custom-messages/my-account/organization-management/organization-table-types';
+export * from './i18n/custom-messages/my-account/organization-management/organization-create-types';
 
 // i18n custom messages - my-organization idp-management
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';
@@ -156,6 +157,8 @@ export * from './services/my-account/user-passkey-management/user-passkey-manage
 export * from './services/my-account/user-passkey-management/user-passkey-management-utils';
 export * from './services/my-account/organization-management/organization-management-types';
 export * from './services/my-account/organization-management/organization-management-query-keys';
+export * from './services/my-account/organization-management/organization-management-constants';
+export * from './services/my-account/organization-management/organization-management-mappers';
 
 // MFA Step-Up services
 export {
