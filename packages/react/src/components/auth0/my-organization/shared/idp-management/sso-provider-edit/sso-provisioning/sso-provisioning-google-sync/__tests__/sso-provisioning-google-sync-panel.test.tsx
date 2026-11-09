@@ -40,6 +40,7 @@ const mockConfig: DirectoryProvisioningConfig = {
   created_at: '2026-11-01T00:00:00.000Z',
   updated_at: '2026-11-01T00:00:00.000Z',
   last_synchronization_at: new Date(Date.now() - 2 * 60_000).toISOString(),
+  last_synchronization_status: 'completed',
 };
 
 const syncedConfig: DirectoryProvisioningConfig = {
@@ -48,10 +49,16 @@ const syncedConfig: DirectoryProvisioningConfig = {
   status: 'complete',
 };
 const noPermissions = { permissions: createIdpPermissions([]) };
-const reusedMessages = {
+const unsyncedConfig: DirectoryProvisioningConfig = {
+  ...syncedConfig,
+  last_synchronization_at: undefined,
+  last_synchronization_status: undefined,
+};
+const alertMessages = {
   customMessages: {
     status_alert: {
-      reused_authorization: 'Reused. <link>Continue with Google</link> to re-verify.',
+      unconfirmed_authorization: 'Unconfirmed. <link>Continue with Google</link> to re-authorize.',
+      sync_failed: 'Sync failed. <link>Continue with Google</link> to re-authorize.',
     },
   },
 };
@@ -293,20 +300,41 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
-    it('shows the reused authorization alert with a re-verify link when auto sync is off', async () => {
+    it.each([
+      ['the directory was never synchronized', unsyncedConfig],
+      [
+        'the last sync is older than the configuration',
+        { ...syncedConfig, last_synchronization_at: '2026-10-01T00:00:00.000Z' },
+      ],
+    ])('shows the unconfirmed authorization warning when %s', async (_, config) => {
       const user = userEvent.setup();
-      renderComponent(createModel({ state: 'connected', config: mockConfig }), reusedMessages);
+      renderComponent(createModel({ state: 'connected', config }), alertMessages);
 
       // The test translator passes the whole message to the `link` component.
       const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent(/Unconfirmed/);
       await user.click(within(alert).getByRole('button', { name: /Continue with Google/ }));
 
       expect(actions.startConsent).toHaveBeenCalled();
     });
 
-    it('renders the re-verify text without a link when consent cannot be started', () => {
-      renderComponent(createModel({ state: 'connected', config: mockConfig }), {
-        ...reusedMessages,
+    it('shows the sync failed error when the last sync failed', () => {
+      renderComponent(
+        createModel({
+          state: 'connected',
+          config: { ...syncedConfig, last_synchronization_status: 'failed' },
+        }),
+        alertMessages,
+      );
+
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent(/Sync failed/);
+      expect(within(alert).getByRole('button', { name: /Continue with Google/ })).toBeEnabled();
+    });
+
+    it('renders the re-authorize text without a link when consent cannot be started', () => {
+      renderComponent(createModel({ state: 'connected', config: unsyncedConfig }), {
+        ...alertMessages,
         ...noPermissions,
       });
 
@@ -315,8 +343,8 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       expect(within(alert).queryByRole('button')).not.toBeInTheDocument();
     });
 
-    it('shows the granted badge and no alert right after access was granted', () => {
-      renderComponent(createModel({ state: 'connected', config: mockConfig, isGranted: true }));
+    it('shows the granted badge after access was granted in this session', () => {
+      renderComponent(createModel({ state: 'connected', isGranted: true }));
 
       expect(screen.getByText('header.status.granted')).toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();

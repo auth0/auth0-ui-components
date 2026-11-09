@@ -96,9 +96,6 @@ export function SsoProvisioningGoogleSyncPanel({
   const isFailed = !isConnected && consentPhase === 'failed';
   const isAutoSyncEnabled = !!config?.synchronize_automatically;
   const isPreviouslyDisabled = !isSwitchOn && wasDisabled;
-  // Auto sync starts off after a consent, so a configuration without it reuses an earlier
-  // authorization, unless access was granted in this session.
-  const isReusingAuthorization = isConnected && !isAutoSyncEnabled && !isGranted;
 
   const canStartConsent =
     !readOnly && isProviderEnabled && hasFullAccessLevel && permissions.canCreateProvisioning;
@@ -111,6 +108,15 @@ export function SsoProvisioningGoogleSyncPanel({
   const lastSyncedAt = config?.last_synchronization_at
     ? Date.parse(config.last_synchronization_at)
     : NaN;
+  // A sync confirms the Google authorization; until one succeeds after the configuration was
+  // created, the authorization may already be revoked.
+  const syncAlert = !config
+    ? undefined
+    : config.last_synchronization_status === 'failed'
+      ? 'sync_failed'
+      : Number.isNaN(lastSyncedAt) || lastSyncedAt < Date.parse(config.created_at)
+        ? 'unconfirmed_authorization'
+        : undefined;
 
   const showConnect = !readOnly && isSwitchOn && !isWaiting;
   const connectDisabledReason = !isProviderEnabled
@@ -240,10 +246,10 @@ export function SsoProvisioningGoogleSyncPanel({
           </CardAction>
         </CardHeader>
 
-        {(isPreviouslyDisabled || isReusingAuthorization) && (
+        {(isPreviouslyDisabled || syncAlert) && (
           <CardContent>
             <Alert
-              variant="warning"
+              variant={syncAlert === 'sync_failed' ? 'destructive' : 'warning'}
               className={classes['SsoProvisioningGoogleSyncPanel-statusAlert']}
             >
               <Info />
@@ -252,7 +258,7 @@ export function SsoProvisioningGoogleSyncPanel({
                   t('status_alert.previously_disabled')
                 ) : (
                   <>
-                    {t.trans('status_alert.reused_authorization', {
+                    {t.trans(`status_alert.${syncAlert}`, {
                       components: {
                         link: (children: string) =>
                           canStartConsent ? (

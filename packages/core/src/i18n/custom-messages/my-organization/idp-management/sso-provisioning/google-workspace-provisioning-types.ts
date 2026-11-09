@@ -28,7 +28,8 @@ export interface GoogleWorkspaceProvisioningConnectionInfoMessages {
 
 export interface GoogleWorkspaceProvisioningStatusAlertMessages {
   previously_disabled?: string;
-  reused_authorization?: string;
+  unconfirmed_authorization?: string;
+  sync_failed?: string;
 }
 
 export interface GoogleWorkspaceProvisioningAutoSyncMessages {

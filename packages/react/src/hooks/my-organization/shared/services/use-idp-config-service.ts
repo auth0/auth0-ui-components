@@ -81,8 +81,17 @@ export function useIdpConfig(): UseConfigIdpResult {
     return strategies[key];
   };
 
-  const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean =>
-    getStrategyFor(strategy)?.enabled_features.includes('provisioning') ?? false;
+  const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean => {
+    const strategyConfig = getStrategyFor(strategy);
+    if (!strategyConfig) return false;
+    // Google Workspace directory sync has its own feature, which the SDK does not declare yet.
+    const feature = strategyConfig.provisioning_methods.includes(
+      PROVISIONING_METHODS.GOOGLE_WORKSPACE,
+    )
+      ? 'directory_sync'
+      : 'provisioning';
+    return (strategyConfig.enabled_features as string[]).includes(feature);
+  };
 
   const getProvisioningMethods = (
     strategy: IdpStrategy | undefined,

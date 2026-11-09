@@ -112,6 +112,44 @@ describe('useIdpConfig', () => {
       expect(result.current.isProvisioningEnabled(strategy as IdpStrategy)).toBe(expected);
     });
 
+    it.each([
+      [['directory_sync'], true],
+      [['provisioning'], false],
+      [[], false],
+    ])(
+      'returns %s for Google Workspace directory sync with features=%s',
+      async (features, expected) => {
+        mockGet.mockResolvedValue(
+          createMockIdpConfig({
+            strategies: {
+              googleapps: {
+                enabled_features: features as never,
+                provisioning_methods: ['google_workspace'],
+              },
+            },
+          }),
+        );
+
+        const { result } = await renderUseIdpConfig();
+
+        expect(result.current.isProvisioningEnabled('google-apps')).toBe(expected);
+      },
+    );
+
+    it('does not count directory_sync for SCIM provisioning', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            okta: { enabled_features: ['directory_sync'] as never, provisioning_methods: ['scim'] },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.isProvisioningEnabled('okta')).toBe(false);
+    });
+
     it('returns false for strategy not in config', async () => {
       mockGet.mockResolvedValue(createMockIdpConfig());
 
