@@ -1,6 +1,6 @@
 /**
  * SSO provider test hook.
- * Runs an identity provider test: opens the test window, polls the result,
+ * Runs an identity provider test: opens the test popup, polls the result,
  * and exposes a state machine any layout can render.
  * @module use-sso-provider-test
  */
@@ -17,6 +17,20 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
 type Phase = 'idle' | 'starting' | 'polling';
+
+const POPUP_WIDTH = 500;
+const POPUP_HEIGHT = 700;
+
+/**
+ * Builds the `window.open` features string. Browsers only open a popup window
+ * (instead of a tab) when explicit size features are supplied.
+ * @returns Comma-separated features string that centers the popup on the parent window.
+ */
+const getPopupFeatures = (): string => {
+  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - POPUP_WIDTH) / 2));
+  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - POPUP_HEIGHT) / 2));
+  return `popup=yes,width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top}`;
+};
 
 const errorReasonForStatus = (status: number | undefined): SsoProviderTestErrorReason =>
   status === 403 ? 'forbidden' : 'expired';
@@ -52,7 +66,7 @@ export function useSsoProviderTest(
 
   const start = useCallback(async () => {
     // Opened before any await so the click still counts as a user gesture.
-    const testWindow = window.open('', '_blank');
+    const testWindow = window.open('', '_blank', getPopupFeatures());
     testWindowRef.current = testWindow;
     setPhase('starting');
     setTestId(null);

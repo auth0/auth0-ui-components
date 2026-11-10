@@ -100,7 +100,11 @@ describe('useSsoProviderTest', () => {
 
         const { result } = await startTestRun();
 
-        expect(openSpy).toHaveBeenCalledWith('', '_blank');
+        expect(openSpy).toHaveBeenCalledWith(
+          '',
+          '_blank',
+          expect.stringContaining('popup=yes,width='),
+        );
         expect(openedBeforeRequest).toBe(true);
         expect(tab.opener).toBeNull();
         expect(tab.location.href).toBe(testUrl);
