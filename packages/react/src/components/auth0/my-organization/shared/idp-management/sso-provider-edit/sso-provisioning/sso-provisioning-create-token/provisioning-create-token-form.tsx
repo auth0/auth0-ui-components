@@ -57,7 +57,9 @@ export function ProvisioningCreateTokenForm({
                 />
               </FormControl>
               <div className="space-y-1">
-                <FormLabel className="text-label font-medium">{t('no_expiration.label')}</FormLabel>
+                <FormLabel className="text-label font-medium text-foreground">
+                  {t('no_expiration.label')}
+                </FormLabel>
                 <FormDescription className="text-paragraph font-normal text-left">
                   {t('no_expiration.helper_text')}
                 </FormDescription>
@@ -73,7 +75,9 @@ export function ProvisioningCreateTokenForm({
           name="tokenLifetime"
           render={({ field, fieldState }) => (
             <FormItem className={canSetNoExpiration ? 'pl-8' : undefined}>
-              <FormLabel className="text-label font-medium">{t('token_lifetime.label')}</FormLabel>
+              <FormLabel className="text-label font-medium text-foreground">
+                {t('token_lifetime.label')}
+              </FormLabel>
               <FormControl>
                 <TextField
                   inputMode="numeric"
@@ -116,7 +120,9 @@ export function ProvisioningCreateTokenForm({
         name="scopes"
         render={({ field }) => (
           <FormItem className="space-y-3">
-            <FormLabel className="text-label font-medium">{t('scopes.label')}</FormLabel>
+            <FormLabel className="text-label font-medium text-foreground">
+              {t('scopes.label')}
+            </FormLabel>
             <div className="grid grid-cols-2 gap-3">
               {rules.allowedScopes.map((scope) => {
                 const id = `scim-token-scope-${scope.replace(':', '-')}`;
@@ -134,7 +140,7 @@ export function ProvisioningCreateTokenForm({
                         )
                       }
                     />
-                    <Label htmlFor={id} className="text-sm font-normal">
+                    <Label htmlFor={id} className="text-sm font-normal text-foreground">
                       {scope}
                     </Label>
                   </div>

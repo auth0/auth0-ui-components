@@ -137,11 +137,10 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
     expect(nextButton()).toBeEnabled();
   });
 
-  it('sends token_lifetime null and all scopes when no expiration is checked', async () => {
+  it('sends token_lifetime null and all scopes by default', async () => {
     const user = userEvent.setup();
     render(<ProvisioningCreateTokenModal {...baseProps} />);
 
-    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(nextButton());
 
     await waitFor(() =>
@@ -211,6 +210,7 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
     const user = userEvent.setup();
     render(<ProvisioningCreateTokenModal {...baseProps} />);
 
+    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(nextButton());
 
     expect(

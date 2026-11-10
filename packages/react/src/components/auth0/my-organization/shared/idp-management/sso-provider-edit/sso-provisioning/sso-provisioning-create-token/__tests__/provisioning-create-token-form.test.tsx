@@ -40,15 +40,14 @@ const bounded = {
 } as IdpScimTokenConfig;
 
 describe('ProvisioningCreateTokenForm', () => {
-  it('shows a clear no-expiration box and the lifetime field by default', () => {
+  it('checks no expiration and hides the lifetime field by default', () => {
     render(<Harness />);
 
     expect(screen.getByRole('checkbox', { name: 'no_expiration.label' })).toHaveAttribute(
       'aria-checked',
-      'false',
+      'true',
     );
-    expect(screen.getByRole('textbox', { name: 'token_lifetime.label' })).toHaveValue('');
-    expect(screen.getByText('token_lifetime.helper_min')).toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'token_lifetime.label' })).not.toBeInTheDocument();
   });
 
   it('offers no expiration only when the profile has no max_allowed_expiry', () => {
@@ -60,13 +59,14 @@ describe('ProvisioningCreateTokenForm', () => {
     expect(screen.queryByRole('checkbox', { name: 'no_expiration.label' })).not.toBeInTheDocument();
   });
 
-  it('hides the lifetime field when no expiration is checked', async () => {
+  it('shows the lifetime field and helpers when no expiration is cleared', async () => {
     const user = userEvent.setup();
     render(<Harness />);
 
     await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
 
-    expect(screen.queryByRole('textbox', { name: 'token_lifetime.label' })).not.toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'token_lifetime.label' })).toHaveValue('');
+    expect(screen.getByText('token_lifetime.helper_min')).toBeInTheDocument();
   });
 
   it('pre-fills the profile default and shows default and max helpers', () => {

@@ -224,7 +224,7 @@ describe('ProvisioningManageToken', () => {
     expect(mockOnCreateScimToken).not.toHaveBeenCalled();
   });
 
-  it('should create with a null lifetime when no expiration is checked, then reload tokens', async () => {
+  it('should create with a null lifetime by default (no expiration checked), then reload tokens', async () => {
     const user = userEvent.setup();
     mockOnCreateScimToken.mockResolvedValue({
       token_id: 'tok_new',
@@ -234,7 +234,6 @@ describe('ProvisioningManageToken', () => {
     render(<ProvisioningManageToken {...defaultProps} />);
 
     await user.click(await screen.findByText('generate_button_label'));
-    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
 
     await waitFor(() =>
@@ -278,7 +277,6 @@ describe('ProvisioningManageToken', () => {
     render(<ProvisioningManageToken {...defaultProps} />);
 
     await user.click(await screen.findByText('generate_button_label'));
-    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
 
     await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalled());
@@ -292,7 +290,6 @@ describe('ProvisioningManageToken', () => {
     render(<ProvisioningManageToken {...defaultProps} />);
 
     await user.click(await screen.findByText('generate_button_label'));
-    await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
 
     await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalled());

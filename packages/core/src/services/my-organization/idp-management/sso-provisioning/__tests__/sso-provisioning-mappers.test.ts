@@ -44,6 +44,10 @@ describe('SsoProvisioningMappers', () => {
       });
     });
 
+    it('should enable no expiration by default when the profile has no max lifetime', () => {
+      expect(SsoProvisioningMappers.getCreateTokenFormDefaults(open).noExpiration).toBe(true);
+    });
+
     it('should leave the lifetime blank when the profile has no default', () => {
       expect(SsoProvisioningMappers.getCreateTokenFormDefaults(open).tokenLifetime).toBe('');
     });

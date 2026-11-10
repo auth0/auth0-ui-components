@@ -27,7 +27,7 @@ export const SsoProvisioningMappers = {
   },
 
   /**
-   * Builds initial form values: profile default lifetime, all permitted scopes checked.
+   * Builds initial form values: no-expiration on when the profile allows it, profile default lifetime, all permitted scopes checked.
    * @param rules - Form rules
    * @returns Default form values
    */
@@ -35,7 +35,7 @@ export const SsoProvisioningMappers = {
     rules: ProvisioningCreateTokenFormRules,
   ): ProvisioningCreateTokenFormValues {
     return {
-      noExpiration: false,
+      noExpiration: rules.maxAllowedExpiry === null,
       tokenLifetime: rules.defaultExpiry !== null ? String(rules.defaultExpiry) : '',
       scopes: [...rules.allowedScopes],
     };
