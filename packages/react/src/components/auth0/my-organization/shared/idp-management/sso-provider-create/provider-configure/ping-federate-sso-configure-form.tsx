@@ -82,6 +82,7 @@ export const PingFederateProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    mode = 'create',
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     isOrganizationBlocked = false,
@@ -117,6 +118,7 @@ export const PingFederateProviderForm = React.forwardRef<
         STRATEGIES.PINGFEDERATE,
         pingFederateData,
         crossAppAccessDefaultValue,
+        mode,
       ),
     },
   });

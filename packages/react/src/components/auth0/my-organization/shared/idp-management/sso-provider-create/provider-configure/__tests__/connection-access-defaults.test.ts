@@ -13,6 +13,21 @@ describe('getConnectionAccessDefaults', () => {
     );
   });
 
+  it('should leave use_for_third_party_client_access undefined in edit mode when initialData omits it', () => {
+    const result = getConnectionAccessDefaults(STRATEGIES.OKTA, {}, undefined, 'edit');
+    expect(result.use_for_third_party_client_access).toBeUndefined();
+  });
+
+  it('should keep an explicit use_for_third_party_client_access value in edit mode', () => {
+    const result = getConnectionAccessDefaults(
+      STRATEGIES.OKTA,
+      { use_for_third_party_client_access: false },
+      undefined,
+      'edit',
+    );
+    expect(result.use_for_third_party_client_access).toBe(false);
+  });
+
   it('should read use_for_third_party_client_access from initialData', () => {
     const result = getConnectionAccessDefaults(STRATEGIES.ADFS, {
       use_for_third_party_client_access: true,

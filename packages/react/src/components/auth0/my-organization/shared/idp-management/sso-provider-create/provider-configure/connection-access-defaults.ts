@@ -10,7 +10,16 @@ import type {
   ConnectionAccessDefaults,
   ConnectionAccessInitialData,
   CrossAppAccessStatus,
+  FormMode,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+
+/** Defaults where the third-party access flag may be absent (edit mode, value omitted by API). */
+type ConnectionAccessDefaultValues = Omit<
+  ConnectionAccessDefaults,
+  'use_for_third_party_client_access'
+> & {
+  use_for_third_party_client_access?: boolean;
+};
 
 /** Strategies that support Cross App Access. */
 export const CROSS_APP_ACCESS_STRATEGIES: readonly IdpStrategy[] = [
@@ -34,15 +43,20 @@ export function isCrossAppAccessStrategy(strategy: IdpStrategy): boolean {
  * @param strategy - The SSO provider strategy.
  * @param initialData - Existing provider values, if editing.
  * @param crossAppAccessDefaultValue - Tenant default for Cross App Access.
+ * @param mode - Form mode. In edit mode an omitted third-party access value stays `undefined` so it is not submitted as `false`.
  * @returns Default values to spread into the form's `defaultValues`.
  */
 export function getConnectionAccessDefaults(
   strategy: IdpStrategy,
   initialData?: ConnectionAccessInitialData,
   crossAppAccessDefaultValue?: CrossAppAccessStatus,
-): ConnectionAccessDefaults {
-  const defaults: ConnectionAccessDefaults = {
-    use_for_third_party_client_access: initialData?.use_for_third_party_client_access ?? false,
+  mode: FormMode = 'create',
+): ConnectionAccessDefaultValues {
+  const defaults: ConnectionAccessDefaultValues = {
+    use_for_third_party_client_access:
+      mode === 'edit'
+        ? initialData?.use_for_third_party_client_access
+        : (initialData?.use_for_third_party_client_access ?? false),
   };
 
   if (isCrossAppAccessStrategy(strategy)) {

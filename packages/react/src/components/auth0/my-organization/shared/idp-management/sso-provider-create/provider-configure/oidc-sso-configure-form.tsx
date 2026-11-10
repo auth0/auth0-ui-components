@@ -83,7 +83,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
         client_secret: oidcData?.client_secret || '',
         show_as_button: oidcData?.show_as_button ?? false,
         assign_membership_on_login: oidcData?.assign_membership_on_login ?? false,
-        ...getConnectionAccessDefaults(STRATEGIES.OIDC, oidcData, crossAppAccessDefaultValue),
+        ...getConnectionAccessDefaults(STRATEGIES.OIDC, oidcData, crossAppAccessDefaultValue, mode),
       },
     });
 

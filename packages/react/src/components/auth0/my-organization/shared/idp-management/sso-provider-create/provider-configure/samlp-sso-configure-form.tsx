@@ -88,6 +88,7 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    mode = 'create',
     connectionName: connectionNameProp,
     connectionNamePrefix,
     resolveSamlMetadata,
@@ -162,7 +163,7 @@ export const SamlpProviderForm = React.forwardRef<
       callback_url: spMetadataUrls.callback_url,
       acs_url: spMetadataUrls.acs_url,
       sp_metadata_url: spMetadataUrls.sp_metadata_url,
-      ...getConnectionAccessDefaults(STRATEGIES.SAMLP, samlpData, crossAppAccessDefaultValue),
+      ...getConnectionAccessDefaults(STRATEGIES.SAMLP, samlpData, crossAppAccessDefaultValue, mode),
     },
   });
 
