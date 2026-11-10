@@ -1688,17 +1688,19 @@ describe('useSsoProviderEditService', () => {
     });
 
     it('should not fetch the SCIM config for Google Workspace directory provisioning', async () => {
-      const getProvisioningMethods = vi.fn(() => ['google_workspace' as const]);
+      const isProvisioningEnabled = vi.fn(
+        (_strategy: unknown, method: string) => method === 'google_workspace',
+      );
       vi.mocked(useIdpConfig).mockReturnValue({
         ...createMockUseIdpConfig(),
-        getProvisioningMethods,
+        isProvisioningEnabled,
       });
       mockGet.mockResolvedValue({ ...mockProvider, strategy: 'google-apps' });
       const { result } = renderUseSsoProviderEdit(mockIdpId);
 
       await waitFor(() => expect(result.current.provider?.strategy).toBe('google-apps'));
 
-      expect(getProvisioningMethods).toHaveBeenCalledWith('google-apps');
+      expect(isProvisioningEnabled).toHaveBeenCalledWith('google-apps', 'google_workspace');
       expect(mockProvisioningGet).not.toHaveBeenCalled();
       expect(result.current.provisioningConfig).toBeNull();
     });

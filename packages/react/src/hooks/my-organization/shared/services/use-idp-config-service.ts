@@ -4,7 +4,6 @@
  */
 
 import {
-  PROVISIONING_METHODS,
   hasApiErrorBody,
   idpConfigQueryKeys,
   type GetIdpConfigurationResponseContent,
@@ -34,9 +33,6 @@ const STRATEGY_TO_CONFIG_KEY: Record<
   samlp: 'samlp',
   waad: 'waad',
 };
-
-const SUPPORTED_PROVISIONING_METHODS: IdentityProvidersConfigProvisioningMethod[] =
-  Object.values(PROVISIONING_METHODS);
 
 /**
  * Hook for fetching IDP configuration and provisioning settings.
@@ -81,27 +77,16 @@ export function useIdpConfig(): UseConfigIdpResult {
     return strategies[key];
   };
 
-  const isProvisioningEnabled = (strategy: IdpStrategy | undefined): boolean => {
-    const strategyConfig = getStrategyFor(strategy);
-    if (!strategyConfig) return false;
-    // Google Workspace directory sync has its own feature, which the SDK does not declare yet.
-    const feature = strategyConfig.provisioning_methods.includes(
-      PROVISIONING_METHODS.GOOGLE_WORKSPACE,
-    )
-      ? 'directory_sync'
-      : 'provisioning';
-    return (strategyConfig.enabled_features as string[]).includes(feature);
-  };
-
-  const getProvisioningMethods = (
+  const isProvisioningEnabled = (
     strategy: IdpStrategy | undefined,
-  ): IdentityProvidersConfigProvisioningMethod[] =>
-    getStrategyFor(strategy)?.provisioning_methods ?? [];
-
-  const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean =>
-    getProvisioningMethods(strategy).some((method) =>
-      SUPPORTED_PROVISIONING_METHODS.includes(method),
+    method: IdentityProvidersConfigProvisioningMethod,
+  ): boolean => {
+    const strategyConfig = getStrategyFor(strategy);
+    return (
+      !!strategyConfig?.enabled_features.includes('provisioning') &&
+      strategyConfig.provisioning_methods.includes(method)
     );
+  };
 
   const getCrossAppAccessConfig = (
     strategy: IdpStrategy | undefined,
@@ -136,8 +121,6 @@ export function useIdpConfig(): UseConfigIdpResult {
     isLoadingIdpConfig: idpConfigQuery.isLoading,
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
-    isProvisioningMethodEnabled,
-    getProvisioningMethods,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
     getCrossAppAccessDefaultValue,

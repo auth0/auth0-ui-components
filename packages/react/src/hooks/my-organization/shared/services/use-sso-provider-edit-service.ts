@@ -59,7 +59,7 @@ export function useSsoProviderEditService(
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
-  const { idpConfig, isLoadingIdpConfig, getProvisioningMethods } = useIdpConfig();
+  const { idpConfig, isLoadingIdpConfig, isProvisioningEnabled } = useIdpConfig();
 
   /**
    * Provider query - fetches the identity provider details.
@@ -107,9 +107,7 @@ export function useSsoProviderEditService(
       !skipProvisioningFetch &&
       !!providerQuery.data &&
       !isLoadingIdpConfig &&
-      !getProvisioningMethods(providerQuery.data.strategy).includes(
-        PROVISIONING_METHODS.GOOGLE_WORKSPACE,
-      ),
+      !isProvisioningEnabled(providerQuery.data.strategy, PROVISIONING_METHODS.GOOGLE_WORKSPACE),
   });
 
   useQueryErrorToast(providerQuery, t('general_error'));

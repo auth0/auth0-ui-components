@@ -394,8 +394,9 @@ describe('SsoProviderEdit', () => {
           apiService.configuration.identityProviders.get = vi.fn().mockResolvedValue({
             strategies: {
               googleapps: {
-                enabled_features: ['directory_sync'],
+                enabled_features: ['provisioning'],
                 provisioning_methods: ['google_workspace'],
+                provisioning: { google_workspace: { sync_users: true } },
               },
             },
           });

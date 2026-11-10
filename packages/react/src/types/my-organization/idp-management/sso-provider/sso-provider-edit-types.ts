@@ -150,8 +150,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isLoadingConfig: boolean;
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
-  showProvisioningTab: boolean;
-  provisioningMethods: IdentityProvidersConfigProvisioningMethod[];
+  provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   showCrossAppAccess: boolean;
@@ -198,6 +197,4 @@ export interface SsoProviderEditViewProps
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'
       | 'showSignRequest'
-    > {
-  showProvisioningTab: boolean;
-}
+    > {}

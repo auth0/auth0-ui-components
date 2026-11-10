@@ -4,7 +4,11 @@
  * @module use-sso-provider-edit
  */
 
-import { getIdpManagementPermissions, type IdpId } from '@auth0/universal-components-core';
+import {
+  PROVISIONING_METHODS,
+  getIdpManagementPermissions,
+  type IdpId,
+} from '@auth0/universal-components-core';
 import { useCallback, useMemo } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
@@ -72,17 +76,13 @@ export function useSsoProviderEdit(
     idpConfig,
     isLoadingIdpConfig,
     isProvisioningEnabled,
-    isProvisioningMethodEnabled,
-    getProvisioningMethods,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
   } = useIdpConfig();
 
-  const showProvisioningTab =
-    isProvisioningEnabled(service.provider?.strategy) &&
-    isProvisioningMethodEnabled(service.provider?.strategy);
-
-  const provisioningMethods = getProvisioningMethods(service.provider?.strategy);
+  const provisioningMethod = Object.values(PROVISIONING_METHODS).find((method) =>
+    isProvisioningEnabled(service.provider?.strategy, method),
+  );
 
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
@@ -142,8 +142,7 @@ export function useSsoProviderEdit(
     isLoadingConfig,
     idpConfig,
     isLoadingIdpConfig,
-    showProvisioningTab,
-    provisioningMethods,
+    provisioningMethod,
     handleToggleProvider,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
