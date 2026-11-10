@@ -51,6 +51,15 @@ describe('ProvisioningCreateTokenForm', () => {
     expect(screen.getByText('token_lifetime.helper_min')).toBeInTheDocument();
   });
 
+  it('offers no expiration only when the profile has no max_allowed_expiry', () => {
+    const { unmount } = render(<Harness config={{ ...bounded, max_allowed_expiry: undefined }} />);
+    expect(screen.getByRole('checkbox', { name: 'no_expiration.label' })).toBeInTheDocument();
+    unmount();
+
+    render(<Harness config={bounded} />);
+    expect(screen.queryByRole('checkbox', { name: 'no_expiration.label' })).not.toBeInTheDocument();
+  });
+
   it('hides the lifetime field when no expiration is checked', async () => {
     const user = userEvent.setup();
     render(<Harness />);

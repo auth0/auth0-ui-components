@@ -120,8 +120,8 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
   };
   const bounded: IdpScimTokenConfig = {
     scopes: ['get:users', 'post:users'],
-    default_expiry: 3600,
-    max_allowed_expiry: 86400,
+    default_expiry: 500000,
+    max_allowed_expiry: 864000,
   };
   const nextButton = () => screen.getByRole('button', { name: /create_modal.next_button_label/ });
 
@@ -137,14 +137,19 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
     expect(nextButton()).toBeEnabled();
   });
 
-  it('sends no lifetime when no expiration is checked', async () => {
+  it('sends token_lifetime null and all scopes when no expiration is checked', async () => {
     const user = userEvent.setup();
     render(<ProvisioningCreateTokenModal {...baseProps} />);
 
     await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(nextButton());
 
-    await waitFor(() => expect(onCreate).toHaveBeenCalledWith({}));
+    await waitFor(() =>
+      expect(onCreate).toHaveBeenCalledWith({
+        token_lifetime: null,
+        scopes: ['get:users', 'post:users', 'put:users', 'patch:users', 'delete:users'],
+      }),
+    );
   });
 
   it('sends the pre-filled profile default lifetime', async () => {
@@ -153,7 +158,36 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
 
     await user.click(nextButton());
 
-    await waitFor(() => expect(onCreate).toHaveBeenCalledWith({ token_lifetime: 3600 }));
+    await waitFor(() =>
+      expect(onCreate).toHaveBeenCalledWith({
+        token_lifetime: 500000,
+        scopes: ['get:users', 'post:users'],
+      }),
+    );
+  });
+
+  it('omits token_lifetime when the lifetime is cleared and the profile has a default', async () => {
+    const user = userEvent.setup();
+    render(<ProvisioningCreateTokenModal {...baseProps} scimTokenConfig={bounded} />);
+
+    await user.clear(screen.getByRole('textbox', { name: 'token_lifetime.label' }));
+    await user.click(nextButton());
+
+    await waitFor(() =>
+      expect(onCreate).toHaveBeenCalledWith({ scopes: ['get:users', 'post:users'] }),
+    );
+  });
+
+  it('sends only the selected scopes', async () => {
+    const user = userEvent.setup();
+    render(<ProvisioningCreateTokenModal {...baseProps} scimTokenConfig={bounded} />);
+
+    await user.click(screen.getByRole('checkbox', { name: 'post:users' }));
+    await user.click(nextButton());
+
+    await waitFor(() =>
+      expect(onCreate).toHaveBeenCalledWith({ token_lifetime: 500000, scopes: ['get:users'] }),
+    );
   });
 
   it('sends the typed lifetime', async () => {
@@ -162,10 +196,15 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
 
     const field = screen.getByRole('textbox', { name: 'token_lifetime.label' });
     await user.clear(field);
-    await user.type(field, '7200');
+    await user.type(field, '600000');
     await user.click(nextButton());
 
-    await waitFor(() => expect(onCreate).toHaveBeenCalledWith({ token_lifetime: 7200 }));
+    await waitFor(() =>
+      expect(onCreate).toHaveBeenCalledWith({
+        token_lifetime: 600000,
+        scopes: ['get:users', 'post:users'],
+      }),
+    );
   });
 
   it('requires a lifetime when no expiration is clear and no default exists', async () => {
@@ -180,13 +219,13 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
     expect(onCreate).not.toHaveBeenCalled();
   });
 
-  it('blocks a lifetime below 900 seconds', async () => {
+  it('blocks a lifetime of exactly 432000 seconds', async () => {
     const user = userEvent.setup();
     render(<ProvisioningCreateTokenModal {...baseProps} scimTokenConfig={bounded} />);
 
     const field = screen.getByRole('textbox', { name: 'token_lifetime.label' });
     await user.clear(field);
-    await user.type(field, '100');
+    await user.type(field, '432000');
     await user.click(nextButton());
 
     expect(
@@ -201,7 +240,7 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
 
     const field = screen.getByRole('textbox', { name: 'token_lifetime.label' });
     await user.clear(field);
-    await user.type(field, '90000');
+    await user.type(field, '900000');
     await user.click(nextButton());
 
     expect(

@@ -757,11 +757,11 @@
                       "suffix": "secondes",
                       "helper_default": "Par défaut : ${seconds} secondes selon votre profil de connexion.",
                       "helper_max": "Maximum autorisé : ${seconds} secondes.",
-                      "helper_min": "Minimum : ${seconds} secondes.",
+                      "helper_min": "Doit être supérieur à ${seconds} secondes.",
                       "errors": {
                         "required": "Saisissez une durée de vie pour le jeton.",
                         "integer": "Saisissez un nombre entier de secondes.",
-                        "min": "Saisissez au moins ${seconds} secondes.",
+                        "min": "Saisissez plus de ${seconds} secondes.",
                         "max": "Saisissez au plus ${seconds} secondes."
                       }
                     },

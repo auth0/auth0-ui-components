@@ -4,7 +4,11 @@
  * @internal
  */
 
-import { SCIM_TOKEN_MIN_LIFETIME_SECONDS } from '@core/services/my-organization/idp-management/sso-provisioning/sso-provisioning-constants';
+import {
+  ALL_SCIM_TOKEN_SCOPES,
+  SCIM_TOKEN_MIN_LIFETIME_SECONDS,
+} from '@core/services/my-organization/idp-management/sso-provisioning/sso-provisioning-constants';
+import type { IdpScimTokenScope } from '@core/services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
 import { z } from 'zod';
 
 import type {
@@ -27,7 +31,13 @@ export const createProvisioningCreateTokenSchema = (
     .object({
       noExpiration: z.boolean(),
       tokenLifetime: z.string().trim(),
-      scopes: z.array(z.string()).min(1, messages.scopesRequired),
+      scopes: z
+        .array(
+          z.custom<IdpScimTokenScope>((value) =>
+            ALL_SCIM_TOKEN_SCOPES.includes(value as IdpScimTokenScope),
+          ),
+        )
+        .min(1, messages.scopesRequired),
     })
     .superRefine((values, ctx) => {
       if (values.noExpiration) return;
@@ -36,7 +46,8 @@ export const createProvisioningCreateTokenSchema = (
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['tokenLifetime'], message });
 
       if (values.tokenLifetime === '') {
-        addError(messages.required);
+        const hasApiDefault = rules.defaultExpiry !== null || rules.maxAllowedExpiry !== null;
+        if (!hasApiDefault) addError(messages.required);
         return;
       }
       if (!/^\d+$/.test(values.tokenLifetime)) {
@@ -45,7 +56,7 @@ export const createProvisioningCreateTokenSchema = (
       }
 
       const lifetime = Number(values.tokenLifetime);
-      if (lifetime < SCIM_TOKEN_MIN_LIFETIME_SECONDS) {
+      if (lifetime <= SCIM_TOKEN_MIN_LIFETIME_SECONDS) {
         addError(messages.min);
         return;
       }

@@ -224,7 +224,7 @@ describe('ProvisioningManageToken', () => {
     expect(mockOnCreateScimToken).not.toHaveBeenCalled();
   });
 
-  it('should create with no lifetime when no expiration is checked, then reload tokens', async () => {
+  it('should create with a null lifetime when no expiration is checked, then reload tokens', async () => {
     const user = userEvent.setup();
     mockOnCreateScimToken.mockResolvedValue({
       token_id: 'tok_new',
@@ -237,7 +237,12 @@ describe('ProvisioningManageToken', () => {
     await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
     await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
 
-    await waitFor(() => expect(mockOnCreateScimToken).toHaveBeenCalledWith({}));
+    await waitFor(() =>
+      expect(mockOnCreateScimToken).toHaveBeenCalledWith({
+        token_lifetime: null,
+        scopes: ['get:users', 'post:users', 'put:users', 'patch:users', 'delete:users'],
+      }),
+    );
     expect(await screen.findByDisplayValue('secret-value')).toBeInTheDocument();
     expect(mockOnListScimTokens).toHaveBeenCalledTimes(2);
   });
@@ -252,7 +257,7 @@ describe('ProvisioningManageToken', () => {
     render(
       <ProvisioningManageToken
         {...defaultProps}
-        scimTokenConfig={{ default_expiry: 7200, max_allowed_expiry: 86400 }}
+        scimTokenConfig={{ default_expiry: 600000, max_allowed_expiry: 864000 }}
       />,
     );
 
@@ -260,7 +265,10 @@ describe('ProvisioningManageToken', () => {
     await user.click(screen.getByRole('button', { name: /create_modal.next_button_label/ }));
 
     await waitFor(() =>
-      expect(mockOnCreateScimToken).toHaveBeenCalledWith({ token_lifetime: 7200 }),
+      expect(mockOnCreateScimToken).toHaveBeenCalledWith({
+        token_lifetime: 600000,
+        scopes: ['get:users', 'post:users', 'put:users', 'patch:users', 'delete:users'],
+      }),
     );
   });
 

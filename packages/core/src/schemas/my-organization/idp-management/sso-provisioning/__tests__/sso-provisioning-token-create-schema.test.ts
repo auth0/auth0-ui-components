@@ -17,8 +17,8 @@ const messages = {
 
 const bounded = SsoProvisioningMappers.getCreateTokenFormRules({
   scopes: ['get:users', 'post:users'],
-  default_expiry: 3600,
-  max_allowed_expiry: 86400,
+  default_expiry: 500000,
+  max_allowed_expiry: 864000,
 });
 const open = SsoProvisioningMappers.getCreateTokenFormRules(undefined);
 
@@ -44,9 +44,15 @@ describe('createProvisioningCreateTokenSchema', () => {
     expect(firstError(bounded, { noExpiration: true, tokenLifetime: '5' })).toBeUndefined();
   });
 
-  it('should require a lifetime when no expiration is clear', () => {
+  it('should require a lifetime when the profile has no default and no max', () => {
     expect(firstError(open, { tokenLifetime: '' })).toBe('required');
     expect(firstError(open, { tokenLifetime: '   ' })).toBe('required');
+  });
+
+  it('should accept a blank lifetime when the profile has a default or max', () => {
+    expect(firstError(bounded, { tokenLifetime: '' })).toBeUndefined();
+    const maxOnly = SsoProvisioningMappers.getCreateTokenFormRules({ max_allowed_expiry: 864000 });
+    expect(firstError(maxOnly, { tokenLifetime: '' })).toBeUndefined();
   });
 
   it('should reject a lifetime that is not a whole number', () => {
@@ -54,23 +60,24 @@ describe('createProvisioningCreateTokenSchema', () => {
     expect(firstError(open, { tokenLifetime: 'abc' })).toBe('integer');
   });
 
-  it('should reject a lifetime below 900 seconds', () => {
-    expect(firstError(open, { tokenLifetime: '899' })).toBe('min');
+  it('should reject a lifetime of 432000 seconds or less', () => {
+    expect(firstError(open, { tokenLifetime: '431999' })).toBe('min');
+    expect(firstError(open, { tokenLifetime: '432000' })).toBe('min');
   });
 
-  it('should accept 900 seconds', () => {
-    expect(firstError(open, { tokenLifetime: '900' })).toBeUndefined();
+  it('should accept 432001 seconds', () => {
+    expect(firstError(open, { tokenLifetime: '432001' })).toBeUndefined();
   });
 
   it('should reject a lifetime above max_allowed_expiry', () => {
-    expect(firstError(bounded, { tokenLifetime: '86401' })).toBe('max');
+    expect(firstError(bounded, { tokenLifetime: '864001' })).toBe('max');
   });
 
   it('should accept max_allowed_expiry', () => {
-    expect(firstError(bounded, { tokenLifetime: '86400' })).toBeUndefined();
+    expect(firstError(bounded, { tokenLifetime: '864000' })).toBeUndefined();
   });
 
-  it('should accept any lifetime of 900 or more when max is not set', () => {
+  it('should accept any lifetime above 432000 when max is not set', () => {
     expect(firstError(open, { tokenLifetime: '99999999' })).toBeUndefined();
   });
 

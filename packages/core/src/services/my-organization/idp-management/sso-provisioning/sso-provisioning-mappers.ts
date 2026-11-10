@@ -43,15 +43,15 @@ export const SsoProvisioningMappers = {
 
   /**
    * Maps form values to the create-token request.
-   * `scopes` is not sent: the SDK request has no scopes field yet.
-   * "No expiration" omits `token_lifetime`.
    * @param values - Form values
    * @returns API request payload for token creation
    */
   createScimTokenToAPI(
     values: ProvisioningCreateTokenFormValues,
   ): CreateIdpProvisioningScimTokenRequestContent {
-    if (values.noExpiration) return {};
-    return { token_lifetime: Number(values.tokenLifetime.trim()) };
+    const lifetime = values.tokenLifetime.trim();
+    if (values.noExpiration) return { token_lifetime: null, scopes: values.scopes };
+    if (lifetime === '') return { scopes: values.scopes };
+    return { token_lifetime: Number(lifetime), scopes: values.scopes };
   },
 };

@@ -823,11 +823,11 @@
                       "suffix": "seconds",
                       "helper_default": "Default: ${seconds} seconds per your Connection Profile.",
                       "helper_max": "Maximum allowed: ${seconds} seconds.",
-                      "helper_min": "Minimum: ${seconds} seconds.",
+                      "helper_min": "Must be greater than ${seconds} seconds.",
                       "errors": {
                         "required": "Enter a token lifetime.",
                         "integer": "Enter a whole number of seconds.",
-                        "min": "Enter ${seconds} seconds or more.",
+                        "min": "Enter more than ${seconds} seconds.",
                         "max": "Enter ${seconds} seconds or less."
                       }
                     },

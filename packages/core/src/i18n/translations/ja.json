@@ -810,11 +810,11 @@
                       "suffix": "秒",
                       "helper_default": "デフォルト: 接続プロファイルに基づき ${seconds} 秒。",
                       "helper_max": "許可される最大値: ${seconds} 秒。",
-                      "helper_min": "最小値: ${seconds} 秒。",
+                      "helper_min": "${seconds} 秒より大きい値にしてください。",
                       "errors": {
                         "required": "トークンの有効期間を入力してください。",
                         "integer": "秒数を整数で入力してください。",
-                        "min": "${seconds} 秒以上を入力してください。",
+                        "min": "${seconds} 秒より大きい値を入力してください。",
                         "max": "${seconds} 秒以下を入力してください。"
                       }
                     },

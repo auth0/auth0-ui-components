@@ -39,37 +39,40 @@ export function ProvisioningCreateTokenForm({
     customMessages,
   );
 
-  const noExpiration = form.watch('noExpiration');
+  const canSetNoExpiration = rules.maxAllowedExpiry === null;
+  const noExpiration = canSetNoExpiration && form.watch('noExpiration');
 
   return (
     <div className="space-y-6 text-left">
-      <FormField
-        control={form.control}
-        name="noExpiration"
-        render={({ field }) => (
-          <FormItem className="flex items-start gap-3 space-y-0">
-            <FormControl>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={(checked) => field.onChange(checked === true)}
-              />
-            </FormControl>
-            <div className="space-y-1">
-              <FormLabel className="text-label font-medium">{t('no_expiration.label')}</FormLabel>
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('no_expiration.helper_text')}
-              </FormDescription>
-            </div>
-          </FormItem>
-        )}
-      />
+      {canSetNoExpiration && (
+        <FormField
+          control={form.control}
+          name="noExpiration"
+          render={({ field }) => (
+            <FormItem className="flex items-start gap-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={(checked) => field.onChange(checked === true)}
+                />
+              </FormControl>
+              <div className="space-y-1">
+                <FormLabel className="text-label font-medium">{t('no_expiration.label')}</FormLabel>
+                <FormDescription className="text-paragraph font-normal text-left">
+                  {t('no_expiration.helper_text')}
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+      )}
 
       {!noExpiration && (
         <FormField
           control={form.control}
           name="tokenLifetime"
           render={({ field, fieldState }) => (
-            <FormItem className="pl-8">
+            <FormItem className={canSetNoExpiration ? 'pl-8' : undefined}>
               <FormLabel className="text-label font-medium">{t('token_lifetime.label')}</FormLabel>
               <FormControl>
                 <TextField

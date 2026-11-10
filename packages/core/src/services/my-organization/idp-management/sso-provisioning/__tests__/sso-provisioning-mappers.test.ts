@@ -50,14 +50,14 @@ describe('SsoProvisioningMappers', () => {
   });
 
   describe('createScimTokenToAPI', () => {
-    it('should omit token_lifetime for no expiration', () => {
+    it('should send token_lifetime null for no expiration', () => {
       expect(
         SsoProvisioningMappers.createScimTokenToAPI({
           noExpiration: true,
           tokenLifetime: '5000',
           scopes: ['get:users'],
         }),
-      ).toEqual({});
+      ).toEqual({ token_lifetime: null, scopes: ['get:users'] });
     });
 
     it('should send token_lifetime as a number', () => {
@@ -67,17 +67,27 @@ describe('SsoProvisioningMappers', () => {
           tokenLifetime: ' 7200 ',
           scopes: ['get:users'],
         }),
-      ).toEqual({ token_lifetime: 7200 });
+      ).toEqual({ token_lifetime: 7200, scopes: ['get:users'] });
     });
 
-    it('should not send scopes because the SDK request has no scopes field', () => {
+    it('should omit token_lifetime when the lifetime is blank so the API default applies', () => {
+      const request = SsoProvisioningMappers.createScimTokenToAPI({
+        noExpiration: false,
+        tokenLifetime: '  ',
+        scopes: ['get:users'],
+      });
+      expect(request).not.toHaveProperty('token_lifetime');
+      expect(request).toEqual({ scopes: ['get:users'] });
+    });
+
+    it('should send the selected scopes', () => {
       expect(
         SsoProvisioningMappers.createScimTokenToAPI({
           noExpiration: false,
           tokenLifetime: '7200',
-          scopes: ['get:users'],
-        }),
-      ).not.toHaveProperty('scopes');
+          scopes: ['get:users', 'post:users'],
+        }).scopes,
+      ).toEqual(['get:users', 'post:users']);
     });
   });
 });
