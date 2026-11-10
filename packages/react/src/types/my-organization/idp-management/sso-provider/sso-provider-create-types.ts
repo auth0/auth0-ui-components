@@ -27,6 +27,8 @@ import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
+
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
@@ -167,6 +169,11 @@ export interface ConnectionAccessFieldsProps
     'ProviderConfigure-ThirdPartyAccess' | 'ProviderConfigure-CrossAppAccess'
   >;
 }
+
+export type SamlCrossAppAccessProps = Omit<
+  CrossAppAccessSectionProps,
+  'strategy' | 'discoveryUrl' | 'onDiscoveryUrlChange' | 'discoveryUrlError'
+>;
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;

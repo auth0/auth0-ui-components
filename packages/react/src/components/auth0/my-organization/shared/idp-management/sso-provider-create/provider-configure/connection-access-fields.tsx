@@ -15,12 +15,8 @@ import { FormField } from '@/components/ui/form';
 import type {
   ConnectionAccessFieldsProps,
   ConnectionAccessFormValues,
+  SamlCrossAppAccessProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-
-type SamlCrossAppAccessProps = Omit<
-  React.ComponentProps<typeof SsoCrossAppAccessSection>,
-  'strategy' | 'discoveryUrl' | 'onDiscoveryUrlChange' | 'discoveryUrlError'
->;
 
 /**
  * SAML Cross App Access section. Only SAML subscribes to `discovery_url`.
@@ -34,7 +30,7 @@ function SamlCrossAppAccess(props: SamlCrossAppAccessProps): React.ReactElement 
   return (
     <SsoCrossAppAccessSection
       {...props}
-      strategy="samlp"
+      strategy={STRATEGIES.SAMLP}
       discoveryUrl={discoveryUrl}
       onDiscoveryUrlChange={(url) =>
         form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
