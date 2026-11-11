@@ -258,6 +258,28 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
   describe('connecting', () => {
     const waiting = () => createModel({ isConsentPending: true, consentPhase: 'waiting' });
 
+    it('makes the card inert while waiting and interactive otherwise', () => {
+      const { container, rerender } = renderComponent(
+        createModel({ state: 'connected', consentPhase: 'waiting' }),
+      );
+      const card = container.querySelector('[data-slot="card"]')!.parentElement as HTMLElement;
+
+      expect(card.inert).toBe(true);
+
+      vi.mocked(useGoogleWorkspaceProvisioning).mockReturnValue({
+        model: createModel({ state: 'connected' }),
+        actions,
+      });
+      rerender(
+        <SsoProvisioningGoogleSyncPanel
+          provider={mockProvider}
+          permissions={ALL_IDP_PERMISSIONS}
+        />,
+      );
+
+      expect(card.inert).toBe(false);
+    });
+
     it('shows the error overlay and hides continue', () => {
       renderComponent(waiting());
 

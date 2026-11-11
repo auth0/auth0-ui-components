@@ -291,6 +291,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             <TabsContent value="provisioning">
               {provisioningMethod === PROVISIONING_METHODS.GOOGLE_WORKSPACE ? (
                 <SsoProvisioningGoogleSyncPanel
+                  key={provider!.id}
                   provider={provider!}
                   permissions={permissions}
                   readOnly={readOnly}

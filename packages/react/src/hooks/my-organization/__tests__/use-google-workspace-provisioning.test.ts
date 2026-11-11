@@ -726,6 +726,35 @@ describe('useGoogleWorkspaceProvisioning', () => {
     });
   });
 
+  describe('disabled actions', () => {
+    it('does not create a ticket when createAction is disabled', async () => {
+      const { result } = renderProvisioning({ createAction: { disabled: true } });
+
+      await act(async () => {
+        await result.current.actions.setProvisioningEnabled(true);
+        await result.current.actions.startConsent();
+      });
+
+      expect(service.startConsent).not.toHaveBeenCalled();
+      expect(result.current.model.isConsentPending).toBe(false);
+    });
+
+    it('does not delete when deleteAction is disabled', async () => {
+      service = createService({ config: syncedConfig });
+      const { result } = renderProvisioning({ deleteAction: { disabled: true } });
+
+      await act(async () => {
+        await result.current.actions.setProvisioningEnabled(false);
+      });
+      expect(result.current.model.isDisableModalOpen).toBe(false);
+
+      await act(async () => {
+        await result.current.actions.confirmDisable();
+      });
+      expect(service.deleteConfig).not.toHaveBeenCalled();
+    });
+  });
+
   describe('polling', () => {
     it('does not re-render while polls keep returning waiting', async () => {
       const { result } = renderProvisioning();

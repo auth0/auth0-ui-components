@@ -55,7 +55,9 @@ export function useGoogleWorkspaceProvisioning({
   const [isDisableModalOpen, setDisableModalOpen] = useState(false);
 
   const hasFullAccessLevel = provider.access_level === 'full';
-  const canStartConsent = permissions.canCreateProvisioning && hasFullAccessLevel;
+  const canStartConsent =
+    permissions.canCreateProvisioning && hasFullAccessLevel && !createAction?.disabled;
+  const canDelete = permissions.canDeleteProvisioning && !deleteAction?.disabled;
 
   const failConsent = (error?: unknown) => {
     setConsentPhase('failed');
@@ -156,12 +158,12 @@ export function useGoogleWorkspaceProvisioning({
         return;
       }
       if (service.config) {
-        if (permissions.canDeleteProvisioning) setDisableModalOpen(true);
+        if (canDelete) setDisableModalOpen(true);
         return;
       }
       resetConsent();
     },
-    [permissions, service.config, createTicket, resetConsent],
+    [canDelete, service.config, createTicket, resetConsent],
   );
 
   const updateAutoSync = useCallback(
@@ -202,7 +204,7 @@ export function useGoogleWorkspaceProvisioning({
   }, [updateAutoSync, t]);
 
   const confirmDisable = useCallback(async (): Promise<void> => {
-    if (!permissions.canDeleteProvisioning) return;
+    if (!canDelete) return;
     if (deleteAction?.onBefore && !deleteAction.onBefore(provider)) {
       setDisableModalOpen(false);
       return;
@@ -218,7 +220,7 @@ export function useGoogleWorkspaceProvisioning({
     } catch (error) {
       handleError(error, { fallbackMessage: t('general_error') });
     }
-  }, [permissions, deleteAction, provider, service.deleteConfig, resetConsent, handleError, t]);
+  }, [canDelete, deleteAction, provider, service.deleteConfig, resetConsent, handleError, t]);
 
   const { config, isConfigLoading, isStartingConsent, isUpdating, isDeleting } = service;
   const state: GoogleWorkspaceProvisioningState = config ? 'connected' : 'not_connected';
