@@ -94,19 +94,16 @@ export function SsoProvisioningGoogleSyncPanel({
   const isProviderEnabled = !!provider.is_enabled;
   const hasFullAccessLevel = provider.access_level === 'full';
   const isConnected = state === 'connected';
-  // The switch is on while connected, and once a consent ticket was created for this session.
+
   const isSwitchOn = isConnected || isConsentPending;
   const isWaiting = consentPhase === 'waiting';
   const isFailed = !isConnected && consentPhase === 'failed';
   const isAutoSyncEnabled = !!config?.synchronize_automatically;
   const isPreviouslyDisabled = !isSwitchOn && wasDisabled;
-  // Auto sync starts off after a consent, so a configuration without it reuses an earlier
-  // authorization, unless access was granted in this session.
-  const isReusingAuthorization = isConnected && !isAutoSyncEnabled && !isGranted;
 
   const canStartConsent =
     !readOnly && isProviderEnabled && hasFullAccessLevel && permissions.canCreateProvisioning;
-  // Turning provisioning on creates a consent ticket; turning it off deletes the configuration.
+
   const canToggle =
     !readOnly &&
     (isConnected ? permissions.canDeleteProvisioning : isConsentPending || canStartConsent);
@@ -115,6 +112,13 @@ export function SsoProvisioningGoogleSyncPanel({
   const lastSyncedAt = config?.last_synchronization_at
     ? Date.parse(config.last_synchronization_at)
     : NaN;
+  const syncAlert = !config
+    ? undefined
+    : config.last_synchronization_status === 'failed'
+      ? 'sync_failed'
+      : Number.isNaN(lastSyncedAt) || lastSyncedAt < Date.parse(config.created_at)
+        ? 'unconfirmed_authorization'
+        : undefined;
 
   const showConnect = !readOnly && isSwitchOn && !isWaiting;
   const connectDisabledReason = !isProviderEnabled
@@ -188,7 +192,12 @@ export function SsoProvisioningGoogleSyncPanel({
 
   return (
     <div style={currentStyles.variables}>
-      <Card className={cn('relative', classes['SsoProvisioningGoogleSyncPanel-root'])}>
+      <Card
+        className={cn(
+          isWaiting && 'pointer-events-none select-none blur-sm',
+          classes['SsoProvisioningGoogleSyncPanel-root'],
+        )}
+      >
         <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
           <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
             <span>{t('google_workspace.header.title')}</span>
@@ -260,10 +269,10 @@ export function SsoProvisioningGoogleSyncPanel({
           </CardAction>
         </CardHeader>
 
-        {(isPreviouslyDisabled || isReusingAuthorization) && (
+        {(isPreviouslyDisabled || syncAlert) && (
           <CardContent>
             <Alert
-              variant="warning"
+              variant={syncAlert === 'sync_failed' ? 'destructive' : 'warning'}
               className={classes['SsoProvisioningGoogleSyncPanel-statusAlert']}
             >
               <Info />
@@ -272,7 +281,7 @@ export function SsoProvisioningGoogleSyncPanel({
                   t('google_workspace.status_alert.previously_disabled')
                 ) : (
                   <>
-                    {t.trans('google_workspace.status_alert.reused_authorization', {
+                    {t.trans(`google_workspace.status_alert.${syncAlert}`, {
                       components: {
                         link: (children: string) =>
                           canStartConsent ? (
@@ -326,31 +335,29 @@ export function SsoProvisioningGoogleSyncPanel({
             </div>
           </>
         )}
-
-        {isWaiting && (
-          <div
-            role="status"
-            aria-live="polite"
-            className={cn(
-              'bg-background/80 absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-4xl p-6 text-center backdrop-blur-sm',
-              classes['SsoProvisioningGoogleSyncPanel-errorOverlay'],
-            )}
-          >
-            <Spinner colorScheme="muted" className="border-muted" />
-            <p className="text-lg font-medium text-foreground">
-              {t('google_workspace.error.title')}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isStartingConsent}
-              onClick={actions.startConsent}
-            >
-              {t('google_workspace.error.retry_button_label')}
-            </Button>
-          </div>
-        )}
       </Card>
+
+      {isWaiting && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={cn(
+            'flex flex-col items-center gap-4 pt-8 text-center',
+            classes['SsoProvisioningGoogleSyncPanel-errorOverlay'],
+          )}
+        >
+          <Spinner colorScheme="muted" className="border-border" />
+          <p className="text-lg font-medium text-foreground">{t('google_workspace.error.title')}</p>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isStartingConsent}
+            onClick={actions.retryConsent}
+          >
+            {t('google_workspace.error.retry_button_label')}
+          </Button>
+        </div>
+      )}
 
       <SsoProvisioningGoogleSyncEnableAutoSyncModal
         open={isEnableAutoSyncModalOpen}

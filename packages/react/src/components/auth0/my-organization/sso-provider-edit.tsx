@@ -90,7 +90,6 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     <GateKeeper isLoading={isLoading} styling={styling}>
       <SsoProviderEditView
         {...ssoProviderEdit}
-        showProvisioningTab={ssoProviderEdit.showProvisioningTab && !hideProvisioningTab}
         styling={styling}
         customMessages={customMessages}
         backButton={backButton}
@@ -128,6 +127,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     providerId,
     domains,
     hideHeader,
+    hideProvisioningTab,
     hideDeleteProvider,
     hideRemoveFromOrganization,
     hideAttributeMappings,
@@ -143,8 +143,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     customMessages,
     backButton,
     shouldAllowDeletion,
-    showProvisioningTab,
-    provisioningMethods,
+    provisioningMethod,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     showCrossAppAccess,
@@ -175,6 +174,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     resolveSamlMetadata,
     showSignRequest,
   } = props;
+
+  const showProvisioningTab = !!provisioningMethod && !hideProvisioningTab;
 
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
@@ -288,7 +289,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
           {showProvisioningTab && (
             <TabsContent value="provisioning">
-              {provisioningMethods.includes(PROVISIONING_METHODS.GOOGLE_WORKSPACE) ? (
+              {provisioningMethod === PROVISIONING_METHODS.GOOGLE_WORKSPACE ? (
                 <SsoProvisioningGoogleSyncPanel
                   provider={provider!}
                   permissions={permissions}

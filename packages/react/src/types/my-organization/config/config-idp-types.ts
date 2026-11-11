@@ -14,11 +14,10 @@ export interface UseConfigIdpResult {
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   fetchIdpConfig: () => Promise<void>;
-  isProvisioningEnabled: (strategy: IdpStrategy | undefined) => boolean;
-  isProvisioningMethodEnabled: (strategy: IdpStrategy | undefined) => boolean;
-  getProvisioningMethods: (
+  isProvisioningEnabled: (
     strategy: IdpStrategy | undefined,
-  ) => IdentityProvidersConfigProvisioningMethod[];
+    method: IdentityProvidersConfigProvisioningMethod,
+  ) => boolean;
   isIdpConfigValid: boolean;
   showCrossAppAccess: (strategy: IdpStrategy | undefined) => boolean;
   isCrossAppAccessReadOnly: (strategy: IdpStrategy | undefined) => boolean;
