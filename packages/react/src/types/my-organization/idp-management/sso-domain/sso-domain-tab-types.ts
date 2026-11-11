@@ -10,6 +10,7 @@ import type {
   DomainCreateSchemas,
   IdpDomainVerificationMode,
   IdpKnownResponse,
+  OrganizationDiscoveryConfig,
   SharedComponentProps,
   SsoDomainTabMessages,
   IdpManagementPermissions,
@@ -72,6 +73,8 @@ export interface SsoDomainsTabProps
   provider: IdpKnownResponse | null;
   permissions: IdpManagementPermissions;
   domainVerificationMode?: IdpDomainVerificationMode;
+  /** The "Use for discovery" column is hidden without it. */
+  discoveryPolicy?: OrganizationDiscoveryConfig | null;
 }
 
 export interface SsoDomainTabActionColumn

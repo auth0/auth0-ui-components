@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import {
   getStatusBadgeVariant,
   isDomainAssociationUnavailable,
+  isDomainUsedForDiscovery,
   isLastRequiredDomainLocked,
   isRequiredDomainMissing,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
@@ -60,6 +61,7 @@ export function SsoDomainTab({
   domains,
   provider,
   domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
+  discoveryPolicy,
 }: SsoDomainsTabProps) {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.domains.content',
@@ -122,6 +124,26 @@ export function SsoDomainTab({
   };
   const alertMessage = getAlertMessage();
 
+  const discoveryColumns: Column<Domain>[] = React.useMemo(() => {
+    if (!discoveryPolicy) return [];
+
+    return [
+      {
+        type: 'custom',
+        accessorKey: 'use_for_organization_discovery',
+        title: t('table.columns.use_for_discovery'),
+        render: (domain) => {
+          const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
+          const discoveryLabel = isDiscoveryOn
+            ? t('table.discovery_values.yes')
+            : t('table.discovery_values.no');
+
+          return <span className="text-foreground">{discoveryLabel}</span>;
+        },
+      },
+    ];
+  }, [t, discoveryPolicy]);
+
   const columns: Column<Domain>[] = React.useMemo(
     () => [
       {
@@ -142,6 +164,7 @@ export function SsoDomainTab({
           </Badge>
         ),
       },
+      ...discoveryColumns,
       {
         type: 'actions',
         title: '',
@@ -175,6 +198,7 @@ export function SsoDomainTab({
       handleVerifyActionColumn,
       domainVerificationMode,
       lockLastDomain,
+      discoveryColumns,
     ],
   );
 

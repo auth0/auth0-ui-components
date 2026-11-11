@@ -947,4 +947,161 @@ describe('DomainTable', () => {
       );
     });
   });
+
+  describe('domain discovery', () => {
+    const columnTitle = 'domain_table.table.columns.use_for_discovery';
+    const discoveredDomain = createMockVerifiedDomain();
+    const pendingDomain = createMockDomain({ id: 'domain_pending', domain: 'pending.com' });
+
+    const mockConfiguration = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.get).mockResolvedValue({
+        allowed_strategies: ['okta'],
+        connection_deletion_behavior: 'allow',
+        ...(policy ? { use_for_organization_discovery: policy } : {}),
+      });
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: {
+          organization_domains: [
+            pendingDomain,
+            { ...discoveredDomain, use_for_organization_discovery: true },
+          ],
+        },
+      });
+      return organization;
+    };
+
+    const rowFor = (name: string) =>
+      screen.getAllByRole('row').find((row) => within(row).queryByText(name)) as HTMLElement;
+
+    it('hides the column when the organization has no discovery policy', async () => {
+      mockConfiguration();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.queryByText(columnTitle)).not.toBeInTheDocument();
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    });
+
+    it('shows a switch per domain, on for discovered domains and disabled until verified', async () => {
+      mockConfiguration({ default_value: false, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      expect(await screen.findByText(columnTitle)).toBeInTheDocument();
+      const verifiedSwitch = within(rowFor(discoveredDomain.domain)).getByRole('switch');
+      expect(verifiedSwitch).toBeChecked();
+      expect(verifiedSwitch).toBeEnabled();
+      expect(within(rowFor('pending.com')).getByRole('switch')).toBeDisabled();
+    });
+
+    it('turns discovery off for a verified domain', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(within(rowFor(discoveredDomain.domain)).getByRole('switch'));
+
+      await waitFor(() => {
+        expect(organization.domains.update).toHaveBeenCalledWith(discoveredDomain.id, {
+          use_for_organization_discovery: false,
+        });
+      });
+    });
+
+    it('keeps the switches disabled when the policy allows a single value', async () => {
+      const organization = mockConfiguration({ default_value: true, allowed_values: [true] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      expect(within(rowFor(discoveredDomain.domain)).getByRole('switch')).toBeDisabled();
+      expect(organization.domains.update).not.toHaveBeenCalled();
+    });
+
+    it('offers the discovery option when adding a domain', async () => {
+      const user = userEvent.setup();
+      mockConfiguration({ default_value: false, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByRole('checkbox')).not.toBeChecked();
+    });
+
+    it('locks the option for a user who can create domains but not update them, and omits it on create', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      vi.mocked(organization.domains.create).mockResolvedValue(createMockDomain());
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+        permissions: ['read:my_org:domains', 'create:my_org:domains'],
+      });
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+      const dialog = await screen.findByRole('dialog');
+      const checkbox = within(dialog).getByRole('checkbox');
+      expect(checkbox).toBeDisabled();
+      expect(checkbox).toHaveAccessibleDescription('error.forbidden');
+
+      await user.type(within(dialog).getByRole('textbox'), 'no-scope.com');
+      await user.click(within(dialog).getByRole('button', { name: /create/i }));
+
+      await waitFor(() => {
+        expect(organization.domains.create).toHaveBeenCalledWith({ domain: 'no-scope.com' });
+      });
+    });
+
+    it('does not offer the discovery option when adding a domain without a policy', async () => {
+      const user = userEvent.setup();
+      mockConfiguration();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('asks whether to use a newly verified domain for discovery, and turns it on', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      vi.mocked(organization.domains.verify.create).mockResolvedValue({
+        ...pendingDomain,
+        status: 'verified',
+      });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(within(rowFor('pending.com')).getByRole('button'));
+      await user.click(await screen.findByRole('menuitem', { name: /verify/i }));
+
+      const prompt = await screen.findByRole('dialog');
+      expect(within(prompt).getByText('title')).toBeInTheDocument();
+      await user.click(within(prompt).getByRole('button', { name: 'actions.use_button_text' }));
+
+      await waitFor(() => {
+        expect(organization.domains.update).toHaveBeenCalledWith(pendingDomain.id, {
+          use_for_organization_discovery: true,
+        });
+      });
+    });
+  });
 });

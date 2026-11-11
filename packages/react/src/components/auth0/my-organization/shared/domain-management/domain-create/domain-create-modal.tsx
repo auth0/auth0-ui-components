@@ -12,9 +12,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -36,6 +38,10 @@ import type { DomainCreateModalProps } from '@/types/my-organization/domain-mana
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.schema - Zod validation schema
+ * @param props.showDiscoveryOption - Whether to show the "Use for discovery" checkbox
+ * @param props.isDiscoveryReadOnly - Whether the checkbox is locked by the discovery policy
+ * @param props.canChangeDiscovery - Whether the user has permission to change the checkbox
+ * @param props.discoveryDefaultValue - Initial value of the checkbox
  * @param props.onClose - Callback fired when the component should close
  * @param props.onCreate - Callback fired when create action is triggered
  * @returns JSX element
@@ -47,10 +53,24 @@ export function DomainCreateModal({
   isOpen,
   isLoading,
   schema,
+  showDiscoveryOption = false,
+  isDiscoveryReadOnly = false,
+  canChangeDiscovery = true,
+  discoveryDefaultValue = false,
   onClose,
   onCreate,
 }: DomainCreateModalProps) {
   const { t } = useTranslator(translatorKey, customMessages);
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
+
+  const isDiscoveryDisabled = isDiscoveryReadOnly || !canChangeDiscovery;
+
+  const getDiscoveryHint = () => {
+    if (!canChangeDiscovery) return tCommon('error.forbidden');
+    if (isDiscoveryReadOnly) return t('use_for_discovery.locked_hint');
+    return null;
+  };
+  const discoveryHint = getDiscoveryHint();
 
   const domainCreateSchema = React.useMemo(
     () => createDomainCreateSchema(schema, t('field.error')),
@@ -61,23 +81,41 @@ export function DomainCreateModal({
     resolver: zodResolver(domainCreateSchema),
     defaultValues: {
       domain_url: '',
+      use_for_discovery: discoveryDefaultValue,
     },
     mode: FORM_VALIDATION_MODE,
   });
 
+  const resetForm = React.useCallback(() => {
+    form.reset({ domain_url: '', use_for_discovery: discoveryDefaultValue });
+  }, [form, discoveryDefaultValue]);
+
+  // The policy can load after the form is created.
+  React.useEffect(() => {
+    if (!form.formState.isDirty) {
+      resetForm();
+    }
+  }, [form.formState.isDirty, resetForm]);
+
   const handleCreate = React.useCallback(
     async (values: InternalDomainCreateFormValues) => {
       if (!values.domain_url) return;
-      await onCreate(values.domain_url);
-      form.reset();
+      // Without permission the value isn't sent, so the API applies the policy default.
+      const shouldSendDiscovery = showDiscoveryOption && canChangeDiscovery;
+      if (shouldSendDiscovery) {
+        await onCreate(values.domain_url, values.use_for_discovery ?? false);
+      } else {
+        await onCreate(values.domain_url);
+      }
+      resetForm();
     },
-    [form, onCreate],
+    [onCreate, resetForm, showDiscoveryOption, canChangeDiscovery],
   );
 
   const handleClose = React.useCallback(() => {
-    form.reset();
+    resetForm();
     onClose();
-  }, [form, onClose]);
+  }, [resetForm, onClose]);
 
   const onSubmit = React.useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,6 +156,31 @@ export function DomainCreateModal({
                   </FormItem>
                 )}
               />
+              {showDiscoveryOption && (
+                <FormField
+                  control={form.control}
+                  name="use_for_discovery"
+                  render={({ field }) => (
+                    <FormItem className="mt-4 flex items-start gap-3">
+                      <FormControl>
+                        <Checkbox
+                          checked={!!field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                          disabled={isDiscoveryDisabled}
+                        />
+                      </FormControl>
+                      <div className="space-y-1">
+                        <FormLabel className="text-label font-medium text-foreground peer-disabled:opacity-100">
+                          {t('use_for_discovery.label')}
+                        </FormLabel>
+                        {discoveryHint && (
+                          <FormDescription className="text-sm">{discoveryHint}</FormDescription>
+                        )}
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
             </form>
           </Form>
         </div>

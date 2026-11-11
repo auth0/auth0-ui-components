@@ -14,6 +14,7 @@ import type {
   DomainDeleteMessages,
   DomainConfigureMessages,
   DomainVerifyMessages,
+  DomainDiscoveryMessages,
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
@@ -39,6 +40,7 @@ export interface DomainTableClasses {
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTable-discoveryModal'?: string;
   'DomainTableConfigureModal-dialogContent'?: string;
   'DomainTableVerifyModal-dialogContent'?: string;
 }
@@ -57,6 +59,7 @@ export interface DomainTableMainMessages extends DomainTableMessages {
   configure: DomainConfigureMessages;
   verify: DomainVerifyMessages;
   delete: DomainDeleteMessages;
+  discovery: DomainDiscoveryMessages;
 }
 
 /** DomainTable validation schemas. */
@@ -85,6 +88,19 @@ export interface DomainTableActionsColumnProps {
   onConfigure: (domain: Domain) => void;
   onVerify: (domain: Domain) => void;
   onDelete: (domain: Domain) => void;
+}
+
+/** Props for the "Use for discovery" switch in a domain table row. */
+export interface DomainDiscoverySwitchProps {
+  customMessages?: Partial<DomainTableMainMessages>;
+  domain: Domain;
+  checked: boolean;
+  /** The discovery policy allows a single value, so the switch can't change. */
+  isLocked: boolean;
+  /** The user has permission to change discovery. */
+  canChange: boolean;
+  isUpdating: boolean;
+  onToggle: (domain: Domain, checked: boolean) => void | Promise<void>;
 }
 
 /** Parameters for domain pagination API calls. */
