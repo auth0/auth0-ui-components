@@ -16,6 +16,8 @@ import type {
   SsoProviderNotificationMessages,
 } from '@auth0/universal-components-core';
 
+import type { SsoProvisioningTabEditProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+
 /** Phase of the Google consent flow started in this session. */
 export type GoogleWorkspaceConsentPhase = 'idle' | 'waiting' | 'failed';
 
@@ -43,6 +45,8 @@ export interface UseGoogleWorkspaceProvisioningOptions
   extends Pick<UseGoogleWorkspaceProvisioningServiceOptions, 'customMessages'> {
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
+  createAction?: SsoProvisioningTabEditProps['createAction'];
+  deleteAction?: SsoProvisioningTabEditProps['deleteAction'];
 }
 
 /** Google Workspace provisioning UI state. */
@@ -96,6 +100,8 @@ export interface SsoProvisioningGoogleSyncPanelProps
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
   readOnly?: boolean;
+  createAction?: SsoProvisioningTabEditProps['createAction'];
+  deleteAction?: SsoProvisioningTabEditProps['deleteAction'];
 }
 
 export interface SsoProvisioningGoogleSyncEnableAutoSyncModalProps {

@@ -40,6 +40,8 @@ import type { SsoProvisioningGoogleSyncPanelProps } from '@/types/my-organizatio
  * @param props.provider - The SSO provider being configured.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode.
+ * @param props.createAction - Lifecycle hooks for creating provisioning; `onAfter` runs once consent completes.
+ * @param props.deleteAction - Lifecycle hooks for deleting provisioning.
  * @param props.customMessages - Custom i18n message overrides, including toast notifications.
  * @param props.styling - CSS variables and class overrides.
  * @returns The Google Workspace provisioning card.
@@ -49,6 +51,8 @@ export function SsoProvisioningGoogleSyncPanel({
   provider,
   permissions,
   readOnly = false,
+  createAction,
+  deleteAction,
   customMessages = {},
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
 }: SsoProvisioningGoogleSyncPanelProps): React.JSX.Element {
@@ -61,6 +65,8 @@ export function SsoProvisioningGoogleSyncPanel({
   const { model, actions } = useGoogleWorkspaceProvisioning({
     provider,
     permissions,
+    createAction,
+    deleteAction,
     customMessages: customMessages.notifications,
   });
   const {
