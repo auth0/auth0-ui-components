@@ -125,6 +125,33 @@ export function useDomainTableService({
     },
   });
 
+  const updateDiscoveryMutation = useMutation({
+    mutationFn: async ({
+      domain,
+      useForDiscovery,
+    }: {
+      domain: Domain;
+      useForDiscovery: boolean;
+    }): Promise<Domain> =>
+      coreClient!.getMyOrganizationApiClient().organization.domains.update(domain.id, {
+        use_for_organization_discovery: useForDiscovery,
+      }),
+    onSuccess: (updatedDomain, { domain, useForDiscovery }) => {
+      const discoveryValue = updatedDomain?.use_for_organization_discovery ?? useForDiscovery;
+
+      const patchRow = (row: Domain): Domain => {
+        if (row.id !== domain.id) return row;
+        return { ...row, ...updatedDomain, use_for_organization_discovery: discoveryValue };
+      };
+
+      queryClient.setQueriesData<{ domains: Domain[]; next: string | null }>(
+        { queryKey: domainQueryKeys.lists() },
+        (oldData) => oldData && { ...oldData, domains: oldData.domains.map(patchRow) },
+      );
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
+    },
+  });
+
   const deleteDomainMutation = useMutation({
     mutationFn: async (domain: Domain): Promise<void> => {
       if (deleteAction?.onBefore && !deleteAction.onBefore(domain)) {
@@ -185,6 +212,12 @@ export function useDomainTableService({
     [verifyDomainMutation],
   );
 
+  const onUpdateDomainDiscovery = useCallback(
+    (domain: Domain, useForDiscovery: boolean) =>
+      updateDiscoveryMutation.mutateAsync({ domain, useForDiscovery }),
+    [updateDiscoveryMutation],
+  );
+
   const onDeleteDomain = useCallback(
     (domain: Domain) => deleteDomainMutation.mutateAsync(domain),
     [deleteDomainMutation],
@@ -229,6 +262,7 @@ export function useDomainTableService({
     isCreating: isMutationLoading(createDomainMutation),
     isDeleting: isMutationLoading(deleteDomainMutation),
     isVerifying: isMutationLoading(verifyDomainMutation),
+    isUpdatingDiscovery: isMutationLoading(updateDiscoveryMutation),
     isLoadingProviders: providersQuery.isLoading,
 
     refetchDomains: domainsQuery.refetch,
@@ -236,6 +270,7 @@ export function useDomainTableService({
     fetchDomains,
     onCreateDomain,
     onVerifyDomain,
+    onUpdateDomainDiscovery,
     onDeleteDomain,
     onAssociateToProvider,
     onDeleteFromProvider,

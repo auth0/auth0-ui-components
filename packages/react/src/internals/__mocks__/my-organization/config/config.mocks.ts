@@ -25,5 +25,9 @@ export const createMockUseConfig = (overrides?: Partial<MockUseConfig>): MockUse
   showThirdPartyAccess: false,
   isThirdPartyAccessReadOnly: false,
   thirdPartyAccessDefaultValue: undefined,
+  discoveryPolicy: null,
+  showDiscovery: false,
+  isDiscoveryReadOnly: true,
+  discoveryDefaultValue: false,
   ...overrides,
 });

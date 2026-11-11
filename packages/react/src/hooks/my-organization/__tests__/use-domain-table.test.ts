@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useDomainTable } from '../use-domain-table';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { PermissionContext } from '@/providers/permission-provider';
@@ -22,10 +23,14 @@ vi.mock('@/hooks/shared/use-error-handler', () => ({
   useErrorHandler: () => mockHandleError,
 }));
 
-mockToast();
+const { mockedShowToast } = mockToast();
 
 vi.mock('@/hooks/my-organization/shared/services/use-domain-table-service', () => ({
   useDomainTableService: vi.fn(),
+}));
+
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: vi.fn(),
 }));
 
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
@@ -33,6 +38,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
 }));
 
 const mockUseDomainTableService = vi.mocked(useDomainTableService);
+const mockUseConfig = vi.mocked(useConfig);
 const mockUseIdpConfig = vi.mocked(useIdpConfig);
 
 const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
@@ -41,6 +47,23 @@ const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
       ? { domain_aliases_config: { domain_verification: domainVerification } }
       : null,
   } as ReturnType<typeof useIdpConfig>);
+
+const createMockConfig = (overrides: Partial<ReturnType<typeof useConfig>> = {}) =>
+  ({
+    discoveryPolicy: null,
+    showDiscovery: false,
+    isDiscoveryReadOnly: true,
+    discoveryDefaultValue: false,
+    ...overrides,
+  }) as ReturnType<typeof useConfig>;
+
+const editableDiscoveryConfig = () =>
+  createMockConfig({
+    discoveryPolicy: { default_value: false, allowed_values: [true, false] },
+    showDiscovery: true,
+    isDiscoveryReadOnly: false,
+    discoveryDefaultValue: false,
+  });
 
 describe('useDomainTable', () => {
   const mockDomain = {
@@ -74,6 +97,7 @@ describe('useDomainTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
+    mockUseConfig.mockReturnValue(createMockConfig());
     mockIdpConfig();
   });
 
@@ -717,6 +741,218 @@ describe('useDomainTable', () => {
       const { result } = render();
 
       expect(result.current.domainVerificationMode).toBe('optional');
+    });
+  });
+
+  describe('domain discovery', () => {
+    const mockServiceWith = (overrides = {}) => {
+      const service = createMockDomainTableServiceReturn({
+        onVerifyDomain: vi.fn().mockResolvedValue(true),
+        onUpdateDomainDiscovery: vi.fn().mockResolvedValue(verifiedDomain),
+        onCreateDomain: vi.fn().mockResolvedValue(mockDomain),
+        fetchProviders: vi.fn().mockResolvedValue(undefined),
+        ...overrides,
+      });
+      mockUseDomainTableService.mockReturnValue(service);
+      return service;
+    };
+
+    it('exposes the discovery policy from the configuration', () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const { result } = render();
+
+      expect(result.current.showDiscovery).toBe(true);
+      expect(result.current.isDiscoveryReadOnly).toBe(false);
+      expect(result.current.discoveryDefaultValue).toBe(false);
+    });
+
+    it('omits use_for_organization_discovery on create when discovery is not available', async () => {
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('sends use_for_organization_discovery on create when discovery is available', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({
+        domain: 'test.com',
+        use_for_organization_discovery: true,
+      });
+    });
+
+    it('opens the discovery modal after verify when discovery is still off', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify({ ...mockDomain, use_for_organization_discovery: false });
+      });
+
+      expect(result.current.showVerifyModal).toBe(false);
+      expect(result.current.showDiscoveryModal).toBe(true);
+    });
+
+    it('announces that discovery is on, without the modal, when it was already chosen', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify({ ...mockDomain, use_for_organization_discovery: true });
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_table.notifications.domain_verify.success_discovery_on',
+      });
+    });
+
+    it('does not open the discovery modal when the policy locks discovery', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: false, allowed_values: [false] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+        }),
+      );
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+    });
+
+    it('turns discovery on from the modal and closes it', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+
+      expect(service.onUpdateDomainDiscovery).toHaveBeenCalledWith(mockDomain, true);
+      expect(result.current.showDiscoveryModal).toBe(false);
+    });
+
+    it('reports an error and keeps the modal open when turning discovery on fails', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const error = new Error('update failed');
+      mockServiceWith({ onUpdateDomainDiscovery: vi.fn().mockRejectedValue(error) });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'domain_table.notifications.domain_discovery_update.error',
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+    });
+
+    it('opens the configure step after "Not now" when verify started from a row', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+      expect(result.current.showConfigureModal).toBe(false);
+
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+      expect(service.fetchProviders).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.showConfigureModal).toBe(true);
+    });
+
+    it('toggles discovery for a verified domain and confirms with a toast', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, false);
+      });
+
+      expect(service.onUpdateDomainDiscovery).toHaveBeenCalledWith(verifiedDomain, false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_table.notifications.domain_discovery_update.success_off',
+      });
+    });
+
+    it('does not toggle discovery for an unverified domain', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(mockDomain, true);
+      });
+
+      expect(service.onUpdateDomainDiscovery).not.toHaveBeenCalled();
+    });
+
+    it('does not toggle discovery when the policy locks it', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, false);
+      });
+
+      expect(service.onUpdateDomainDiscovery).not.toHaveBeenCalled();
+    });
+
+    it('reports an error when toggling discovery fails', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const error = new Error('toggle failed');
+      mockServiceWith({ onUpdateDomainDiscovery: vi.fn().mockRejectedValue(error) });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, true);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'domain_table.notifications.domain_discovery_update.error',
+      });
     });
   });
 });
