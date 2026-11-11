@@ -291,7 +291,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   provider={provider!}
                   permissions={permissions}
                   readOnly={readOnly}
-                  customMessages={customMessages?.tabs?.provisioning?.content?.google_workspace}
+                  customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                 />
               ) : (

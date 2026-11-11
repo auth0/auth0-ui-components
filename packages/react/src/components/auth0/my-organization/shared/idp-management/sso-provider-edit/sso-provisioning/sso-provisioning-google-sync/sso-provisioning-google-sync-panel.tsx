@@ -40,8 +40,7 @@ import type { SsoProvisioningGoogleSyncPanelProps } from '@/types/my-organizatio
  * @param props.provider - The SSO provider being configured.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode.
- * @param props.customMessages - Custom i18n message overrides.
- * @param props.notificationMessages - Custom notification messages for toasts.
+ * @param props.customMessages - Custom i18n message overrides, including toast notifications.
  * @param props.styling - CSS variables and class overrides.
  * @returns The Google Workspace provisioning card.
  * @internal
@@ -51,11 +50,10 @@ export function SsoProvisioningGoogleSyncPanel({
   permissions,
   readOnly = false,
   customMessages = {},
-  notificationMessages,
   styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
 }: SsoProvisioningGoogleSyncPanelProps): React.JSX.Element {
   const { t } = useTranslator(
-    'idp_management.edit_sso_provider.tabs.provisioning.content.google_workspace',
+    'idp_management.edit_sso_provider.tabs.provisioning.content',
     customMessages,
   );
   const { t: tCommon } = useTranslator('common', customMessages.common);
@@ -63,7 +61,7 @@ export function SsoProvisioningGoogleSyncPanel({
   const { model, actions } = useGoogleWorkspaceProvisioning({
     provider,
     permissions,
-    customMessages: notificationMessages,
+    customMessages: customMessages.notifications,
   });
   const {
     state,
@@ -114,11 +112,11 @@ export function SsoProvisioningGoogleSyncPanel({
 
   const showConnect = !readOnly && isSwitchOn && !isWaiting;
   const connectDisabledReason = !isProviderEnabled
-    ? t('header.provider_disabled_tooltip')
+    ? t('google_workspace.header.provider_disabled_tooltip')
     : !permissions.canCreateProvisioning
       ? tCommon('error.forbidden')
       : !hasFullAccessLevel
-        ? t('header.access_level_required_tooltip')
+        ? t('google_workspace.header.access_level_required_tooltip')
         : undefined;
   const connectButton = (
     <Button
@@ -134,17 +132,25 @@ export function SsoProvisioningGoogleSyncPanel({
             : actions.continueConsent
       }
     >
-      {t(isFailed ? 'header.retry_button_label' : 'header.continue_button_label')}
+      {t(
+        isFailed
+          ? 'google_workspace.header.retry_button_label'
+          : 'google_workspace.header.continue_button_label',
+      )}
     </Button>
   );
 
   const provisioningTooltip = !isProviderEnabled
-    ? t('header.provider_disabled_tooltip')
+    ? t('google_workspace.header.provider_disabled_tooltip')
     : !canToggle
       ? !isConnected && !hasFullAccessLevel
-        ? t('header.access_level_required_tooltip')
+        ? t('google_workspace.header.access_level_required_tooltip')
         : tCommon('error.forbidden')
-      : t(isSwitchOn ? 'header.disable_tooltip' : 'header.enable_tooltip');
+      : t(
+          isSwitchOn
+            ? 'google_workspace.header.disable_tooltip'
+            : 'google_workspace.header.enable_tooltip',
+        );
   const provisioningSwitch = (
     <span>
       <Switch
@@ -158,7 +164,11 @@ export function SsoProvisioningGoogleSyncPanel({
 
   const autoSyncTooltip = !canUpdateAutoSync
     ? tCommon('error.forbidden')
-    : t(isAutoSyncEnabled ? 'auto_sync.disable_tooltip' : 'auto_sync.enable_tooltip');
+    : t(
+        isAutoSyncEnabled
+          ? 'google_workspace.auto_sync.disable_tooltip'
+          : 'google_workspace.auto_sync.enable_tooltip',
+      );
   const autoSyncSwitch = (
     <span>
       <Switch
@@ -175,19 +185,23 @@ export function SsoProvisioningGoogleSyncPanel({
       <Card className={cn('relative', classes['SsoProvisioningGoogleSyncPanel-root'])}>
         <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
           <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
-            <span>{t('header.title')}</span>
+            <span>{t('google_workspace.header.title')}</span>
             {status && (
               <Badge
                 variant={status === 'granted' ? 'success' : 'warning'}
                 size="sm"
                 className={classes['SsoProvisioningGoogleSyncPanel-statusBadge']}
               >
-                {t(`header.status.${status}`)}
+                {t(`google_workspace.header.status.${status}`)}
               </Badge>
             )}
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground text-left">
-            {t(isSwitchOn ? 'header.description_enabled' : 'header.description_disabled')}
+            {t(
+              isSwitchOn
+                ? 'google_workspace.header.description_enabled'
+                : 'google_workspace.header.description_disabled',
+            )}
           </CardDescription>
           {isConnected && !Number.isNaN(lastSyncedAt) && (
             <div
@@ -197,7 +211,7 @@ export function SsoProvisioningGoogleSyncPanel({
               )}
             >
               <span>
-                {t('connection_info.last_synced_label')}{' '}
+                {t('google_workspace.connection_info.last_synced_label')}{' '}
                 <span className="text-foreground">
                   {getRelativeTimeLabel(lastSyncedAt, tCommon)}
                 </span>
@@ -249,10 +263,10 @@ export function SsoProvisioningGoogleSyncPanel({
               <Info />
               <AlertDescription>
                 {isPreviouslyDisabled ? (
-                  t('status_alert.previously_disabled')
+                  t('google_workspace.status_alert.previously_disabled')
                 ) : (
                   <>
-                    {t.trans('status_alert.reused_authorization', {
+                    {t.trans('google_workspace.status_alert.reused_authorization', {
                       components: {
                         link: (children: string) =>
                           canStartConsent ? (
@@ -287,9 +301,11 @@ export function SsoProvisioningGoogleSyncPanel({
             >
               <div className="space-y-1.5 text-left">
                 <h3 className="text-lg font-medium text-foreground leading-none">
-                  {t('auto_sync.title')}
+                  {t('google_workspace.auto_sync.title')}
                 </h3>
-                <p className="text-sm text-muted-foreground">{t('auto_sync.description')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t('google_workspace.auto_sync.description')}
+                </p>
               </div>
               {isUpdating ? (
                 <Spinner className="w-4 h-4" />
@@ -315,14 +331,16 @@ export function SsoProvisioningGoogleSyncPanel({
             )}
           >
             <Spinner colorScheme="muted" className="border-muted" />
-            <p className="text-lg font-medium text-foreground">{t('error.title')}</p>
+            <p className="text-lg font-medium text-foreground">
+              {t('google_workspace.error.title')}
+            </p>
             <Button
               type="button"
               variant="outline"
               disabled={isStartingConsent}
               onClick={actions.startConsent}
             >
-              {t('error.retry_button_label')}
+              {t('google_workspace.error.retry_button_label')}
             </Button>
           </div>
         )}
@@ -333,7 +351,7 @@ export function SsoProvisioningGoogleSyncPanel({
         isLoading={isUpdating}
         onDismiss={actions.dismissEnableAutoSyncModal}
         onConfirm={actions.confirmEnableAutoSyncModal}
-        customMessages={customMessages.modals?.enable_auto_sync}
+        customMessages={customMessages.google_workspace?.modals?.enable_auto_sync}
         className={classes['SsoProvisioningGoogleSyncPanel-enableAutoSyncModal']}
       />
       <SsoProvisioningGoogleSyncDisableModal
@@ -341,7 +359,7 @@ export function SsoProvisioningGoogleSyncPanel({
         isLoading={isDeleting}
         onOpenChange={actions.setDisableModalOpen}
         onConfirm={actions.confirmDisable}
-        customMessages={customMessages.modals?.disable}
+        customMessages={customMessages.google_workspace?.modals?.disable}
         className={classes['SsoProvisioningGoogleSyncPanel-disableModal']}
       />
     </div>

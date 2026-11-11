@@ -65,12 +65,16 @@ export function useGoogleWorkspaceProvisioning({
   const handleConsentComplete = async () => {
     try {
       const config = await service.refetchConfig();
+      if (!config) {
+        failConsent();
+        return;
+      }
       setConsentPhase('idle');
       setTicketUrl(null);
       setIsGranted(true);
       setWasDisabled(false);
       // The enable auto sync modal confirms the granted access itself.
-      if (config && !config.synchronize_automatically && permissions.canUpdateProvisioning) {
+      if (!config.synchronize_automatically && permissions.canUpdateProvisioning) {
         setEnableAutoSyncModalOpen(true);
       } else {
         showToast({

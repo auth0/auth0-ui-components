@@ -8,8 +8,8 @@ import type {
   DirectoryProvisioningConfig,
   GoogleWorkspaceProvisioningDisableModalMessages,
   GoogleWorkspaceProvisioningEnableAutoSyncModalMessages,
-  GoogleWorkspaceProvisioningMessages,
   SharedComponentProps,
+  SsoProvisioningTabMessages,
   DirectoryProvisioningConsentStatus,
   IdpKnownResponse,
   IdpManagementPermissions,
@@ -92,14 +92,10 @@ export interface SsoProvisioningGoogleSyncPanelClasses {
 }
 
 export interface SsoProvisioningGoogleSyncPanelProps
-  extends SharedComponentProps<
-    GoogleWorkspaceProvisioningMessages,
-    SsoProvisioningGoogleSyncPanelClasses
-  > {
+  extends SharedComponentProps<SsoProvisioningTabMessages, SsoProvisioningGoogleSyncPanelClasses> {
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
   readOnly?: boolean;
-  notificationMessages?: Partial<SsoProviderNotificationMessages>;
 }
 
 export interface SsoProvisioningGoogleSyncEnableAutoSyncModalProps {
