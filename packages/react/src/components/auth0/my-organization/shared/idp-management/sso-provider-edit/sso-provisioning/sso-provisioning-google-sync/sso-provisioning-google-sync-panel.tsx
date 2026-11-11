@@ -97,11 +97,6 @@ export function SsoProvisioningGoogleSyncPanel({
 
   const isSwitchOn = isConnected || isConsentPending;
   const isWaiting = consentPhase === 'waiting';
-  const cardRef = React.useRef<HTMLDivElement>(null);
-  // `pointer-events-none` does not stop keyboard use, so the card is made inert while waiting.
-  React.useEffect(() => {
-    if (cardRef.current) cardRef.current.inert = isWaiting;
-  }, [isWaiting]);
   const isFailed = !isConnected && consentPhase === 'failed';
   const isAutoSyncEnabled = !!config?.synchronize_automatically;
   const isPreviouslyDisabled = !isSwitchOn && wasDisabled;
@@ -195,7 +190,7 @@ export function SsoProvisioningGoogleSyncPanel({
       <Switch
         checked={isAutoSyncEnabled}
         onCheckedChange={actions.setAutoSync}
-        disabled={!canUpdateAutoSync || isUpdating}
+        disabled={!canUpdateAutoSync || isUpdating || isWaiting}
         aria-label={autoSyncTooltip}
       />
     </span>
@@ -203,152 +198,150 @@ export function SsoProvisioningGoogleSyncPanel({
 
   return (
     <div style={currentStyles.variables}>
-      <div ref={cardRef}>
-        <Card
-          className={cn(
-            isWaiting && 'pointer-events-none select-none blur-sm',
-            classes['SsoProvisioningGoogleSyncPanel-root'],
-          )}
-        >
-          <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
-            <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
-              <span>{t('google_workspace.header.title')}</span>
-              {status && (
-                <Badge
-                  variant={status === 'granted' ? 'success' : 'warning'}
-                  size="sm"
-                  className={classes['SsoProvisioningGoogleSyncPanel-statusBadge']}
-                >
-                  {t(`google_workspace.header.status.${status}`)}
-                </Badge>
-              )}
-            </CardTitle>
-            <CardDescription className="text-sm text-muted-foreground text-left">
-              {t(
-                isSwitchOn
-                  ? 'google_workspace.header.description_enabled'
-                  : 'google_workspace.header.description_disabled',
-              )}
-            </CardDescription>
-            {isConnected && !Number.isNaN(lastSyncedAt) && (
-              <div
-                className={cn(
-                  'flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground',
-                  classes['SsoProvisioningGoogleSyncPanel-connectionInfo'],
-                )}
+      <Card
+        className={cn(
+          isWaiting && 'pointer-events-none select-none blur-sm',
+          classes['SsoProvisioningGoogleSyncPanel-root'],
+        )}
+      >
+        <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
+          <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
+            <span>{t('google_workspace.header.title')}</span>
+            {status && (
+              <Badge
+                variant={status === 'granted' ? 'success' : 'warning'}
+                size="sm"
+                className={classes['SsoProvisioningGoogleSyncPanel-statusBadge']}
               >
-                <span>
-                  {t('google_workspace.connection_info.last_synced_label')}{' '}
-                  <span className="text-foreground">
-                    {getRelativeTimeLabel(lastSyncedAt, tCommon)}
-                  </span>
-                </span>
-              </div>
+                {t(`google_workspace.header.status.${status}`)}
+              </Badge>
             )}
-            <CardAction
+          </CardTitle>
+          <CardDescription className="text-sm text-muted-foreground text-left">
+            {t(
+              isSwitchOn
+                ? 'google_workspace.header.description_enabled'
+                : 'google_workspace.header.description_disabled',
+            )}
+          </CardDescription>
+          {isConnected && !Number.isNaN(lastSyncedAt) && (
+            <div
               className={cn(
-                'flex items-center gap-3 self-center',
-                classes['SsoProvisioningGoogleSyncPanel-actions'],
+                'flex flex-wrap items-center gap-3 pt-2 text-xs text-muted-foreground',
+                classes['SsoProvisioningGoogleSyncPanel-connectionInfo'],
               )}
             >
-              {isLoading ? (
-                <Spinner className="w-4 h-4" />
-              ) : (
-                <>
-                  {showConnect &&
-                    (connectDisabledReason ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span>{connectButton}</span>
-                        </TooltipTrigger>
-                        <TooltipContent>{connectDisabledReason}</TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      connectButton
-                    ))}
-                  {isDeleting || (isStartingConsent && !isSwitchOn) ? (
-                    <Spinner className="w-4 h-4" />
-                  ) : readOnly ? (
-                    provisioningSwitch
-                  ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>{provisioningSwitch}</TooltipTrigger>
-                      <TooltipContent>{provisioningTooltip}</TooltipContent>
-                    </Tooltip>
-                  )}
-                </>
-              )}
-            </CardAction>
-          </CardHeader>
-
-          {(isPreviouslyDisabled || syncAlert) && (
-            <CardContent>
-              <Alert
-                variant={syncAlert === 'sync_failed' ? 'destructive' : 'warning'}
-                className={classes['SsoProvisioningGoogleSyncPanel-statusAlert']}
-              >
-                <Info />
-                <AlertDescription>
-                  {isPreviouslyDisabled ? (
-                    t('google_workspace.status_alert.previously_disabled')
-                  ) : (
-                    <>
-                      {t.trans(`google_workspace.status_alert.${syncAlert}`, {
-                        components: {
-                          link: (children: string) =>
-                            canStartConsent ? (
-                              <button
-                                key="reverify-link"
-                                type="button"
-                                className="underline underline-offset-4"
-                                onClick={actions.startConsent}
-                              >
-                                {children}
-                              </button>
-                            ) : (
-                              <React.Fragment key="reverify-link">{children}</React.Fragment>
-                            ),
-                        },
-                      })}
-                    </>
-                  )}
-                </AlertDescription>
-              </Alert>
-            </CardContent>
+              <span>
+                {t('google_workspace.connection_info.last_synced_label')}{' '}
+                <span className="text-foreground">
+                  {getRelativeTimeLabel(lastSyncedAt, tCommon)}
+                </span>
+              </span>
+            </div>
           )}
-
-          {isConnected && (
-            <>
-              <Separator />
-              <div
-                className={cn(
-                  'flex items-center justify-between gap-6 px-6',
-                  classes['SsoProvisioningGoogleSyncPanel-autoSync'],
-                )}
-              >
-                <div className="space-y-1.5 text-left">
-                  <h3 className="text-lg font-medium text-foreground leading-none">
-                    {t('google_workspace.auto_sync.title')}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {t('google_workspace.auto_sync.description')}
-                  </p>
-                </div>
-                {isUpdating ? (
+          <CardAction
+            className={cn(
+              'flex items-center gap-3 self-center',
+              classes['SsoProvisioningGoogleSyncPanel-actions'],
+            )}
+          >
+            {isLoading ? (
+              <Spinner className="w-4 h-4" />
+            ) : (
+              <>
+                {showConnect &&
+                  (connectDisabledReason ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span>{connectButton}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>{connectDisabledReason}</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    connectButton
+                  ))}
+                {isDeleting || (isStartingConsent && !isSwitchOn) ? (
                   <Spinner className="w-4 h-4" />
                 ) : readOnly ? (
-                  autoSyncSwitch
+                  provisioningSwitch
                 ) : (
                   <Tooltip>
-                    <TooltipTrigger asChild>{autoSyncSwitch}</TooltipTrigger>
-                    <TooltipContent>{autoSyncTooltip}</TooltipContent>
+                    <TooltipTrigger asChild>{provisioningSwitch}</TooltipTrigger>
+                    <TooltipContent>{provisioningTooltip}</TooltipContent>
                   </Tooltip>
                 )}
+              </>
+            )}
+          </CardAction>
+        </CardHeader>
+
+        {(isPreviouslyDisabled || syncAlert) && (
+          <CardContent>
+            <Alert
+              variant={syncAlert === 'sync_failed' ? 'destructive' : 'warning'}
+              className={classes['SsoProvisioningGoogleSyncPanel-statusAlert']}
+            >
+              <Info />
+              <AlertDescription>
+                {isPreviouslyDisabled ? (
+                  t('google_workspace.status_alert.previously_disabled')
+                ) : (
+                  <>
+                    {t.trans(`google_workspace.status_alert.${syncAlert}`, {
+                      components: {
+                        link: (children: string) =>
+                          canStartConsent && !isWaiting ? (
+                            <button
+                              key="reverify-link"
+                              type="button"
+                              className="underline underline-offset-4"
+                              onClick={actions.startConsent}
+                            >
+                              {children}
+                            </button>
+                          ) : (
+                            <React.Fragment key="reverify-link">{children}</React.Fragment>
+                          ),
+                      },
+                    })}
+                  </>
+                )}
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        )}
+
+        {isConnected && (
+          <>
+            <Separator />
+            <div
+              className={cn(
+                'flex items-center justify-between gap-6 px-6',
+                classes['SsoProvisioningGoogleSyncPanel-autoSync'],
+              )}
+            >
+              <div className="space-y-1.5 text-left">
+                <h3 className="text-lg font-medium text-foreground leading-none">
+                  {t('google_workspace.auto_sync.title')}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('google_workspace.auto_sync.description')}
+                </p>
               </div>
-            </>
-          )}
-        </Card>
-      </div>
+              {isUpdating ? (
+                <Spinner className="w-4 h-4" />
+              ) : readOnly ? (
+                autoSyncSwitch
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>{autoSyncSwitch}</TooltipTrigger>
+                  <TooltipContent>{autoSyncTooltip}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </>
+        )}
+      </Card>
 
       {isWaiting && (
         <div

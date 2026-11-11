@@ -258,26 +258,18 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
   describe('connecting', () => {
     const waiting = () => createModel({ isConsentPending: true, consentPhase: 'waiting' });
 
-    it('makes the card inert while waiting and interactive otherwise', () => {
-      const { container, rerender } = renderComponent(
-        createModel({ state: 'connected', consentPhase: 'waiting' }),
-      );
-      const card = container.querySelector('[data-slot="card"]')!.parentElement as HTMLElement;
-
-      expect(card.inert).toBe(true);
-
-      vi.mocked(useGoogleWorkspaceProvisioning).mockReturnValue({
-        model: createModel({ state: 'connected' }),
-        actions,
-      });
-      rerender(
-        <SsoProvisioningGoogleSyncPanel
-          provider={mockProvider}
-          permissions={ALL_IDP_PERMISSIONS}
-        />,
+    it('disables the auto sync switch and the re-authorize link while waiting', () => {
+      renderComponent(
+        createModel({ state: 'connected', config: unsyncedConfig, consentPhase: 'waiting' }),
+        alertMessages,
       );
 
-      expect(card.inert).toBe(false);
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.auto_sync.disable_tooltip' }),
+      ).toBeDisabled();
+      expect(
+        within(screen.getByRole('alert')).queryByRole('button', { name: /Continue with Google/ }),
+      ).not.toBeInTheDocument();
     });
 
     it('shows the error overlay and hides continue', () => {
