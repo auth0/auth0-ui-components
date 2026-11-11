@@ -99,11 +99,8 @@ export function useGoogleWorkspaceProvisioning({
 
   const consentPolling = usePollUntil({
     request: service.verifyConsent,
-    // Any status other than `waiting` ends the consent flow; only `complete` grants access.
     isDone: (result) => result.status !== 'waiting',
-    // Consent cannot complete before the administrator has acted in the new tab.
     immediate: false,
-    // The verify endpoint must not be called more often than every 5000 ms, also on focus.
     focusThrottleMs: VERIFY_INTERVAL_MS,
     getInterval: ({ elapsedMs, attempts }) =>
       elapsedMs >= MAX_POLL_MS || attempts >= MAX_POLL_ATTEMPTS ? false : VERIFY_INTERVAL_MS,
@@ -152,11 +149,6 @@ export function useGoogleWorkspaceProvisioning({
     setConsentPhase('idle');
   }, [consentPolling.stop]);
 
-  const retryConsent = useCallback(async (): Promise<void> => {
-    resetConsent();
-    if (!service.config) await createTicket();
-  }, [resetConsent, service.config, createTicket]);
-
   const setProvisioningEnabled = useCallback(
     async (enabled: boolean): Promise<void> => {
       if (enabled) {
@@ -167,7 +159,6 @@ export function useGoogleWorkspaceProvisioning({
         if (permissions.canDeleteProvisioning) setDisableModalOpen(true);
         return;
       }
-      // Without a configuration there is nothing to delete; only the consent flow is dropped.
       resetConsent();
     },
     [permissions, service.config, createTicket, resetConsent],
@@ -251,7 +242,7 @@ export function useGoogleWorkspaceProvisioning({
       setProvisioningEnabled,
       startConsent,
       continueConsent,
-      retryConsent,
+      closeConsent: resetConsent,
       setAutoSync,
       confirmEnableAutoSyncModal,
       dismissEnableAutoSyncModal: () => setEnableAutoSyncModalOpen(false),

@@ -352,7 +352,7 @@ export function SsoProvisioningGoogleSyncPanel({
             type="button"
             variant="outline"
             disabled={isStartingConsent}
-            onClick={actions.retryConsent}
+            onClick={actions.closeConsent}
           >
             {t('google_workspace.error.retry_button_label')}
           </Button>

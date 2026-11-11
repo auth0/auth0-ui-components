@@ -439,58 +439,20 @@ describe('useGoogleWorkspaceProvisioning', () => {
       expect(service.verifyConsent).toHaveBeenCalledTimes(1);
     });
 
-    it('close and retry stops polling and creates a new ticket without opening it', async () => {
+    it('close stops polling and drops the consent flow', async () => {
       const { result } = renderProvisioning();
       await startConsent(result);
       expect(result.current.model.consentPhase).toBe('waiting');
-      mockWindowOpen.mockClear();
       vi.mocked(service.startConsent).mockClear();
       vi.mocked(service.verifyConsent).mockClear();
 
-      await act(async () => {
-        await result.current.actions.retryConsent();
-      });
+      act(() => result.current.actions.closeConsent());
 
-      expect(result.current.model.consentPhase).toBe('idle');
-      expect(service.startConsent).toHaveBeenCalledTimes(1);
-      expect(result.current.model.isConsentPending).toBe(true);
-      expect(mockWindowOpen).not.toHaveBeenCalled();
-      await advance(MAX_POLL_MS);
-      expect(service.verifyConsent).not.toHaveBeenCalled();
-
-      act(() => result.current.actions.continueConsent());
-
-      expect(mockWindowOpen).toHaveBeenCalledWith(TICKET_URL, '_blank', 'noopener,noreferrer');
-      expect(result.current.model.consentPhase).toBe('waiting');
-    });
-
-    it('close and retry only closes when Google access is already granted', async () => {
-      service = createService({ config: mockConfig });
-      const { result } = renderProvisioning();
-      await startConsent(result);
-      vi.mocked(service.startConsent).mockClear();
-
-      await act(async () => {
-        await result.current.actions.retryConsent();
-      });
-
-      expect(result.current.model.consentPhase).toBe('idle');
-      expect(service.startConsent).not.toHaveBeenCalled();
-    });
-
-    it('keeps provisioning off when close and retry cannot create a ticket', async () => {
-      const error = { statusCode: 422 };
-      const { result } = renderProvisioning();
-      await startConsent(result);
-      vi.mocked(service.startConsent).mockRejectedValueOnce(error);
-
-      await act(async () => {
-        await result.current.actions.retryConsent();
-      });
-
-      expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'general_error' });
       expect(result.current.model.consentPhase).toBe('idle');
       expect(result.current.model.isConsentPending).toBe(false);
+      expect(service.startConsent).not.toHaveBeenCalled();
+      await advance(MAX_POLL_MS);
+      expect(service.verifyConsent).not.toHaveBeenCalled();
     });
 
     it('retry after a failure restarts polling at the verify interval', async () => {

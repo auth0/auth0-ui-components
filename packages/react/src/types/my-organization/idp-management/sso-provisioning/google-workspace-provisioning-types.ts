@@ -70,7 +70,7 @@ export interface GoogleWorkspaceProvisioningActions {
   setProvisioningEnabled: (enabled: boolean) => Promise<void>;
   startConsent: () => Promise<void>;
   continueConsent: () => void;
-  retryConsent: () => Promise<void>;
+  closeConsent: () => void;
   setAutoSync: (enabled: boolean) => Promise<void>;
   confirmEnableAutoSyncModal: () => Promise<void>;
   dismissEnableAutoSyncModal: () => void;
