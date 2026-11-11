@@ -110,6 +110,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       setProvisioningEnabled: vi.fn().mockResolvedValue(undefined),
       startConsent: vi.fn().mockResolvedValue(undefined),
       continueConsent: vi.fn(),
+      retryConsent: vi.fn().mockResolvedValue(undefined),
       setAutoSync: vi.fn().mockResolvedValue(undefined),
       confirmEnableAutoSyncModal: vi.fn().mockResolvedValue(undefined),
       dismissEnableAutoSyncModal: vi.fn(),
@@ -264,7 +265,8 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
 
       await user.click(screen.getByRole('button', { name: 'error.retry_button_label' }));
 
-      expect(actions.startConsent).toHaveBeenCalled();
+      expect(actions.retryConsent).toHaveBeenCalled();
+      expect(actions.startConsent).not.toHaveBeenCalled();
     });
   });
 

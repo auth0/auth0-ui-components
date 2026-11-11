@@ -137,6 +137,11 @@ export function useGoogleWorkspaceProvisioning({
     setConsentPhase('idle');
   }, [consentPolling.stop]);
 
+  const retryConsent = useCallback(async (): Promise<void> => {
+    resetConsent();
+    if (!service.config) await createTicket();
+  }, [resetConsent, service.config, createTicket]);
+
   const setProvisioningEnabled = useCallback(
     async (enabled: boolean): Promise<void> => {
       if (enabled) {
@@ -226,6 +231,7 @@ export function useGoogleWorkspaceProvisioning({
       setProvisioningEnabled,
       startConsent,
       continueConsent,
+      retryConsent,
       setAutoSync,
       confirmEnableAutoSyncModal,
       dismissEnableAutoSyncModal: () => setEnableAutoSyncModalOpen(false),

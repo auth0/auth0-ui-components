@@ -178,7 +178,12 @@ export function SsoProvisioningGoogleSyncPanel({
 
   return (
     <div style={currentStyles.variables}>
-      <Card className={cn('relative', classes['SsoProvisioningGoogleSyncPanel-root'])}>
+      <Card
+        className={cn(
+          isWaiting && 'pointer-events-none select-none blur-sm',
+          classes['SsoProvisioningGoogleSyncPanel-root'],
+        )}
+      >
         <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
           <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
             <span>{t('header.title')}</span>
@@ -310,29 +315,29 @@ export function SsoProvisioningGoogleSyncPanel({
             </div>
           </>
         )}
-
-        {isWaiting && (
-          <div
-            role="status"
-            aria-live="polite"
-            className={cn(
-              'bg-background/80 absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-4xl p-6 text-center backdrop-blur-sm',
-              classes['SsoProvisioningGoogleSyncPanel-errorOverlay'],
-            )}
-          >
-            <Spinner colorScheme="muted" className="border-muted" />
-            <p className="text-lg font-medium text-foreground">{t('error.title')}</p>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isStartingConsent}
-              onClick={actions.startConsent}
-            >
-              {t('error.retry_button_label')}
-            </Button>
-          </div>
-        )}
       </Card>
+
+      {isWaiting && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={cn(
+            'flex flex-col items-center gap-4 pt-8 text-center',
+            classes['SsoProvisioningGoogleSyncPanel-errorOverlay'],
+          )}
+        >
+          <Spinner colorScheme="muted" className="border-border" />
+          <p className="text-lg font-medium text-foreground">{t('error.title')}</p>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isStartingConsent}
+            onClick={actions.retryConsent}
+          >
+            {t('error.retry_button_label')}
+          </Button>
+        </div>
+      )}
 
       <SsoProvisioningGoogleSyncEnableAutoSyncModal
         open={isEnableAutoSyncModalOpen}
