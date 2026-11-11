@@ -15,6 +15,10 @@ export type IdentityProviderConfigOidc = MyOrganization.IdentityProviderConfigOi
 export type IdentityProviderConfigOkta = MyOrganization.IdentityProviderConfigOkta;
 export type IdentityProviderConfigSamlp = MyOrganization.IdentityProviderConfigSamlp;
 
+export type IdpDomainVerificationMode =
+  MyOrganization.IdentityProvidersConfigDomainVerificationEnum;
+export type OrganizationDiscoveryConfig = MyOrganization.OrgUseForOrganizationDiscoveryConfig;
+
 export type StrategyWithCrossAppAccess =
   | IdentityProviderConfigOidc
   | IdentityProviderConfigOkta

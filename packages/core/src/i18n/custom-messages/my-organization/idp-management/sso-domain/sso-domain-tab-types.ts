@@ -13,16 +13,27 @@ export interface SsoDomainTabMessages extends SharedMessages {
   title?: string;
   description?: string;
   create_button_text?: string;
+  alerts?: {
+    domain_verification_none?: string;
+    domain_verification_required?: string;
+  };
   table?: {
     empty_message?: string;
     columns?: {
       name?: string;
       status?: string;
       verify?: string;
+      use_for_discovery?: string;
+    };
+    discovery_values?: {
+      yes?: string;
+      no?: string;
     };
     actions?: {
       enable_domain_tooltip?: string;
       disable_domain_tooltip?: string;
+      domain_association_unavailable_tooltip?: string;
+      last_verified_domain_tooltip?: string;
     };
     domain_statuses?: {
       pending?: string;

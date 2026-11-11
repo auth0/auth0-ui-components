@@ -115,7 +115,14 @@
         "empty_message": "You do not have any domains.",
         "columns": {
           "domain": "Domain Name",
-          "status": "Status"
+          "status": "Status",
+          "use_for_discovery": "Use for discovery"
+        },
+        "discovery": {
+          "switch_label": "Use ${domainName} for discovery",
+          "locked_tooltip": "Your organization's policy sets this and it can't be changed.",
+          "unverified_tooltip": "Verify the domain to use it for discovery.",
+          "permission_tooltip": "You don't have permission to change this setting."
         },
         "actions": {
           "configure_button_text": "Configure",
@@ -137,7 +144,13 @@
           "success": "${domainName} has been verified.",
           "error": "There was an issue verifying the domain.",
           "on_before": "Domain verify validation is not correct.",
-          "verification_failed": "${domainName} could not be verified. Please wait and try again or check with your DNS provider."
+          "verification_failed": "${domainName} could not be verified. Please wait and try again or check with your DNS provider.",
+          "success_discovery_on": "${domainName} verified. Discovery is on."
+        },
+        "domain_discovery_update": {
+          "success_on": "Discovery is on for ${domainName}.",
+          "success_off": "Discovery is off for ${domainName}.",
+          "error": "There was an issue updating discovery for the domain."
         },
         "domain_delete": {
           "success": "${domainName} has been deleted.",
@@ -163,9 +176,23 @@
           "placeholder": "domain-name.com",
           "error": "Please enter a valid domain"
         },
+        "use_for_discovery": {
+          "label": "Use for discovery",
+          "locked_hint": "Your organization's policy sets this and it can't be changed."
+        },
         "actions": {
           "cancel_button_text": "Cancel",
           "create_button_text": "Add Domain"
+        }
+      }
+    },
+    "domain_discovery": {
+      "modal": {
+        "title": "Domain verified. Use for discovery?",
+        "description": "Users with an @${domainName} email will be sent to your identity provider's login page.",
+        "actions": {
+          "not_now_button_text": "Not now",
+          "use_button_text": "Use for discovery"
         }
       }
     },
@@ -173,6 +200,9 @@
       "modal": {
         "title": "Configure ${domain}",
         "description": "Direct users with an ${domain} email domain to your identity provider for authentication for the selected providers.",
+        "alerts": {
+          "domain_verification_none": "Domain association isn't available for identity providers. Your admin has disabled domain verification."
+        },
         "table": {
           "empty_message": "You do not have any providers.",
           "columns": {
@@ -183,7 +213,9 @@
             "add_provider_button_text": "Add a Provider",
             "view_provider_button_text": "View",
             "enable_provider_tooltip": "Toggle to enable the domain for this provider",
-            "disable_provider_tooltip": "Toggle to disable the domain for this provider"
+            "disable_provider_tooltip": "Toggle to disable the domain for this provider",
+            "domain_association_unavailable_tooltip": "Domain association isn't available for this identity provider.",
+            "last_verified_domain_tooltip": "An enabled identity provider needs at least one verified domain."
           }
         },
         "actions": {
@@ -724,7 +756,8 @@
       "header": {
         "back_button_text": "Back to Single Sign-On",
         "enable_provider_tooltip_text": "Toggle to enable the provider.",
-        "disable_provider_tooltip_text": "Toggle to disable the provider."
+        "disable_provider_tooltip_text": "Toggle to disable the provider.",
+        "enable_provider_blocked_domains_tooltip_text": "Verify at least one domain to enable this identity provider."
       },
       "mappings": {
         "title": "Mapping",
@@ -901,16 +934,27 @@
             "title": "Domains",
             "description": "Enhance security and streamline login by directing users to your identity provider based in their email domain.",
             "create_button_text": "Add Domain",
+            "alerts": {
+              "domain_verification_none": "Domain association isn't available for this identity provider. Your admin has disabled domain verification for this identity provider.",
+              "domain_verification_required": "Verify at least one domain to enable this identity provider."
+            },
             "table": {
               "empty_message": "You do not have any domains",
               "columns": {
                 "name": "Domain Name",
                 "status": "Status",
-                "verify": "Verify"
+                "verify": "Verify",
+                "use_for_discovery": "Use for discovery"
+              },
+              "discovery_values": {
+                "yes": "Yes",
+                "no": "No"
               },
               "actions": {
                 "enable_domain_tooltip": "Toggle to enable this domain",
-                "disable_domain_tooltip": "Toggle to disable this domain"
+                "disable_domain_tooltip": "Toggle to disable this domain",
+                "domain_association_unavailable_tooltip": "Domain association isn't available for this identity provider.",
+                "last_verified_domain_tooltip": "An enabled identity provider needs at least one verified domain."
               },
               "domain_statuses": {
                 "pending": "Pending",
