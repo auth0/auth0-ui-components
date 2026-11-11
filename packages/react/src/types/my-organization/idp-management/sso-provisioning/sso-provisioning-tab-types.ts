@@ -15,6 +15,7 @@ import type {
   SsoProvisioningDeleteMessages,
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
+  DirectoryProvisioningConfig,
   IdpManagementPermissions,
 } from '@auth0/universal-components-core';
 
@@ -23,7 +24,10 @@ import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp
 
 /** SSO provisioning tab edit action props. */
 export interface SsoProvisioningTabEditProps {
-  createAction?: ComponentAction<IdpKnownResponse, CreateIdPProvisioningConfigResponseContent>;
+  createAction?: ComponentAction<
+    IdpKnownResponse,
+    CreateIdPProvisioningConfigResponseContent | DirectoryProvisioningConfig
+  >;
   deleteAction?: ComponentAction<IdpKnownResponse, void>;
   createScimTokenAction?: ComponentAction<
     IdpKnownResponse,

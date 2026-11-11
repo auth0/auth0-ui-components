@@ -193,6 +193,7 @@ export interface SsoProviderEditViewProps
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'
+      | 'provisioning'
       | 'enableProviderAction'
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'

@@ -102,6 +102,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideAttributeMappings={hideAttributeMappings}
+        provisioning={provisioning}
         enableProviderAction={enableProviderAction}
         connectionNamePrefix={connectionNamePrefix}
         resolveSamlMetadata={resolveSamlMetadata}
@@ -131,6 +132,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hideRemoveFromOrganization,
     hideAttributeMappings,
     provider,
+    provisioning,
     organization,
     isLoading,
     isUpdating,
@@ -292,7 +294,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   provider={provider!}
                   permissions={permissions}
                   readOnly={readOnly}
-                  customMessages={customMessages?.tabs?.provisioning?.content?.google_workspace}
+                  createAction={provisioning?.createAction}
+                  deleteAction={provisioning?.deleteAction}
+                  customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                 />
               ) : (

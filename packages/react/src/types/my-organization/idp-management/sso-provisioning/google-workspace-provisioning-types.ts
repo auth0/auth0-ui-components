@@ -8,13 +8,15 @@ import type {
   DirectoryProvisioningConfig,
   GoogleWorkspaceProvisioningDisableModalMessages,
   GoogleWorkspaceProvisioningEnableAutoSyncModalMessages,
-  GoogleWorkspaceProvisioningMessages,
   SharedComponentProps,
+  SsoProvisioningTabMessages,
   DirectoryProvisioningConsentStatus,
   IdpKnownResponse,
   IdpManagementPermissions,
   SsoProviderNotificationMessages,
 } from '@auth0/universal-components-core';
+
+import type { SsoProvisioningTabEditProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
 /** Phase of the Google consent flow started in this session. */
 export type GoogleWorkspaceConsentPhase = 'idle' | 'waiting' | 'failed';
@@ -43,6 +45,8 @@ export interface UseGoogleWorkspaceProvisioningOptions
   extends Pick<UseGoogleWorkspaceProvisioningServiceOptions, 'customMessages'> {
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
+  createAction?: SsoProvisioningTabEditProps['createAction'];
+  deleteAction?: SsoProvisioningTabEditProps['deleteAction'];
 }
 
 /** Google Workspace provisioning UI state. */
@@ -93,14 +97,12 @@ export interface SsoProvisioningGoogleSyncPanelClasses {
 }
 
 export interface SsoProvisioningGoogleSyncPanelProps
-  extends SharedComponentProps<
-    GoogleWorkspaceProvisioningMessages,
-    SsoProvisioningGoogleSyncPanelClasses
-  > {
+  extends SharedComponentProps<SsoProvisioningTabMessages, SsoProvisioningGoogleSyncPanelClasses> {
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
   readOnly?: boolean;
-  notificationMessages?: Partial<SsoProviderNotificationMessages>;
+  createAction?: SsoProvisioningTabEditProps['createAction'];
+  deleteAction?: SsoProvisioningTabEditProps['deleteAction'];
 }
 
 export interface SsoProvisioningGoogleSyncEnableAutoSyncModalProps {

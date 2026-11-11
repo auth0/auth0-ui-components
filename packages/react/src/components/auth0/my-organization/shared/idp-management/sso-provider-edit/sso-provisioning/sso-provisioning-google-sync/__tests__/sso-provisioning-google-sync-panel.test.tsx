@@ -56,9 +56,12 @@ const unsyncedConfig: DirectoryProvisioningConfig = {
 };
 const alertMessages = {
   customMessages: {
-    status_alert: {
-      unconfirmed_authorization: 'Unconfirmed. <link>Continue with Google</link> to re-authorize.',
-      sync_failed: 'Sync failed. <link>Continue with Google</link> to re-authorize.',
+    google_workspace: {
+      status_alert: {
+        unconfirmed_authorization:
+          'Unconfirmed. <link>Continue with Google</link> to re-authorize.',
+        sync_failed: 'Sync failed. <link>Continue with Google</link> to re-authorize.',
+      },
     },
   },
 };
@@ -102,7 +105,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
   };
 
   const getConnectButton = () =>
-    screen.getByRole('button', { name: 'header.continue_button_label' });
+    screen.getByRole('button', { name: 'google_workspace.header.continue_button_label' });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -123,13 +126,15 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     it('shows the explainer and an unchecked switch without connect', () => {
       renderComponent(createModel());
 
-      expect(screen.getByText('header.title')).toBeInTheDocument();
-      expect(screen.getByText('header.description_disabled')).toBeInTheDocument();
-      expect(screen.getByRole('switch', { name: 'header.enable_tooltip' })).not.toBeChecked();
+      expect(screen.getByText('google_workspace.header.title')).toBeInTheDocument();
+      expect(screen.getByText('google_workspace.header.description_disabled')).toBeInTheDocument();
       expect(
-        screen.queryByRole('button', { name: 'header.continue_button_label' }),
+        screen.getByRole('switch', { name: 'google_workspace.header.enable_tooltip' }),
+      ).not.toBeChecked();
+      expect(
+        screen.queryByRole('button', { name: 'google_workspace.header.continue_button_label' }),
       ).not.toBeInTheDocument();
-      expect(screen.queryByText('auto_sync.title')).not.toBeInTheDocument();
+      expect(screen.queryByText('google_workspace.auto_sync.title')).not.toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
@@ -137,7 +142,9 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       const user = userEvent.setup();
       renderComponent(createModel());
 
-      await user.click(screen.getByRole('switch', { name: 'header.enable_tooltip' }));
+      await user.click(
+        screen.getByRole('switch', { name: 'google_workspace.header.enable_tooltip' }),
+      );
 
       expect(actions.setProvisioningEnabled).toHaveBeenCalledWith(true);
     });
@@ -146,12 +153,12 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       [
         'the access level is not full',
         { provider: { ...mockProvider, access_level: 'limited' } as IdpKnownResponse },
-        'header.access_level_required_tooltip',
+        'google_workspace.header.access_level_required_tooltip',
       ],
       [
         'the provider is disabled',
         { provider: { ...mockProvider, is_enabled: false } },
-        'header.provider_disabled_tooltip',
+        'google_workspace.header.provider_disabled_tooltip',
       ],
       ['the user cannot create provisioning', noPermissions, 'error.forbidden'],
     ])('disables the switch when %s', (_, props, tooltip) => {
@@ -163,7 +170,9 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     it('shows the previously disabled alert after provisioning was disabled', () => {
       renderComponent(createModel({ wasDisabled: true }));
 
-      expect(screen.getByRole('alert')).toHaveTextContent('status_alert.previously_disabled');
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'google_workspace.status_alert.previously_disabled',
+      );
     });
 
     it('hides the previously disabled alert once provisioning is turned back on', () => {
@@ -191,10 +200,12 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     it('shows continue with google and a checked switch', () => {
       renderComponent(pending());
 
-      expect(screen.getByText('header.description_enabled')).toBeInTheDocument();
+      expect(screen.getByText('google_workspace.header.description_enabled')).toBeInTheDocument();
       expect(getConnectButton()).toBeEnabled();
-      expect(screen.getByRole('switch', { name: 'header.disable_tooltip' })).toBeChecked();
-      expect(screen.queryByText('auto_sync.title')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      ).toBeChecked();
+      expect(screen.queryByText('google_workspace.auto_sync.title')).not.toBeInTheDocument();
     });
 
     it('opens the ticket when continue is clicked', async () => {
@@ -211,7 +222,9 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       const user = userEvent.setup();
       renderComponent(pending());
 
-      await user.click(screen.getByRole('switch', { name: 'header.disable_tooltip' }));
+      await user.click(
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      );
 
       expect(actions.setProvisioningEnabled).toHaveBeenCalledWith(false);
     });
@@ -228,7 +241,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       await user.hover(button.parentElement!);
       await waitFor(() => {
         expect(screen.getAllByRole('tooltip', { hidden: true })[0]).toHaveTextContent(
-          'header.access_level_required_tooltip',
+          'google_workspace.header.access_level_required_tooltip',
         );
       });
     });
@@ -237,7 +250,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       renderComponent(pending(), { readOnly: true });
 
       expect(
-        screen.queryByRole('button', { name: 'header.continue_button_label' }),
+        screen.queryByRole('button', { name: 'google_workspace.header.continue_button_label' }),
       ).not.toBeInTheDocument();
     });
   });
@@ -249,21 +262,25 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       renderComponent(waiting());
 
       const overlay = screen.getByRole('status');
-      expect(within(overlay).getByText('error.title')).toBeInTheDocument();
+      expect(within(overlay).getByText('google_workspace.error.title')).toBeInTheDocument();
       expect(
-        within(overlay).getByRole('button', { name: 'error.retry_button_label' }),
+        within(overlay).getByRole('button', { name: 'google_workspace.error.retry_button_label' }),
       ).toBeEnabled();
       expect(
-        screen.queryByRole('button', { name: 'header.continue_button_label' }),
+        screen.queryByRole('button', { name: 'google_workspace.header.continue_button_label' }),
       ).not.toBeInTheDocument();
-      expect(screen.getByRole('switch', { name: 'header.disable_tooltip' })).toBeDisabled();
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      ).toBeDisabled();
     });
 
     it('retries the consent flow', async () => {
       const user = userEvent.setup();
       renderComponent(waiting());
 
-      await user.click(screen.getByRole('button', { name: 'error.retry_button_label' }));
+      await user.click(
+        screen.getByRole('button', { name: 'google_workspace.error.retry_button_label' }),
+      );
 
       expect(actions.retryConsent).toHaveBeenCalled();
       expect(actions.startConsent).not.toHaveBeenCalled();
@@ -275,13 +292,15 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       const user = userEvent.setup();
       renderComponent(createModel({ isConsentPending: true, consentPhase: 'failed' }));
 
-      expect(screen.getByText('header.status.failed')).toBeInTheDocument();
+      expect(screen.getByText('google_workspace.header.status.failed')).toBeInTheDocument();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('button', { name: 'header.continue_button_label' }),
+        screen.queryByRole('button', { name: 'google_workspace.header.continue_button_label' }),
       ).not.toBeInTheDocument();
 
-      await user.click(screen.getByRole('button', { name: 'header.retry_button_label' }));
+      await user.click(
+        screen.getByRole('button', { name: 'google_workspace.header.retry_button_label' }),
+      );
       expect(actions.startConsent).toHaveBeenCalled();
       expect(actions.continueConsent).not.toHaveBeenCalled();
     });
@@ -291,14 +310,18 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     it('shows the summary, auto sync section and the disable switch', () => {
       renderComponent(createModel({ state: 'connected' }));
 
-      expect(screen.getByText('header.description_enabled')).toBeInTheDocument();
+      expect(screen.getByText('google_workspace.header.description_enabled')).toBeInTheDocument();
       expect(
-        screen.getByText('connection_info.last_synced_label', { exact: false }),
+        screen.getByText('google_workspace.connection_info.last_synced_label', { exact: false }),
       ).toBeInTheDocument();
-      expect(screen.getByRole('switch', { name: 'header.disable_tooltip' })).toBeChecked();
-      expect(screen.getByRole('switch', { name: 'auto_sync.disable_tooltip' })).toBeChecked();
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      ).toBeChecked();
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.auto_sync.disable_tooltip' }),
+      ).toBeChecked();
       expect(getConnectButton()).toBeInTheDocument();
-      expect(screen.queryByText('header.status.granted')).not.toBeInTheDocument();
+      expect(screen.queryByText('google_workspace.header.status.granted')).not.toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
@@ -348,7 +371,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     it('shows the granted badge after access was granted in this session', () => {
       renderComponent(createModel({ state: 'connected', isGranted: true }));
 
-      expect(screen.getByText('header.status.granted')).toBeInTheDocument();
+      expect(screen.getByText('google_workspace.header.status.granted')).toBeInTheDocument();
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
@@ -361,7 +384,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       );
 
       expect(
-        screen.queryByText('connection_info.last_synced_label', { exact: false }),
+        screen.queryByText('google_workspace.connection_info.last_synced_label', { exact: false }),
       ).not.toBeInTheDocument();
     });
 
@@ -369,7 +392,9 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       const user = userEvent.setup();
       renderComponent(createModel({ state: 'connected' }));
 
-      await user.click(screen.getByRole('switch', { name: 'header.disable_tooltip' }));
+      await user.click(
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      );
 
       expect(actions.setProvisioningEnabled).toHaveBeenCalledWith(false);
     });
@@ -383,8 +408,8 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
     });
 
     it.each([
-      [syncedConfig, 'auto_sync.disable_tooltip', false],
-      [mockConfig, 'auto_sync.enable_tooltip', true],
+      [syncedConfig, 'google_workspace.auto_sync.disable_tooltip', false],
+      [mockConfig, 'google_workspace.auto_sync.enable_tooltip', true],
     ] as const)('toggles auto sync', async (config, name, next) => {
       const user = userEvent.setup();
       renderComponent(createModel({ state: 'connected', config }));
@@ -412,7 +437,7 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       renderComponent(createModel({ state: 'connected', isDeleting: true }));
 
       expect(
-        screen.queryByRole('switch', { name: 'header.disable_tooltip' }),
+        screen.queryByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
       ).not.toBeInTheDocument();
       expect(screen.getAllByRole('switch')).toHaveLength(1);
     });
@@ -485,7 +510,9 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       });
 
       expect(document.querySelector('.custom-root')).toBeInTheDocument();
-      expect(document.querySelector('.custom-auto-sync')).toHaveTextContent('auto_sync.title');
+      expect(document.querySelector('.custom-auto-sync')).toHaveTextContent(
+        'google_workspace.auto_sync.title',
+      );
     });
   });
 });

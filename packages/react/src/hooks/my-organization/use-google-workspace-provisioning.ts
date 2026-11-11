@@ -29,6 +29,9 @@ const { VERIFY_INTERVAL_MS, MAX_POLL_MS, MAX_POLL_ATTEMPTS } = GOOGLE_WORKSPACE_
  * @param options - Hook options.
  * @param options.provider - The SSO provider being configured.
  * @param options.permissions - What the current user is allowed to do.
+ * @param options.createAction - Lifecycle hooks for creating provisioning; `onBefore` runs before
+ *   each consent ticket is created and `onAfter` once consent completes.
+ * @param options.deleteAction - Lifecycle hooks for deleting provisioning.
  * @param options.customMessages - Custom notification messages for toasts.
  * @returns The UI state model and actions.
  * @internal
@@ -36,6 +39,8 @@ const { VERIFY_INTERVAL_MS, MAX_POLL_MS, MAX_POLL_ATTEMPTS } = GOOGLE_WORKSPACE_
 export function useGoogleWorkspaceProvisioning({
   provider,
   permissions,
+  createAction,
+  deleteAction,
   customMessages = {},
 }: UseGoogleWorkspaceProvisioningOptions): UseGoogleWorkspaceProvisioningReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -65,18 +70,27 @@ export function useGoogleWorkspaceProvisioning({
   const handleConsentComplete = async () => {
     try {
       const config = await service.refetchConfig();
+      if (!config) {
+        failConsent();
+        return;
+      }
       setConsentPhase('idle');
       setTicketUrl(null);
       setIsGranted(true);
       setWasDisabled(false);
       // The enable auto sync modal confirms the granted access itself.
-      if (config && !config.synchronize_automatically && permissions.canUpdateProvisioning) {
+      if (!config.synchronize_automatically && permissions.canUpdateProvisioning) {
         setEnableAutoSyncModalOpen(true);
       } else {
         showToast({
           type: 'success',
           message: t('google_workspace_provisioning.connected_success'),
         });
+      }
+      try {
+        await createAction?.onAfter?.(provider, config);
+      } catch (error) {
+        handleError(error, { fallbackMessage: t('general_error') });
       }
     } catch (error) {
       failConsent(error);
@@ -100,6 +114,7 @@ export function useGoogleWorkspaceProvisioning({
 
   const createTicket = useCallback(async (): Promise<string | null> => {
     if (!canStartConsent) return null;
+    if (createAction?.onBefore && !createAction.onBefore(provider)) return null;
     try {
       const url = await service.startConsent();
       setTicketUrl(url);
@@ -108,7 +123,7 @@ export function useGoogleWorkspaceProvisioning({
       handleError(error, { fallbackMessage: t('general_error') });
       return null;
     }
-  }, [canStartConsent, service.startConsent, handleError, t]);
+  }, [canStartConsent, createAction, provider, service.startConsent, handleError, t]);
 
   const openTicket = useCallback(
     (url: string) => {
@@ -197,6 +212,10 @@ export function useGoogleWorkspaceProvisioning({
 
   const confirmDisable = useCallback(async (): Promise<void> => {
     if (!permissions.canDeleteProvisioning) return;
+    if (deleteAction?.onBefore && !deleteAction.onBefore(provider)) {
+      setDisableModalOpen(false);
+      return;
+    }
     try {
       await service.deleteConfig();
       showToast({ type: 'success', message: t('provisioning_disabled_success') });
@@ -204,10 +223,11 @@ export function useGoogleWorkspaceProvisioning({
       setIsGranted(false);
       setWasDisabled(true);
       resetConsent();
+      await deleteAction?.onAfter?.(provider);
     } catch (error) {
       handleError(error, { fallbackMessage: t('general_error') });
     }
-  }, [permissions, service.deleteConfig, resetConsent, handleError, t]);
+  }, [permissions, deleteAction, provider, service.deleteConfig, resetConsent, handleError, t]);
 
   const { config, isConfigLoading, isStartingConsent, isUpdating, isDeleting } = service;
   const state: GoogleWorkspaceProvisioningState = config ? 'connected' : 'not_connected';
