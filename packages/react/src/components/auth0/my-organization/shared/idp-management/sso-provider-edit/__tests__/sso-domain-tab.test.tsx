@@ -6,6 +6,7 @@ import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-mana
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import {
   createMockSsoDomainTabReturn,
+  createMockSsoProvider,
   createMockVerifiedSsoDomain,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -142,6 +143,87 @@ describe('SsoDomainTab', () => {
       row = screen.getByRole('row', { name: /testdomain\.acmetest\.org/i });
       toggle = within(row).getByRole('switch');
       expect(toggle).toBeChecked();
+    });
+  });
+
+  describe('domain verification mode', () => {
+    const verifiedDomain = createMockVerifiedSsoDomain({
+      id: 'domain-1',
+      domain: 'testdomain.acmetest.org',
+    });
+
+    const renderTab = (props: Partial<SsoDomainsTabProps> = {}, associated = true) => {
+      mockedUseSsoDomainTab.mockReturnValue(
+        createMockSsoDomainTabReturn({
+          domainsList: [verifiedDomain],
+          idpDomains: associated ? ['domain-1'] : [],
+        }),
+      );
+      return renderWithProviders(<SsoDomainTab {...mockProps} {...props} />);
+    };
+
+    it('shows no alert in optional mode', () => {
+      renderTab({ domainVerificationMode: 'optional' });
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('shows no alert when the mode is not provided', () => {
+      renderTab();
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('explains that association is unavailable in none mode and disables the switches', () => {
+      renderTab({ domainVerificationMode: 'none' });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_none');
+      const row = screen.getByRole('row', { name: /testdomain\.acmetest\.org/i });
+      expect(within(row).getByRole('switch')).toBeDisabled();
+    });
+
+    it('asks for a verified domain in required mode when the provider has none', () => {
+      renderTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({ is_enabled: false, domains: [] }),
+      });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_required');
+    });
+
+    it('hides the required alert once the provider has a domain', () => {
+      renderTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({
+          is_enabled: false,
+          domains: ['testdomain.acmetest.org'],
+        }),
+      });
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('keeps the last verified domain of an enabled provider associated in required mode', () => {
+      renderTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({ is_enabled: true, domains: ['testdomain.acmetest.org'] }),
+      });
+
+      const row = screen.getByRole('row', { name: /testdomain\.acmetest\.org/i });
+      expect(within(row).getByRole('switch')).toBeDisabled();
+    });
+
+    it('lets an enabled provider drop a domain when it has another one', () => {
+      renderTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({
+          is_enabled: true,
+          domains: ['testdomain.acmetest.org', 'other.acmetest.org'],
+        }),
+      });
+
+      const row = screen.getByRole('row', { name: /testdomain\.acmetest\.org/i });
+      expect(within(row).getByRole('switch')).toBeEnabled();
     });
   });
 });

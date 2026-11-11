@@ -112,6 +112,7 @@ function DomainTableView({
     domainsUpdatedAt,
     isLoadingProviders,
     isDeleting,
+    domainVerificationMode,
     pagination,
     showCreateModal,
     showConfigureModal,
@@ -272,6 +273,7 @@ function DomainTableView({
         isLoading={isLoadingProviders}
         isLoadingSwitch={false}
         permissions={permissions}
+        domainVerificationMode={domainVerificationMode}
         onClose={() => setShowConfigureModal(false)}
         onToggleSwitch={handleToggleSwitch}
         onOpenProvider={onOpenProvider}

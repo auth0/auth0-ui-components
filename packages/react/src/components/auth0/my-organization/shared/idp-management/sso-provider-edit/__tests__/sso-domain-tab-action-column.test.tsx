@@ -444,4 +444,101 @@ describe('SsoDomainTabActionsColumn', () => {
       expect(screen.getByRole('switch')).toBeEnabled();
     });
   });
+
+  describe('Accessibility', () => {
+    it('names the switch after what it does', () => {
+      const props = createMockSsoDomainTabActionColumnProps();
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(
+        screen.getByRole('switch', { name: 'table.actions.disable_domain_tooltip' }),
+      ).toBeInTheDocument();
+    });
+
+    it('describes why the switch is disabled, not only on hover', () => {
+      const props = createMockSsoDomainTabActionColumnProps({ domainVerificationMode: 'none' });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toHaveAccessibleDescription(
+        'table.actions.domain_association_unavailable_tooltip',
+      );
+    });
+
+    it('has no description when the switch is usable', () => {
+      const props = createMockSsoDomainTabActionColumnProps();
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).not.toHaveAttribute('aria-describedby');
+    });
+  });
+
+  describe('Domain verification mode', () => {
+    it.each(['optional', 'required'] as const)('keeps the switch enabled in %s mode', (mode) => {
+      const props = createMockSsoDomainTabActionColumnProps({ domainVerificationMode: mode });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeEnabled();
+    });
+
+    it('should disable the switch for an associated domain in none mode', () => {
+      const props = createMockSsoDomainTabActionColumnProps({ domainVerificationMode: 'none' });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeDisabled();
+    });
+
+    it('should disable the switch for an unassociated domain in none mode', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        domainVerificationMode: 'none',
+        idpDomains: [],
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeDisabled();
+    });
+
+    it('should explain why association is unavailable in none mode', async () => {
+      const user = userEvent.setup();
+      const props = createMockSsoDomainTabActionColumnProps({ domainVerificationMode: 'none' });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      await user.hover(screen.getByRole('switch').parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'table.actions.domain_association_unavailable_tooltip',
+        );
+      });
+    });
+
+    it('should lock the last verified domain of an enabled provider', async () => {
+      const user = userEvent.setup();
+      const props = createMockSsoDomainTabActionColumnProps({
+        domainVerificationMode: 'required',
+        lockLastDomain: true,
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeDisabled();
+
+      await user.hover(screen.getByRole('switch').parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+      });
+    });
+
+    it('should not lock a domain the provider does not use', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        domainVerificationMode: 'required',
+        lockLastDomain: true,
+        idpDomains: [],
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toBeEnabled();
+    });
+  });
 });

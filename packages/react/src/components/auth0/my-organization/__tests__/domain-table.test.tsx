@@ -13,6 +13,7 @@ import {
   createMockVerifyAction,
   createMockDeleteAction,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
@@ -898,6 +899,52 @@ describe('DomainTable', () => {
 
         expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
       });
+    });
+  });
+
+  describe('domain verification mode', () => {
+    const arrange = (mode: 'none' | 'optional' | 'required') => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+      );
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: { organization_domains: [createMockVerifiedDomain()] },
+      });
+      (organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        identity_providers: [
+          createMockIdentityProvider({ id: 'con_okta', display_name: 'Okta', strategy: 'okta' }),
+        ],
+      });
+    };
+
+    const openConfigureModal = async (user: ReturnType<typeof userEvent.setup>) => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await user.click(await screen.findByText(createMockVerifiedDomain().domain));
+      return await screen.findByRole('dialog');
+    };
+
+    it('lets providers be associated in optional mode', async () => {
+      const user = userEvent.setup();
+      arrange('optional');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await within(dialog).findByRole('switch')).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('explains and disables association in none mode', async () => {
+      const user = userEvent.setup();
+      arrange('none');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await within(dialog).findByRole('switch')).toBeDisabled();
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        'alerts.domain_verification_none',
+      );
     });
   });
 });

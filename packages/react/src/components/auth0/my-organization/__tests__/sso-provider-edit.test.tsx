@@ -9,6 +9,7 @@ import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   createMockBackButton,
   createMockEnableProviderAction,
@@ -979,6 +980,51 @@ describe('SsoProviderEdit', () => {
           ).toHaveBeenCalled();
         });
       });
+    });
+  });
+
+  describe('domain verification', () => {
+    const arrange = (
+      domainVerification: 'none' | 'optional' | 'required',
+      provider: Partial<IdpKnownResponse>,
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({
+          strategies: {
+            samlp: { enabled_features: ['provisioning'], provisioning_methods: ['scim'] },
+          },
+          domain_aliases_config: { domain_verification: domainVerification },
+        }),
+      );
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        ...provider,
+      } as IdpKnownResponse);
+    };
+
+    it('blocks enabling the provider while it has no verified domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('lets the provider be enabled once it has a domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: ['example.com'] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+
+    it('does not block enabling in optional mode', async () => {
+      arrange('optional', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
 });

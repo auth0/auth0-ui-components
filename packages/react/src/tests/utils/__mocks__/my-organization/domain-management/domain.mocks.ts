@@ -155,6 +155,7 @@ export const createMockDomainTableReturn = (
     hasNextPage: false,
     hasPreviousPage: false,
   },
+  domainVerificationMode: 'optional',
   showCreateModal: false,
   showConfigureModal: false,
   showVerifyModal: false,

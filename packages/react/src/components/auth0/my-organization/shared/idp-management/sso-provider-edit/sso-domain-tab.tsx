@@ -5,8 +5,11 @@
  */
 
 import type { Domain } from '@auth0/universal-components-core';
-import { getComponentStyles } from '@auth0/universal-components-core';
-import { Plus } from 'lucide-react';
+import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
+  getComponentStyles,
+} from '@auth0/universal-components-core';
+import { Info, Plus } from 'lucide-react';
 import React from 'react';
 
 import { DomainCreateModal } from '@/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal';
@@ -17,13 +20,19 @@ import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { cn } from '@/lib/utils';
-import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getStatusBadgeVariant,
+  isDomainAssociationUnavailable,
+  isLastRequiredDomainLocked,
+  isRequiredDomainMissing,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -50,6 +59,7 @@ export function SsoDomainTab({
   idpId,
   domains,
   provider,
+  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
 }: SsoDomainsTabProps) {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.domains.content',
@@ -101,6 +111,17 @@ export function SsoDomainTab({
     readOnly,
   });
 
+  const lockLastDomain = isLastRequiredDomainLocked(domainVerificationMode, provider);
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const isVerifiedDomainMissing = isRequiredDomainMissing(domainVerificationMode, provider);
+
+  const getAlertMessage = () => {
+    if (isAssociationUnavailable) return t('alerts.domain_verification_none');
+    if (isVerifiedDomainMissing) return t('alerts.domain_verification_required');
+    return null;
+  };
+  const alertMessage = getAlertMessage();
+
   const columns: Column<Domain>[] = React.useMemo(
     () => [
       {
@@ -136,6 +157,8 @@ export function SsoDomainTab({
             onToggle={handleToggleSwitch}
             handleVerify={handleVerifyActionColumn}
             domain={domain}
+            domainVerificationMode={domainVerificationMode}
+            lockLastDomain={lockLastDomain}
           />
         ),
       },
@@ -150,11 +173,19 @@ export function SsoDomainTab({
       customMessages,
       handleToggleSwitch,
       handleVerifyActionColumn,
+      domainVerificationMode,
+      lockLastDomain,
     ],
   );
 
   return (
     <div style={currentStyles.variables} className="space-y-8">
+      {alertMessage && (
+        <Alert variant="warning">
+          <Info />
+          <AlertDescription className="text-warning-foreground">{alertMessage}</AlertDescription>
+        </Alert>
+      )}
       <div className={currentStyles.classes?.['SsoDomainsTab-header']}>
         <Header
           title={t('title')}
