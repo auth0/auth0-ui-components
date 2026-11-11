@@ -733,6 +733,15 @@ export async function applyMyAccountClientGrantChanges(
 export const DEMO_ORGANIZATION_TEMPLATE_NAME = "Universal-Components-Org-Profile"
 // Members other than the caller block deletion; the UI shows the "has other members" error.
 const DEMO_ORGANIZATION_DELETION_BEHAVIOR = "allow_if_empty"
+// New domains start off, and admins may switch discovery on or off.
+const DEMO_DISCOVERY_POLICY = { default_value: false, allowed_values: [true, false] }
+
+/** Whether a profile's use_for_organization_discovery policy matches the demo policy. */
+function discoveryPolicyMatches(policy) {
+  if (!policy || policy.default_value !== DEMO_DISCOVERY_POLICY.default_value) return false
+  const sorted = (values) => JSON.stringify([...(values ?? [])].sort())
+  return sorted(policy.allowed_values) === sorted(DEMO_DISCOVERY_POLICY.allowed_values)
+}
 
 /**
  * Read every page of the organization templates list.
@@ -774,6 +783,11 @@ function describeForeignDefaultIssues(template) {
   if (template.organization_deletion_behavior !== DEMO_ORGANIZATION_DELETION_BEHAVIOR) {
     issues.push(
       `its organization_deletion_behavior is "${template.organization_deletion_behavior ?? "unset"}" rather than "${DEMO_ORGANIZATION_DELETION_BEHAVIOR}"`
+    )
+  }
+  if (!template.use_for_organization_discovery) {
+    issues.push(
+      "it sets no use_for_organization_discovery policy (the discovery controls stay hidden)"
     )
   }
   return issues
@@ -853,6 +867,10 @@ export async function checkOrganizationTemplateChanges(existingTemplates, refs) 
     updates.userAttributeProfile = true
     changes.push("Link the user attribute profile")
   }
+  if (!discoveryPolicyMatches(existing.use_for_organization_discovery)) {
+    updates.discovery = true
+    changes.push("Set the use_for_organization_discovery policy")
+  }
   const assignedOrgIds = orgId ? await fetchAssignedOrganizationIds(existing.id) : null
   if (!assignedOrgIds?.includes(orgId)) {
     updates.orgAssignment = true
@@ -896,6 +914,26 @@ function buildTemplatePatch(updates, existing, refs) {
     patch.user_attribute_profile_id = refs.userAttributeProfileId
   }
   return patch
+}
+
+/**
+ * Set the discovery policy in its own request, so a tenant that rejects the field still gets the
+ * rest of the profile. A failure only warns.
+ * @returns {Promise<object|null>} The updated organization template, or null when it couldn't be set
+ */
+async function applyDiscoveryPolicy(templateId) {
+  const spinner = ora({ text: `Setting the organization discovery policy` }).start()
+  try {
+    const updated = await auth0ApiCall("patch", `organization-templates/${templateId}`, {
+      use_for_organization_discovery: DEMO_DISCOVERY_POLICY,
+    })
+    if (!updated) throw new Error("the tenant didn't accept the policy (missing scope or field)")
+    spinner.succeed(`Set the organization discovery policy`)
+    return updated
+  } catch (e) {
+    spinner.warn(`Could not set the organization discovery policy: ${e.message}`)
+    return null
+  }
 }
 
 /**
@@ -954,6 +992,10 @@ export async function applyOrganizationTemplateChanges(changePlan, refs) {
     }
 
     spinner.succeed(`Configured default Organization Profile`)
+
+    if (changePlan.action === ChangeAction.CREATE || changePlan.updates?.discovery) {
+      template = (await applyDiscoveryPolicy(template.id)) ?? template
+    }
     return template
   } catch (e) {
     spinner.warn(`Could not configure Organization Profile: ${e.message}`)

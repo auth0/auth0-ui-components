@@ -9,7 +9,7 @@
       "title": "Organization create component.",
       "description": "A block component for organization create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -270,6 +270,11 @@
           "target": "types/my-account/organization-management/organization-create-types.ts"
         },
         {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
@@ -342,7 +347,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -351,7 +356,7 @@
       "title": "OrganizationSwitcher container component.",
       "description": "A block component for organization switcher.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-slot@1.2.3",
@@ -571,7 +576,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -580,7 +585,7 @@
       "title": "OrganizationTable container component.",
       "description": "A block component for organization table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -747,6 +752,16 @@
           "target": "hooks/shared/use-core-client.ts"
         },
         {
+          "path": "src/hooks/shared/use-error-handler.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-error-toast.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-error-toast.ts"
+        },
+        {
           "path": "src/hooks/shared/use-telemetry.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-telemetry.ts"
@@ -899,7 +914,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -1596,6 +1611,16 @@
           "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-discovery/domain-discovery-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-discovery/domain-discovery-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-table/domain-discovery-switch.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-table/domain-discovery-switch.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column.tsx"
@@ -1756,9 +1781,19 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-domain-table-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-domain-table-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
         },
         {
           "path": "src/hooks/my-organization/use-domain-table.ts",
@@ -1866,6 +1901,16 @@
           "target": "types/i18n-types.ts"
         },
         {
+          "path": "src/types/my-organization/config/config-idp-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-idp-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
           "path": "src/types/my-organization/domain-management/domain-configure-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-configure-types.ts"
@@ -1879,6 +1924,11 @@
           "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-delete-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/domain-management/domain-discovery-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-discovery-types.ts"
         },
         {
           "path": "src/types/my-organization/domain-management/domain-table-types.ts",
@@ -1919,6 +1969,11 @@
           "path": "src/lib/constants/form-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/form-constants.ts"
+        },
+        {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
         },
         {
           "path": "src/lib/constants/shared/constants.ts",
@@ -2294,6 +2349,11 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-delete-types.ts"
@@ -2334,6 +2394,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -2342,6 +2407,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -3595,6 +3665,11 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -3650,6 +3725,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
@@ -3663,6 +3743,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -4384,6 +4469,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
@@ -4737,6 +4827,11 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
@@ -4772,6 +4867,11 @@
           "target": "lib/constants/common-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -4780,6 +4880,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",

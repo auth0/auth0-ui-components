@@ -90,6 +90,9 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
         allowed_values: ["disabled", "enabled"],
       },
     },
+    domain_aliases_config: {
+      domain_verification: "optional",
+    },
   }
 
   if (!existingProfile) {
@@ -111,6 +114,11 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
       desiredConfig.cross_app_access_resource_app.status.allowed_values
     )
 
+  // Check if domain_aliases_config needs update
+  const domainAliasesConfigNeedsUpdate =
+    existingProfile.domain_aliases_config?.domain_verification !==
+    desiredConfig.domain_aliases_config.domain_verification
+
   // Check if the profile needs updates
   const needsUpdate =
     existingProfile.organization?.show_as_button !==
@@ -123,7 +131,8 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
       existingProfile.enabled_features || [],
       desiredConfig.enabled_features
     ) ||
-    crossAppAccessNeedsUpdate
+    crossAppAccessNeedsUpdate ||
+    domainAliasesConfigNeedsUpdate
 
   if (needsUpdate) {
     const changes = []
@@ -155,6 +164,9 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
     }
     if (crossAppAccessNeedsUpdate) {
       changes.push("Update cross_app_access_resource_app")
+    }
+    if (domainAliasesConfigNeedsUpdate) {
+      changes.push("Update domain_aliases_config")
     }
 
     return createChangeItem(ChangeAction.UPDATE, {
