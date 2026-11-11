@@ -112,6 +112,8 @@ export interface ProviderConfigureFieldsProps
   connectionName?: string;
   connectionNamePrefix?: string;
   mode?: FormMode;
+  /** Locks the login button and auto-membership fields; defaults to `readOnly`. */
+  isLoginSettingsReadOnly?: boolean;
   /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   showThirdPartyAccess?: boolean;

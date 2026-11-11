@@ -302,6 +302,18 @@ describe('useSsoDomainTab', () => {
   });
 
   describe('provider association toggle', () => {
+    it('does not change domains when the organization cannot fully manage the provider', async () => {
+      const { result } = renderUseSsoDomainTab({
+        provider: { ...defaultProvider, access_level: 'limited' },
+      });
+
+      await act(async () => {
+        await result.current.handleToggleSwitch(mockDomain, true);
+      });
+
+      expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+    });
+
     it('should associate domain to provider on toggle on', async () => {
       const { result } = renderUseSsoDomainTab();
 

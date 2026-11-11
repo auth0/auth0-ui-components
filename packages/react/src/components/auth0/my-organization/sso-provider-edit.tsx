@@ -140,6 +140,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     discoveryPolicy,
     domainVerificationMode,
     isEnableBlockedByDomains,
+    providerAccess,
     customMessages,
     backButton,
     shouldAllowDeletion,
@@ -189,10 +190,13 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isEnabling ||
     enableProviderAction?.disabled ||
     !permissions.canUpdateProvider ||
+    !providerAccess.canToggle ||
     isEnableBlockedByDomains;
 
   const getProviderSwitchTooltip = () => {
     if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
+    if (!providerAccess.canToggle)
+      return t('header.enable_provider_access_restricted_tooltip_text');
     if (isEnableBlockedByDomains) return t('header.enable_provider_blocked_domains_tooltip_text');
     if (provider?.is_enabled) return t('header.disable_provider_tooltip_text');
     return t('header.enable_provider_tooltip_text');
@@ -278,6 +282,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 },
               }}
               permissions={permissions}
+              providerAccess={providerAccess}
               readOnly={readOnly}
               showThirdPartyAccess={showThirdPartyAccess}
               isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}

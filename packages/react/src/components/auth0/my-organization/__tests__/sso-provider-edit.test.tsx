@@ -1027,4 +1027,31 @@ describe('SsoProviderEdit', () => {
       expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
+
+  describe('provider access level', () => {
+    const arrange = (access_level: 'readonly' | 'limited') => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        is_enabled: true,
+        access_level,
+      } as IdpKnownResponse);
+    };
+
+    it('disables the enable switch with read-only access', async () => {
+      arrange('readonly');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('keeps the enable switch available with limited access', async () => {
+      arrange('limited');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+  });
 });

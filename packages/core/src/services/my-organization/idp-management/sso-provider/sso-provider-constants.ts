@@ -3,7 +3,7 @@
  * @module sso-provider-constants
  * @internal
  */
-import type { IdpStrategy } from './sso-provider-types';
+import type { IdpAccessLevel, IdpStrategy } from './sso-provider-types';
 
 export const STRATEGIES = {
   ADFS: 'adfs',
@@ -28,3 +28,12 @@ export const STRATEGY_DISPLAY_NAMES: Record<IdpStrategy, string> = {
 } as const;
 
 export const DISCOVERY_URL_SUFFIX = '/.well-known/openid-configuration';
+
+export const IDP_ACCESS_LEVELS = {
+  NONE: 'none',
+  READONLY: 'readonly',
+  LIMITED: 'limited',
+  FULL: 'full',
+} as const satisfies Record<string, IdpAccessLevel>;
+
+export const DEFAULT_IDP_ACCESS_LEVEL: IdpAccessLevel = IDP_ACCESS_LEVELS.FULL;

@@ -1941,6 +1941,11 @@
           "target": "types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
@@ -1994,6 +1999,11 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -3670,6 +3680,11 @@
           "target": "types/my-organization/domain-management/domain-table-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -4389,6 +4404,11 @@
           "target": "types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -4497,6 +4517,11 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -4832,6 +4857,11 @@
           "target": "types/my-organization/domain-management/domain-table-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
@@ -4885,6 +4915,11 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",

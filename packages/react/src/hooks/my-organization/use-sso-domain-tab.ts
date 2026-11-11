@@ -18,6 +18,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -226,9 +227,10 @@ export function useSsoDomainTab(
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
-      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
-        return;
-      }
+      const hasPermission = newCheckedValue
+        ? permissions.canAssociateDomain
+        : permissions.canDissociateDomain;
+      if (!hasPermission || !getProviderAccess(provider).canManageDomains) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 

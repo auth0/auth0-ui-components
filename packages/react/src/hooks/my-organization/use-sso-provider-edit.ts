@@ -4,7 +4,11 @@
  * @module use-sso-provider-edit
  */
 
-import { getIdpManagementPermissions, type IdpId } from '@auth0/universal-components-core';
+import {
+  getIdpManagementPermissions,
+  type IdpId,
+  type UpdateIdentityProviderRequestContentPrivate,
+} from '@auth0/universal-components-core';
 import { useCallback, useMemo } from 'react';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
@@ -15,6 +19,10 @@ import {
   getDomainVerificationMode,
   isProviderEnableBlockedByDomains,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getProviderAccess,
+  pickLimitedUpdateFields,
+} from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -96,29 +104,51 @@ export function useSsoProviderEdit(
     service.provider,
   );
 
+  const providerAccessLevel = service.provider?.access_level;
+  const providerAccess = useMemo(
+    () => getProviderAccess({ access_level: providerAccessLevel }),
+    [providerAccessLevel],
+  );
+
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
-      if (!permissions.canUpdateProvider || !service.provider?.strategy) return;
+      const canToggle = permissions.canUpdateProvider && providerAccess.canToggle;
+      if (!canToggle || !service.provider?.strategy) return;
 
       const isBlockedFromEnabling = enabled && isEnableBlockedByDomains;
       if (isBlockedFromEnabling) return;
 
       await service.enableProvider(enabled);
     },
-    [permissions, service.provider?.strategy, service.enableProvider, isEnableBlockedByDomains],
+    [
+      permissions,
+      providerAccess,
+      service.provider?.strategy,
+      service.enableProvider,
+      isEnableBlockedByDomains,
+    ],
   );
 
-  const updateProvider = useGuardedMutation(permissions.canUpdateProvider, service.updateProvider);
+  const updateWithinAccessLevel = useCallback(
+    (data: UpdateIdentityProviderRequestContentPrivate) =>
+      service.updateProvider(providerAccess.canEditDetails ? data : pickLimitedUpdateFields(data)),
+    [providerAccess, service.updateProvider],
+  );
+
+  const updateProvider = useGuardedMutation(
+    permissions.canUpdateProvider && providerAccess.canEditLoginSettings,
+    updateWithinAccessLevel,
+  );
   const syncSsoAttributes = useGuardedMutation(
-    permissions.canUpdateProvider,
+    permissions.canUpdateProvider && providerAccess.canSyncAttributes,
     service.syncSsoAttributes,
   );
   const onDeleteConfirm = useGuardedMutation(
-    permissions.canDeleteProvider,
+    permissions.canDeleteProvider && providerAccess.canDelete,
     service.onDeleteConfirm,
   );
   const onRemoveConfirm = useGuardedMutation(
-    permissions.canDetachProvider,
+    permissions.canDetachProvider && providerAccess.canDetach,
     service.onRemoveConfirm,
   );
   const createProvisioning = useGuardedMutation(
@@ -165,6 +195,7 @@ export function useSsoProviderEdit(
     discoveryPolicy,
     domainVerificationMode,
     isEnableBlockedByDomains,
+    providerAccess,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
   };

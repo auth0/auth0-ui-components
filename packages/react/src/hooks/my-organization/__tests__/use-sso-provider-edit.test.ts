@@ -287,4 +287,90 @@ describe('useSsoProviderEdit - logic behavior', () => {
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('provider access level', () => {
+    const mockProviderAccess = (access_level?: 'readonly' | 'limited' | 'full') => {
+      mockServiceReturn = createMockSsoProviderEditServiceReturn({
+        provider: {
+          id: 'test-provider-id',
+          name: 'Test Provider',
+          strategy: 'okta',
+          options: {},
+          is_enabled: true,
+          access_level,
+        },
+        updateProvider: mockUpdateProvider,
+        enableProvider: mockEnableProvider,
+      });
+      vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+        mockServiceReturn,
+      );
+    };
+
+    const fullUpdate = {
+      strategy: 'okta' as const,
+      display_name: 'Renamed',
+      show_as_button: true,
+      assign_membership_on_login: true,
+      client_id: 'new-client-id',
+    };
+
+    it('treats a provider without an access level as full', async () => {
+      mockProviderAccess(undefined);
+      const { result } = render();
+
+      expect(result.current.providerAccess.accessLevel).toBe('full');
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+      });
+      expect(mockUpdateProvider).toHaveBeenCalledWith(fullUpdate);
+    });
+
+    it('sends only the login settings with limited access', async () => {
+      mockProviderAccess('limited');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+      });
+      expect(mockUpdateProvider).toHaveBeenCalledWith({
+        strategy: 'okta',
+        show_as_button: true,
+        assign_membership_on_login: true,
+        is_enabled: undefined,
+      });
+    });
+
+    it('lets limited access enable the provider and remove it, but not delete it', async () => {
+      mockProviderAccess('limited');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleProvider(false);
+        await result.current.onRemoveConfirm();
+        await result.current.onDeleteConfirm();
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(false);
+      expect(mockServiceReturn.onRemoveConfirm).toHaveBeenCalled();
+      expect(mockServiceReturn.onDeleteConfirm).not.toHaveBeenCalled();
+    });
+
+    it('blocks every change with read-only access', async () => {
+      mockProviderAccess('readonly');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+        await result.current.handleToggleProvider(false);
+        await result.current.syncSsoAttributes();
+        await result.current.onRemoveConfirm();
+        await result.current.onDeleteConfirm();
+      });
+      expect(mockUpdateProvider).not.toHaveBeenCalled();
+      expect(mockEnableProvider).not.toHaveBeenCalled();
+      expect(mockServiceReturn.syncSsoAttributes).not.toHaveBeenCalled();
+      expect(mockServiceReturn.onRemoveConfirm).not.toHaveBeenCalled();
+      expect(mockServiceReturn.onDeleteConfirm).not.toHaveBeenCalled();
+    });
+  });
 });

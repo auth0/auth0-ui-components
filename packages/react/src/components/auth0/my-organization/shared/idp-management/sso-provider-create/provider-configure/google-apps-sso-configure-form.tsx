@@ -47,6 +47,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   {
     initialData,
     readOnly = false,
+    isLoginSettingsReadOnly,
     customMessages = {},
     className,
     onFormDirty,
@@ -209,7 +210,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
 
         <CommonConfigureFields
           idpConfig={idpConfig}
-          readOnly={readOnly}
+          readOnly={isLoginSettingsReadOnly}
           customMessages={customMessages}
         />
       </div>

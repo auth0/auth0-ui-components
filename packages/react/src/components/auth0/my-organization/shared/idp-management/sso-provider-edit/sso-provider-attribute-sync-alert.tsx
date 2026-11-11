@@ -34,6 +34,7 @@ import type { SsoProviderAttributeSyncAlertProps } from '@/types/my-organization
  * @param props.isSyncing - Whether sync is in progress.
  * @param props.canSync - Whether the user may trigger a sync.
  * @param props.permissionDenied - Whether a missing scope is the reason a sync is unavailable.
+ * @param props.isAccessRestricted - Whether the organization's access level is the reason a sync is unavailable.
  * @returns Attribute sync alert component.
  * @internal
  */
@@ -46,10 +47,14 @@ export function SsoProviderAttributeSyncAlert({
   isSyncing = false,
   canSync = true,
   permissionDenied = false,
+  isAccessRestricted = false,
 }: SsoProviderAttributeSyncAlertProps) {
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
 
   const { t } = useTranslator(translatorKey, customMessages);
+  const accessRestrictedMessage = isAccessRestricted
+    ? t('access_restricted_tooltip_text')
+    : undefined;
 
   const handleSyncClick = () => {
     setIsSyncModalOpen(true);
@@ -78,7 +83,11 @@ export function SsoProviderAttributeSyncAlert({
             <AlertDescription>{t('description')}</AlertDescription>
           </div>
         </div>
-        <PermissionDeniedTooltip customMessages={customMessages} enabled={permissionDenied}>
+        <PermissionDeniedTooltip
+          customMessages={customMessages}
+          enabled={permissionDenied || isAccessRestricted}
+          customMessage={accessRestrictedMessage}
+        >
           <Button
             variant="outline"
             size="default"

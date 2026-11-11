@@ -541,4 +541,27 @@ describe('SsoDomainTabActionsColumn', () => {
       expect(screen.getByRole('switch')).toBeEnabled();
     });
   });
+
+  describe('Provider access level', () => {
+    it('disables the switch and says why when the access level is not full', () => {
+      const props = createMockSsoDomainTabActionColumnProps({ canManageProviderDomains: false });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      const toggle = screen.getByRole('switch');
+      expect(toggle).toBeDisabled();
+      expect(toggle).toHaveAccessibleDescription(
+        'table.actions.provider_access_restricted_tooltip',
+      );
+    });
+
+    it('reports a missing permission before the access level', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        canManageProviderDomains: false,
+        permissions: createIdpPermissions([]),
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch')).toHaveAccessibleDescription('error.forbidden');
+    });
+  });
 });

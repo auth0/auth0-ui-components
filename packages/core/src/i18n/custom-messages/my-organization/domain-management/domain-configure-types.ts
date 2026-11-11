@@ -25,6 +25,7 @@ export interface DomainConfigureMessages extends SharedMessages {
       disable_provider_tooltip?: string;
       domain_association_unavailable_tooltip?: string;
       last_verified_domain_tooltip?: string;
+      provider_access_restricted_tooltip?: string;
     };
   };
   actions?: {

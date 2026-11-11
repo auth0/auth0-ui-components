@@ -24,6 +24,7 @@ import {
   getDomainVerificationMode,
   isDomainUsedForDiscovery,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseDomainTableOptions,
   UseDomainTableReturn,
@@ -211,11 +212,10 @@ export function useDomainTable({
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
-      if (
-        newCheckedValue ? !permissions.canAssociateProvider : !permissions.canDissociateProvider
-      ) {
-        return;
-      }
+      const hasPermission = newCheckedValue
+        ? permissions.canAssociateProvider
+        : permissions.canDissociateProvider;
+      if (!hasPermission || !getProviderAccess(provider).canManageDomains) return;
 
       if (newCheckedValue) {
         try {
