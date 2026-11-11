@@ -65,13 +65,13 @@ The script creates and configures the following Auth0 resources based on your fe
 
 ### Core Resources (always created)
 
-| Resource                   | Details                                                                                                                     |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **Application**            | SPA or Regular Web Application configured for `http://localhost:5173` with refresh token rotation and organization settings |
-| **Database Connection**    | `Universal-Components-Demo` connection enabled for the application                                                          |
-| **Connection Profile**     | `Universal-Components-Profile` with SCIM and Universal Logout enabled                                                       |
-| **User Attribute Profile** | Attribute mappings for the application                                                                                      |
-| **Tenant Settings**        | Friendly name, identifier-first login prompt                                                                                |
+| Resource                   | Details                                                                                                                                                                                                                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Application**            | SPA or Regular Web Application configured for `http://localhost:5173` with refresh token rotation and organization settings                                                                                                                                                              |
+| **Database Connection**    | `Universal-Components-Demo` connection enabled for the application                                                                                                                                                                                                                       |
+| **Connection Profile**     | `Universal-Components-Profile` with SCIM and Universal Logout enabled. Domains are optional for identity providers (`domain_aliases_config`). SCIM tokens default to 1 hour, up to 30 days, with all user scopes; Okta tokens are limited to `get:users` and `patch:users`, up to 7 days |
+| **User Attribute Profile** | Attribute mappings for the application                                                                                                                                                                                                                                                   |
+| **Tenant Settings**        | Friendly name, identifier-first login prompt                                                                                                                                                                                                                                             |
 
 ### My Organization Resources (if enabled)
 
