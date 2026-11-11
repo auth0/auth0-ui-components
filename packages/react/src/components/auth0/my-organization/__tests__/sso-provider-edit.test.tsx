@@ -417,7 +417,9 @@ describe('SsoProviderEdit', () => {
 
           await user.click(await screen.findByText(/tabs.provisioning.name/i));
 
-          expect(await screen.findByText('header.description_disabled')).toBeInTheDocument();
+          expect(
+            await screen.findByText('google_workspace.header.description_disabled'),
+          ).toBeInTheDocument();
           expect(directoryProvisioningGet).toHaveBeenCalled();
           expect(scimGet).not.toHaveBeenCalled();
         });

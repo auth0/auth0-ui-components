@@ -146,11 +146,7 @@ export function SsoProvisioningGoogleSyncPanel({
             : actions.continueConsent
       }
     >
-      {t(
-        isFailed
-          ? 'google_workspace.header.retry_button_label'
-          : 'google_workspace.header.continue_button_label',
-      )}
+      {t('google_workspace.header.continue_button_label')}
     </Button>
   );
 
@@ -281,25 +277,27 @@ export function SsoProvisioningGoogleSyncPanel({
             >
               <Info />
               <AlertDescription>
-                <>
-                  {t.trans(`google_workspace.status_alert.${syncAlert}`, {
-                    components: {
-                      link: (children: string) =>
-                        canStartConsent && !isWaiting ? (
-                          <button
-                            key="reverify-link"
-                            type="button"
-                            className="underline underline-offset-4"
-                            onClick={actions.startConsent}
-                          >
-                            {children}
-                          </button>
-                        ) : (
-                          <React.Fragment key="reverify-link">{children}</React.Fragment>
-                        ),
-                    },
-                  })}
-                </>
+                <p>
+                  <>
+                    {t.trans(`google_workspace.status_alert.${syncAlert}`, {
+                      components: {
+                        link: (children: string) =>
+                          canStartConsent && !isWaiting ? (
+                            <button
+                              key="reverify-link"
+                              type="button"
+                              className="underline underline-offset-4"
+                              onClick={actions.startConsent}
+                            >
+                              {children}
+                            </button>
+                          ) : (
+                            <React.Fragment key="reverify-link">{children}</React.Fragment>
+                          ),
+                      },
+                    })}
+                  </>
+                </p>
               </AlertDescription>
             </Alert>
           </CardContent>

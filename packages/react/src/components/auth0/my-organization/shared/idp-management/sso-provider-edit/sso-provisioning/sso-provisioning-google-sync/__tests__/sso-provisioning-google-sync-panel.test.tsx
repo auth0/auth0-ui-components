@@ -287,19 +287,18 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
   });
 
   describe('failed', () => {
-    it('shows the failed badge and a retry button', async () => {
+    it('shows the failed badge, keeps provisioning on and offers Continue with Google', async () => {
       const user = userEvent.setup();
       renderComponent(createModel({ isConsentPending: true, consentPhase: 'failed' }));
 
       expect(screen.getByText('google_workspace.header.status.failed')).toBeInTheDocument();
+      expect(screen.queryByText('google_workspace.header.status.granted')).not.toBeInTheDocument();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       expect(
-        screen.queryByRole('button', { name: 'google_workspace.header.continue_button_label' }),
-      ).not.toBeInTheDocument();
+        screen.getByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
+      ).toBeChecked();
 
-      await user.click(
-        screen.getByRole('button', { name: 'google_workspace.header.retry_button_label' }),
-      );
+      await user.click(getConnectButton());
       expect(actions.startConsent).toHaveBeenCalled();
       expect(actions.continueConsent).not.toHaveBeenCalled();
     });
