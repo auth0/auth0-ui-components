@@ -847,7 +847,6 @@
                 "last_synced_label": "Dernière synchronisation :"
               },
               "status_alert": {
-                "previously_disabled": "Le provisionnement a déjà été désactivé pour cette connexion. Votre autorisation Google Workspace est toujours enregistrée et sera réutilisée si vous le réactivez.",
                 "unconfirmed_authorization": "Votre autorisation Google Workspace n'a pas encore été confirmée par une synchronisation. Si l'autorisation est révoquée, la prochaine synchronisation planifiée échouera. <link>Continuez avec Google</link> pour l'autoriser à nouveau.",
                 "sync_failed": "Échec de la synchronisation : l'autorisation Google Workspace n'est plus valide. <link>Continuez avec Google</link> pour l'autoriser à nouveau."
               },

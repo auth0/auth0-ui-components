@@ -56,7 +56,6 @@ export interface GoogleWorkspaceProvisioningModel {
   consentPhase: GoogleWorkspaceConsentPhase;
   isConsentPending: boolean;
   isGranted: boolean;
-  wasDisabled: boolean;
   isLoading: boolean;
   isStartingConsent: boolean;
   isUpdating: boolean;

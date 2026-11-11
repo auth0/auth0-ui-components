@@ -900,7 +900,6 @@
                 "last_synced_label": "最終同期:"
               },
               "status_alert": {
-                "previously_disabled": "この接続のプロビジョニングは以前に無効化されました。Google Workspace の認可は保存されたままで、再度有効にすると再利用されます。",
                 "unconfirmed_authorization": "Google Workspace の認可はまだ同期で確認されていません。認可が取り消された場合、次回の定期同期は失敗します。再認可するには <link>Google で続行</link> してください。",
                 "sync_failed": "同期に失敗しました: Google Workspace の認可は無効になっています。再認可するには <link>Google で続行</link> してください。"
               },

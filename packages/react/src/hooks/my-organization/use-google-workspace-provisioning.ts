@@ -50,7 +50,6 @@ export function useGoogleWorkspaceProvisioning({
   const [consentPhase, setConsentPhase] = useState<GoogleWorkspaceConsentPhase>('idle');
   const [ticketUrl, setTicketUrl] = useState<string | null>(null);
   const [isGranted, setIsGranted] = useState(false);
-  const [wasDisabled, setWasDisabled] = useState(false);
   const [isEnableAutoSyncModalOpen, setEnableAutoSyncModalOpen] = useState(false);
   const [isDisableModalOpen, setDisableModalOpen] = useState(false);
 
@@ -79,7 +78,6 @@ export function useGoogleWorkspaceProvisioning({
       setConsentPhase('idle');
       setTicketUrl(null);
       setIsGranted(true);
-      setWasDisabled(false);
       // The enable auto sync modal confirms the granted access itself.
       if (!config.synchronize_automatically && permissions.canUpdateProvisioning) {
         setEnableAutoSyncModalOpen(true);
@@ -214,7 +212,6 @@ export function useGoogleWorkspaceProvisioning({
       showToast({ type: 'success', message: t('provisioning_disabled_success') });
       setDisableModalOpen(false);
       setIsGranted(false);
-      setWasDisabled(true);
       resetConsent();
       await deleteAction?.onAfter?.(provider);
     } catch (error) {
@@ -232,7 +229,6 @@ export function useGoogleWorkspaceProvisioning({
       consentPhase,
       isConsentPending: ticketUrl !== null,
       isGranted,
-      wasDisabled,
       isLoading: isConfigLoading,
       isStartingConsent,
       isUpdating,

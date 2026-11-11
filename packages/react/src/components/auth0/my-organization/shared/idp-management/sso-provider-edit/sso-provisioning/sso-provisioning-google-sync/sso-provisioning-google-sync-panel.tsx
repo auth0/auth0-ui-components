@@ -75,7 +75,6 @@ export function SsoProvisioningGoogleSyncPanel({
     consentPhase,
     isConsentPending,
     isGranted,
-    wasDisabled,
     isLoading,
     isStartingConsent,
     isUpdating,
@@ -99,7 +98,6 @@ export function SsoProvisioningGoogleSyncPanel({
   const isWaiting = consentPhase === 'waiting';
   const isFailed = !isConnected && consentPhase === 'failed';
   const isAutoSyncEnabled = !!config?.synchronize_automatically;
-  const isPreviouslyDisabled = !isSwitchOn && wasDisabled;
 
   const canStartConsent =
     !readOnly &&
@@ -275,7 +273,7 @@ export function SsoProvisioningGoogleSyncPanel({
           </CardAction>
         </CardHeader>
 
-        {(isPreviouslyDisabled || syncAlert) && (
+        {syncAlert && (
           <CardContent>
             <Alert
               variant={syncAlert === 'sync_failed' ? 'destructive' : 'warning'}
@@ -283,29 +281,25 @@ export function SsoProvisioningGoogleSyncPanel({
             >
               <Info />
               <AlertDescription>
-                {isPreviouslyDisabled ? (
-                  t('google_workspace.status_alert.previously_disabled')
-                ) : (
-                  <>
-                    {t.trans(`google_workspace.status_alert.${syncAlert}`, {
-                      components: {
-                        link: (children: string) =>
-                          canStartConsent && !isWaiting ? (
-                            <button
-                              key="reverify-link"
-                              type="button"
-                              className="underline underline-offset-4"
-                              onClick={actions.startConsent}
-                            >
-                              {children}
-                            </button>
-                          ) : (
-                            <React.Fragment key="reverify-link">{children}</React.Fragment>
-                          ),
-                      },
-                    })}
-                  </>
-                )}
+                <>
+                  {t.trans(`google_workspace.status_alert.${syncAlert}`, {
+                    components: {
+                      link: (children: string) =>
+                        canStartConsent && !isWaiting ? (
+                          <button
+                            key="reverify-link"
+                            type="button"
+                            className="underline underline-offset-4"
+                            onClick={actions.startConsent}
+                          >
+                            {children}
+                          </button>
+                        ) : (
+                          <React.Fragment key="reverify-link">{children}</React.Fragment>
+                        ),
+                    },
+                  })}
+                </>
               </AlertDescription>
             </Alert>
           </CardContent>

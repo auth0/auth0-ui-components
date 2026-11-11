@@ -76,7 +76,6 @@ const createModel = (
     consentPhase: 'idle',
     isConsentPending: false,
     isGranted: false,
-    wasDisabled: false,
     isLoading: false,
     isStartingConsent: false,
     isUpdating: false,
@@ -165,20 +164,6 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       renderComponent(createModel(), props);
 
       expect(screen.getByRole('switch', { name: tooltip })).toBeDisabled();
-    });
-
-    it('shows the previously disabled alert after provisioning was disabled', () => {
-      renderComponent(createModel({ wasDisabled: true }));
-
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'google_workspace.status_alert.previously_disabled',
-      );
-    });
-
-    it('hides the previously disabled alert once provisioning is turned back on', () => {
-      renderComponent(createModel({ wasDisabled: true, isConsentPending: true }));
-
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
 
     it('shows a spinner instead of the switch while the ticket is created', () => {

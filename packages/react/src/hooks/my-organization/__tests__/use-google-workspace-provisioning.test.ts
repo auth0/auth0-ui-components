@@ -137,7 +137,6 @@ describe('useGoogleWorkspaceProvisioning', () => {
       expect(result.current.model.state).toBe(expected);
       expect(result.current.model.consentPhase).toBe('idle');
       expect(result.current.model.isGranted).toBe(false);
-      expect(result.current.model.wasDisabled).toBe(false);
       expect(result.current.model.isConsentPending).toBe(false);
     });
   });
@@ -671,25 +670,7 @@ describe('useGoogleWorkspaceProvisioning', () => {
       });
       expect(result.current.model.isDisableModalOpen).toBe(false);
       expect(result.current.model.state).toBe('not_connected');
-      expect(result.current.model.wasDisabled).toBe(true);
       expect(result.current.model.isConsentPending).toBe(false);
-    });
-
-    it('clears the disabled flag once access is granted again', async () => {
-      service = createService({ config: syncedConfig });
-      const { result, rerender } = renderProvisioning();
-      await act(async () => {
-        await result.current.actions.confirmDisable();
-      });
-      rerender();
-
-      await startConsent(result);
-      vi.mocked(service.verifyConsent).mockResolvedValue({ status: 'complete' });
-      await advance(VERIFY_INTERVAL_MS);
-      rerender();
-
-      expect(result.current.model.state).toBe('connected');
-      expect(result.current.model.wasDisabled).toBe(false);
     });
 
     it('keeps the modal open and shows the error when disabling fails', async () => {
@@ -707,7 +688,6 @@ describe('useGoogleWorkspaceProvisioning', () => {
 
       expect(result.current.model.isDisableModalOpen).toBe(true);
       expect(result.current.model.state).toBe('connected');
-      expect(result.current.model.wasDisabled).toBe(false);
       expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'general_error' });
     });
 

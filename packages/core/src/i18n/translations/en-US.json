@@ -913,7 +913,6 @@
                 "last_synced_label": "Last synced:"
               },
               "status_alert": {
-                "previously_disabled": "Provisioning was previously disabled for this connection. Your Google Workspace authorization is still on file and will be reused if you re-enable.",
                 "unconfirmed_authorization": "Your Google Workspace authorization hasn't been confirmed by a sync yet. If the authorization is revoked, the next scheduled sync will fail. <link>Continue with Google</link> to re-authorize.",
                 "sync_failed": "Sync failed: Google Workspace authorization is no longer valid. <link>Continue with Google</link> to re-authorize."
               },
