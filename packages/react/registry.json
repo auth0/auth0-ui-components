@@ -1549,6 +1549,11 @@
           "target": "lib/utils/shared/css-detection.ts"
         },
         {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
+        },
+        {
           "path": "src/styles/globals.css",
           "type": "registry:component",
           "target": "styles/globals.css"

@@ -112,6 +112,7 @@ export function SsoDomainTab({
     domains,
     provider,
     readOnly,
+    domainVerificationMode,
   });
 
   const lockLastDomain = isLastRequiredDomainLocked(domainVerificationMode, provider);
@@ -134,6 +135,7 @@ export function SsoDomainTab({
         type: 'custom',
         accessorKey: 'use_for_organization_discovery',
         title: t('table.columns.use_for_discovery'),
+        enableSorting: false,
         render: (domain) => {
           const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
           const discoveryLabel = isDiscoveryOn

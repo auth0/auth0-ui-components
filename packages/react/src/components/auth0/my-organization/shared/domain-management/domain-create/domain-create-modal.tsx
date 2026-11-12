@@ -90,12 +90,15 @@ export function DomainCreateModal({
     form.reset({ domain_url: '', use_for_discovery: discoveryDefaultValue });
   }, [form, discoveryDefaultValue]);
 
-  // The policy can load after the form is created.
+  const isDiscoveryEdited = !!form.formState.dirtyFields.use_for_discovery;
+
   React.useEffect(() => {
-    if (!form.formState.isDirty) {
-      resetForm();
-    }
-  }, [form.formState.isDirty, resetForm]);
+    if (isDiscoveryEdited) return;
+    form.reset(
+      { ...form.getValues(), use_for_discovery: discoveryDefaultValue },
+      { keepErrors: true, keepTouched: true },
+    );
+  }, [form, discoveryDefaultValue, isDiscoveryEdited]);
 
   const handleCreate = React.useCallback(
     async (values: InternalDomainCreateFormValues) => {

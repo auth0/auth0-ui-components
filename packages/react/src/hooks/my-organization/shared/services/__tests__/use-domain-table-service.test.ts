@@ -3,7 +3,11 @@ import type {
   Domain,
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
-import { BusinessError, domainQueryKeys } from '@auth0/universal-components-core';
+import {
+  BusinessError,
+  domainQueryKeys,
+  ssoDomainQueryKeys,
+} from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -623,6 +627,28 @@ describe('useDomainTableService', () => {
       ).toBe(true);
       expect(cached?.domains.find((d) => d.id === 'domain_other')).toEqual(other);
       expect(invalidate).toHaveBeenCalledWith({ queryKey: domainQueryKeys.lists() });
+    });
+
+    it("should also patch and refresh the SSO provider tab's cached domain list", async () => {
+      const mockDomain = createMockDomain({
+        status: 'verified',
+        use_for_organization_discovery: false,
+      });
+      const update = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.update,
+      );
+      update.mockResolvedValue({ ...mockDomain, use_for_organization_discovery: true });
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      const invalidate = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue();
+      const ssoListKey = ssoDomainQueryKeys.list('con_abc', { pageSize: 10 });
+      queryClient.setQueryData(ssoListKey, { domains: [mockDomain], next: null });
+
+      await result.current.onUpdateDomainDiscovery(mockDomain, true);
+
+      const cached = queryClient.getQueryData<{ domains: Domain[] }>(ssoListKey);
+      expect(cached?.domains[0]?.use_for_organization_discovery).toBe(true);
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ssoDomainQueryKeys.lists() });
     });
 
     it('should reject and leave the list untouched when the update fails', async () => {

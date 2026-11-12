@@ -193,15 +193,18 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     !providerAccess.canToggle ||
     isEnableBlockedByDomains;
 
-  const getProviderSwitchTooltip = () => {
+  const providerSwitchLabel = provider?.is_enabled
+    ? t('header.disable_provider_tooltip_text')
+    : t('header.enable_provider_tooltip_text');
+
+  const getProviderSwitchBlockedReason = () => {
     if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
     if (!providerAccess.canToggle)
       return t('header.enable_provider_access_restricted_tooltip_text');
     if (isEnableBlockedByDomains) return t('header.enable_provider_blocked_domains_tooltip_text');
-    if (provider?.is_enabled) return t('header.disable_provider_tooltip_text');
-    return t('header.enable_provider_tooltip_text');
+    return undefined;
   };
-  const providerSwitchTooltip = getProviderSwitchTooltip();
+  const providerSwitchBlockedReason = getProviderSwitchBlockedReason();
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -223,7 +226,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 onCheckedChange: handleToggleProvider,
                 hidden: readOnly,
                 disabled: isProviderSwitchDisabled,
-                tooltip: { content: providerSwitchTooltip },
+                'aria-label': providerSwitchLabel,
+                description: providerSwitchBlockedReason,
+                tooltip: { content: providerSwitchBlockedReason ?? providerSwitchLabel },
               },
             ]}
             className={currentStyles?.classes?.['SsoProviderEdit-header']}

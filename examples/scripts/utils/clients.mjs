@@ -789,6 +789,10 @@ function describeForeignDefaultIssues(template) {
     issues.push(
       "it sets no use_for_organization_discovery policy (the discovery controls stay hidden)"
     )
+  } else if (!discoveryPolicyMatches(template.use_for_organization_discovery)) {
+    issues.push(
+      "its use_for_organization_discovery policy differs from the demo's (default false, both values allowed), so the discovery switches may be locked or start on"
+    )
   }
   return issues
 }
@@ -987,15 +991,21 @@ export async function applyOrganizationTemplateChanges(changePlan, refs) {
       assignOrg = changePlan.updates.orgAssignment
     }
 
+    const needsDiscoveryPolicy =
+      changePlan.action === ChangeAction.CREATE || changePlan.updates?.discovery
+    if (needsDiscoveryPolicy) {
+      // Own spinner and own failure handling, and independent of the assignment below
+      spinner.stop()
+      // Keep the profile's own fields (such as its id) even if the response is partial
+      template = { ...template, ...(await applyDiscoveryPolicy(template.id)) }
+      spinner.start()
+    }
+
     if (orgId && assignOrg) {
       await auth0ApiCall("put", `organizations/${orgId}/organization-templates/${template.id}`)
     }
 
     spinner.succeed(`Configured default Organization Profile`)
-
-    if (changePlan.action === ChangeAction.CREATE || changePlan.updates?.discovery) {
-      template = (await applyDiscoveryPolicy(template.id)) ?? template
-    }
     return template
   } catch (e) {
     spinner.warn(`Could not configure Organization Profile: ${e.message}`)

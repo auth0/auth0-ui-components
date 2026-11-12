@@ -1056,6 +1056,28 @@ describe('DomainConfigureProvidersModal', () => {
       });
     });
 
+    it("shows why an enabled provider's last domain can't be removed, without relying on the tooltip", () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+    });
+
+    it('shows no last-domain warning when nothing is locked', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com', 'other.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
     it('lets an enabled provider drop a domain when it has another one in required mode', () => {
       const props = createMockDomainConfigureProvidersModalProps({
         domainVerificationMode: 'required',
