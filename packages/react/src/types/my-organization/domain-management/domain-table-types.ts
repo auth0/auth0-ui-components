@@ -18,6 +18,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
   IdpDomainVerificationMode,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
@@ -121,11 +122,13 @@ export interface UseDomainTableServiceReturn {
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
+  isUpdatingDiscovery: boolean;
   refetchDomains: RefetchDomains;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
   onVerifyDomain: (domain: Domain) => Promise<boolean>;
+  onUpdateDomainDiscovery: (domain: Domain, useForDiscovery: boolean) => Promise<Domain>;
   onDeleteDomain: (domain: Domain) => Promise<void>;
   onAssociateToProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
   onDeleteFromProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
@@ -148,17 +151,26 @@ export interface UseDomainTableReturn {
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+  isUpdatingDiscovery: boolean;
+  updatingDiscoveryId: string | null;
   // Pagination
   pagination: DomainTablePaginationState;
 
   // Domain verification
   domainVerificationMode: IdpDomainVerificationMode;
 
+  // Discovery policy
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
+  showDiscovery: boolean;
+  isDiscoveryReadOnly: boolean;
+  discoveryDefaultValue: boolean;
+
   // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;
   showVerifyModal: boolean;
   showDeleteModal: boolean;
+  showDiscoveryModal: boolean;
   verifyError: string | undefined;
   selectedDomain: Domain | null;
 
@@ -170,8 +182,11 @@ export interface UseDomainTableReturn {
 
   // Handlers
   refetchDomains: RefetchDomains;
-  handleCreate: (domainUrl: string) => Promise<void>;
+  handleCreate: (domainUrl: string, useForDiscovery?: boolean) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
+  handleToggleDiscovery: (domain: Domain, checked: boolean) => Promise<void>;
+  handleEnableDiscovery: (domain: Domain) => Promise<void>;
+  handleCloseDiscoveryModal: () => void;
   handleDelete: (domain: Domain) => Promise<void>;
   handleToggleSwitch: (
     domain: Domain,

@@ -70,8 +70,13 @@ export function useSsoProviderEdit(
     enableProviderAction,
   });
 
-  const { shouldAllowDeletion, isLoadingConfig, showThirdPartyAccess, isThirdPartyAccessReadOnly } =
-    useConfig();
+  const {
+    shouldAllowDeletion,
+    isLoadingConfig,
+    showThirdPartyAccess,
+    isThirdPartyAccessReadOnly,
+    discoveryPolicy,
+  } = useConfig();
   const {
     idpConfig,
     isLoadingIdpConfig,
@@ -84,6 +89,7 @@ export function useSsoProviderEdit(
   const showProvisioningTab =
     isProvisioningEnabled(service.provider?.strategy) &&
     isProvisioningMethodEnabled(service.provider?.strategy);
+
   const domainVerificationMode = getDomainVerificationMode(idpConfig);
   const isEnableBlockedByDomains = isProviderEnableBlockedByDomains(
     domainVerificationMode,
@@ -156,6 +162,7 @@ export function useSsoProviderEdit(
     handleToggleProvider,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
+    discoveryPolicy,
     domainVerificationMode,
     isEnableBlockedByDomains,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
