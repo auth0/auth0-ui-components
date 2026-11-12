@@ -1007,6 +1007,27 @@
       "unsaved_changes_text": "未保存の変更",
       "submit_button_label": "保存"
     },
+    "test_sso_provider": {
+      "title": "SSOのテスト",
+      "description": "プロバイダーをテストして、SSOの設定が正しく完了していることを確認します。",
+      "test_button_label": "プロバイダーをテスト",
+      "overlay": {
+        "title": "アイデンティティプロバイダーをテストしています",
+        "description": "新しいウィンドウでサインインを完了してください。テストが完了すると、このページは自動的に更新されます。",
+        "trouble_text": "アイデンティティプロバイダーで問題が発生していますか？",
+        "retry_button_label": "閉じて再試行",
+        "popup_blocked_text": "ブラウザーがテストウィンドウをブロックしました。",
+        "open_window_link_label": "テストウィンドウを開く"
+      },
+      "result": {
+        "success_title": "テストに成功しました",
+        "success_description": "以下のユーザー情報を確認し、正しい属性が渡されていることを確認してください。",
+        "copy_button_label": "JSONをコピー",
+        "try_again_text": "もう一度お試しください。",
+        "expired_error": "テストが完了する前に有効期限が切れました。",
+        "timeout_error": "サインインが完了する前にテストがタイムアウトしました。"
+      }
+    },
     "notifications": {
       "delete_success": "${providerName}が削除されました。",
       "remove_success": "${providerName}が${organizationName}から削除されました",
@@ -1039,7 +1060,8 @@
       "scim_token_delete_success": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました",
       "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
-      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
+      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。",
+      "test_provider_start_error": "プロバイダーのテストの開始中に問題が発生しました。"
     }
   },
   "user_mfa_management": {
