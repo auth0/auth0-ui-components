@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { usePollUntil, type UsePollUntilOptions } from '@/hooks/shared/use-poll-until';
+import { usePollUntil } from '@/hooks/shared/use-poll-until';
+import type { UsePollUntilOptions } from '@/types/use-poll-until-types';
 
 type Result = { done: boolean; delayMs?: number };
 

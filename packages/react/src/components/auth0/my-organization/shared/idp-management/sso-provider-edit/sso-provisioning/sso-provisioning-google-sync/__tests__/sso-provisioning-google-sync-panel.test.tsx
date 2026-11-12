@@ -425,6 +425,17 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
       expect(screen.getByRole('switch', { name: 'error.forbidden' })).toBeDisabled();
     });
 
+    it.each([
+      ['provisioning is being disabled', { isDeleting: true }],
+      ['a consent ticket is being created', { isStartingConsent: true }],
+    ])('disables the auto sync switch while %s', (_, overrides) => {
+      renderComponent(createModel({ state: 'connected', ...overrides }));
+
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.auto_sync.disable_tooltip' }),
+      ).toBeDisabled();
+    });
+
     it('shows a spinner instead of the auto sync switch while it is updating', () => {
       renderComponent(createModel({ state: 'connected', isUpdating: true }));
 
@@ -438,6 +449,34 @@ describe('SsoProvisioningGoogleSyncPanel', () => {
         screen.queryByRole('switch', { name: 'google_workspace.header.disable_tooltip' }),
       ).not.toBeInTheDocument();
       expect(screen.getAllByRole('switch')).toHaveLength(1);
+    });
+  });
+
+  describe('disabled actions', () => {
+    it('disables the switch without a misleading tooltip when deleteAction is disabled', () => {
+      renderComponent(createModel({ state: 'connected' }), { deleteAction: { disabled: true } });
+
+      const toggle = screen.getByRole('switch', {
+        name: 'google_workspace.header.disable_tooltip',
+      });
+      expect(toggle).toBeDisabled();
+      expect(screen.queryByText('error.forbidden')).not.toBeInTheDocument();
+    });
+
+    it('disables the switch when createAction is disabled', () => {
+      renderComponent(createModel(), { createAction: { disabled: true } });
+
+      expect(
+        screen.getByRole('switch', { name: 'google_workspace.header.enable_tooltip' }),
+      ).toBeDisabled();
+    });
+
+    it('disables the connect button when createAction is disabled', () => {
+      renderComponent(createModel({ isConsentPending: true }), {
+        createAction: { disabled: true },
+      });
+
+      expect(getConnectButton()).toBeDisabled();
     });
   });
 

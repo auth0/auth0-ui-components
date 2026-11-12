@@ -29,8 +29,24 @@ import { useGoogleWorkspaceProvisioning } from '@/hooks/my-organization/use-goog
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
+import {
+  getConnectBlockReason,
+  getConsentBadge,
+  getLastSyncedAt,
+  getSyncAlert,
+  getToggleBlockReason,
+  type GoogleBlockReason,
+} from '@/lib/utils/my-organization/idp-management/google-workspace-provisioning-utils';
 import { getRelativeTimeLabel } from '@/lib/utils/shared/helper-utils';
 import type { SsoProvisioningGoogleSyncPanelProps } from '@/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
+
+const BLOCK_REASON_KEYS: Record<
+  Exclude<GoogleBlockReason, 'forbidden' | 'action_disabled'>,
+  string
+> = {
+  provider_disabled: 'google_workspace.header.provider_disabled_tooltip',
+  access_level_required: 'google_workspace.header.access_level_required_tooltip',
+};
 
 /**
  * Google Workspace provisioning tab content: enabling provisioning through Google consent,
@@ -99,12 +115,19 @@ export function SsoProvisioningGoogleSyncPanel({
   const isFailed = !isConnected && consentPhase === 'failed';
   const isAutoSyncEnabled = !!config?.synchronize_automatically;
 
-  const canStartConsent =
-    !readOnly &&
-    isProviderEnabled &&
-    hasFullAccessLevel &&
-    permissions.canCreateProvisioning &&
-    !createAction?.disabled;
+  const describeBlockReason = (reason: GoogleBlockReason): string | undefined => {
+    if (reason === 'forbidden') return tCommon('error.forbidden');
+    if (reason === 'action_disabled') return undefined;
+    return t(BLOCK_REASON_KEYS[reason]);
+  };
+
+  const connectBlockReason = getConnectBlockReason({
+    isProviderEnabled,
+    canCreateProvisioning: permissions.canCreateProvisioning,
+    hasFullAccessLevel,
+    isActionDisabled: !!createAction?.disabled,
+  });
+  const canStartConsent = !readOnly && !connectBlockReason;
 
   const hasTogglePermission = isConnected
     ? permissions.canDeleteProvisioning
@@ -112,65 +135,75 @@ export function SsoProvisioningGoogleSyncPanel({
   const canDelete = permissions.canDeleteProvisioning && !deleteAction?.disabled;
   const canToggle = !readOnly && (isConnected ? canDelete : isConsentPending || canStartConsent);
   const canUpdateAutoSync = !readOnly && permissions.canUpdateProvisioning;
-  const status = isFailed ? 'failed' : isGranted && isConnected ? 'granted' : undefined;
-  const lastSyncedAt = config?.last_synchronization_at
-    ? Date.parse(config.last_synchronization_at)
-    : NaN;
-  const syncAlert = !config
-    ? undefined
-    : config.last_synchronization_status === 'failed'
-      ? 'sync_failed'
-      : Number.isNaN(lastSyncedAt) || lastSyncedAt < Date.parse(config.created_at)
-        ? 'unconfirmed_authorization'
-        : undefined;
+
+  const badge = getConsentBadge({ isFailed, isGranted, isConnected });
+  const lastSyncedAt = getLastSyncedAt(config);
+  const syncAlert = getSyncAlert(config);
 
   const showConnect = !readOnly && isSwitchOn && !isWaiting;
-  const connectDisabledReason = !isProviderEnabled
-    ? t('google_workspace.header.provider_disabled_tooltip')
-    : !permissions.canCreateProvisioning
-      ? tCommon('error.forbidden')
-      : !hasFullAccessLevel
-        ? t('google_workspace.header.access_level_required_tooltip')
-        : undefined;
+  const connectDisabledReason = connectBlockReason && describeBlockReason(connectBlockReason);
+
+  const connectAction = isFailed || isConnected ? actions.startConsent : actions.continueConsent;
+
   const connectButton = (
     <Button
       type="button"
       variant="outline"
       size="sm"
       disabled={!canStartConsent || isStartingConsent}
-      onClick={
-        isFailed
-          ? actions.startConsent
-          : isConnected
-            ? actions.startConsent
-            : actions.continueConsent
-      }
+      onClick={connectAction}
     >
       {t('google_workspace.header.continue_button_label')}
     </Button>
   );
 
-  const provisioningTooltip = !isProviderEnabled
-    ? t('google_workspace.header.provider_disabled_tooltip')
-    : !canToggle && !isConnected && !hasFullAccessLevel
-      ? t('google_workspace.header.access_level_required_tooltip')
-      : !canToggle && (readOnly || !hasTogglePermission)
-        ? tCommon('error.forbidden')
-        : t(
-            isSwitchOn
-              ? 'google_workspace.header.disable_tooltip'
-              : 'google_workspace.header.enable_tooltip',
-          );
+  const toggleBlockReason = getToggleBlockReason({
+    isProviderEnabled,
+    canToggle,
+    isConnected,
+    hasFullAccessLevel,
+    hasTogglePermission,
+    readOnly,
+  });
+  const provisioningLabel = t(
+    isSwitchOn
+      ? 'google_workspace.header.disable_tooltip'
+      : 'google_workspace.header.enable_tooltip',
+  );
+  const provisioningTooltip = toggleBlockReason
+    ? describeBlockReason(toggleBlockReason)
+    : provisioningLabel;
+  const connectControl = connectDisabledReason ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span>{connectButton}</span>
+      </TooltipTrigger>
+      <TooltipContent>{connectDisabledReason}</TooltipContent>
+    </Tooltip>
+  ) : (
+    connectButton
+  );
+  const isProvisioningBusy = isDeleting || (isStartingConsent && !isSwitchOn);
   const provisioningSwitch = (
     <span>
       <Switch
         checked={isSwitchOn}
         onCheckedChange={actions.setProvisioningEnabled}
         disabled={isWaiting || !isProviderEnabled || !canToggle}
-        aria-label={provisioningTooltip}
+        aria-label={provisioningTooltip ?? provisioningLabel}
       />
     </span>
   );
+
+  const provisioningControl =
+    readOnly || !provisioningTooltip ? (
+      provisioningSwitch
+    ) : (
+      <Tooltip>
+        <TooltipTrigger asChild>{provisioningSwitch}</TooltipTrigger>
+        <TooltipContent>{provisioningTooltip}</TooltipContent>
+      </Tooltip>
+    );
 
   const autoSyncTooltip = !canUpdateAutoSync
     ? tCommon('error.forbidden')
@@ -184,10 +217,19 @@ export function SsoProvisioningGoogleSyncPanel({
       <Switch
         checked={isAutoSyncEnabled}
         onCheckedChange={actions.setAutoSync}
-        disabled={!canUpdateAutoSync || isUpdating || isWaiting}
+        disabled={!canUpdateAutoSync || isUpdating || isDeleting || isStartingConsent || isWaiting}
         aria-label={autoSyncTooltip}
       />
     </span>
+  );
+
+  const autoSyncControl = readOnly ? (
+    autoSyncSwitch
+  ) : (
+    <Tooltip>
+      <TooltipTrigger asChild>{autoSyncSwitch}</TooltipTrigger>
+      <TooltipContent>{autoSyncTooltip}</TooltipContent>
+    </Tooltip>
   );
 
   return (
@@ -201,13 +243,13 @@ export function SsoProvisioningGoogleSyncPanel({
         <CardHeader className={classes['SsoProvisioningGoogleSyncPanel-header']}>
           <CardTitle className="flex items-center gap-2 text-lg font-medium text-foreground text-left">
             <span>{t('google_workspace.header.title')}</span>
-            {status && (
+            {badge && (
               <Badge
-                variant={status === 'granted' ? 'success' : 'warning'}
+                variant={badge === 'granted' ? 'success' : 'warning'}
                 size="sm"
                 className={classes['SsoProvisioningGoogleSyncPanel-statusBadge']}
               >
-                {t(`google_workspace.header.status.${status}`)}
+                {t(`google_workspace.header.status.${badge}`)}
               </Badge>
             )}
           </CardTitle>
@@ -243,27 +285,8 @@ export function SsoProvisioningGoogleSyncPanel({
               <Spinner className="w-4 h-4" />
             ) : (
               <>
-                {showConnect &&
-                  (connectDisabledReason ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span>{connectButton}</span>
-                      </TooltipTrigger>
-                      <TooltipContent>{connectDisabledReason}</TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    connectButton
-                  ))}
-                {isDeleting || (isStartingConsent && !isSwitchOn) ? (
-                  <Spinner className="w-4 h-4" />
-                ) : readOnly ? (
-                  provisioningSwitch
-                ) : (
-                  <Tooltip>
-                    <TooltipTrigger asChild>{provisioningSwitch}</TooltipTrigger>
-                    <TooltipContent>{provisioningTooltip}</TooltipContent>
-                  </Tooltip>
-                )}
+                {showConnect && connectControl}
+                {isProvisioningBusy ? <Spinner className="w-4 h-4" /> : provisioningControl}
               </>
             )}
           </CardAction>
@@ -320,16 +343,7 @@ export function SsoProvisioningGoogleSyncPanel({
                   {t('google_workspace.auto_sync.description')}
                 </p>
               </div>
-              {isUpdating ? (
-                <Spinner className="w-4 h-4" />
-              ) : readOnly ? (
-                autoSyncSwitch
-              ) : (
-                <Tooltip>
-                  <TooltipTrigger asChild>{autoSyncSwitch}</TooltipTrigger>
-                  <TooltipContent>{autoSyncTooltip}</TooltipContent>
-                </Tooltip>
-              )}
+              {isUpdating ? <Spinner className="w-4 h-4" /> : autoSyncControl}
             </div>
           </>
         )}
