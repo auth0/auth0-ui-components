@@ -9,7 +9,7 @@ import {
   type Domain,
   type IdpKnownResponse,
 } from '@auth0/universal-components-core';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
@@ -55,7 +55,7 @@ export function useDomainTable({
 
   const { discoveryPolicy, showDiscovery, isDiscoveryReadOnly, discoveryDefaultValue } =
     useConfig();
-  const { idpConfig } = useIdpConfig();
+  const { idpConfig, isLoadingIdpConfig } = useIdpConfig();
   const domainVerificationMode = getDomainVerificationMode(idpConfig);
 
   const {
@@ -111,7 +111,7 @@ export function useDomainTable({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
-  const [configureAfterDiscoveryModal, setConfigureAfterDiscoveryModal] = useState(false);
+  const isConfigureOnHoldRef = useRef(false);
   const [updatingDiscoveryId, setUpdatingDiscoveryId] = useState<string | null>(null);
 
   const canChangeDiscovery =
@@ -120,10 +120,14 @@ export function useDomainTable({
   const handleCreate = useCallback(
     async (domainUrl: string, useForDiscovery?: boolean) => {
       if (!permissions.canCreateDomain) return;
-      const shouldSendDiscovery = showDiscovery && useForDiscovery !== undefined;
-      const discoveryPayload = shouldSendDiscovery
-        ? { use_for_organization_discovery: useForDiscovery }
-        : {};
+      const canSetDiscovery = showDiscovery && permissions.canUpdateDomainDiscovery;
+      const isAllowedByPolicy =
+        useForDiscovery !== undefined &&
+        (discoveryPolicy?.allowed_values?.includes(useForDiscovery) ?? true);
+      const discoveryPayload =
+        canSetDiscovery && isAllowedByPolicy
+          ? { use_for_organization_discovery: useForDiscovery }
+          : {};
       try {
         const newDomain = await onCreateDomain({ domain: domainUrl, ...discoveryPayload });
         showToast({
@@ -141,7 +145,7 @@ export function useDomainTable({
         });
       }
     },
-    [permissions, onCreateDomain, showDiscovery, t, handleError],
+    [permissions, onCreateDomain, showDiscovery, discoveryPolicy, t, handleError],
   );
 
   /** Toasts the verification and offers discovery if it's still off. Returns true if the modal opened. */
@@ -289,7 +293,7 @@ export function useDomainTable({
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
           if (announceVerified(domain)) {
-            setConfigureAfterDiscoveryModal(true);
+            isConfigureOnHoldRef.current = true;
           } else {
             await fetchProviders(domain);
             setShowConfigureModal(true);
@@ -341,8 +345,8 @@ export function useDomainTable({
   /** Resumes the configure step that a row-level verify put on hold. */
   const continueAfterDiscoveryModal = useCallback(
     async (domain: Domain) => {
-      if (!configureAfterDiscoveryModal) return;
-      setConfigureAfterDiscoveryModal(false);
+      if (!isConfigureOnHoldRef.current) return;
+      isConfigureOnHoldRef.current = false;
       try {
         await fetchProviders(domain);
         setShowConfigureModal(true);
@@ -352,15 +356,16 @@ export function useDomainTable({
         });
       }
     },
-    [configureAfterDiscoveryModal, fetchProviders, t, handleError],
+    [fetchProviders, t, handleError],
   );
 
   const handleCloseDiscoveryModal = useCallback(() => {
+    if (isUpdatingDiscovery) return;
     setShowDiscoveryModal(false);
     if (selectedDomain) {
       void continueAfterDiscoveryModal(selectedDomain);
     }
-  }, [selectedDomain, continueAfterDiscoveryModal]);
+  }, [isUpdatingDiscovery, selectedDomain, continueAfterDiscoveryModal]);
 
   const handleEnableDiscovery = useCallback(
     async (domain: Domain) => {
@@ -429,7 +434,7 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
-    isLoadingProviders,
+    isLoadingProviders: isLoadingProviders || isLoadingIdpConfig,
     isUpdatingDiscovery,
     updatingDiscoveryId,
     // Pagination

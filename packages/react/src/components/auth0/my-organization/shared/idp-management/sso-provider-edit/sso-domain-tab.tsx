@@ -111,6 +111,7 @@ export function SsoDomainTab({
     domains,
     provider,
     readOnly,
+    domainVerificationMode,
   });
 
   const lockLastDomain = isLastRequiredDomainLocked(domainVerificationMode, provider);

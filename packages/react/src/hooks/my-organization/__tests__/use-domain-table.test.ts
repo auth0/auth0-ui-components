@@ -742,6 +742,16 @@ describe('useDomainTable', () => {
 
       expect(result.current.domainVerificationMode).toBe('optional');
     });
+
+    it('keeps the providers loading until the IdP configuration resolves', () => {
+      mockUseIdpConfig.mockReturnValue({
+        idpConfig: null,
+        isLoadingIdpConfig: true,
+      } as ReturnType<typeof useIdpConfig>);
+      const { result } = render();
+
+      expect(result.current.isLoadingProviders).toBe(true);
+    });
   });
 
   describe('domain discovery', () => {
@@ -872,6 +882,114 @@ describe('useDomainTable', () => {
         fallbackMessage: 'domain_table.notifications.domain_discovery_update.error',
       });
       expect(result.current.showDiscoveryModal).toBe(true);
+    });
+
+    it('omits use_for_organization_discovery on create without the update permission', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = renderWithPermissions(['create:my_org:domains', 'read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('omits a discovery value the policy does not allow', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+          discoveryDefaultValue: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', false);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('still sends the one value a locked policy allows', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+          discoveryDefaultValue: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({
+        domain: 'test.com',
+        use_for_organization_discovery: true,
+      });
+    });
+
+    it('keeps the discovery modal open while turning discovery on, and configures once', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      let finishUpdate: (domain: typeof verifiedDomain) => void = () => {};
+      const pendingUpdate = new Promise<typeof verifiedDomain>((resolve) => {
+        finishUpdate = resolve;
+      });
+      const service = mockServiceWith({
+        onUpdateDomainDiscovery: vi.fn().mockReturnValue(pendingUpdate),
+        isUpdatingDiscovery: true,
+      });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+
+      let enable: Promise<void> = Promise.resolve();
+      act(() => {
+        enable = result.current.handleEnableDiscovery(mockDomain);
+      });
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(true);
+      expect(service.fetchProviders).not.toHaveBeenCalled();
+
+      await act(async () => {
+        finishUpdate(verifiedDomain);
+        await enable;
+      });
+
+      expect(service.fetchProviders).toHaveBeenCalledTimes(1);
+      expect(result.current.showConfigureModal).toBe(true);
+    });
+
+    it('configures only once when the discovery modal is dismissed after turning discovery on', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(service.fetchProviders).toHaveBeenCalledTimes(1);
     });
 
     it('opens the configure step after "Not now" when verify started from a row', async () => {
