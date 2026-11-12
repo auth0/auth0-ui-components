@@ -17,6 +17,7 @@ import type {
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
+  IdpDomainVerificationMode,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
@@ -149,6 +150,9 @@ export interface UseDomainTableReturn {
   isLoadingProviders: boolean;
   // Pagination
   pagination: DomainTablePaginationState;
+
+  // Domain verification
+  domainVerificationMode: IdpDomainVerificationMode;
 
   // Modal state
   showCreateModal: boolean;

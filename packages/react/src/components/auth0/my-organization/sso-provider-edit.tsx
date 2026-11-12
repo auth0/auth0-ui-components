@@ -137,6 +137,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isDeleting,
     isRemoving,
     idpConfig,
+    domainVerificationMode,
+    isEnableBlockedByDomains,
     customMessages,
     backButton,
     shouldAllowDeletion,
@@ -181,6 +183,24 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     [styling, isDarkMode],
   );
 
+  const isProviderSwitchDisabled =
+    isUpdating ||
+    isEnabling ||
+    enableProviderAction?.disabled ||
+    !permissions.canUpdateProvider ||
+    isEnableBlockedByDomains;
+
+  const providerSwitchLabel = provider?.is_enabled
+    ? t('header.disable_provider_tooltip_text')
+    : t('header.enable_provider_tooltip_text');
+
+  const getProviderSwitchBlockedReason = () => {
+    if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
+    if (isEnableBlockedByDomains) return t('header.enable_provider_blocked_domains_tooltip_text');
+    return undefined;
+  };
+  const providerSwitchBlockedReason = getProviderSwitchBlockedReason();
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className="w-full overflow-y-auto">
@@ -200,18 +220,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
                 hidden: readOnly,
-                disabled:
-                  isUpdating ||
-                  isEnabling ||
-                  enableProviderAction?.disabled ||
-                  !permissions.canUpdateProvider,
-                tooltip: {
-                  content: !permissions.canUpdateProvider
-                    ? tCommon('error.forbidden')
-                    : provider?.is_enabled
-                      ? t('header.disable_provider_tooltip_text')
-                      : t('header.enable_provider_tooltip_text'),
-                },
+                disabled: isProviderSwitchDisabled,
+                'aria-label': providerSwitchLabel,
+                description: providerSwitchBlockedReason,
+                tooltip: { content: providerSwitchBlockedReason ?? providerSwitchLabel },
               },
             ]}
             className={currentStyles?.classes?.['SsoProviderEdit-header']}
@@ -318,6 +330,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               provider={provider}
               permissions={permissions}
               readOnly={readOnly}
+              domainVerificationMode={domainVerificationMode}
             />
           </TabsContent>
         </Tabs>

@@ -924,4 +924,178 @@ describe('DomainConfigureProvidersModal', () => {
       expect(unassociated).toBeDisabled();
     });
   });
+
+  describe('Accessibility', () => {
+    it('names each switch after what it does', () => {
+      renderWithProviders(
+        <DomainConfigureProvidersModal {...createMockDomainConfigureProvidersModalProps()} />,
+      );
+
+      expect(
+        screen.getByRole('switch', { name: 'table.actions.disable_provider_tooltip' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('switch', { name: 'table.actions.enable_provider_tooltip' }),
+      ).toBeInTheDocument();
+    });
+
+    it('describes why a switch is disabled, not only on hover', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'none',
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      screen
+        .getAllByRole('switch')
+        .forEach((toggle) =>
+          expect(toggle).toHaveAccessibleDescription(
+            'table.actions.domain_association_unavailable_tooltip',
+          ),
+        );
+    });
+
+    it('has no description on a switch that is usable', () => {
+      renderWithProviders(
+        <DomainConfigureProvidersModal {...createMockDomainConfigureProvidersModalProps()} />,
+      );
+
+      screen
+        .getAllByRole('switch')
+        .forEach((toggle) => expect(toggle).not.toHaveAttribute('aria-describedby'));
+    });
+  });
+
+  describe('Domain verification mode', () => {
+    const providersWith = (overrides: Record<string, unknown>) => [
+      createMockIdentityProviderAssociatedWithDomain({
+        id: 'con_google123',
+        display_name: 'Google Workspace',
+        strategy: 'google-apps',
+        is_associated: true,
+        ...overrides,
+      }),
+      createMockIdentityProviderAssociatedWithDomain({
+        id: 'con_okta456',
+        display_name: 'Okta Enterprise',
+        strategy: 'okta',
+        is_associated: false,
+      }),
+    ];
+
+    it.each(['optional', 'required'] as const)('keeps the switches enabled in %s mode', (mode) => {
+      const props = createMockDomainConfigureProvidersModalProps({ domainVerificationMode: mode });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      screen.getAllByRole('switch').forEach((toggle) => expect(toggle).toBeEnabled());
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('treats a missing mode as optional', () => {
+      renderWithProviders(
+        <DomainConfigureProvidersModal {...createMockDomainConfigureProvidersModalProps()} />,
+      );
+
+      screen.getAllByRole('switch').forEach((toggle) => expect(toggle).toBeEnabled());
+    });
+
+    it('explains that association is unavailable and disables every switch in none mode', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'none',
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_none');
+      screen.getAllByRole('switch').forEach((toggle) => expect(toggle).toBeDisabled());
+    });
+
+    it('shows why a switch is disabled in none mode', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'none',
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      await user.hover(screen.getAllByRole('switch')[0]!.parentElement!);
+
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'table.actions.domain_association_unavailable_tooltip',
+        );
+      });
+    });
+
+    it('does not toggle in none mode', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'none',
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      await user.click(screen.getAllByRole('switch')[1]!);
+
+      expect(props.onToggleSwitch).not.toHaveBeenCalled();
+    });
+
+    it("keeps an enabled provider's last domain associated in required mode", async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [associated, unassociated] = screen.getAllByRole('switch');
+      expect(associated).toBeDisabled();
+      expect(unassociated).toBeEnabled();
+
+      await user.hover(associated!.parentElement!);
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+      });
+    });
+
+    it("shows why an enabled provider's last domain can't be removed, without relying on the tooltip", () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+    });
+
+    it('shows no last-domain warning when nothing is locked', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com', 'other.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('lets an enabled provider drop a domain when it has another one in required mode', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: true, domains: ['test.com', 'other.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+
+    it('lets a disabled provider drop its only domain in required mode', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        domainVerificationMode: 'required',
+        providers: providersWith({ is_enabled: false, domains: ['test.com'] }),
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+  });
 });

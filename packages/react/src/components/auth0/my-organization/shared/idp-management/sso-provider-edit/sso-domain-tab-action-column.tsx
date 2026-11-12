@@ -4,12 +4,23 @@
  * @internal
  */
 
+import { DEFAULT_DOMAIN_VERIFICATION_MODE } from '@auth0/universal-components-core';
+
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ASSOCIATION_BLOCK_REASONS,
+  type AssociationBlockReason,
+} from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import {
+  getAssociationBlockReason,
+  isDomainAssociationUnavailable,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -27,6 +38,8 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
  * @param props.isUpdatingId - ID of the item currently being updated
  * @param props.onToggle - Callback fired when toggle state changes
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.domainVerificationMode - How identity providers use verified domains
+ * @param props.lockLastDomain - Whether the provider's last verified domain must stay associated
  * @returns JSX element
  */
 export function SsoDomainTabActionsColumn({
@@ -40,23 +53,58 @@ export function SsoDomainTabActionsColumn({
   isUpdatingId,
   onToggle,
   readOnly = false,
+  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
+  lockLastDomain = false,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
+  const disabledReasonId = useId();
 
   const providerHasDomain = idpDomains.includes(domain.id);
-  const canToggleDomain = providerHasDomain
-    ? permissions.canDissociateDomain
-    : permissions.canAssociateDomain;
   const isVerifyForbidden = !readOnly && !permissions.canVerifyDomain;
 
+  const hasPermission = providerHasDomain
+    ? permissions.canDissociateDomain
+    : permissions.canAssociateDomain;
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const isLastDomainLocked = lockLastDomain && providerHasDomain;
+
+  const blockReason = getAssociationBlockReason({
+    hasPermission,
+    isAssociationUnavailable,
+    isLastDomainLocked,
+  });
+  const blockReasonMessages: Record<AssociationBlockReason, string> = {
+    [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
+    [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
+      'table.actions.domain_association_unavailable_tooltip',
+    ),
+    [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: t('table.actions.last_verified_domain_tooltip'),
+  };
+  const disabledReason = blockReason ? blockReasonMessages[blockReason] : null;
+
+  const toggleLabel = providerHasDomain
+    ? t('table.actions.disable_domain_tooltip')
+    : t('table.actions.enable_domain_tooltip');
+  const isToggleDisabled = !!blockReason || isUpdating;
+  const describedBy = disabledReason ? disabledReasonId : undefined;
+
+  const isReasonFocusable = !!disabledReason && !readOnly;
+
   const domainToggle = (
-    <span>
+    <span tabIndex={isReasonFocusable ? 0 : undefined}>
       <Switch
         checked={providerHasDomain}
         onCheckedChange={(checked) => onToggle(domain, checked)}
-        disabled={!canToggleDomain || isUpdating}
+        disabled={isToggleDisabled}
+        aria-label={toggleLabel}
+        aria-describedby={describedBy}
       />
+      {disabledReason && (
+        <span id={disabledReasonId} className="sr-only">
+          {disabledReason}
+        </span>
+      )}
     </span>
   );
 
@@ -75,13 +123,7 @@ export function SsoDomainTabActionsColumn({
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>{domainToggle}</TooltipTrigger>
-            <TooltipContent>
-              {!canToggleDomain
-                ? tCommon('error.forbidden')
-                : providerHasDomain
-                  ? t('table.actions.disable_domain_tooltip')
-                  : t('table.actions.enable_domain_tooltip')}
-            </TooltipContent>
+            <TooltipContent>{disabledReason ?? toggleLabel}</TooltipContent>
           </Tooltip>
         )
       ) : (

@@ -8,6 +8,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   Domain,
   DomainCreateSchemas,
+  IdpDomainVerificationMode,
   IdpKnownResponse,
   SharedComponentProps,
   SsoDomainTabMessages,
@@ -70,6 +71,7 @@ export interface SsoDomainsTabProps
   idpId: string;
   provider: IdpKnownResponse | null;
   permissions: IdpManagementPermissions;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
 export interface SsoDomainTabActionColumn
@@ -86,11 +88,15 @@ export interface SsoDomainTabActionColumn
   isUpdating: boolean;
   isUpdatingId: string | null;
   onToggle: (domain: Domain, newCheckedValue: boolean) => Promise<void>;
+  domainVerificationMode?: IdpDomainVerificationMode;
+  /** Keep the provider's last verified domain associated (enabled provider in `required` mode). */
+  lockLastDomain?: boolean;
 }
 
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
 export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {

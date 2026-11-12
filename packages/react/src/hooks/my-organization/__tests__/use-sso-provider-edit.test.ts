@@ -16,9 +16,11 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
     isLoadingConfig: false,
   }),
 }));
+const mockIdpConfig = vi.hoisted(() => ({ current: {} as Record<string, unknown> }));
+
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
-    idpConfig: {},
+    idpConfig: mockIdpConfig.current,
     isLoadingIdpConfig: false,
     isProvisioningEnabled: vi.fn(() => true),
     isProvisioningMethodEnabled: vi.fn(() => true),
@@ -49,6 +51,7 @@ let mockServiceReturn = createMockSsoProviderEditServiceReturn({
 describe('useSsoProviderEdit - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIdpConfig.current = {};
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       updateProvider: mockUpdateProvider,
       enableProvider: mockEnableProvider,
@@ -107,6 +110,70 @@ describe('useSsoProviderEdit - logic behavior', () => {
       await result.current.handleToggleProvider(true);
     });
     expect(mockEnableProvider).not.toHaveBeenCalled();
+  });
+
+  describe('domain verification mode', () => {
+    const useProvider = (provider: { is_enabled: boolean; domains?: string[] }) => {
+      mockServiceReturn = createMockSsoProviderEditServiceReturn({
+        provider: {
+          id: 'test-provider-id',
+          name: 'Test Provider',
+          strategy: 'waad',
+          options: {},
+          ...provider,
+        },
+        enableProvider: mockEnableProvider,
+      });
+      vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+        mockServiceReturn,
+      );
+    };
+    const setMode = (mode: 'none' | 'optional' | 'required') => {
+      mockIdpConfig.current = { domain_aliases_config: { domain_verification: mode } };
+    };
+
+    it('defaults to optional and does not block enabling', () => {
+      useProvider({ is_enabled: false, domains: [] });
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe('optional');
+      expect(result.current.isEnableBlockedByDomains).toBe(false);
+    });
+
+    it('blocks enabling a provider without domains in required mode', async () => {
+      setMode('required');
+      useProvider({ is_enabled: false, domains: [] });
+      const { result } = render();
+
+      expect(result.current.isEnableBlockedByDomains).toBe(true);
+      await act(async () => {
+        await result.current.handleToggleProvider(true);
+      });
+      expect(mockEnableProvider).not.toHaveBeenCalled();
+    });
+
+    it('enables a provider in required mode once it has a domain', async () => {
+      setMode('required');
+      useProvider({ is_enabled: false, domains: ['example.com'] });
+      const { result } = render();
+
+      expect(result.current.isEnableBlockedByDomains).toBe(false);
+      await act(async () => {
+        await result.current.handleToggleProvider(true);
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(true);
+    });
+
+    it('still lets an enabled provider be disabled in required mode', async () => {
+      setMode('required');
+      useProvider({ is_enabled: true, domains: [] });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleProvider(false);
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(false);
+    });
   });
 
   it('should pass skipProvisioningFetch option to useSsoProviderEditService', () => {

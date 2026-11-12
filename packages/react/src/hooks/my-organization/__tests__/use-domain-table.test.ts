@@ -5,6 +5,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useDomainTable } from '../use-domain-table';
 
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { PermissionContext } from '@/providers/permission-provider';
 import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -27,7 +28,19 @@ vi.mock('@/hooks/my-organization/shared/services/use-domain-table-service', () =
   useDomainTableService: vi.fn(),
 }));
 
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
+  useIdpConfig: vi.fn(),
+}));
+
 const mockUseDomainTableService = vi.mocked(useDomainTableService);
+const mockUseIdpConfig = vi.mocked(useIdpConfig);
+
+const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
+  mockUseIdpConfig.mockReturnValue({
+    idpConfig: domainVerification
+      ? { domain_aliases_config: { domain_verification: domainVerification } }
+      : null,
+  } as ReturnType<typeof useIdpConfig>);
 
 describe('useDomainTable', () => {
   const mockDomain = {
@@ -61,6 +74,7 @@ describe('useDomainTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
+    mockIdpConfig();
   });
 
   const renderWithGranted = (permissions: string[], options: UseDomainTableOptions) => {
@@ -687,6 +701,32 @@ describe('useDomainTable', () => {
 
       expect(result.current.showCreateModal).toBe(false);
       expect(result.current.showDeleteModal).toBe(false);
+    });
+  });
+
+  describe('domain verification mode', () => {
+    it.each(['none', 'optional', 'required'] as const)('exposes the configured %s mode', (mode) => {
+      mockIdpConfig(mode);
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe(mode);
+    });
+
+    it('defaults to optional when the IdP configuration is unavailable', () => {
+      mockIdpConfig();
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe('optional');
+    });
+
+    it('keeps the providers loading until the IdP configuration resolves', () => {
+      mockUseIdpConfig.mockReturnValue({
+        idpConfig: null,
+        isLoadingIdpConfig: true,
+      } as ReturnType<typeof useIdpConfig>);
+      const { result } = render();
+
+      expect(result.current.isLoadingProviders).toBe(true);
     });
   });
 });

@@ -9,6 +9,7 @@ import type {
   DomainConfigureMessages,
   DomainManagementPermissions,
   IdentityProviderAssociatedWithDomain,
+  IdpDomainVerificationMode,
 } from '@auth0/universal-components-core';
 
 import type { DomainTableClasses } from './domain-table-types';
@@ -21,6 +22,7 @@ export interface DomainConfigureProvidersModalProps {
   isLoading: boolean;
   isLoadingSwitch: boolean;
   permissions: DomainManagementPermissions;
+  domainVerificationMode?: IdpDomainVerificationMode;
   domain: Domain | null;
   providers: IdentityProviderAssociatedWithDomain[];
   onClose: () => void;

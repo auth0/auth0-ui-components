@@ -4,16 +4,31 @@
  * @internal
  */
 
-import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
+import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
+  type IdentityProviderAssociatedWithDomain,
+} from '@auth0/universal-components-core';
+import { Info } from 'lucide-react';
 import React from 'react';
 
 import { type Column, DataTable } from '@/components/auth0/shared/data-table';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  ASSOCIATION_BLOCK_REASONS,
+  type AssociationBlockReason,
+} from '@/lib/constants/my-organization/domain-management/domain-management-constants';
 import { cn } from '@/lib/utils';
+import {
+  getAssociationBlockReason,
+  isDomainAssociationUnavailable,
+  isLastRequiredDomainLocked,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
 /**
@@ -42,6 +57,7 @@ export function DomainConfigureProvidersModal({
   isLoading,
   isLoadingSwitch,
   permissions,
+  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   onClose,
   onToggleSwitch,
   onOpenProvider,
@@ -49,6 +65,7 @@ export function DomainConfigureProvidersModal({
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
+  const idPrefix = useId();
 
   const handleToggleSwitch = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {
@@ -57,10 +74,45 @@ export function DomainConfigureProvidersModal({
     [domain, onToggleSwitch],
   );
 
-  const canToggleProvider = React.useCallback(
-    (provider: IdentityProviderAssociatedWithDomain) =>
-      provider.is_associated ? permissions.canDissociateProvider : permissions.canAssociateProvider,
-    [permissions],
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const hasLockedLastDomain = providers.some(
+    (provider) =>
+      provider.is_associated && isLastRequiredDomainLocked(domainVerificationMode, provider),
+  );
+
+  const blockReasonMessages = React.useMemo<Record<AssociationBlockReason, string>>(
+    () => ({
+      [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
+      [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
+        'table.actions.domain_association_unavailable_tooltip',
+      ),
+      [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: t('table.actions.last_verified_domain_tooltip'),
+    }),
+    [t, tCommon],
+  );
+
+  const getToggleState = React.useCallback(
+    (provider: IdentityProviderAssociatedWithDomain) => {
+      const isAssociated = provider.is_associated;
+      const hasPermission = isAssociated
+        ? permissions.canDissociateProvider
+        : permissions.canAssociateProvider;
+      const isLastDomainLocked =
+        isAssociated && isLastRequiredDomainLocked(domainVerificationMode, provider);
+
+      const blockReason = getAssociationBlockReason({
+        hasPermission,
+        isAssociationUnavailable,
+        isLastDomainLocked,
+      });
+      const label = isAssociated
+        ? t('table.actions.disable_provider_tooltip')
+        : t('table.actions.enable_provider_tooltip');
+      const disabledReason = blockReason ? blockReasonMessages[blockReason] : null;
+
+      return { label, disabledReason };
+    },
+    [permissions, isAssociationUnavailable, domainVerificationMode, blockReasonMessages, t],
   );
 
   const columns: Column<IdentityProviderAssociatedWithDomain>[] = React.useMemo(
@@ -85,46 +137,49 @@ export function DomainConfigureProvidersModal({
         type: 'actions',
         title: '',
         width: '30%',
-        render: (provider) => (
-          <div className="flex items-center justify-end gap-4 min-w-0">
-            {onOpenProvider && (
-              <Button
-                type="button"
-                variant={'outline'}
-                size={'sm'}
-                onClick={() => onOpenProvider(provider)}
-              >
-                {t('table.actions.view_provider_button_text')}
-              </Button>
-            )}
-            <Tooltip disableHoverableContent>
-              <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
-                <span>
-                  <Switch
-                    checked={provider.is_associated ?? false}
-                    onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                    disabled={isLoadingSwitch || !canToggleProvider(provider)}
-                    aria-label={
-                      provider.is_associated
-                        ? t('table.actions.disable_provider_tooltip')
-                        : t('table.actions.enable_provider_tooltip')
-                    }
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {!canToggleProvider(provider)
-                  ? tCommon('error.forbidden')
-                  : provider.is_associated
-                    ? t('table.actions.disable_provider_tooltip')
-                    : t('table.actions.enable_provider_tooltip')}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        ),
+        render: (provider) => {
+          const { label, disabledReason } = getToggleState(provider);
+          const disabledReasonId = `${idPrefix}-${provider.id}-reason`;
+          const isSwitchDisabled = isLoadingSwitch || !!disabledReason;
+          const describedBy = disabledReason ? disabledReasonId : undefined;
+
+          return (
+            <div className="flex items-center justify-end gap-4 min-w-0">
+              {onOpenProvider && (
+                <Button
+                  type="button"
+                  variant={'outline'}
+                  size={'sm'}
+                  onClick={() => onOpenProvider(provider)}
+                >
+                  {t('table.actions.view_provider_button_text')}
+                </Button>
+              )}
+              <Tooltip disableHoverableContent>
+                <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
+                  <span>
+                    <Switch
+                      checked={provider.is_associated ?? false}
+                      onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
+                      disabled={isSwitchDisabled}
+                      aria-label={label}
+                      aria-describedby={describedBy}
+                    />
+                    {disabledReason && (
+                      <span id={disabledReasonId} className="sr-only">
+                        {disabledReason}
+                      </span>
+                    )}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{disabledReason ?? label}</TooltipContent>
+              </Tooltip>
+            </div>
+          );
+        },
       },
     ],
-    [t, tCommon, onOpenProvider, isLoadingSwitch, canToggleProvider, handleToggleSwitch],
+    [t, idPrefix, onOpenProvider, isLoadingSwitch, getToggleState, handleToggleSwitch],
   );
 
   return (
@@ -136,6 +191,22 @@ export function DomainConfigureProvidersModal({
       content={
         domain && (
           <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
+            {isAssociationUnavailable && (
+              <Alert variant="warning">
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  {t('alerts.domain_verification_none')}
+                </AlertDescription>
+              </Alert>
+            )}
+            {hasLockedLastDomain && (
+              <Alert variant="warning">
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  {t('table.actions.last_verified_domain_tooltip')}
+                </AlertDescription>
+              </Alert>
+            )}
             <p className="text-muted-foreground text-paragraph">
               {t('description', { domain: domain?.domain ?? '' })}
             </p>

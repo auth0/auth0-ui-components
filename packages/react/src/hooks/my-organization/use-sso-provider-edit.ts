@@ -11,6 +11,10 @@ import { useConfig } from '@/hooks/my-organization/shared/services/use-config-se
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderEditService } from '@/hooks/my-organization/shared/services/use-sso-provider-edit-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
+import {
+  getDomainVerificationMode,
+  isProviderEnableBlockedByDomains,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditReturn,
@@ -80,13 +84,22 @@ export function useSsoProviderEdit(
   const showProvisioningTab =
     isProvisioningEnabled(service.provider?.strategy) &&
     isProvisioningMethodEnabled(service.provider?.strategy);
+  const domainVerificationMode = getDomainVerificationMode(idpConfig);
+  const isEnableBlockedByDomains = isProviderEnableBlockedByDomains(
+    domainVerificationMode,
+    service.provider,
+  );
 
   const handleToggleProvider = useCallback(
     async (enabled: boolean) => {
       if (!permissions.canUpdateProvider || !service.provider?.strategy) return;
+
+      const isBlockedFromEnabling = enabled && isEnableBlockedByDomains;
+      if (isBlockedFromEnabling) return;
+
       await service.enableProvider(enabled);
     },
-    [permissions, service.provider?.strategy, service.enableProvider],
+    [permissions, service.provider?.strategy, service.enableProvider, isEnableBlockedByDomains],
   );
 
   const updateProvider = useGuardedMutation(permissions.canUpdateProvider, service.updateProvider);
@@ -143,6 +156,8 @@ export function useSsoProviderEdit(
     handleToggleProvider,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
+    domainVerificationMode,
+    isEnableBlockedByDomains,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
   };

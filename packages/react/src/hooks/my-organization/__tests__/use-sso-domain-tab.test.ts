@@ -148,6 +148,20 @@ describe('useSsoDomainTab', () => {
   });
 
   describe('domain verification', () => {
+    it.each(['handleVerify', 'handleVerifyActionColumn'] as const)(
+      'does not associate the domain after %s in none mode',
+      async (handler) => {
+        const { result } = renderUseSsoDomainTab({ domainVerificationMode: 'none' });
+
+        await act(async () => {
+          await result.current[handler](mockDomain);
+        });
+
+        expect(mockServiceReturn.verifyDomain).toHaveBeenCalledWith(mockDomain);
+        expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+      },
+    );
+
     it('should verify domain and associate to provider on success', async () => {
       const { result } = renderUseSsoDomainTab();
 
