@@ -1098,4 +1098,35 @@ describe('DomainConfigureProvidersModal', () => {
       expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
+
+  describe('Provider access level', () => {
+    it('disables the switch of a provider the organization cannot fully manage, and says why', () => {
+      const props = createMockDomainConfigureProvidersModalProps({
+        providers: [
+          createMockIdentityProviderAssociatedWithDomain({
+            id: 'con_limited',
+            display_name: 'Limited Provider',
+            strategy: 'okta',
+            is_associated: false,
+            access_level: 'limited',
+          }),
+          createMockIdentityProviderAssociatedWithDomain({
+            id: 'con_full',
+            display_name: 'Full Provider',
+            strategy: 'okta',
+            is_associated: false,
+            access_level: 'full',
+          }),
+        ],
+      });
+      renderWithProviders(<DomainConfigureProvidersModal {...props} />);
+
+      const [limitedSwitch, fullSwitch] = screen.getAllByRole('switch');
+      expect(limitedSwitch).toBeDisabled();
+      expect(limitedSwitch).toHaveAccessibleDescription(
+        'table.actions.provider_access_restricted_tooltip',
+      );
+      expect(fullSwitch).toBeEnabled();
+    });
+  });
 });

@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   ALL_IDP_PERMISSIONS,
   createIdpPermissions,
@@ -330,6 +331,75 @@ describe('SsoProviderTab', () => {
       renderWithProviders(<SsoProviderTab {...props} />);
 
       expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  describe('provider access level', () => {
+    const renderWithAccess = (access_level?: 'readonly' | 'limited' | 'full') =>
+      renderWithProviders(
+        <SsoProviderTab
+          {...mockProps}
+          provider={{ ...mockProps.provider!, access_level }}
+          idpConfig={createMockIdpConfiguration()}
+          formActions={{ nextAction: { disabled: false, onClick: vi.fn() } }}
+        />,
+      );
+
+    const displayNameField = () =>
+      screen.getByRole('textbox', { name: 'fields.display_name.label' });
+    const showAsButtonCheckbox = () =>
+      screen.getByRole('checkbox', { name: 'fields.common.show_as_button.label' });
+
+    it('shows no alert and leaves everything editable with full access', () => {
+      renderWithAccess('full');
+
+      expect(screen.queryByText(/content\.access_alerts/)).not.toBeInTheDocument();
+      expect(displayNameField()).not.toHaveAttribute('readonly');
+      expect(showAsButtonCheckbox()).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeEnabled();
+    });
+
+    it('lets limited access change only the login settings and remove the provider', () => {
+      renderWithAccess('limited');
+
+      expect(screen.getByText('content.access_alerts.limited')).toBeInTheDocument();
+      expect(displayNameField()).toHaveAttribute('readonly');
+      expect(showAsButtonCheckbox()).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
+    });
+
+    it('explains why delete is unavailable with limited access', async () => {
+      const user = userEvent.setup();
+      renderWithAccess('limited');
+
+      await user.hover(screen.getByRole('button', { name: 'delete_button_label' }).parentElement!);
+
+      expect(await screen.findAllByText('access_restricted_tooltip_text')).not.toHaveLength(0);
+    });
+
+    it('locks the fields in read-only mode even when every permission resolves as granted', () => {
+      renderWithProviders(
+        <SsoProviderTab
+          {...mockProps}
+          readOnly
+          permissions={ALL_IDP_PERMISSIONS}
+          idpConfig={createMockIdpConfiguration()}
+        />,
+      );
+
+      expect(displayNameField()).toHaveAttribute('readonly');
+      expect(showAsButtonCheckbox()).toBeDisabled();
+    });
+
+    it('locks every field and action with read-only access', () => {
+      renderWithAccess('readonly');
+
+      expect(screen.getByText('content.access_alerts.readonly')).toBeInTheDocument();
+      expect(displayNameField()).toHaveAttribute('readonly');
+      expect(showAsButtonCheckbox()).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'remove_button_label' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'delete_button_label' })).toBeDisabled();
     });
   });
 });

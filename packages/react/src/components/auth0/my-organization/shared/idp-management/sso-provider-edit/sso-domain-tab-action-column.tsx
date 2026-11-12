@@ -41,6 +41,7 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.domainVerificationMode - How identity providers use verified domains
  * @param props.lockLastDomain - Whether the provider's last verified domain must stay associated
+ * @param props.canManageProviderDomains - Whether the organization's access level allows changing the provider's domains
  * @returns JSX element
  */
 export function SsoDomainTabActionsColumn({
@@ -56,6 +57,7 @@ export function SsoDomainTabActionsColumn({
   readOnly = false,
   domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   lockLastDomain = false,
+  canManageProviderDomains = true,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
@@ -72,11 +74,15 @@ export function SsoDomainTabActionsColumn({
 
   const blockReason = getAssociationBlockReason({
     hasPermission,
+    isProviderAccessRestricted: !canManageProviderDomains,
     isAssociationUnavailable,
     isLastDomainLocked,
   });
   const blockReasonMessages: Record<AssociationBlockReason, string> = {
     [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
+    [ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED]: t(
+      'table.actions.provider_access_restricted_tooltip',
+    ),
     [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
       'table.actions.domain_association_unavailable_tooltip',
     ),

@@ -18,6 +18,7 @@ import { useSsoProviderTableService } from '@/hooks/my-organization/shared/servi
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoProviderTableOptions,
   UseSsoProviderTableReturn,
@@ -129,7 +130,7 @@ export function useSsoProviderTable({
 
   const handleDelete = useCallback(
     (idp: IdpKnownResponse) => {
-      if (!permissions.canDeleteProvider) return;
+      if (!permissions.canDeleteProvider || !getProviderAccess(idp).canDelete) return;
       setSelectedIdp(idp);
 
       if (deleteAction?.onBefore) {
@@ -144,7 +145,7 @@ export function useSsoProviderTable({
 
   const handleDeleteFromOrganization = useCallback(
     (idp: IdpKnownResponse) => {
-      if (!permissions.canDetachProvider) return;
+      if (!permissions.canDetachProvider || !getProviderAccess(idp).canDetach) return;
       setSelectedIdp(idp);
 
       if (deleteFromOrganizationAction?.onBefore) {
@@ -168,7 +169,8 @@ export function useSsoProviderTable({
 
   const handleToggleEnabled = useCallback(
     async (idp: IdpKnownResponse, enabled: boolean) => {
-      if (!permissions.canUpdateProvider || !onEnableProvider) return;
+      const canToggle = permissions.canUpdateProvider && getProviderAccess(idp).canToggle;
+      if (!canToggle || !onEnableProvider) return;
       try {
         await onEnableProvider(idp, enabled);
         showToast({
@@ -184,7 +186,7 @@ export function useSsoProviderTable({
 
   const handleDeleteConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
-      if (!permissions.canDeleteProvider) return;
+      if (!permissions.canDeleteProvider || !getProviderAccess(provider).canDelete) return;
       try {
         await onDeleteConfirm(provider);
         showToast({
@@ -202,7 +204,7 @@ export function useSsoProviderTable({
 
   const handleRemoveConfirm = useCallback(
     async (provider: IdpKnownResponse) => {
-      if (!permissions.canDetachProvider) return;
+      if (!permissions.canDetachProvider || !getProviderAccess(provider).canDetach) return;
       try {
         await onRemoveConfirm(provider);
         showToast({

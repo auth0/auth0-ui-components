@@ -69,6 +69,7 @@ describe('domain-management-utils', () => {
 
     it.each([
       ['forbidden', { hasPermission: false }],
+      ['access_restricted', { isProviderAccessRestricted: true }],
       ['association_unavailable', { isAssociationUnavailable: true }],
       ['last_domain', { isLastDomainLocked: true }],
     ] as const)('returns %s on its own', (reason, overrides) => {
@@ -93,6 +94,17 @@ describe('domain-management-utils', () => {
           isLastDomainLocked: true,
         }),
       ).toBe(ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE);
+    });
+
+    it("reports the provider's access level before the mode", () => {
+      expect(
+        getAssociationBlockReason({
+          hasPermission: true,
+          isProviderAccessRestricted: true,
+          isAssociationUnavailable: true,
+          isLastDomainLocked: true,
+        }),
+      ).toBe(ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED);
     });
   });
 

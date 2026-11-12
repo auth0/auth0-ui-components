@@ -119,6 +119,7 @@ export function isLastRequiredDomainLocked(
  * Why an association switch can't be used, checked in priority order; `null` when it can.
  * @param state - What the switch depends on
  * @param state.hasPermission - The user may associate (or dissociate) the domain
+ * @param state.isProviderAccessRestricted - The organization's access level doesn't allow changing the provider's domains
  * @param state.isAssociationUnavailable - The mode doesn't allow association at all
  * @param state.isLastDomainLocked - The domain is an enabled provider's last one in `required` mode
  * @returns The blocking reason, or `null`
@@ -126,14 +127,17 @@ export function isLastRequiredDomainLocked(
  */
 export function getAssociationBlockReason({
   hasPermission,
+  isProviderAccessRestricted = false,
   isAssociationUnavailable,
   isLastDomainLocked,
 }: {
   hasPermission: boolean;
+  isProviderAccessRestricted?: boolean;
   isAssociationUnavailable: boolean;
   isLastDomainLocked: boolean;
 }): AssociationBlockReason | null {
   if (!hasPermission) return ASSOCIATION_BLOCK_REASONS.FORBIDDEN;
+  if (isProviderAccessRestricted) return ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED;
   if (isAssociationUnavailable) return ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE;
   if (isLastDomainLocked) return ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN;
   return null;

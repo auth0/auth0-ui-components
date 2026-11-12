@@ -20,6 +20,7 @@ import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { isDomainAssociationUnavailable } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -32,7 +33,7 @@ import type {
  * @param options.customMessages - Custom translation messages.
  * @param options.domains - Initial domains data.
  * @param options.provider - SSO provider data.
- * @param options.domainVerificationMode - How the provider uses verified domains; `none` skips associating after verify.
+ * @param options.domainVerificationMode - How the provider uses verified domains; verifying skips associating in `none` mode, without the associate permission, or when the access level is below full.
  * @returns Hook state and methods
  */
 export function useSsoDomainTab(
@@ -124,7 +125,10 @@ export function useSsoDomainTab(
     [handleError, createDomain, t],
   );
 
-  const canAssociateAfterVerify = !isDomainAssociationUnavailable(domainVerificationMode);
+  const isAssociationAllowed =
+    permissions.canAssociateDomain && getProviderAccess(provider).canManageDomains;
+  const canAssociateAfterVerify =
+    !isDomainAssociationUnavailable(domainVerificationMode) && isAssociationAllowed;
 
   const handleCloseVerifyModal = useCallback(() => {
     setShowVerifyModal(false);
@@ -232,9 +236,10 @@ export function useSsoDomainTab(
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
-      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
-        return;
-      }
+      const hasPermission = newCheckedValue
+        ? permissions.canAssociateDomain
+        : permissions.canDissociateDomain;
+      if (!hasPermission || !getProviderAccess(provider).canManageDomains) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 

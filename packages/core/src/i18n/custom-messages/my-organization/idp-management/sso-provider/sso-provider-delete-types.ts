@@ -17,6 +17,7 @@ export interface SsoProvideDeleteMessages extends SharedMessages {
   title?: string;
   description?: string;
   delete_button_label?: string;
+  access_restricted_tooltip_text?: string;
   modal?: {
     title?: string;
     description?: string;
@@ -32,6 +33,7 @@ export interface SsoProvideRemoveMessages extends SharedMessages {
   title?: string;
   description?: string;
   remove_button_label?: string;
+  access_restricted_tooltip_text?: string;
   modal?: {
     title?: string;
     description?: string;

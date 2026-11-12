@@ -94,6 +94,8 @@ export interface SsoDomainTabActionColumn
   domainVerificationMode?: IdpDomainVerificationMode;
   /** Keep the provider's last verified domain associated (enabled provider in `required` mode). */
   lockLastDomain?: boolean;
+  /** The organization's access level allows changing the provider's domains. */
+  canManageProviderDomains?: boolean;
 }
 
 export interface UseSsoDomainTabOptions extends SharedComponentProps {

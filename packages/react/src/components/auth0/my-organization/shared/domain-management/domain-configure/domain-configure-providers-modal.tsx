@@ -28,6 +28,7 @@ import {
   isDomainAssociationUnavailable,
   isLastRequiredDomainLocked,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import { useId } from '@/lib/utils/use-id-compat';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
@@ -83,6 +84,9 @@ export function DomainConfigureProvidersModal({
   const blockReasonMessages = React.useMemo<Record<AssociationBlockReason, string>>(
     () => ({
       [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
+      [ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED]: t(
+        'table.actions.provider_access_restricted_tooltip',
+      ),
       [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
         'table.actions.domain_association_unavailable_tooltip',
       ),
@@ -100,8 +104,11 @@ export function DomainConfigureProvidersModal({
       const isLastDomainLocked =
         isAssociated && isLastRequiredDomainLocked(domainVerificationMode, provider);
 
+      const isProviderAccessRestricted = !getProviderAccess(provider).canManageDomains;
+
       const blockReason = getAssociationBlockReason({
         hasPermission,
+        isProviderAccessRestricted,
         isAssociationUnavailable,
         isLastDomainLocked,
       });

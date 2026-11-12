@@ -40,6 +40,8 @@ export interface SsoProviderDeleteProps
   onDelete: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
   permissionDenied?: boolean;
+  /** The organization's access level doesn't allow this action. */
+  isAccessRestricted?: boolean;
 }
 
 /** Props for SsoProviderDeleteModal. */
@@ -69,6 +71,8 @@ export interface SsoProviderRemoveFromOrganizationProps
   onRemove: (provider: IdpKnownResponse) => Promise<void>;
   isLoading?: boolean;
   permissionDenied?: boolean;
+  /** The organization's access level doesn't allow this action. */
+  isAccessRestricted?: boolean;
 }
 
 export interface SsoProviderRemoveFromOrganizationModalProps

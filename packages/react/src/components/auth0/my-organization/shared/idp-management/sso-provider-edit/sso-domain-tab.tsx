@@ -34,6 +34,7 @@ import {
   isLastRequiredDomainLocked,
   isRequiredDomainMissing,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -115,6 +116,7 @@ export function SsoDomainTab({
   });
 
   const lockLastDomain = isLastRequiredDomainLocked(domainVerificationMode, provider);
+  const canManageProviderDomains = getProviderAccess(provider).canManageDomains;
   const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
   const isVerifiedDomainMissing = isRequiredDomainMissing(domainVerificationMode, provider);
 
@@ -184,6 +186,7 @@ export function SsoDomainTab({
             domain={domain}
             domainVerificationMode={domainVerificationMode}
             lockLastDomain={lockLastDomain}
+            canManageProviderDomains={canManageProviderDomains}
           />
         ),
       },
@@ -200,6 +203,7 @@ export function SsoDomainTab({
       handleVerifyActionColumn,
       domainVerificationMode,
       lockLastDomain,
+      canManageProviderDomains,
       discoveryColumns,
     ],
   );

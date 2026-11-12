@@ -73,7 +73,15 @@ export const PingFederateProviderForm = React.forwardRef<
   PingFederateConfigureFormHandle,
   PingFederateConfigureFormProps
 >(function PingFederateProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    isLoginSettingsReadOnly = readOnly,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+  },
   ref,
 ) {
   const { t } = useTranslator(
@@ -341,7 +349,7 @@ export const PingFederateProviderForm = React.forwardRef<
 
         <CommonConfigureFields
           idpConfig={idpConfig}
-          readOnly={readOnly}
+          readOnly={isLoginSettingsReadOnly}
           customMessages={customMessages}
         />
       </div>

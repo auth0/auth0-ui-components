@@ -293,6 +293,25 @@ describe('useDomainTable', () => {
     expect(mockOnDeleteFromProvider).toHaveBeenCalledWith(mockDomain, mockProvider);
   });
 
+  it('does not change the domains of a provider the organization cannot fully manage', async () => {
+    const mockOnAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+    mockUseDomainTableService.mockReturnValue(
+      createMockDomainTableServiceReturn({ onAssociateToProvider: mockOnAssociateToProvider }),
+    );
+
+    const { result } = render();
+
+    await act(async () => {
+      await result.current.handleToggleSwitch(
+        mockDomain,
+        { ...mockProvider, access_level: 'limited' },
+        true,
+      );
+    });
+
+    expect(mockOnAssociateToProvider).not.toHaveBeenCalled();
+  });
+
   it('should handle associate to provider error on handleToggleSwitch', async () => {
     const error = new Error('Associate failed');
     const mockOnAssociateToProvider = vi.fn().mockRejectedValue(error);

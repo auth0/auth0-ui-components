@@ -4,16 +4,23 @@
  * @internal
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  IDP_ACCESS_LEVELS,
+  type IdpAccessLevel,
+} from '@auth0/universal-components-core';
+import { Info } from 'lucide-react';
 import React from 'react';
 
 import { SsoProviderDelete } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete';
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
 import { SsoProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-details';
 import { SsoProviderRemoveFromOrganization } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type { SsoProviderTabProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 /**
@@ -23,6 +30,7 @@ import type { SsoProviderTabProps } from '@/types/my-organization/idp-management
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.styling - CSS variables and class overrides.
  * @param props.permissions - What the current user is allowed to do.
+ * @param props.providerAccess - What the organization's access level allows; read from the provider by default.
  * @param props.provider - The SSO provider being edited.
  * @param props.onDelete - Callback when provider is deleted.
  * @param props.onRemove - Callback when provider is removed from organization.
@@ -45,6 +53,7 @@ export function SsoProviderTab({
     classes: {},
   },
   permissions,
+  providerAccess,
   readOnly = false,
   provider,
   onDelete,
@@ -77,12 +86,41 @@ export function SsoProviderTab({
     [styling, isDarkMode],
   );
 
+  const effectiveAccess = providerAccess ?? getProviderAccess(provider);
+  const canUpdateProvider = permissions.canUpdateProvider;
+  const isDetailsReadOnly = readOnly || !canUpdateProvider || !effectiveAccess.canEditDetails;
+  const isLoginSettingsReadOnly =
+    readOnly || !canUpdateProvider || !effectiveAccess.canEditLoginSettings;
+
+  const accessAlertMessages: Partial<Record<IdpAccessLevel, string>> = {
+    [IDP_ACCESS_LEVELS.LIMITED]: t('content.access_alerts.limited'),
+    [IDP_ACCESS_LEVELS.READONLY]: t('content.access_alerts.readonly'),
+  };
+  const accessAlertMessage = accessAlertMessages[effectiveAccess.accessLevel];
+
+  const isSyncAccessRestricted =
+    !readOnly && canUpdateProvider && !effectiveAccess.canSyncAttributes;
+  const isRemoveAccessRestricted =
+    !readOnly && permissions.canDetachProvider && !effectiveAccess.canDetach;
+  const isDeleteAccessRestricted =
+    !readOnly && permissions.canDeleteProvider && !effectiveAccess.canDelete;
+
   return (
     <div style={currentStyles.variables} className="space-y-10">
+      {accessAlertMessage && (
+        <Alert variant="warning">
+          <Info />
+          <AlertDescription className="text-warning-foreground">
+            {accessAlertMessage}
+          </AlertDescription>
+        </Alert>
+      )}
+
       {hasSsoAttributeSyncWarning && (
         <SsoProviderAttributeSyncAlert
-          canSync={permissions.canUpdateProvider}
-          permissionDenied={!readOnly && !permissions.canUpdateProvider}
+          canSync={canUpdateProvider && effectiveAccess.canSyncAttributes}
+          permissionDenied={!readOnly && !canUpdateProvider}
+          isAccessRestricted={isSyncAccessRestricted}
           onSync={onAttributeSync}
           isSyncing={isSyncingAttributes}
           customMessages={customMessages.attribute_sync_alert}
@@ -104,7 +142,8 @@ export function SsoProviderTab({
           {provider && (
             <SsoProviderDetails
               provider={provider}
-              readOnly={!permissions.canUpdateProvider}
+              readOnly={isDetailsReadOnly}
+              isLoginSettingsReadOnly={isLoginSettingsReadOnly}
               hideAttributeMappings={hideAttributeMappings}
               formActions={formActions}
               customMessages={customMessages.details}
@@ -129,8 +168,9 @@ export function SsoProviderTab({
             organizationName={organization.name}
             onRemove={onRemove}
             isLoading={isRemoving}
-            readOnly={!permissions.canDetachProvider}
+            readOnly={!permissions.canDetachProvider || !effectiveAccess.canDetach}
             permissionDenied={!readOnly && !permissions.canDetachProvider}
+            isAccessRestricted={isRemoveAccessRestricted}
             customMessages={customMessages.remove}
           />
         )}
@@ -140,8 +180,9 @@ export function SsoProviderTab({
             provider={provider}
             onDelete={onDelete}
             isLoading={isDeleting}
-            readOnly={!permissions.canDeleteProvider}
+            readOnly={!permissions.canDeleteProvider || !effectiveAccess.canDelete}
             permissionDenied={!readOnly && !permissions.canDeleteProvider}
+            isAccessRestricted={isDeleteAccessRestricted}
             customMessages={customMessages.delete}
           />
         )}
