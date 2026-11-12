@@ -178,7 +178,6 @@
           "placeholder": "Select a connection to associate"
         },
         "assigned_description": "This domain is already associated with a connection. To use a different connection, remove the current one first, then select a new one.",
-        "legacy_warning": "This domain is assigned to more than one connection. Remove connections until only one remains.",
         "table": {
           "empty_message": "You do not have any providers.",
           "columns": {

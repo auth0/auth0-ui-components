@@ -7,7 +7,6 @@
 import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
 import React from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
@@ -26,27 +25,16 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
 const PROVIDER_FIELD_ID = 'domain-configure-provider';
 
 /**
- * Returns the provider's display name, falling back to its name.
- * @param provider - Provider to name
- * @returns Provider name
- */
-function getProviderName(provider: IdentityProviderAssociatedWithDomain): string {
-  return provider.display_name || provider.name || '';
-}
-
-/**
  * Formats a provider as "Display name (strategy)".
  * @param provider - Provider to format
  * @returns Provider label
  */
 function getProviderLabel(provider: IdentityProviderAssociatedWithDomain): string {
-  return `${getProviderName(provider)} (${provider.strategy})`;
+  return `${provider.display_name || provider.name} (${provider.strategy})`;
 }
 
 /**
  * Modal for assigning a domain to a single identity provider.
- * An assigned provider is shown with a Remove action; the provider field appears only
- * when the domain has no provider.
  * @param props - Component props.
  * @param props.styling - Optional styling configuration with CSS classes
  * @param props.customMessages - Custom translation messages to override defaults
@@ -106,50 +94,41 @@ export function DomainConfigureProvidersModal({
   };
 
   const renderAssignedProviders = () => (
-    <div className="space-y-3">
-      {assignedProviders.length > 1 && (
-        <Alert variant="warning">
-          <AlertDescription>{t('legacy_warning')}</AlertDescription>
-        </Alert>
-      )}
-      <ul className="space-y-2">
-        {assignedProviders.map((provider) => (
-          <li
-            key={provider.id ?? provider.name}
-            className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
-          >
-            <span className="text-paragraph font-medium truncate">
-              {getProviderLabel(provider)}
-            </span>
-            <div className="flex items-center gap-2 shrink-0">
-              {onOpenProvider && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onOpenProvider(provider)}
-                >
-                  {t('table.actions.view_provider_button_text')}
-                </Button>
-              )}
+    <ul className="space-y-2">
+      {assignedProviders.map((provider) => (
+        <li
+          key={provider.id ?? provider.name}
+          className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
+        >
+          <span className="text-paragraph font-medium truncate">{getProviderLabel(provider)}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            {onOpenProvider && (
               <Button
                 type="button"
-                variant="link"
+                variant="outline"
                 size="sm"
-                className="text-destructive-foreground px-0"
-                disabled={isSaving || !permissions.canDissociateProvider}
-                onClick={() => domain && onRemove(domain, provider)}
-                aria-label={t('actions.remove_button_aria_label', {
-                  provider: getProviderLabel(provider),
-                })}
+                onClick={() => onOpenProvider(provider)}
               >
-                {t('actions.remove_button_text')}
+                {t('table.actions.view_provider_button_text')}
               </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
+            )}
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="text-destructive-foreground px-0"
+              disabled={isSaving || !permissions.canDissociateProvider}
+              onClick={() => domain && onRemove(domain, provider)}
+              aria-label={t('actions.remove_button_aria_label', {
+                provider: getProviderLabel(provider),
+              })}
+            >
+              {t('actions.remove_button_text')}
+            </Button>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 
   const renderProviderField = () => (

@@ -226,19 +226,12 @@ describe('DomainConfigureProvidersModal', () => {
   describe('when the domain is assigned to more than one provider', () => {
     const providers = [googleProvider, { ...oktaProvider, is_associated: true }];
 
-    it('should list every assigned provider with Remove and a warning', () => {
+    it('should list every assigned provider with its own Remove', () => {
       renderModal({ providers });
 
-      expect(screen.getByText('legacy_warning')).toBeInTheDocument();
       expect(getRemoveButton('Google Workspace (google-apps)')).toBeInTheDocument();
       expect(getRemoveButton('Okta Enterprise (okta)')).toBeInTheDocument();
       expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
-    });
-
-    it('should not show the warning for a single assignment', () => {
-      renderModal();
-
-      expect(screen.queryByText('legacy_warning')).not.toBeInTheDocument();
     });
   });
 
