@@ -8,6 +8,26 @@ import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 export const DEFAULT_CONNECTION_NAME = "Universal-Components-Demo"
 export const CONNECTION_PROFILE_NAME = "Universal-Components-Profile"
 
+const ONE_HOUR_IN_SECONDS = 3600
+const SEVEN_DAYS_IN_SECONDS = 604800
+const THIRTY_DAYS_IN_SECONDS = 2592000
+
+// SCIM token limits applied to every strategy
+const SCIM_TOKEN_LIMITS = {
+  scopes: ["get:users", "post:users", "patch:users", "delete:users", "put:users"],
+  default_expiry: ONE_HOUR_IN_SECONDS,
+  max_allowed_expiry: THIRTY_DAYS_IN_SECONDS,
+}
+
+// Stricter limits for one strategy, so the demo shows a strategy override
+const SCIM_TOKEN_LIMITS_BY_STRATEGY = {
+  okta: {
+    scopes: ["get:users", "patch:users"],
+    default_expiry: ONE_HOUR_IN_SECONDS,
+    max_allowed_expiry: SEVEN_DAYS_IN_SECONDS,
+  },
+}
+
 /**
  * Compare arrays without regard to order
  */
@@ -17,6 +37,33 @@ function arraysEqual(arr1, arr2) {
   const sorted1 = [...arr1].sort()
   const sorted2 = [...arr2].sort()
   return sorted1.every((val, idx) => val === sorted2[idx])
+}
+
+/**
+ * Compare SCIM token limits (scopes in any order)
+ */
+function scimTokenLimitsMatch(existing, desired) {
+  return (
+    arraysEqual(existing?.scopes, desired.scopes) &&
+    existing?.default_expiry === desired.default_expiry &&
+    existing?.max_allowed_expiry === desired.max_allowed_expiry
+  )
+}
+
+/**
+ * Seed the strategy overrides we manage, keeping any others already on the profile
+ */
+function withSeededStrategyOverrides(existingOverrides = {}) {
+  const overrides = { ...existingOverrides }
+  for (const [strategy, tokens] of Object.entries(
+    SCIM_TOKEN_LIMITS_BY_STRATEGY
+  )) {
+    overrides[strategy] = {
+      ...overrides[strategy],
+      provisioning: { scim: { tokens } },
+    }
+  }
+  return overrides
 }
 
 // ============================================================================
@@ -90,6 +137,13 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
         allowed_values: ["disabled", "enabled"],
       },
     },
+    domain_aliases_config: {
+      domain_verification: "optional",
+    },
+    provisioning: {
+      scim: { tokens: SCIM_TOKEN_LIMITS },
+    },
+    strategy_overrides: withSeededStrategyOverrides(),
   }
 
   if (!existingProfile) {
@@ -111,6 +165,27 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
       desiredConfig.cross_app_access_resource_app.status.allowed_values
     )
 
+  // Check if domain_aliases_config needs update
+  const domainAliasesConfigNeedsUpdate =
+    existingProfile.domain_aliases_config?.domain_verification !==
+    desiredConfig.domain_aliases_config.domain_verification
+
+  const provisioningNeedsUpdate = !scimTokenLimitsMatch(
+    existingProfile.provisioning?.scim?.tokens,
+    SCIM_TOKEN_LIMITS
+  )
+
+  const strategyOverridesNeedUpdate = Object.entries(
+    SCIM_TOKEN_LIMITS_BY_STRATEGY
+  ).some(
+    ([strategy, tokens]) =>
+      !scimTokenLimitsMatch(
+        existingProfile.strategy_overrides?.[strategy]?.provisioning?.scim
+          ?.tokens,
+        tokens
+      )
+  )
+
   // Check if the profile needs updates
   const needsUpdate =
     existingProfile.organization?.show_as_button !==
@@ -123,7 +198,10 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
       existingProfile.enabled_features || [],
       desiredConfig.enabled_features
     ) ||
-    crossAppAccessNeedsUpdate
+    crossAppAccessNeedsUpdate ||
+    domainAliasesConfigNeedsUpdate ||
+    provisioningNeedsUpdate ||
+    strategyOverridesNeedUpdate
 
   if (needsUpdate) {
     const changes = []
@@ -156,13 +234,31 @@ export function checkConnectionProfileChanges(existingConnectionProfiles) {
     if (crossAppAccessNeedsUpdate) {
       changes.push("Update cross_app_access_resource_app")
     }
+    if (domainAliasesConfigNeedsUpdate) {
+      changes.push("Update domain_aliases_config")
+    }
+    if (provisioningNeedsUpdate) {
+      changes.push("Update provisioning")
+    }
+    if (strategyOverridesNeedUpdate) {
+      changes.push("Update strategy_overrides")
+    }
 
     return createChangeItem(ChangeAction.UPDATE, {
       resource: "Connection Profile",
       name: existingProfile.name,
       existing: existingProfile,
       updates: {
-        config: desiredConfig,
+        config: {
+          ...desiredConfig,
+          provisioning: {
+            ...existingProfile.provisioning,
+            ...desiredConfig.provisioning,
+          },
+          strategy_overrides: withSeededStrategyOverrides(
+            existingProfile.strategy_overrides
+          ),
+        },
       },
       summary: changes.join(", "),
     })
@@ -311,11 +407,15 @@ export async function applyConnectionProfileChanges(changePlan) {
     try {
       const { existing, updates } = changePlan
 
-      await auth0ApiCall(
+      const patched = await auth0ApiCall(
         "patch",
         `connection-profiles/${existing.id}`,
         updates.config
       )
+      // A successful PATCH returns the updated profile; null means it wasn't applied (e.g. missing scope)
+      if (!patched) {
+        throw new Error("Missing scope update:connection_profiles")
+      }
       spinner.succeed(`Updated Connection Profile`)
 
       // Fetch updated profile
@@ -323,6 +423,14 @@ export async function applyConnectionProfileChanges(changePlan) {
         "get",
         `connection-profiles/${existing.id}`
       )
+
+      // A tenant that doesn't support a field yet accepts the request but doesn't keep it
+      const stillDrifted = updated && checkConnectionProfileChanges([updated])
+      if (stillDrifted?.action === ChangeAction.UPDATE) {
+        console.warn(
+          `⚠️  Warning: Connection Profile still differs after the update (${stillDrifted.summary}). The tenant may not support these fields yet.`
+        )
+      }
       return updated || existing
     } catch (e) {
       spinner.fail(`Failed to update Connection Profile`)
