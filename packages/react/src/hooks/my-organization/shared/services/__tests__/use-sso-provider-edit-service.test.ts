@@ -1325,6 +1325,29 @@ describe('useSsoProviderEditService', () => {
       });
     });
 
+    it('should surface the API detail for a 400 on create SCIM token', async () => {
+      const detail = 'token_lifetime must be less than or equal to 86400';
+      mockScimTokensCreate.mockRejectedValue(
+        Object.assign(new Error('Bad Request'), {
+          statusCode: 400,
+          body: { status: 400, detail },
+        }),
+      );
+
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => {
+        expect(result.current.provider).toEqual(mockProvider);
+      });
+
+      await expect(result.current.createScimToken({ token_lifetime: 999999 })).rejects.toThrow();
+
+      await waitFor(() => {
+        expect(mockedShowToast).toHaveBeenCalledWith({ type: 'error', message: detail });
+      });
+      expect(mockHandleError).not.toHaveBeenCalled();
+    });
+
     it('should handle create SCIM token error', async () => {
       mockScimTokensCreate.mockRejectedValue(new Error('Create failed'));
 

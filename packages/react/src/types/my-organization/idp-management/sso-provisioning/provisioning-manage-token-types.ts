@@ -10,8 +10,8 @@ import type {
   CreateIdpProvisioningScimTokenRequestContent,
   CreateIdpProvisioningScimTokenResponseContent,
   ProvisioningDeleteTokenModalMessages,
-  ProvisioningCreateTokenModalMessages,
   IdpManagementPermissions,
+  IdpScimTokenConfig,
 } from '@auth0/universal-components-core';
 
 /** CSS classes for ProvisioningManageToken. */
@@ -35,6 +35,7 @@ export interface ProvisioningManageTokenProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  scimTokenConfig?: IdpScimTokenConfig;
 }
 
 /** Props for ProvisioningDeleteTokenModal. */
@@ -49,9 +50,11 @@ export interface ProvisioningDeleteTokenModalProps
 
 /** Props for ProvisioningCreateTokenModal. */
 export interface ProvisioningCreateTokenModalProps
-  extends SharedComponentProps<ProvisioningCreateTokenModalMessages> {
+  extends SharedComponentProps<ProvisioningManageTokenMessages> {
   open: boolean;
   isLoading: boolean;
   onOpenChange: (open: boolean) => void;
   createdToken: CreateIdpProvisioningScimTokenResponseContent | null;
+  scimTokenConfig?: IdpScimTokenConfig;
+  onCreate: (request: CreateIdpProvisioningScimTokenRequestContent) => Promise<void>;
 }

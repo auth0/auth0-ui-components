@@ -14,6 +14,7 @@ import {
   type CreateIdpProvisioningScimTokenRequestContent,
   type GetIdPProvisioningConfigResponseContent,
   getStatusCode,
+  resolveErrorMessage,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
@@ -347,6 +348,10 @@ export function useSsoProviderEditService(
     },
     onError: (error) => {
       if (isActionCancelledError(error)) {
+        return;
+      }
+      if (getStatusCode(error) === 400) {
+        showToast({ type: 'error', message: resolveErrorMessage(error, t('general_error')) });
         return;
       }
       handleError(error, { fallbackMessage: t('general_error') });

@@ -9,6 +9,7 @@ import {
   type GetIdpConfigurationResponseContent,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
+  type IdpScimTokenConfig,
   type CrossAppAccessResourceAppConfig,
   type StrategyWithCrossAppAccess,
 } from '@auth0/universal-components-core';
@@ -82,6 +83,9 @@ export function useIdpConfig(): UseConfigIdpResult {
   const isProvisioningMethodEnabled = (strategy: IdpStrategy | undefined): boolean =>
     getStrategyFor(strategy)?.provisioning_methods.includes('scim') ?? false;
 
+  const getScimTokenConfig = (strategy: IdpStrategy | undefined): IdpScimTokenConfig | undefined =>
+    getStrategyFor(strategy)?.provisioning?.scim?.tokens ?? undefined;
+
   const getCrossAppAccessConfig = (
     strategy: IdpStrategy | undefined,
   ): CrossAppAccessResourceAppConfig | undefined => {
@@ -116,6 +120,7 @@ export function useIdpConfig(): UseConfigIdpResult {
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
     isProvisioningMethodEnabled,
+    getScimTokenConfig,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
     getCrossAppAccessDefaultValue,

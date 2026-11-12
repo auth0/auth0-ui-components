@@ -16,6 +16,7 @@ import type {
   ComponentAction,
   CreateIdPProvisioningConfigResponseContent,
   IdpManagementPermissions,
+  IdpScimTokenConfig,
 } from '@auth0/universal-components-core';
 
 import type { ProvisioningManageTokenClasses } from '@/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
@@ -99,4 +100,5 @@ export interface SsoProvisioningDetailsProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  scimTokenConfig?: IdpScimTokenConfig;
 }
