@@ -74,12 +74,20 @@ describe('DomainConfigureProvidersModal', () => {
   });
 
   describe('rendering', () => {
-    it('should render the title and description', () => {
+    it('should render the title and the assigned description when a provider is assigned', () => {
       renderModal();
 
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('title')).toBeInTheDocument();
+      expect(screen.getByText('assigned_description')).toBeInTheDocument();
+      expect(screen.queryByText('description')).not.toBeInTheDocument();
+    });
+
+    it('should render the default description when no provider is assigned', () => {
+      renderModal({ providers: unassignedProviders });
+
       expect(screen.getByText('description')).toBeInTheDocument();
+      expect(screen.queryByText('assigned_description')).not.toBeInTheDocument();
     });
 
     describe('when isOpen is false', () => {
@@ -94,6 +102,7 @@ describe('DomainConfigureProvidersModal', () => {
       it('should not render content', () => {
         renderModal({ domain: null });
 
+        expect(screen.queryByText('assigned_description')).not.toBeInTheDocument();
         expect(screen.queryByText('description')).not.toBeInTheDocument();
       });
     });
@@ -101,13 +110,22 @@ describe('DomainConfigureProvidersModal', () => {
     it('should apply custom styling classes', () => {
       renderModal({ styling: { classes: { 'DomainTable-configureModal': 'custom-class' } } });
 
-      expect(screen.getByText('description').closest('div')).toHaveClass('custom-class');
+      expect(screen.getByText('assigned_description').closest('div')).toHaveClass('custom-class');
     });
 
-    it('should render custom messages', () => {
-      renderModal({ customMessages: { title: 'Custom Title', description: 'Custom description' } });
+    it('should render custom messages for each state', () => {
+      const customMessages = {
+        title: 'Custom Title',
+        description: 'Custom description',
+        assigned_description: 'Custom assigned description',
+      };
+      const { unmount } = renderModal({ customMessages });
 
       expect(screen.getByText('Custom Title')).toBeInTheDocument();
+      expect(screen.getByText('Custom assigned description')).toBeInTheDocument();
+      unmount();
+
+      renderModal({ customMessages, providers: unassignedProviders });
       expect(screen.getByText('Custom description')).toBeInTheDocument();
     });
 
@@ -126,10 +144,10 @@ describe('DomainConfigureProvidersModal', () => {
       expect(screen.queryByText('Okta Enterprise (okta)')).not.toBeInTheDocument();
     });
 
-    it('should explain how to associate a different connection', () => {
+    it('should explain that the current connection must be removed first', () => {
       renderModal();
 
-      expect(screen.getByText('assigned_helper_text')).toBeInTheDocument();
+      expect(screen.getByText('assigned_description')).toBeInTheDocument();
     });
 
     it('should show only Close, without the provider field or Save', () => {
@@ -225,18 +243,17 @@ describe('DomainConfigureProvidersModal', () => {
   });
 
   describe('when the domain has no provider', () => {
-    it('should show the provider field with a placeholder and helper text', () => {
+    it('should show the provider field with a label and placeholder', () => {
       renderModal({ providers: unassignedProviders });
 
       expect(screen.getByText('field.label')).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toHaveTextContent('field.placeholder');
-      expect(screen.getByText('field.helper_text')).toBeInTheDocument();
     });
 
-    it('should show Cancel and Save', () => {
+    it('should show Close and Save', () => {
       renderModal({ providers: unassignedProviders });
 
-      expect(getFooterButton('actions.cancel_button_text')).toBeInTheDocument();
+      expect(getFooterButton('actions.close_button_text')).toBeInTheDocument();
       expect(querySaveButton()).toBeInTheDocument();
     });
 
@@ -262,12 +279,12 @@ describe('DomainConfigureProvidersModal', () => {
       expect(querySaveButton()).toBeEnabled();
     });
 
-    it('should call onClose from Cancel without assigning', async () => {
+    it('should call onClose from Close without assigning', async () => {
       const user = userEvent.setup();
       const { props } = renderModal({ providers: unassignedProviders });
 
       await selectProvider(user, 'Okta Enterprise (okta)');
-      await user.click(getFooterButton('actions.cancel_button_text'));
+      await user.click(getFooterButton('actions.close_button_text'));
 
       expect(props.onClose).toHaveBeenCalledTimes(1);
       expect(props.onAssign).not.toHaveBeenCalled();

@@ -94,6 +94,7 @@ export function DomainConfigureProvidersModal({
     (provider) => provider.id === selectedProviderId,
   );
   const showProviderField = assignedProviders.length === 0 && providers.length > 0;
+  const showAssignedDescription = !isLoading && assignedProviders.length > 0;
 
   React.useEffect(() => {
     if (!isOpen || assignedProviders.length > 0) setSelectedProviderId('');
@@ -115,7 +116,7 @@ export function DomainConfigureProvidersModal({
         {assignedProviders.map((provider) => (
           <li
             key={provider.id ?? provider.name}
-            className="flex items-center justify-between gap-4 rounded-lg bg-muted px-4 py-3"
+            className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
           >
             <span className="text-paragraph font-medium truncate">
               {getProviderLabel(provider)}
@@ -148,9 +149,6 @@ export function DomainConfigureProvidersModal({
           </li>
         ))}
       </ul>
-      <p className="text-muted-foreground text-paragraph">
-        {t('assigned_helper_text', { domain: domain?.domain ?? '' })}
-      </p>
     </div>
   );
 
@@ -175,7 +173,6 @@ export function DomainConfigureProvidersModal({
           ))}
         </SelectContent>
       </Select>
-      <p className="text-muted-foreground text-paragraph">{t('field.helper_text')}</p>
     </div>
   );
 
@@ -214,7 +211,9 @@ export function DomainConfigureProvidersModal({
         domain && (
           <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
             <p className="text-muted-foreground text-paragraph">
-              {t('description', { domain: domain?.domain ?? '' })}
+              {showAssignedDescription
+                ? t('assigned_description')
+                : t('description', { domain: domain?.domain ?? '' })}
             </p>
             {renderContent()}
           </div>
@@ -224,9 +223,7 @@ export function DomainConfigureProvidersModal({
         isLoading: isSaving,
         showNext: showProviderField,
         previousAction: {
-          label: showProviderField
-            ? t('actions.cancel_button_text')
-            : t('actions.close_button_text'),
+          label: t('actions.close_button_text'),
           onClick: onClose,
         },
         nextAction: {

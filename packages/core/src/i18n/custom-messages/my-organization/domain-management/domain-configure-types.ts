@@ -12,9 +12,8 @@ export interface DomainConfigureMessages extends SharedMessages {
   field?: {
     label?: string;
     placeholder?: string;
-    helper_text?: string;
   };
-  assigned_helper_text?: string;
+  assigned_description?: string;
   legacy_warning?: string;
   table?: {
     empty_message?: string;
@@ -31,7 +30,6 @@ export interface DomainConfigureMessages extends SharedMessages {
   };
   actions?: {
     close_button_text?: string;
-    cancel_button_text?: string;
     save_button_text?: string;
     remove_button_text?: string;
     remove_button_aria_label?: string;
