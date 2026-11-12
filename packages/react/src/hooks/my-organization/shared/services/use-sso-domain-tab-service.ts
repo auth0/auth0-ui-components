@@ -13,6 +13,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   type Domain,
   type IdpId,
+  type IdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -195,6 +196,14 @@ export function useSsoDomainTabService(
       queryClient.invalidateQueries({ queryKey: domainQueryKeys.all }),
     ]);
 
+  // Reflects a confirmed change in the cached connection now; the background refresh reconciles it.
+  const setProviderDomains = (update: (names: string[]) => string[]) =>
+    queryClient.setQueryData<IdpKnownResponse>(ssoProviderQueryKeys.detail(idpId), (current) =>
+      current
+        ? ({ ...current, domains: update(current.domains ?? []) } as IdpKnownResponse)
+        : current,
+    );
+
   const associateToProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
       if (!coreClient) {
@@ -213,6 +222,7 @@ export function useSsoDomainTabService(
         .organization.identityProviders.domains.create(idpId, {
           domain: domain.domain,
         });
+      setProviderDomains((names) => [...new Set([...names, domain.domain])]);
 
       if (domains?.associateToProviderAction?.onAfter) {
         await domains.associateToProviderAction.onAfter(domain, provider);
@@ -220,7 +230,9 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => invalidateAssignments(),
+    onSuccess: () => {
+      void invalidateAssignments();
+    },
   });
 
   const deleteFromProviderMutation = useMutation({
@@ -239,6 +251,7 @@ export function useSsoDomainTabService(
       await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.domains.delete(provider.id, domain.domain);
+      setProviderDomains((names) => names.filter((name) => name !== domain.domain));
 
       if (domains?.deleteFromProviderAction?.onAfter) {
         await domains.deleteFromProviderAction.onAfter(domain);
@@ -246,7 +259,9 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => invalidateAssignments(),
+    onSuccess: () => {
+      void invalidateAssignments();
+    },
   });
 
   return {
