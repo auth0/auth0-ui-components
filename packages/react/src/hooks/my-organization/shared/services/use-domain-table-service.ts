@@ -11,6 +11,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   BusinessError,
   domainQueryKeys,
+  ssoDomainQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -144,11 +145,13 @@ export function useDomainTableService({
         return { ...row, ...updatedDomain, use_for_organization_discovery: discoveryValue };
       };
 
-      queryClient.setQueriesData<{ domains: Domain[]; next: string | null }>(
-        { queryKey: domainQueryKeys.lists() },
-        (oldData) => oldData && { ...oldData, domains: oldData.domains.map(patchRow) },
-      );
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
+      [domainQueryKeys.lists(), ssoDomainQueryKeys.lists()].forEach((queryKey) => {
+        queryClient.setQueriesData<{ domains: Domain[]; next: string | null }>(
+          { queryKey },
+          (oldData) => oldData && { ...oldData, domains: oldData.domains.map(patchRow) },
+        );
+        queryClient.invalidateQueries({ queryKey });
+      });
     },
   });
 

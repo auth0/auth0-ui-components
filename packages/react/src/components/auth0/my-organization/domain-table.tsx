@@ -7,6 +7,8 @@ import * as React from 'react';
 import { DomainConfigureProvidersModal } from '@/components/auth0/my-organization/shared/domain-management/domain-configure/domain-configure-providers-modal';
 import { DomainCreateModal } from '@/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal';
 import { DomainDeleteModal } from '@/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal';
+import { DomainDiscoveryModal } from '@/components/auth0/my-organization/shared/domain-management/domain-discovery/domain-discovery-modal';
+import { DomainDiscoverySwitch } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-discovery-switch';
 import { DomainTableActionsColumn } from '@/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column';
 import { DomainVerifyModal } from '@/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
@@ -22,7 +24,10 @@ import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { cn } from '@/lib/utils';
-import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getStatusBadgeVariant,
+  isDomainUsedForDiscovery,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   DomainTableProps,
   DomainTableViewProps,
@@ -112,12 +117,19 @@ function DomainTableView({
     domainsUpdatedAt,
     isLoadingProviders,
     isDeleting,
+    updatingDiscoveryId,
+    isUpdatingDiscovery,
     domainVerificationMode,
+    discoveryPolicy,
+    showDiscovery,
+    isDiscoveryReadOnly,
+    discoveryDefaultValue,
     pagination,
     showCreateModal,
     showConfigureModal,
     showVerifyModal,
     showDeleteModal,
+    showDiscoveryModal,
     verifyError,
     selectedDomain,
     refetchDomains,
@@ -126,6 +138,9 @@ function DomainTableView({
     setShowDeleteModal,
     handleCreate,
     handleVerify,
+    handleToggleDiscovery,
+    handleEnableDiscovery,
+    handleCloseDiscoveryModal,
     handleDelete,
     handleToggleSwitch,
     handleCloseVerifyModal,
@@ -143,13 +158,44 @@ function DomainTableView({
     [styling, isDarkMode],
   );
 
-  const columns: Column<Domain>[] = React.useMemo(
-    () => [
+  const canChangeDiscovery = !readOnly && permissions.canUpdateDomainDiscovery;
+
+  const columns: Column<Domain>[] = React.useMemo(() => {
+    const domainWidth = showDiscovery ? '30%' : '35%';
+    const statusWidth = showDiscovery ? '20%' : '25%';
+
+    const discoveryColumn: Column<Domain> = {
+      type: 'custom',
+      accessorKey: 'use_for_organization_discovery',
+      title: t('domain_table.table.columns.use_for_discovery'),
+      width: '20%',
+      enableSorting: false,
+      render: (domain) => {
+        const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
+        const isRowUpdating = isUpdatingDiscovery && updatingDiscoveryId === domain.id;
+
+        return (
+          <DomainDiscoverySwitch
+            customMessages={customMessages}
+            domain={domain}
+            checked={isDiscoveryOn}
+            isLocked={isDiscoveryReadOnly}
+            canChange={canChangeDiscovery}
+            isUpdating={isRowUpdating}
+            onToggle={handleToggleDiscovery}
+          />
+        );
+      },
+    };
+
+    const optionalDiscoveryColumns = showDiscovery ? [discoveryColumn] : [];
+
+    return [
       {
         type: 'text',
         accessorKey: 'domain',
         title: t('domain_table.table.columns.domain'),
-        width: '35%',
+        width: domainWidth,
         render: (domain) => (
           <div className="font-medium text-primary truncate">{domain.domain}</div>
         ),
@@ -158,13 +204,14 @@ function DomainTableView({
         type: 'text',
         accessorKey: 'status',
         title: t('domain_table.table.columns.status'),
-        width: '25%',
+        width: statusWidth,
         render: (domain) => (
           <Badge variant={getStatusBadgeVariant(domain.status)} size={'sm'}>
             {t(`shared.domain_statuses.${domain.status}`)}
           </Badge>
         ),
       },
+      ...optionalDiscoveryColumns,
       {
         type: 'actions',
         title: '',
@@ -180,9 +227,22 @@ function DomainTableView({
           />
         ),
       },
-    ],
-    [t, permissions, customMessages, handleConfigureClick, handleVerifyClick, handleDeleteClick],
-  );
+    ];
+  }, [
+    t,
+    permissions,
+    canChangeDiscovery,
+    customMessages,
+    showDiscovery,
+    discoveryPolicy,
+    isDiscoveryReadOnly,
+    isUpdatingDiscovery,
+    updatingDiscoveryId,
+    handleToggleDiscovery,
+    handleConfigureClick,
+    handleVerifyClick,
+    handleDeleteClick,
+  ]);
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -260,9 +320,23 @@ function DomainTableView({
         isOpen={showCreateModal}
         isLoading={isCreating}
         schema={schema?.create}
+        showDiscoveryOption={showDiscovery}
+        isDiscoveryReadOnly={isDiscoveryReadOnly}
+        canChangeDiscovery={permissions.canUpdateDomainDiscovery}
+        discoveryDefaultValue={discoveryDefaultValue}
         onClose={() => setShowCreateModal(false)}
         onCreate={handleCreate}
         customMessages={customMessages?.create}
+      />
+
+      <DomainDiscoveryModal
+        className={currentStyles.classes?.['DomainTable-discoveryModal']}
+        isOpen={showDiscoveryModal}
+        isLoading={isUpdatingDiscovery}
+        domain={selectedDomain}
+        onClose={handleCloseDiscoveryModal}
+        onEnable={handleEnableDiscovery}
+        customMessages={customMessages?.discovery}
       />
 
       <DomainConfigureProvidersModal

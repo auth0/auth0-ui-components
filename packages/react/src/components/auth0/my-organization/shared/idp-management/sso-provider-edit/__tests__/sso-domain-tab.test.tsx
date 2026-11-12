@@ -226,4 +226,61 @@ describe('SsoDomainTab', () => {
       expect(within(row).getByRole('switch')).toBeEnabled();
     });
   });
+
+  describe('use for discovery column', () => {
+    const policy = { default_value: false, allowed_values: [true, false] };
+
+    const renderWithDomains = (props: Partial<SsoDomainsTabProps> = {}) => {
+      mockedUseSsoDomainTab.mockReturnValue(
+        createMockSsoDomainTabReturn({
+          domainsList: [
+            createMockVerifiedSsoDomain({
+              id: 'domain-on',
+              domain: 'on.acmetest.org',
+              use_for_organization_discovery: true,
+            }),
+            createMockVerifiedSsoDomain({
+              id: 'domain-off',
+              domain: 'off.acmetest.org',
+              use_for_organization_discovery: false,
+            }),
+            createMockVerifiedSsoDomain({ id: 'domain-unset', domain: 'unset.acmetest.org' }),
+          ],
+          idpDomains: [],
+        }),
+      );
+      return renderWithProviders(<SsoDomainTab {...mockProps} {...props} />);
+    };
+
+    it('is hidden when the organization has no discovery policy', () => {
+      renderWithDomains();
+
+      expect(screen.queryByText('table.columns.use_for_discovery')).not.toBeInTheDocument();
+    });
+
+    it('shows Yes or No for each domain when a policy exists', () => {
+      renderWithDomains({ discoveryPolicy: policy });
+
+      expect(screen.getByText('table.columns.use_for_discovery')).toBeInTheDocument();
+      const onRow = screen.getByRole('row', { name: /on\.acmetest\.org/i });
+      const offRow = screen.getByRole('row', { name: /off\.acmetest\.org/i });
+      expect(within(onRow).getByText('table.discovery_values.yes')).toBeInTheDocument();
+      expect(within(offRow).getByText('table.discovery_values.no')).toBeInTheDocument();
+    });
+
+    it('does not offer sorting on a column that shows a resolved value', () => {
+      renderWithDomains({ discoveryPolicy: policy });
+
+      const header = screen.getByText('table.columns.use_for_discovery').closest('th')!;
+      expect(header).not.toHaveClass('cursor-pointer');
+      expect(screen.getByText('table.columns.name').closest('th')).toHaveClass('cursor-pointer');
+    });
+
+    it('uses the policy default for a domain that does not report a value', () => {
+      renderWithDomains({ discoveryPolicy: { ...policy, default_value: true } });
+
+      const row = screen.getByRole('row', { name: /unset\.acmetest\.org/i });
+      expect(within(row).getByText('table.discovery_values.yes')).toBeInTheDocument();
+    });
+  });
 });

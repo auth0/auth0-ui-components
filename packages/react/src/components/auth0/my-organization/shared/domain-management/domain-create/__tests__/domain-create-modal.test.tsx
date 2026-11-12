@@ -30,6 +30,257 @@ describe('DomainCreateModal', () => {
     vi.clearAllMocks();
   });
 
+  describe('use for discovery option', () => {
+    const typeDomainAndSubmit = async (
+      user: ReturnType<typeof userEvent.setup>,
+      domain: string,
+    ) => {
+      await user.type(screen.getByRole('textbox'), domain);
+      await user.click(screen.getByRole('button', { name: 'actions.create_button_text' }));
+    };
+
+    it('is hidden by default', () => {
+      renderWithProviders(<DomainCreateModal {...createMockDomainCreateModalProps()} />);
+
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('is shown unchecked when enabled without a default', () => {
+      renderWithProviders(
+        <DomainCreateModal {...createMockDomainCreateModalProps({ showDiscoveryOption: true })} />,
+      );
+
+      expect(screen.getByRole('checkbox', { name: 'use_for_discovery.label' })).not.toBeChecked();
+    });
+
+    describe('without permission to change discovery', () => {
+      const renderWithoutPermission = (overrides: Partial<DomainCreateModalProps> = {}) =>
+        renderWithProviders(
+          <DomainCreateModal
+            {...createMockDomainCreateModalProps({
+              showDiscoveryOption: true,
+              canChangeDiscovery: false,
+              ...overrides,
+            })}
+          />,
+        );
+
+      it('locks the checkbox and says the permission is missing, not that the policy sets it', () => {
+        renderWithoutPermission();
+
+        expect(screen.getByRole('checkbox')).toBeDisabled();
+        expect(screen.getByRole('checkbox')).toHaveAccessibleDescription('error.forbidden');
+        expect(screen.queryByText('use_for_discovery.locked_hint')).not.toBeInTheDocument();
+      });
+
+      it('reports the missing permission even when the policy also locks it', () => {
+        renderWithoutPermission({ isDiscoveryReadOnly: true });
+
+        expect(screen.getByRole('checkbox')).toHaveAccessibleDescription('error.forbidden');
+      });
+
+      it('does not send a discovery value, so the policy default applies', async () => {
+        const user = userEvent.setup();
+        const onCreate = vi.fn();
+        renderWithoutPermission({ onCreate, discoveryDefaultValue: true });
+
+        await typeDomainAndSubmit(user, 'no-scope.com');
+
+        await waitFor(() => {
+          expect(onCreate).toHaveBeenCalledWith('no-scope.com');
+        });
+      });
+    });
+
+    it('sends the locked policy value when the user has permission', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            isDiscoveryReadOnly: true,
+            discoveryDefaultValue: true,
+            onCreate,
+          })}
+        />,
+      );
+
+      await typeDomainAndSubmit(user, 'locked.com');
+
+      await waitFor(() => {
+        expect(onCreate).toHaveBeenCalledWith('locked.com', true);
+      });
+    });
+
+    it('starts from the policy default', () => {
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            discoveryDefaultValue: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox')).toBeChecked();
+    });
+
+    it('has a label that is readable on any background, even when locked', () => {
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            isDiscoveryReadOnly: true,
+          })}
+        />,
+      );
+
+      const label = screen.getByText('use_for_discovery.label');
+      expect(label).toHaveClass('text-foreground');
+      expect(label).toHaveClass('peer-disabled:opacity-100');
+    });
+
+    it('explains why the checkbox is locked', () => {
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            isDiscoveryReadOnly: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByText('use_for_discovery.locked_hint')).toBeInTheDocument();
+      expect(screen.getByRole('checkbox')).toHaveAccessibleDescription(
+        'use_for_discovery.locked_hint',
+      );
+    });
+
+    it('does not show the locked hint when the option can be changed', () => {
+      renderWithProviders(
+        <DomainCreateModal {...createMockDomainCreateModalProps({ showDiscoveryOption: true })} />,
+      );
+
+      expect(screen.queryByText('use_for_discovery.locked_hint')).not.toBeInTheDocument();
+    });
+
+    it('does not show a validation error just because the modal opened', () => {
+      renderWithProviders(
+        <DomainCreateModal {...createMockDomainCreateModalProps({ showDiscoveryOption: true })} />,
+      );
+
+      expect(screen.queryByText('field.error')).not.toBeInTheDocument();
+    });
+
+    it('is disabled when the policy locks it', () => {
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            isDiscoveryReadOnly: true,
+            discoveryDefaultValue: true,
+          })}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox')).toBeDisabled();
+      expect(screen.getByRole('checkbox')).toBeChecked();
+    });
+
+    it('passes the chosen value to onCreate', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({ showDiscoveryOption: true, onCreate })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox'));
+      await typeDomainAndSubmit(user, 'discovery.com');
+
+      await waitFor(() => {
+        expect(onCreate).toHaveBeenCalledWith('discovery.com', true);
+      });
+    });
+
+    it('passes false when the box is left unchecked', async () => {
+      const user = userEvent.setup();
+      const onCreate = vi.fn();
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({ showDiscoveryOption: true, onCreate })}
+        />,
+      );
+
+      await typeDomainAndSubmit(user, 'plain.com');
+
+      await waitFor(() => {
+        expect(onCreate).toHaveBeenCalledWith('plain.com', false);
+      });
+    });
+
+    it('applies a policy default that loads late, keeping the typed domain', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainCreateModalProps({
+        showDiscoveryOption: true,
+        discoveryDefaultValue: false,
+      });
+      const { rerender } = renderWithProviders(<DomainCreateModal {...props} />);
+      await user.type(screen.getByRole('textbox'), 'typed.com');
+
+      rerender(<DomainCreateModal {...props} discoveryDefaultValue />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox')).toBeChecked();
+      });
+      expect(screen.getByRole('textbox')).toHaveValue('typed.com');
+    });
+
+    it('keeps a validation error on the domain when the policy default loads late', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainCreateModalProps({
+        showDiscoveryOption: true,
+        discoveryDefaultValue: false,
+      });
+      const { rerender } = renderWithProviders(<DomainCreateModal {...props} />);
+      await user.type(screen.getByRole('textbox'), 'not a domain');
+      await user.tab();
+      await waitFor(() => {
+        expect(screen.getByText('field.error')).toBeInTheDocument();
+      });
+
+      rerender(<DomainCreateModal {...props} discoveryDefaultValue />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox')).toBeChecked();
+      });
+      expect(screen.getByText('field.error')).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toHaveValue('not a domain');
+    });
+
+    it('returns to the default after a domain is created', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <DomainCreateModal
+          {...createMockDomainCreateModalProps({
+            showDiscoveryOption: true,
+            discoveryDefaultValue: false,
+          })}
+        />,
+      );
+
+      await user.click(screen.getByRole('checkbox'));
+      expect(screen.getByRole('checkbox')).toBeChecked();
+      await typeDomainAndSubmit(user, 'reset-box.com');
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox')).not.toBeChecked();
+      });
+    });
+  });
+
   describe('isOpen', () => {
     describe('when is true', () => {
       it('should render the modal', async () => {
