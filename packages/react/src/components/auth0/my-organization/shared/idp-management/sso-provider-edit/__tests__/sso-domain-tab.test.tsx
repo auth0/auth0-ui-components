@@ -268,6 +268,14 @@ describe('SsoDomainTab', () => {
       expect(within(offRow).getByText('table.discovery_values.no')).toBeInTheDocument();
     });
 
+    it('does not offer sorting on a column that shows a resolved value', () => {
+      renderWithDomains({ discoveryPolicy: policy });
+
+      const header = screen.getByText('table.columns.use_for_discovery').closest('th')!;
+      expect(header).not.toHaveClass('cursor-pointer');
+      expect(screen.getByText('table.columns.name').closest('th')).toHaveClass('cursor-pointer');
+    });
+
     it('uses the policy default for a domain that does not report a value', () => {
       renderWithDomains({ discoveryPolicy: { ...policy, default_value: true } });
 

@@ -470,6 +470,30 @@ describe('SsoDomainTabActionsColumn', () => {
 
       expect(screen.getByRole('switch')).not.toHaveAttribute('aria-describedby');
     });
+
+    it('adds no tab stop in read-only mode, where there is no tooltip', () => {
+      const props = createMockSsoDomainTabActionColumnProps({
+        domainVerificationMode: 'none',
+        readOnly: true,
+      });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      expect(screen.getByRole('switch').parentElement).not.toHaveAttribute('tabindex');
+    });
+
+    it('lets keyboard users reach the reason a switch is disabled', async () => {
+      const user = userEvent.setup();
+      const props = createMockSsoDomainTabActionColumnProps({ domainVerificationMode: 'none' });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      await user.tab();
+
+      expect(screen.getByRole('switch').parentElement).toHaveFocus();
+      expect(screen.getByRole('switch').parentElement).toHaveClass('focus-visible:ring-4');
+      expect(
+        await screen.findAllByText('table.actions.domain_association_unavailable_tooltip'),
+      ).not.toHaveLength(0);
+    });
   });
 
   describe('Domain verification mode', () => {

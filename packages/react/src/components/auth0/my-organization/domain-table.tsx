@@ -169,6 +169,7 @@ function DomainTableView({
       accessorKey: 'use_for_organization_discovery',
       title: t('domain_table.table.columns.use_for_discovery'),
       width: '20%',
+      enableSorting: false,
       render: (domain) => {
         const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
         const isRowUpdating = isUpdatingDiscovery && updatingDiscoveryId === domain.id;
