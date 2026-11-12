@@ -28,6 +28,7 @@ import {
   isDomainAssociationUnavailable,
   isLastRequiredDomainLocked,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
 /**
@@ -64,7 +65,7 @@ export function DomainConfigureProvidersModal({
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
-  const idPrefix = React.useId();
+  const idPrefix = useId();
 
   const handleToggleSwitch = React.useCallback(
     (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {
@@ -74,6 +75,10 @@ export function DomainConfigureProvidersModal({
   );
 
   const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const hasLockedLastDomain = providers.some(
+    (provider) =>
+      provider.is_associated && isLastRequiredDomainLocked(domainVerificationMode, provider),
+  );
 
   const blockReasonMessages = React.useMemo<Record<AssociationBlockReason, string>>(
     () => ({
@@ -191,6 +196,14 @@ export function DomainConfigureProvidersModal({
                 <Info />
                 <AlertDescription className="text-warning-foreground">
                   {t('alerts.domain_verification_none')}
+                </AlertDescription>
+              </Alert>
+            )}
+            {hasLockedLastDomain && (
+              <Alert variant="warning">
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  {t('table.actions.last_verified_domain_tooltip')}
                 </AlertDescription>
               </Alert>
             )}

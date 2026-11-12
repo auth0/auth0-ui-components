@@ -5,7 +5,6 @@
  */
 
 import { DEFAULT_DOMAIN_VERIFICATION_MODE } from '@auth0/universal-components-core';
-import * as React from 'react';
 
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,7 @@ import {
   getAssociationBlockReason,
   isDomainAssociationUnavailable,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -58,7 +58,7 @@ export function SsoDomainTabActionsColumn({
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
-  const disabledReasonId = React.useId();
+  const disabledReasonId = useId();
 
   const providerHasDomain = idpDomains.includes(domain.id);
   const isVerifyForbidden = !readOnly && !permissions.canVerifyDomain;
@@ -89,8 +89,10 @@ export function SsoDomainTabActionsColumn({
   const isToggleDisabled = !!blockReason || isUpdating;
   const describedBy = disabledReason ? disabledReasonId : undefined;
 
+  const isReasonFocusable = !!disabledReason && !readOnly;
+
   const domainToggle = (
-    <span>
+    <span tabIndex={isReasonFocusable ? 0 : undefined}>
       <Switch
         checked={providerHasDomain}
         onCheckedChange={(checked) => onToggle(domain, checked)}

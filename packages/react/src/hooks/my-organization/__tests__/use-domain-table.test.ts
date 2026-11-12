@@ -718,5 +718,15 @@ describe('useDomainTable', () => {
 
       expect(result.current.domainVerificationMode).toBe('optional');
     });
+
+    it('keeps the providers loading until the IdP configuration resolves', () => {
+      mockUseIdpConfig.mockReturnValue({
+        idpConfig: null,
+        isLoadingIdpConfig: true,
+      } as ReturnType<typeof useIdpConfig>);
+      const { result } = render();
+
+      expect(result.current.isLoadingProviders).toBe(true);
+    });
   });
 });

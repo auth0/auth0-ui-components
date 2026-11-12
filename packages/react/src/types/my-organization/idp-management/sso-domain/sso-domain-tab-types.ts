@@ -96,6 +96,7 @@ export interface SsoDomainTabActionColumn
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
 export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {

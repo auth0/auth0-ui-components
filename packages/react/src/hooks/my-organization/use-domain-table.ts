@@ -49,7 +49,7 @@ export function useDomainTable({
     [createPermissionResolver, readOnly],
   );
 
-  const { idpConfig } = useIdpConfig();
+  const { idpConfig, isLoadingIdpConfig } = useIdpConfig();
   const domainVerificationMode = getDomainVerificationMode(idpConfig);
 
   const {
@@ -321,7 +321,7 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
-    isLoadingProviders,
+    isLoadingProviders: isLoadingProviders || isLoadingIdpConfig,
     // Pagination
     pagination: {
       pageSize,

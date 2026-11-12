@@ -1011,6 +1011,18 @@ describe('SsoProviderEdit', () => {
       expect(screen.getAllByRole('switch')[0]).toBeDisabled();
     });
 
+    it('names the enable switch and describes why it is blocked', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      const toggle = screen.getAllByRole('switch')[0]!;
+      expect(toggle).toHaveAccessibleName('header.enable_provider_tooltip_text');
+      expect(toggle).toHaveAccessibleDescription(
+        'header.enable_provider_blocked_domains_tooltip_text',
+      );
+    });
+
     it('lets the provider be enabled once it has a domain in required mode', async () => {
       arrange('required', { is_enabled: false, domains: ['example.com'] });
       renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
