@@ -1,6 +1,13 @@
-import { BusinessError, ssoDomainQueryKeys, type Domain } from '@auth0/universal-components-core';
+import {
+  BusinessError,
+  domainQueryKeys,
+  ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
+  type Domain,
+} from '@auth0/universal-components-core';
+import type { QueryClient } from '@tanstack/react-query';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
@@ -70,6 +77,13 @@ describe('useSsoDomainTabService', () => {
 
   const defaultProvider = { ...mockProvider, domains: [mockDomain.domain] };
 
+  const mockDomainsList = (organizationDomains: Domain[]) =>
+    (
+      mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+        typeof vi.fn
+      >
+    ).mockResolvedValue({ response: { organization_domains: organizationDomains } });
+
   const renderService = async (
     idpId: string,
     options?: Parameters<typeof useSsoDomainTabService>[1],
@@ -90,11 +104,36 @@ describe('useSsoDomainTabService', () => {
       ).toHaveBeenCalledOnce();
     });
 
-    it('should return domains list after successful load', async () => {
-      const { result } = await renderService('idp-1');
+    it('should return only the verified domains assigned to the provider', async () => {
+      const other = createMockVerifiedSsoDomain({ id: 'domain-2', domain: 'other.com' });
+      const pendingAssigned = createMockSsoDomain({ id: 'domain-3', domain: 'pending.com' });
+      mockDomainsList([mockVerifiedDomain, other, pendingAssigned]);
+
+      const { result } = await renderService('idp-1', {
+        provider: { ...mockProvider, domains: [mockVerifiedDomain.domain, pendingAssigned.domain] },
+      });
 
       expect(result.current.isLoading).toBe(false);
-      expect(result.current.domainsList).toEqual([mockDomain]);
+      expect(result.current.domainsList).toEqual([mockVerifiedDomain]);
+    });
+
+    it('should keep the full domain record, including its id', async () => {
+      mockDomainsList([mockVerifiedDomain]);
+
+      const { result } = await renderService('idp-1');
+
+      expect(result.current.domainsList[0]).toEqual(mockVerifiedDomain);
+      expect(result.current.idpDomains).toEqual([mockVerifiedDomain.id]);
+    });
+
+    it('should list nothing when the provider has no domains', async () => {
+      mockDomainsList([mockVerifiedDomain]);
+
+      const { result } = await renderService('idp-1', {
+        provider: { ...mockProvider, domains: [] },
+      });
+
+      expect(result.current.domainsList).toEqual([]);
     });
 
     it('should handle domain listing error', async () => {
@@ -115,12 +154,18 @@ describe('useSsoDomainTabService', () => {
       });
     });
 
-    it('should derive idpDomains from provider prop', async () => {
-      const { result } = await renderService('idp-1', {
-        provider: { ...mockProvider, domains: [mockDomain.domain] },
+    it('should report freshness for the refresh indicator and refetch the domains', async () => {
+      const { result } = await renderService('idp-1');
+      const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
+        .list as ReturnType<typeof vi.fn>;
+      const callsBefore = list.mock.calls.length;
+
+      expect(result.current.domainsUpdatedAt).toBeGreaterThan(0);
+      await act(async () => {
+        await result.current.refetchDomains();
       });
 
-      expect(result.current.idpDomains).toContain(mockDomain.id);
+      expect(list.mock.calls.length).toBeGreaterThan(callsBefore);
     });
 
     it('should not fetch domains if idpId is not provided', () => {
@@ -301,11 +346,10 @@ describe('useSsoDomainTabService', () => {
   describe('custom messages', () => {
     it('should pass custom messages to translator', async () => {
       const customMessages = { general_error: 'Custom error message' };
-      const { result } = await renderService('idp-1', {
-        customMessages,
-      });
+      mockDomainsList([mockVerifiedDomain]);
+      const { result } = await renderService('idp-1', { customMessages });
 
-      expect(result.current.domainsList).toEqual([mockDomain]);
+      expect(result.current.domainsList).toEqual([mockVerifiedDomain]);
     });
   });
 
@@ -328,30 +372,139 @@ describe('useSsoDomainTabService', () => {
 
   describe('prevent duplicate idpDomains', () => {
     it('should not include duplicate domain IDs in idpDomains', async () => {
-      const providerWithDuplicates = {
-        ...mockProvider,
-        domains: ['example.com', 'example.com'],
-      };
+      mockDomainsList([mockVerifiedDomain]);
 
       const { result } = await renderService('idp-1', {
-        provider: providerWithDuplicates,
+        provider: { ...mockProvider, domains: ['example.com', 'example.com'] },
       });
 
       const uniqueIds = new Set(result.current.idpDomains);
       expect(result.current.idpDomains.length).toBe(uniqueIds.size);
     });
 
-    it('should only include domains that exist in domainsList', async () => {
-      const providerWithNonExistent = {
-        ...mockProvider,
-        domains: ['example.com', 'nonexistent.com'],
-      };
+    it('should only include domains that exist in the organization', async () => {
+      mockDomainsList([mockVerifiedDomain]);
 
       const { result } = await renderService('idp-1', {
-        provider: providerWithNonExistent,
+        provider: { ...mockProvider, domains: ['example.com', 'nonexistent.com'] },
       });
 
-      expect(result.current.idpDomains).toEqual([mockDomain.id]);
+      expect(result.current.idpDomains).toEqual([mockVerifiedDomain.id]);
+    });
+  });
+
+  describe('available domains', () => {
+    const available = (id: string, domain: string, overrides: Partial<Domain> = {}) =>
+      createMockVerifiedSsoDomain({ id, domain, assignment_state: 'available', ...overrides });
+
+    const renderWithAvailable = (options?: Parameters<typeof useSsoDomainTabService>[1]) =>
+      renderService('idp-1', options);
+
+    it('should return only verified domains that no identity provider holds', async () => {
+      const free = available('domain-2', 'free.com');
+      mockDomainsList([
+        free,
+        available('domain-3', 'taken.com', { assignment_state: 'assigned' }),
+        createMockSsoDomain({
+          id: 'domain-4',
+          domain: 'pending.com',
+          assignment_state: 'available',
+        }),
+        createMockVerifiedSsoDomain({ id: 'domain-5', domain: 'unknown.com' }),
+      ]);
+
+      const { result } = await renderWithAvailable();
+
+      expect(result.current.availableDomains).toEqual([free]);
+    });
+
+    it('should not offer a domain the provider already holds', async () => {
+      mockDomainsList([available('domain-2', 'held.com')]);
+
+      const { result } = await renderWithAvailable({
+        provider: { ...mockProvider, domains: ['held.com'] },
+      });
+
+      expect(result.current.availableDomains).toEqual([]);
+    });
+
+    it('should ask for up to 100 domains per page and follow the cursor', async () => {
+      const first = available('domain-2', 'first.com');
+      const second = available('domain-3', 'second.com');
+      const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
+        .list as ReturnType<typeof vi.fn>;
+      list
+        .mockResolvedValueOnce({ response: { organization_domains: [first], next: 'token-2' } })
+        .mockResolvedValueOnce({ response: { organization_domains: [second] } });
+
+      const { result } = await renderWithAvailable();
+
+      expect(list).toHaveBeenCalledTimes(2);
+      expect(list).toHaveBeenNthCalledWith(1, { take: 100, from: undefined });
+      expect(list).toHaveBeenNthCalledWith(2, { take: 100, from: 'token-2' });
+      expect(result.current.availableDomains).toEqual([first, second]);
+    });
+
+    it('should stop after 5 pages', async () => {
+      const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
+        .list as ReturnType<typeof vi.fn>;
+      list.mockResolvedValue({ response: { organization_domains: [], next: 'again' } });
+
+      await renderWithAvailable();
+
+      expect(list).toHaveBeenCalledTimes(5);
+    });
+
+    it('should report an error when the domains cannot be read', async () => {
+      const error = new Error('API Error');
+      (
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+          typeof vi.fn
+        >
+      ).mockRejectedValue(error);
+
+      await renderService('idp-1');
+
+      await waitFor(() => {
+        expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'general_error' });
+      });
+    });
+  });
+
+  describe('cache refresh after changing assignments', () => {
+    const expectRefreshed = async (
+      invalidateSpy: MockInstance<QueryClient['invalidateQueries']>,
+      idpId: string,
+    ) => {
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({
+          queryKey: ssoProviderQueryKeys.detail(idpId),
+        });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ssoDomainQueryKeys.lists() });
+        expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: domainQueryKeys.all });
+      });
+    };
+
+    it('should refresh the provider, SSO domain lists and domain management after associating', async () => {
+      const { result, queryClient } = await renderService('idp-1');
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await act(async () => {
+        await result.current.associateToProvider(mockVerifiedDomain);
+      });
+
+      await expectRefreshed(invalidateSpy, 'idp-1');
+    });
+
+    it('should refresh the provider, SSO domain lists and domain management after dissociating', async () => {
+      const { result, queryClient } = await renderService('idp-1');
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await act(async () => {
+        await result.current.deleteFromProvider(mockVerifiedDomain);
+      });
+
+      await expectRefreshed(invalidateSpy, 'idp-1');
     });
   });
 

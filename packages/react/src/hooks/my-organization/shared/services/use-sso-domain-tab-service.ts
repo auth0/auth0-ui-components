@@ -7,6 +7,7 @@
 
 import {
   BusinessError,
+  domainQueryKeys,
   ssoDomainQueryKeys,
   ssoProviderQueryKeys,
   type CreateOrganizationDomainRequestContent,
@@ -27,6 +28,9 @@ import type {
 
 const keepPreviousDataOption = getPreviousDataOption();
 
+const DOMAIN_PAGE_SIZE = 100;
+const MAX_DOMAIN_PAGES = 5;
+
 /**
  * Internal service hook for SSO domain tab data and CRUD operations.
  * @param idpId - Identity provider ID.
@@ -36,48 +40,59 @@ const keepPreviousDataOption = getPreviousDataOption();
  */
 export function useSsoDomainTabService(
   idpId: IdpId,
-  {
-    customMessages = {},
-    domains,
-    provider,
-    pageSize,
-    fromToken,
-  }: Partial<UseSsoDomainTabServiceOptions> = {},
+  { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabServiceOptions> = {},
 ): UseSsoDomainTabServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
 
+  const domainsListKey = ssoDomainQueryKeys.list(idpId);
+
+  // One request for every org domain (at most 100) serves both the table and the assign list.
   const domainsQuery = useQuery({
-    queryKey: ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
+    queryKey: domainsListKey,
     queryFn: async () => {
-      const { response } = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.domains.list({
-          take: pageSize,
-          from: fromToken,
-        });
-      return {
-        domains: response?.organization_domains ?? [],
-        next: response?.next ?? null,
-      };
+      const organizationDomains: Domain[] = [];
+      let from: string | undefined;
+      for (let page = 0; page < MAX_DOMAIN_PAGES; page += 1) {
+        const { response } = await coreClient!
+          .getMyOrganizationApiClient()
+          .organization.domains.list({ take: DOMAIN_PAGE_SIZE, from });
+        organizationDomains.push(...(response?.organization_domains ?? []));
+        from = response?.next ?? undefined;
+        if (!from) break;
+      }
+      return { domains: organizationDomains, next: null };
     },
     enabled: !!coreClient && !!idpId,
     ...keepPreviousDataOption,
   });
 
-  const domainsList = domainsQuery.data?.domains ?? [];
-  const nextToken = domainsQuery.data?.next ?? null;
-  const isLoading = domainsQuery.isLoading;
+  const organizationDomains = useMemo(
+    () => domainsQuery.data?.domains ?? [],
+    [domainsQuery.data?.domains],
+  );
 
   useQueryErrorToast(domainsQuery, t('general_error'));
 
-  const idpDomains = useMemo(() => {
-    const idpDomainNames = provider?.domains ?? [];
-    return domainsList
-      .filter((domain) => idpDomainNames.includes(domain.domain))
-      .map((domain) => domain.id);
-  }, [provider?.domains, domainsList]);
+  const domainsList = useMemo(() => {
+    const providerDomainNames = provider?.domains ?? [];
+    return organizationDomains.filter(
+      (domain) => domain.status === 'verified' && providerDomainNames.includes(domain.domain),
+    );
+  }, [provider?.domains, organizationDomains]);
+
+  const availableDomains = useMemo(() => {
+    const providerDomainNames = provider?.domains ?? [];
+    return organizationDomains.filter(
+      (domain) =>
+        domain.status === 'verified' &&
+        domain.assignment_state === 'available' &&
+        !providerDomainNames.includes(domain.domain),
+    );
+  }, [provider?.domains, organizationDomains]);
+
+  const idpDomains = useMemo(() => domainsList.map((domain) => domain.id), [domainsList]);
 
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
@@ -132,7 +147,7 @@ export function useSsoDomainTabService(
     onSuccess: ({ updatedDomain, isVerified }, domain) => {
       if (isVerified) {
         queryClient.setQueryData<{ domains: Domain[]; next: string | null }>(
-          ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
+          domainsListKey,
           (oldData) => {
             if (!oldData) return oldData;
             return {
@@ -174,6 +189,14 @@ export function useSsoDomainTabService(
     },
   });
 
+  // Waits for the refetch so callers see the new assignment state straight away.
+  const invalidateAssignments = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) }),
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.all }),
+    ]);
+
   const associateToProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
       if (!coreClient) {
@@ -199,9 +222,7 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
-    },
+    onSuccess: () => invalidateAssignments(),
   });
 
   const deleteFromProviderMutation = useMutation({
@@ -227,23 +248,23 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
-    },
+    onSuccess: () => invalidateAssignments(),
   });
 
   return {
     domainsList,
-    isLoading,
+    availableDomains,
+    isLoading: domainsQuery.isLoading,
     isRefetchingDomains: domainsQuery.isFetching,
     isDomainsStale: domainsQuery.isStale,
     domainsUpdatedAt: domainsQuery.dataUpdatedAt,
-    nextToken,
+    nextToken: null,
     refetchDomains: domainsQuery.refetch,
     idpDomains,
     isCreating: createDomainMutation.isPending,
     isVerifying: verifyDomainMutation.isPending,
     isDeleting: deleteDomainMutation.isPending,
+    isAssociating: associateToProviderMutation.isPending,
     createDomain: createDomainMutation.mutateAsync,
     verifyDomain: verifyDomainMutation.mutateAsync,
     deleteDomain: deleteDomainMutation.mutateAsync,

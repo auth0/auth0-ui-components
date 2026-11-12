@@ -838,10 +838,10 @@
           "name": "Domains",
           "content": {
             "title": "Domains",
-            "description": "Enhance security and streamline login by directing users to your identity provider based in their email domain.",
-            "create_button_text": "Add Domain",
+            "description": "Enhance security and streamline login by directing users to your identity provider based on their email domain.",
+            "create_button_text": "Assign Domain",
             "table": {
-              "empty_message": "You do not have any domains",
+              "empty_message": "No domains are assigned to this connection.",
               "columns": {
                 "name": "Domain Name",
                 "status": "Status",
@@ -849,12 +849,34 @@
               },
               "actions": {
                 "enable_domain_tooltip": "Toggle to enable this domain",
-                "disable_domain_tooltip": "Toggle to disable this domain"
+                "disable_domain_tooltip": "Toggle to disable this domain",
+                "remove_domain_tooltip": "Disassociate this domain with ${idp}",
+                "remove_domain_aria_label": "Remove ${domain}"
               },
               "domain_statuses": {
                 "pending": "Pending",
                 "verified": "Verified",
                 "failed": "Failed"
+              }
+            },
+            "domain_assign": {
+              "modal": {
+                "title": "Assign Domain(s)",
+                "description": "Select a verified domain to use with this identity provider.",
+                "field": {
+                  "label": "Domain(s)",
+                  "placeholder": "Select domains",
+                  "helper_text": "Only verified domains that aren't already associated with an identity provider appear here.",
+                  "empty_message": "No domains are available to assign."
+                },
+                "learn_more": {
+                  "text": "Need a different domain?",
+                  "link_text": "Learn more"
+                },
+                "actions": {
+                  "cancel_button_text": "Cancel",
+                  "assign_button_text": "Assign Domain(s)"
+                }
               }
             },
             "domain_create": {
@@ -1001,6 +1023,10 @@
       },
       "domain_delete_provider": {
         "success": "${domain} disabled for ${idp}"
+      },
+      "domain_assign": {
+        "success": "${domains} assigned to ${idp}.",
+        "error": "There was an issue assigning ${domains} to ${idp}."
       },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",

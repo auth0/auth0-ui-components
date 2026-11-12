@@ -13,11 +13,9 @@ import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
-import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -51,24 +49,12 @@ export function useSsoDomainTab(
   );
 
   const {
-    pageSize,
-    currentPage,
-    fromToken,
-    hasPreviousPage,
-    goToNextPage,
-    goToPreviousPage,
-    changePageSize,
-  } = useCheckpointPagination({
-    defaultPageSize: DEFAULT_PAGE_SIZE_OPTIONS[0],
-  });
-
-  const {
     domainsList,
+    availableDomains,
     isLoading,
     isRefetchingDomains,
     isDomainsStale,
     domainsUpdatedAt,
-    nextToken,
     refetchDomains,
     idpDomains,
     isCreating,
@@ -83,8 +69,6 @@ export function useSsoDomainTab(
     customMessages,
     domains,
     provider,
-    pageSize,
-    fromToken,
   });
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
@@ -92,6 +76,8 @@ export function useSsoDomainTab(
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
@@ -275,24 +261,61 @@ export function useSsoDomainTab(
     [associateToProvider, t, provider, handleError, deleteFromProvider],
   );
 
-  const handleNextPage = useCallback(() => {
-    if (nextToken) {
-      goToNextPage(nextToken);
-    }
-  }, [nextToken, goToNextPage]);
+  const handleAssign = useCallback(
+    async (domainsToAssign: Domain[]) => {
+      if (!permissions.canAssociateDomain || domainsToAssign.length === 0) return false;
+      setIsAssigning(true);
 
-  const handlePreviousPage = useCallback(() => {
-    goToPreviousPage();
-  }, [goToPreviousPage]);
+      // Sequential: each request updates the same identity provider.
+      const assigned: Domain[] = [];
+      const failed: { domain: Domain; error: unknown }[] = [];
+      for (const domain of domainsToAssign) {
+        try {
+          await associateToProvider(domain);
+          assigned.push(domain);
+        } catch (error) {
+          failed.push({ domain, error });
+        }
+      }
 
-  const handlePageSizeChange = useCallback(
-    (newPageSize: number) => {
-      changePageSize(newPageSize);
+      if (assigned.length > 0) {
+        showToast({
+          type: 'success',
+          message: t('domain_assign.success', {
+            domains: assigned.map(({ domain }) => domain).join(', '),
+            idp: provider?.name,
+          }),
+        });
+      }
+      if (failed.length > 0) {
+        handleError(failed[0]!.error, {
+          fallbackMessage: t('domain_assign.error', {
+            domains: failed.map(({ domain }) => domain.domain).join(', '),
+            idp: provider?.name,
+          }),
+        });
+      }
+
+      setIsAssigning(false);
+      return failed.length === 0;
     },
-    [changePageSize],
+    [permissions, associateToProvider, handleError, t, provider],
   );
 
+  const handleRemove = useCallback(
+    (domain: Domain) => handleToggleSwitch(domain, false),
+    [handleToggleSwitch],
+  );
+
+  const noop = useCallback(() => {}, []);
+
   return {
+    availableDomains,
+    showAssignModal,
+    setShowAssignModal,
+    isAssigning,
+    handleAssign,
+    handleRemove,
     isLoading,
     isRefetchingDomains,
     isDomainsStale,
@@ -307,10 +330,10 @@ export function useSsoDomainTab(
     isDeleting,
     showCreateModal,
     pagination: {
-      pageSize,
-      currentPage,
-      hasNextPage: !!nextToken,
-      hasPreviousPage,
+      pageSize: domainsList.length,
+      currentPage: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
     },
     refetchDomains,
     handleCreate,
@@ -325,8 +348,8 @@ export function useSsoDomainTab(
     isUpdating,
     isUpdatingId,
     handleToggleSwitch,
-    handleNextPage,
-    handlePreviousPage,
-    handlePageSizeChange,
+    handleNextPage: noop,
+    handlePreviousPage: noop,
+    handlePageSizeChange: noop,
   };
 }
