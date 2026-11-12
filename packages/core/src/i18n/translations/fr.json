@@ -954,6 +954,27 @@
         }
       }
     },
+    "test_sso_provider": {
+      "title": "Tester le SSO",
+      "description": "Testez le fournisseur pour vérifier que la configuration SSO fonctionne.",
+      "test_button_label": "Tester le fournisseur",
+      "overlay": {
+        "title": "Test de votre fournisseur d'identité en cours",
+        "description": "Terminez la connexion dans la nouvelle fenêtre. Cette page se mettra à jour automatiquement une fois le test terminé.",
+        "trouble_text": "Vous rencontrez des difficultés avec votre fournisseur d'identité ?",
+        "retry_button_label": "Fermer et réessayer",
+        "popup_blocked_text": "Votre navigateur a bloqué la fenêtre de test.",
+        "open_window_link_label": "Ouvrir la fenêtre de test"
+      },
+      "result": {
+        "success_title": "Test réussi",
+        "success_description": "Vérifiez les informations utilisateur ci-dessous et confirmez que les bons attributs sont transmis.",
+        "copy_button_label": "Copier le JSON",
+        "try_again_text": "Veuillez réessayer.",
+        "expired_error": "Le test a expiré avant d'être terminé.",
+        "timeout_error": "Le délai du test a expiré avant la fin de la connexion."
+      }
+    },
     "notifications": {
       "delete_success": "${providerName} a été supprimé.",
       "remove_success": "${providerName} a été retiré de ${organizationName}",
@@ -985,7 +1006,8 @@
       "scim_token_delete_success": "Le jeton a été supprimé.",
       "scim_token_create_success": "Jeton généré avec succès",
       "sso_attributes_sync_success": "Les mappages du fournisseur ont été mis à jour.",
-      "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour."
+      "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour.",
+      "test_provider_start_error": "Un problème est survenu lors du démarrage du test du fournisseur."
     }
   },
   "user_mfa_management": {
