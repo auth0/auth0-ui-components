@@ -34,6 +34,7 @@ import type {
  * @param props.hideProvisioningTab - Whether to hide the provisioning tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
+ * @param props.hideTestProvider - Whether to hide the test provider action
  * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.customMessages - Custom translation messages to override defaults
@@ -56,6 +57,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     hideProvisioningTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
+    hideTestProvider = false,
     hideAttributeMappings = false,
     customMessages = {},
     styling = {
@@ -101,6 +103,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideProvisioningTab={hideProvisioningTab}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
+        hideTestProvider={hideTestProvider}
         hideAttributeMappings={hideAttributeMappings}
         enableProviderAction={enableProviderAction}
         connectionNamePrefix={connectionNamePrefix}
@@ -128,6 +131,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hideHeader,
     hideDeleteProvider,
     hideRemoveFromOrganization,
+    hideTestProvider,
     hideAttributeMappings,
     provider,
     organization,
@@ -251,6 +255,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               shouldAllowDeletion={shouldAllowDeletion}
               hideDeleteProvider={hideDeleteProvider}
               hideRemoveFromOrganization={hideRemoveFromOrganization}
+              hideTestProvider={hideTestProvider}
               hideAttributeMappings={hideAttributeMappings}
               hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
               onAttributeSync={syncSsoAttributes}
