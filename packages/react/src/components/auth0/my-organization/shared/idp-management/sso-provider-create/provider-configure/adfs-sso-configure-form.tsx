@@ -48,7 +48,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
     {
       initialData,
       readOnly = false,
-      isLoginSettingsReadOnly,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,

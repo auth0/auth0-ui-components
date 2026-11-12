@@ -51,7 +51,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
     {
       initialData,
       readOnly = false,
-      isLoginSettingsReadOnly,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,

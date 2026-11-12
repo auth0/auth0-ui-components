@@ -50,12 +50,7 @@ export type ProviderConfigureFormHandle =
 export const ProviderConfigureFields = React.forwardRef<
   ProviderConfigureFormHandle,
   ProviderConfigureFieldsProps
->(function ProviderConfigureFields(
-  { strategy, className, readOnly, isLoginSettingsReadOnly = readOnly, ...rest },
-  ref,
-) {
-  const props = { ...rest, readOnly, isLoginSettingsReadOnly };
-
+>(function ProviderConfigureFields({ strategy, className, ...props }, ref) {
   const renderProviderForm = () => {
     switch (strategy) {
       case STRATEGIES.OKTA:

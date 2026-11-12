@@ -56,7 +56,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     {
       initialData,
       readOnly = false,
-      isLoginSettingsReadOnly,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,

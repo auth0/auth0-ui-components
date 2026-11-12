@@ -55,12 +55,18 @@ export function getProviderAccess(
 /**
  * Keeps only the fields `limited` access may update.
  * @param data - Provider update
- * @returns The update without the display name, options or third-party settings
+ * @returns The update without the display name, options or third-party settings, and without fields that aren't set
  * @internal
  */
 export function pickLimitedUpdateFields(
   data: UpdateIdentityProviderRequestContentPrivate,
 ): UpdateIdentityProviderRequestContentPrivate {
   const { strategy, show_as_button, assign_membership_on_login, is_enabled } = data;
-  return { strategy, show_as_button, assign_membership_on_login, is_enabled };
+
+  return {
+    strategy,
+    ...(show_as_button !== undefined && { show_as_button }),
+    ...(assign_membership_on_login !== undefined && { assign_membership_on_login }),
+    ...(is_enabled !== undefined && { is_enabled }),
+  };
 }

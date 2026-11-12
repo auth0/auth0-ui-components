@@ -162,6 +162,39 @@ describe('useSsoDomainTab', () => {
       },
     );
 
+    it.each(['handleVerify', 'handleVerifyActionColumn'] as const)(
+      'verifies but does not associate the domain after %s without the associate permission',
+      async (handler) => {
+        const withoutAssociate = ALL_MY_ORG_PERMISSIONS.filter(
+          (scope) => scope !== 'create:my_org:identity_providers_domains',
+        );
+        const { result } = renderUseSsoDomainTab(undefined, withoutAssociate);
+
+        await act(async () => {
+          await result.current[handler](mockDomain);
+        });
+
+        expect(mockServiceReturn.verifyDomain).toHaveBeenCalledWith(mockDomain);
+        expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each(['handleVerify', 'handleVerifyActionColumn'] as const)(
+      'verifies but does not associate the domain after %s when the access level is not full',
+      async (handler) => {
+        const { result } = renderUseSsoDomainTab({
+          provider: { ...defaultProvider, access_level: 'limited' },
+        });
+
+        await act(async () => {
+          await result.current[handler](mockDomain);
+        });
+
+        expect(mockServiceReturn.verifyDomain).toHaveBeenCalledWith(mockDomain);
+        expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+      },
+    );
+
     it('should verify domain and associate to provider on success', async () => {
       const { result } = renderUseSsoDomainTab();
 

@@ -87,7 +87,7 @@ export const SamlpProviderForm = React.forwardRef<
   {
     initialData,
     readOnly = false,
-    isLoginSettingsReadOnly,
+    isLoginSettingsReadOnly = readOnly,
     customMessages = {},
     className,
     onFormDirty,

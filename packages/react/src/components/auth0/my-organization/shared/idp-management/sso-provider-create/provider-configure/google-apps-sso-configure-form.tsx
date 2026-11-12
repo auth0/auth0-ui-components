@@ -47,7 +47,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
   {
     initialData,
     readOnly = false,
-    isLoginSettingsReadOnly,
+    isLoginSettingsReadOnly = readOnly,
     customMessages = {},
     className,
     onFormDirty,

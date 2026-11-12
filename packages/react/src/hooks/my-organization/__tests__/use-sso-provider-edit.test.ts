@@ -333,15 +333,18 @@ describe('useSsoProviderEdit - logic behavior', () => {
       await act(async () => {
         await result.current.updateProvider(fullUpdate);
       });
-      expect(mockUpdateProvider).toHaveBeenCalledWith({
+      expect(mockUpdateProvider).toHaveBeenCalledTimes(1);
+      const [sent] = mockUpdateProvider.mock.calls[0]!;
+      expect(sent).toEqual({
         strategy: 'okta',
         show_as_button: true,
         assign_membership_on_login: true,
-        is_enabled: undefined,
       });
+      // toEqual ignores undefined-valued keys, so check the key itself is absent
+      expect(Object.keys(sent)).not.toContain('is_enabled');
     });
 
-    it('lets limited access enable the provider and remove it, but not delete it', async () => {
+    it('lets limited access toggle the provider and remove it, but not delete it', async () => {
       mockProviderAccess('limited');
       const { result } = render();
 

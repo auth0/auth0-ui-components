@@ -76,7 +76,7 @@ export const PingFederateProviderForm = React.forwardRef<
   {
     initialData,
     readOnly = false,
-    isLoginSettingsReadOnly,
+    isLoginSettingsReadOnly = readOnly,
     customMessages = {},
     className,
     onFormDirty,

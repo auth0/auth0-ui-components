@@ -81,4 +81,13 @@ describe('pickLimitedUpdateFields', () => {
       is_enabled: true,
     });
   });
+
+  it('leaves out fields the update does not set, instead of sending them as undefined', () => {
+    const picked = pickLimitedUpdateFields({
+      strategy: 'okta',
+      show_as_button: true,
+    } as UpdateIdentityProviderRequestContentPrivate);
+
+    expect(Object.keys(picked).sort()).toEqual(['show_as_button', 'strategy']);
+  });
 });

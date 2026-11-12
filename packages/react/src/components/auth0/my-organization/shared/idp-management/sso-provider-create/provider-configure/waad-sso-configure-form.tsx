@@ -45,7 +45,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
     {
       initialData,
       readOnly = false,
-      isLoginSettingsReadOnly,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,
