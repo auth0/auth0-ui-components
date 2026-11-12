@@ -284,10 +284,11 @@ export function useDomainTable({
       if (domain.status !== 'verified') {
         setShowVerifyModal(true);
       } else {
+        setShowConfigureModal(true);
         try {
           await fetchProviders(domain);
-          setShowConfigureModal(true);
         } catch (error) {
+          setShowConfigureModal(false);
           handleError(error, {
             fallbackMessage: t('domain_table.notifications.fetch_providers_error'),
           });
