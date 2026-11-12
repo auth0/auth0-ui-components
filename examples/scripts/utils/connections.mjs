@@ -407,11 +407,15 @@ export async function applyConnectionProfileChanges(changePlan) {
     try {
       const { existing, updates } = changePlan
 
-      await auth0ApiCall(
+      const patched = await auth0ApiCall(
         "patch",
         `connection-profiles/${existing.id}`,
         updates.config
       )
+      // A successful PATCH returns the updated profile; null means it wasn't applied (e.g. missing scope)
+      if (!patched) {
+        throw new Error("Missing scope update:connection_profiles")
+      }
       spinner.succeed(`Updated Connection Profile`)
 
       // Fetch updated profile
@@ -419,6 +423,14 @@ export async function applyConnectionProfileChanges(changePlan) {
         "get",
         `connection-profiles/${existing.id}`
       )
+
+      // A tenant that doesn't support a field yet accepts the request but doesn't keep it
+      const stillDrifted = updated && checkConnectionProfileChanges([updated])
+      if (stillDrifted?.action === ChangeAction.UPDATE) {
+        console.warn(
+          `⚠️  Warning: Connection Profile still differs after the update (${stillDrifted.summary}). The tenant may not support these fields yet.`
+        )
+      }
       return updated || existing
     } catch (e) {
       spinner.fail(`Failed to update Connection Profile`)
