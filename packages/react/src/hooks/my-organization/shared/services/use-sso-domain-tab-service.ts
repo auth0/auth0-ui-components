@@ -48,7 +48,6 @@ export function useSsoDomainTabService(
 
   const domainsListKey = ssoDomainQueryKeys.list(idpId);
 
-  // One request for every org domain (at most 100) serves both the table and the assign list.
   const domainsQuery = useQuery({
     queryKey: domainsListKey,
     queryFn: async () => {
@@ -87,7 +86,7 @@ export function useSsoDomainTabService(
     return organizationDomains.filter(
       (domain) =>
         domain.status === 'verified' &&
-        domain.assignment_state === 'available' &&
+        domain.identity_provider_association === 'unassociated' &&
         !providerDomainNames.includes(domain.domain),
     );
   }, [provider?.domains, organizationDomains]);
@@ -189,7 +188,6 @@ export function useSsoDomainTabService(
     },
   });
 
-  // Waits for the refetch so callers see the new assignment state straight away.
   const invalidateAssignments = () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) }),

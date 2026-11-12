@@ -19,8 +19,8 @@ export type DomainStatus = MyOrganization.OrgDomainStatusEnum;
 
 export type DomainCreate = MyOrganization.CreateOrganizationDomainRequestContent;
 
-export type DomainAssignmentState = 'available' | 'assigned';
+export type DomainIdentityProviderAssociation = 'associated' | 'unassociated';
 
 export type Domain = MyOrganization.OrgDomain & {
-  assignment_state?: DomainAssignmentState;
+  identity_provider_association?: DomainIdentityProviderAssociation;
 };

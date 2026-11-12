@@ -394,21 +394,26 @@ describe('useSsoDomainTabService', () => {
   });
 
   describe('available domains', () => {
-    const available = (id: string, domain: string, overrides: Partial<Domain> = {}) =>
-      createMockVerifiedSsoDomain({ id, domain, assignment_state: 'available', ...overrides });
+    const unassociated = (id: string, domain: string, overrides: Partial<Domain> = {}) =>
+      createMockVerifiedSsoDomain({
+        id,
+        domain,
+        identity_provider_association: 'unassociated',
+        ...overrides,
+      });
 
     const renderWithAvailable = (options?: Parameters<typeof useSsoDomainTabService>[1]) =>
       renderService('idp-1', options);
 
     it('should return only verified domains that no identity provider holds', async () => {
-      const free = available('domain-2', 'free.com');
+      const free = unassociated('domain-2', 'free.com');
       mockDomainsList([
         free,
-        available('domain-3', 'taken.com', { assignment_state: 'assigned' }),
+        unassociated('domain-3', 'taken.com', { identity_provider_association: 'associated' }),
         createMockSsoDomain({
           id: 'domain-4',
           domain: 'pending.com',
-          assignment_state: 'available',
+          identity_provider_association: 'unassociated',
         }),
         createMockVerifiedSsoDomain({ id: 'domain-5', domain: 'unknown.com' }),
       ]);
@@ -419,7 +424,7 @@ describe('useSsoDomainTabService', () => {
     });
 
     it('should not offer a domain the provider already holds', async () => {
-      mockDomainsList([available('domain-2', 'held.com')]);
+      mockDomainsList([unassociated('domain-2', 'held.com')]);
 
       const { result } = await renderWithAvailable({
         provider: { ...mockProvider, domains: ['held.com'] },
@@ -429,8 +434,8 @@ describe('useSsoDomainTabService', () => {
     });
 
     it('should ask for up to 100 domains per page and follow the cursor', async () => {
-      const first = available('domain-2', 'first.com');
-      const second = available('domain-3', 'second.com');
+      const first = unassociated('domain-2', 'first.com');
+      const second = unassociated('domain-3', 'second.com');
       const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
         .list as ReturnType<typeof vi.fn>;
       list

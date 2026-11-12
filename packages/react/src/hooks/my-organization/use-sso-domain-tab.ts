@@ -266,7 +266,6 @@ export function useSsoDomainTab(
       if (!permissions.canAssociateDomain || domainsToAssign.length === 0) return false;
       setIsAssigning(true);
 
-      // Sequential: each request updates the same identity provider.
       const assigned: Domain[] = [];
       const failed: { domain: Domain; error: unknown }[] = [];
       for (const domain of domainsToAssign) {

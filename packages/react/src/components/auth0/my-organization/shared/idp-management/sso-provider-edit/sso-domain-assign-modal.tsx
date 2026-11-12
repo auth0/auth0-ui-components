@@ -55,7 +55,6 @@ export function SsoDomainAssignModal({
     [domains],
   );
 
-  // Domains that are no longer available (for example, just assigned) drop out of the selection.
   const selection = React.useMemo(
     () => selectedNames.filter((name) => options.some((option) => option.value === name)),
     [selectedNames, options],

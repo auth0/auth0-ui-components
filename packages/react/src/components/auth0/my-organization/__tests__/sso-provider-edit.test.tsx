@@ -456,10 +456,10 @@ describe('SsoProviderEdit', () => {
       ...extra,
     });
     const orgDomains = [
-      verified('d_assigned', 'assigned.com', { assignment_state: 'assigned' }),
-      verified('d_free1', 'free1.com', { assignment_state: 'available' }),
-      verified('d_free2', 'free2.com', { assignment_state: 'available' }),
-      verified('d_taken', 'taken.com', { assignment_state: 'assigned' }),
+      verified('d_assigned', 'assigned.com', { identity_provider_association: 'associated' }),
+      verified('d_free1', 'free1.com', { identity_provider_association: 'unassociated' }),
+      verified('d_free2', 'free2.com', { identity_provider_association: 'unassociated' }),
+      verified('d_taken', 'taken.com', { identity_provider_association: 'associated' }),
       { ...verified('d_pending', 'pending.com'), status: 'pending' as const },
     ];
     const providerWithDomain = createMockIdentityProvider({
