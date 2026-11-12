@@ -84,4 +84,9 @@ describe('createProvisioningCreateTokenSchema', () => {
   it('should require at least one scope', () => {
     expect(firstError(open, { noExpiration: true, scopes: [] })).toBe('scopesRequired');
   });
+
+  it('should reject more scopes than the known scope count', () => {
+    const scopes = Array(100).fill('get:users');
+    expect(firstError(open, { noExpiration: true, scopes })).toBeDefined();
+  });
 });

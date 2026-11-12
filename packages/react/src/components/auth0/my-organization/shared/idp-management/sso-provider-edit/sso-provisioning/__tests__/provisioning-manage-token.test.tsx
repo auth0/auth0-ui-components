@@ -224,6 +224,24 @@ describe('ProvisioningManageToken', () => {
     expect(mockOnCreateScimToken).not.toHaveBeenCalled();
   });
 
+  it('should ignore close requests while a token is being created', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<ProvisioningManageToken {...defaultProps} />);
+
+    await user.click(await screen.findByText('generate_button_label'));
+    expect(await screen.findByText('create_modal.steps.configure')).toBeInTheDocument();
+
+    rerender(<ProvisioningManageToken {...defaultProps} isScimTokenCreating />);
+    await user.keyboard('{Escape}');
+
+    expect(screen.getByText('create_modal.steps.configure')).toBeInTheDocument();
+
+    rerender(<ProvisioningManageToken {...defaultProps} />);
+    await user.keyboard('{Escape}');
+
+    await waitFor(() => expect(screen.queryByText('create_modal.steps.configure')).toBeNull());
+  });
+
   it('should create with a null lifetime by default (no expiration checked), then reload tokens', async () => {
     const user = userEvent.setup();
     mockOnCreateScimToken.mockResolvedValue({

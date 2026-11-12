@@ -290,6 +290,7 @@ export function ProvisioningManageToken({
         open={isCreateModalOpen}
         isLoading={isScimTokenCreating}
         onOpenChange={(open) => {
+          if (!open && isScimTokenCreating) return;
           setIsCreateModalOpen(open);
           if (!open) {
             handleCloseCreateModal();

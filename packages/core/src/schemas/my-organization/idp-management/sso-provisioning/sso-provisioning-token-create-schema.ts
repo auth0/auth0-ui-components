@@ -37,7 +37,8 @@ export const createProvisioningCreateTokenSchema = (
             ALL_SCIM_TOKEN_SCOPES.includes(value as IdpScimTokenScope),
           ),
         )
-        .min(1, messages.scopesRequired),
+        .min(1, messages.scopesRequired)
+        .max(ALL_SCIM_TOKEN_SCOPES.length),
     })
     .superRefine((values, ctx) => {
       if (values.noExpiration) return;
