@@ -55,7 +55,7 @@ export function useDomainTable({
 
   const { discoveryPolicy, showDiscovery, isDiscoveryReadOnly, discoveryDefaultValue } =
     useConfig();
-  const { idpConfig } = useIdpConfig();
+  const { idpConfig, isLoadingIdpConfig } = useIdpConfig();
   const domainVerificationMode = getDomainVerificationMode(idpConfig);
 
   const {
@@ -429,7 +429,7 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
-    isLoadingProviders,
+    isLoadingProviders: isLoadingProviders || isLoadingIdpConfig,
     isUpdatingDiscovery,
     updatingDiscoveryId,
     // Pagination

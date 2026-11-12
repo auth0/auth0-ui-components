@@ -5,6 +5,7 @@
  */
 
 import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
   getIdpManagementPermissions,
   type Domain,
   type IdpId,
@@ -18,6 +19,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { isDomainAssociationUnavailable } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -30,6 +32,7 @@ import type {
  * @param options.customMessages - Custom translation messages.
  * @param options.domains - Initial domains data.
  * @param options.provider - SSO provider data.
+ * @param options.domainVerificationMode - How the provider uses verified domains; `none` skips associating after verify.
  * @returns Hook state and methods
  */
 export function useSsoDomainTab(
@@ -39,6 +42,7 @@ export function useSsoDomainTab(
     domains,
     provider,
     readOnly = false,
+    domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -120,6 +124,8 @@ export function useSsoDomainTab(
     [handleError, createDomain, t],
   );
 
+  const canAssociateAfterVerify = !isDomainAssociationUnavailable(domainVerificationMode);
+
   const handleCloseVerifyModal = useCallback(() => {
     setShowVerifyModal(false);
     setVerifyError(undefined);
@@ -140,7 +146,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -150,7 +156,7 @@ export function useSsoDomainTab(
         });
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleDeleteClick = useCallback(
@@ -203,7 +209,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           showToast({
             type: 'error',
@@ -221,7 +227,7 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleToggleSwitch = useCallback(
