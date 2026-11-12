@@ -8,7 +8,6 @@ import { STRATEGIES } from '@auth0/universal-components-core';
 import * as React from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 
-import { isCrossAppAccessStrategy } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
 import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
 import { FormField } from '@/components/ui/form';
@@ -57,9 +56,8 @@ export function ConnectionAccessFields({
   classes,
 }: ConnectionAccessFieldsProps): React.ReactElement | null {
   const form = useFormContext<ConnectionAccessFormValues>();
-  const renderCrossAppAccess = showCrossAppAccess && isCrossAppAccessStrategy(strategy);
 
-  if (!showThirdPartyAccess && !renderCrossAppAccess) {
+  if (!showThirdPartyAccess && !showCrossAppAccess) {
     return null;
   }
 
@@ -81,7 +79,7 @@ export function ConnectionAccessFields({
         />
       )}
 
-      {renderCrossAppAccess && (
+      {showCrossAppAccess && (
         <FormField
           control={form.control}
           name="cross_app_access_resource_app"
@@ -102,7 +100,7 @@ export function ConnectionAccessFields({
               return <SsoCrossAppAccessSection {...sectionProps} strategy={strategy} />;
             }
 
-            // Unreachable: the XAA strategies are OIDC, Okta and SAML.
+            // Other strategies have no Cross App Access section.
             return <></>;
           }}
         />

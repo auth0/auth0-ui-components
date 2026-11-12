@@ -115,10 +115,10 @@ export const PingFederateProviderForm = React.forwardRef<
       show_as_button: pingFederateData?.show_as_button ?? false,
       assign_membership_on_login: pingFederateData?.assign_membership_on_login ?? false,
       ...getConnectionAccessDefaults(
-        STRATEGIES.PINGFEDERATE,
         pingFederateData,
         crossAppAccessDefaultValue,
         mode,
+        showCrossAppAccess,
       ),
     },
   });

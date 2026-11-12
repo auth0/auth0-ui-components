@@ -87,15 +87,13 @@ describe('ConnectionAccessFields', () => {
       },
     );
 
-    it.each<IdpStrategy>([
-      STRATEGIES.WAAD,
-      STRATEGIES.ADFS,
-      STRATEGIES.GOOGLE_APPS,
-      STRATEGIES.PINGFEDERATE,
-    ])('should never render for %s even when showCrossAppAccess is true', (strategy) => {
-      renderWithProviders(<Harness strategy={strategy} showCrossAppAccess />);
-      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
-    });
+    it.each<IdpStrategy>([STRATEGIES.OIDC, STRATEGIES.OKTA, STRATEGIES.SAMLP])(
+      'should not render for %s when showCrossAppAccess is false',
+      (strategy) => {
+        renderWithProviders(<Harness strategy={strategy} />);
+        expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      },
+    );
 
     it('should write { status: "enabled" } when toggled on for okta', async () => {
       const user = userEvent.setup();

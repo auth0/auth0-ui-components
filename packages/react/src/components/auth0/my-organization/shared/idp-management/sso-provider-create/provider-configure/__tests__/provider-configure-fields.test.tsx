@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { CROSS_APP_ACCESS_STRATEGIES } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import {
   ProviderConfigureFields,
   type ProviderConfigureFormHandle,
@@ -21,6 +20,8 @@ const ALL_STRATEGIES: IdpStrategy[] = [
   STRATEGIES.SAMLP,
   STRATEGIES.OIDC,
 ];
+/** Strategies that have a Cross App Access section. */
+const XAA_SECTION_STRATEGIES: IdpStrategy[] = [STRATEGIES.OIDC, STRATEGIES.OKTA, STRATEGIES.SAMLP];
 const thirdPartyCheckbox = () => screen.getByRole('checkbox', { name: 'label' });
 
 describe('ProviderConfigureFields connection-level third-party access', () => {
@@ -97,19 +98,32 @@ describe('ProviderConfigureFields connection-level third-party access', () => {
 
   describe('when showCrossAppAccess is true', () => {
     it.each(ALL_STRATEGIES)(
-      'should render the XAA section for %s only when supported',
+      'should render the XAA section for %s only when it has one',
       (strategy) => {
         renderWithProviders(
           <ProviderConfigureFields strategy={strategy} idpConfig={null} showCrossAppAccess />,
         );
         const section = screen.queryByRole('heading', { name: 'title' });
-        if (CROSS_APP_ACCESS_STRATEGIES.includes(strategy)) {
+        if (XAA_SECTION_STRATEGIES.includes(strategy)) {
           expect(section).toBeInTheDocument();
         } else {
           expect(section).not.toBeInTheDocument();
         }
       },
     );
+
+    it('should not include cross_app_access_resource_app in getData when showCrossAppAccess is false', () => {
+      const ref = React.createRef<ProviderConfigureFormHandle>();
+      renderWithProviders(
+        <ProviderConfigureFields
+          ref={ref}
+          strategy={STRATEGIES.ADFS}
+          idpConfig={null}
+          initialData={{ cross_app_access_resource_app: { status: 'enabled' } }}
+        />,
+      );
+      expect(ref.current?.getData()).not.toHaveProperty('cross_app_access_resource_app');
+    });
 
     it('should seed OIDC create from crossAppAccessDefaultValue', () => {
       const ref = React.createRef<ProviderConfigureFormHandle>();

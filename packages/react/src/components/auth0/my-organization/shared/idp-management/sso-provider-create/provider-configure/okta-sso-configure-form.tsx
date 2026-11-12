@@ -96,7 +96,12 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
         callback_url: oktaData?.callback_url || callbackUrl,
         show_as_button: oktaData?.show_as_button ?? false,
         assign_membership_on_login: oktaData?.assign_membership_on_login ?? false,
-        ...getConnectionAccessDefaults(STRATEGIES.OKTA, oktaData, crossAppAccessDefaultValue, mode),
+        ...getConnectionAccessDefaults(
+          oktaData,
+          crossAppAccessDefaultValue,
+          mode,
+          showCrossAppAccess,
+        ),
       },
     });
 

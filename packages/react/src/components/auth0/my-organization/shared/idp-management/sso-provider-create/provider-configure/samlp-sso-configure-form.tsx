@@ -163,7 +163,12 @@ export const SamlpProviderForm = React.forwardRef<
       callback_url: spMetadataUrls.callback_url,
       acs_url: spMetadataUrls.acs_url,
       sp_metadata_url: spMetadataUrls.sp_metadata_url,
-      ...getConnectionAccessDefaults(STRATEGIES.SAMLP, samlpData, crossAppAccessDefaultValue, mode),
+      ...getConnectionAccessDefaults(
+        samlpData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+      ),
     },
   });
 

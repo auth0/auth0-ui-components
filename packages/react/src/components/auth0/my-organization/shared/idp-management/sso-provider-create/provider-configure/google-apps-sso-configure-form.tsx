@@ -91,10 +91,10 @@ export const GoogleAppsProviderForm = React.forwardRef<
       show_as_button: googleAppsData?.show_as_button ?? false,
       assign_membership_on_login: googleAppsData?.assign_membership_on_login ?? false,
       ...getConnectionAccessDefaults(
-        STRATEGIES.GOOGLE_APPS,
         googleAppsData,
         crossAppAccessDefaultValue,
         mode,
+        showCrossAppAccess,
       ),
     },
   });

@@ -85,7 +85,12 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
         fedMetadataXml: adfsData?.fedMetadataXml || '',
         show_as_button: adfsData?.show_as_button ?? false,
         assign_membership_on_login: adfsData?.assign_membership_on_login ?? false,
-        ...getConnectionAccessDefaults(STRATEGIES.ADFS, adfsData, crossAppAccessDefaultValue, mode),
+        ...getConnectionAccessDefaults(
+          adfsData,
+          crossAppAccessDefaultValue,
+          mode,
+          showCrossAppAccess,
+        ),
       },
     });
 
