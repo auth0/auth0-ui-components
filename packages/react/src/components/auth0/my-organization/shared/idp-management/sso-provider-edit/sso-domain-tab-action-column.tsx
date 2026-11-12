@@ -16,6 +16,7 @@ import {
   ASSOCIATION_BLOCK_REASONS,
   type AssociationBlockReason,
 } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import { cn } from '@/lib/utils';
 import {
   getAssociationBlockReason,
   isDomainAssociationUnavailable,
@@ -92,7 +93,13 @@ export function SsoDomainTabActionsColumn({
   const isReasonFocusable = !!disabledReason && !readOnly;
 
   const domainToggle = (
-    <span tabIndex={isReasonFocusable ? 0 : undefined}>
+    <span
+      tabIndex={isReasonFocusable ? 0 : undefined}
+      className={cn(
+        isReasonFocusable &&
+          'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring',
+      )}
+    >
       <Switch
         checked={providerHasDomain}
         onCheckedChange={(checked) => onToggle(domain, checked)}

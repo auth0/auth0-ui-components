@@ -983,6 +983,25 @@ describe('DomainTable', () => {
       expect(screen.queryByRole('switch')).not.toBeInTheDocument();
     });
 
+    it('does not offer sorting on the discovery column, whose cells show a resolved value', async () => {
+      const user = userEvent.setup();
+      mockConfiguration({ default_value: true, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      const header = (await screen.findByText(columnTitle)).closest('th')!;
+      const rowOrder = () =>
+        screen
+          .getAllByRole('row')
+          .slice(1)
+          .map((row) => row.textContent);
+      const before = rowOrder();
+
+      await user.click(header);
+
+      expect(header).not.toHaveClass('cursor-pointer');
+      expect(rowOrder()).toEqual(before);
+    });
+
     it('shows a switch per domain, on for discovered domains and disabled until verified', async () => {
       mockConfiguration({ default_value: false, allowed_values: [true, false] });
       renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);

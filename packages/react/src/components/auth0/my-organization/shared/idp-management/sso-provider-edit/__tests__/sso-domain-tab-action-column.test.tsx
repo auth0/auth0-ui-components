@@ -489,6 +489,7 @@ describe('SsoDomainTabActionsColumn', () => {
       await user.tab();
 
       expect(screen.getByRole('switch').parentElement).toHaveFocus();
+      expect(screen.getByRole('switch').parentElement).toHaveClass('focus-visible:ring-4');
       expect(
         await screen.findAllByText('table.actions.domain_association_unavailable_tooltip'),
       ).not.toHaveLength(0);

@@ -10,6 +10,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { DomainDiscoverySwitchProps } from '@/types/my-organization/domain-management/domain-table-types';
 
 /**
@@ -74,7 +75,12 @@ export function DomainDiscoverySwitch({
   const switchLabel = t('domain_table.table.discovery.switch_label', { domainName: domain.domain });
 
   const control = (
-    <span>
+    <span
+      tabIndex={disabledReason ? 0 : undefined}
+      className={cn(
+        disabledReason && 'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring',
+      )}
+    >
       <Switch
         checked={checked}
         onCheckedChange={handleToggle}

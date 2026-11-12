@@ -221,6 +221,45 @@ describe('DomainCreateModal', () => {
       });
     });
 
+    it('applies a policy default that loads late, keeping the typed domain', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainCreateModalProps({
+        showDiscoveryOption: true,
+        discoveryDefaultValue: false,
+      });
+      const { rerender } = renderWithProviders(<DomainCreateModal {...props} />);
+      await user.type(screen.getByRole('textbox'), 'typed.com');
+
+      rerender(<DomainCreateModal {...props} discoveryDefaultValue />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox')).toBeChecked();
+      });
+      expect(screen.getByRole('textbox')).toHaveValue('typed.com');
+    });
+
+    it('keeps a validation error on the domain when the policy default loads late', async () => {
+      const user = userEvent.setup();
+      const props = createMockDomainCreateModalProps({
+        showDiscoveryOption: true,
+        discoveryDefaultValue: false,
+      });
+      const { rerender } = renderWithProviders(<DomainCreateModal {...props} />);
+      await user.type(screen.getByRole('textbox'), 'not a domain');
+      await user.tab();
+      await waitFor(() => {
+        expect(screen.getByText('field.error')).toBeInTheDocument();
+      });
+
+      rerender(<DomainCreateModal {...props} discoveryDefaultValue />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox')).toBeChecked();
+      });
+      expect(screen.getByText('field.error')).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toHaveValue('not a domain');
+    });
+
     it('returns to the default after a domain is created', async () => {
       const user = userEvent.setup();
       renderWithProviders(

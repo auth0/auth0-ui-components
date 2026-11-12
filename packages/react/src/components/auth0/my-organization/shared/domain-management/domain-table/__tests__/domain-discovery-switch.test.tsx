@@ -128,6 +128,29 @@ describe('DomainDiscoverySwitch', () => {
       expect(screen.getByRole('switch')).toHaveAccessibleDescription(reason);
     });
 
+    it('lets keyboard users reach and see the reason a switch is disabled', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<DomainDiscoverySwitch {...createProps({ isLocked: true })} />);
+
+      await user.tab();
+
+      const trigger = screen.getByRole('switch').parentElement!;
+      expect(trigger).toHaveFocus();
+      expect(trigger).toHaveClass('focus-visible:ring-4');
+      expect(
+        await screen.findAllByText('domain_table.table.discovery.locked_tooltip'),
+      ).not.toHaveLength(0);
+    });
+
+    it('adds no tab stop around a usable switch', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<DomainDiscoverySwitch {...createProps()} />);
+
+      expect(screen.getByRole('switch').parentElement).not.toHaveAttribute('tabindex');
+      await user.tab();
+      expect(screen.getByRole('switch')).toHaveFocus();
+    });
+
     it('has no description when the switch is usable', () => {
       renderWithProviders(<DomainDiscoverySwitch {...createProps()} />);
 
