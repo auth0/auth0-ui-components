@@ -12,6 +12,7 @@ import {
   type TelemetryComponentGetter,
   type TelemetryConfig,
 } from './telemetry';
+import { coordinateProxyRequest, createCoordinatedTokenGetter } from './token-coordination';
 
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 
@@ -43,9 +44,6 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);
     }
-    if (authParams?.scope?.length) {
-      headers.set(HeaderName.Auth0Scope, authParams.scope.join(' '));
-    }
     if (config.telemetry.enabled) {
       headers.set(
         HeaderName.Auth0Client,
@@ -56,10 +54,18 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
         }),
       );
     }
-    if (fetchFn) {
-      return fetchFn(url, { ...init, headers }, authParams);
-    }
-    return fetch(url, { ...init, headers });
+    return coordinateProxyRequest(authParams, init, (scope) => {
+      const requestHeaders = new Headers(headers);
+      if (scope?.length) {
+        requestHeaders.set(HeaderName.Auth0Scope, scope.join(' '));
+      }
+      if (fetchFn) {
+        const requestAuthParams =
+          scope === authParams?.scope ? authParams : { ...authParams, scope };
+        return fetchFn(url, { ...init, headers: requestHeaders }, requestAuthParams);
+      }
+      return fetch(url, { ...init, headers: requestHeaders });
+    });
   };
 }
 
@@ -79,7 +85,13 @@ export function createSpaFetcher(
   telemetry: TelemetryConfig,
   getComponent: TelemetryComponentGetter,
 ): FetcherSupplier {
-  const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId });
+  const { contextInterface } = config;
+  const sdkFetcher = contextInterface.createFetcher({
+    dpopNonceId,
+    ...(contextInterface.getAccessTokenSilently && {
+      getAccessToken: createCoordinatedTokenGetter(contextInterface.getAccessTokenSilently),
+    }),
+  });
   return (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
