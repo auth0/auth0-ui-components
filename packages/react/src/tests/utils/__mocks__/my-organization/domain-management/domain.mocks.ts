@@ -148,6 +148,7 @@ export const createMockDomainTableReturn = (
   isDomainsStale: false,
   domainsUpdatedAt: 0,
   isLoadingProviders: false,
+  isSavingProvider: false,
   isDeleting: false,
   pagination: {
     pageSize: 10,
@@ -170,6 +171,8 @@ export const createMockDomainTableReturn = (
   handleVerify: vi.fn(),
   handleDelete: vi.fn(),
   handleToggleSwitch: vi.fn(),
+  handleAssignProvider: vi.fn(),
+  handleRemoveProvider: vi.fn(),
   handleCloseVerifyModal: vi.fn(),
   handleCreateClick: vi.fn(),
   handleConfigureClick: vi.fn(),

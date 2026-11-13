@@ -445,6 +445,45 @@ describe('SsoProviderEdit', () => {
     });
   });
 
+  describe('hideDomainsTab', () => {
+    describe('when not set', () => {
+      it('should display the domains tab', async () => {
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('tab', { name: /tabs.domains.name/i })).toBeInTheDocument();
+      });
+    });
+
+    describe('when is true', () => {
+      it('should not display the domains tab', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDomainsTab: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByRole('tab', { name: /tabs.domains.name/i })).not.toBeInTheDocument();
+        expect(screen.getByRole('tab', { name: /tabs.sso.name/i })).toBeInTheDocument();
+        expect(screen.getByRole('tablist')).toHaveClass('grid-cols-2');
+      });
+
+      it('should leave only the SSO tab when provisioning is hidden too', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideDomainsTab: true, hideProvisioningTab: true })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getAllByRole('tab')).toHaveLength(1);
+        expect(screen.getByRole('tablist')).toHaveClass('grid-cols-1');
+      });
+    });
+  });
+
   describe('hideDeleteProvider', () => {
     describe('when is true', () => {
       it('should not display delete provider button', async () => {

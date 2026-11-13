@@ -16,6 +16,7 @@ import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edi
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type {
   SsoProviderEditProps,
@@ -32,6 +33,7 @@ import type {
  * @param props.domains - Array of domains
  * @param props.hideHeader - Whether to hide the header
  * @param props.hideProvisioningTab - Whether to hide the provisioning tab
+ * @param props.hideDomainsTab - Whether to hide the domains tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
@@ -54,6 +56,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     domains,
     hideHeader = false,
     hideProvisioningTab = false,
+    hideDomainsTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
     hideAttributeMappings = false,
@@ -99,6 +102,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         domains={domains}
         hideHeader={hideHeader}
         hideProvisioningTab={hideProvisioningTab}
+        hideDomainsTab={hideDomainsTab}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideAttributeMappings={hideAttributeMappings}
@@ -141,6 +145,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     backButton,
     shouldAllowDeletion,
     showProvisioningTab,
+    hideDomainsTab = false,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     showCrossAppAccess,
@@ -224,7 +229,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
           className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
         >
           <TabsList
-            className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
+            className={cn(
+              'grid w-full',
+              SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS[
+                1 + Number(showProvisioningTab) + Number(!hideDomainsTab)
+              ],
+            )}
           >
             <TabsTrigger value="sso" className="text-sm">
               {t('tabs.sso.name')}
@@ -234,9 +244,11 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 {t('tabs.provisioning.name')}
               </TabsTrigger>
             )}
-            <TabsTrigger value="domain" className="text-sm">
-              {t('tabs.domains.name')}
-            </TabsTrigger>
+            {!hideDomainsTab && (
+              <TabsTrigger value="domain" className="text-sm">
+                {t('tabs.domains.name')}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="sso">
@@ -308,18 +320,20 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             </TabsContent>
           )}
 
-          <TabsContent value="domain">
-            <SsoDomainTab
-              customMessages={customMessages?.tabs?.domains?.content}
-              styling={styling}
-              domains={domains}
-              schema={schema?.domains}
-              idpId={providerId}
-              provider={provider}
-              permissions={permissions}
-              readOnly={readOnly}
-            />
-          </TabsContent>
+          {!hideDomainsTab && (
+            <TabsContent value="domain">
+              <SsoDomainTab
+                customMessages={customMessages?.tabs?.domains?.content}
+                styling={styling}
+                domains={domains}
+                schema={schema?.domains}
+                idpId={providerId}
+                provider={provider}
+                permissions={permissions}
+                readOnly={readOnly}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </StyledScope>

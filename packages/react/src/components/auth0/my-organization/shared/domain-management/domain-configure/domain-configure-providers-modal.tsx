@@ -7,17 +7,35 @@
 import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
 import React from 'react';
 
-import { type Column, DataTable } from '@/components/auth0/shared/data-table';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
-import { Switch } from '@/components/ui/switch';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
+const PROVIDER_FIELD_ID = 'domain-configure-provider';
+
 /**
- * Modal for configuring domain providers.
+ * Formats a provider as "Display name (strategy)".
+ * @param provider - Provider to format
+ * @returns Provider label
+ */
+function getProviderLabel(provider: IdentityProviderAssociatedWithDomain): string {
+  return `${provider.display_name || provider.name} (${provider.strategy})`;
+}
+
+/**
+ * Modal for assigning a domain to a single identity provider.
  * @param props - Component props.
  * @param props.styling - Optional styling configuration with CSS classes
  * @param props.customMessages - Custom translation messages to override defaults
@@ -25,10 +43,11 @@ import type { DomainConfigureProvidersModalProps } from '@/types/my-organization
  * @param props.providers - Array of SSO providers
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
- * @param props.isLoadingSwitch - The is loading switch
+ * @param props.isSaving - Whether an assign or remove request is in progress
  * @param props.permissions - What the current user is allowed to do
  * @param props.onClose - Callback fired when the component should close
- * @param props.onToggleSwitch - Callback fired when switch is toggled
+ * @param props.onAssign - Callback fired on Save with the selected provider
+ * @param props.onRemove - Callback fired when an assigned provider is removed
  * @param props.onOpenProvider - Callback fired when opening a provider
  * @param props.onCreateProvider - Callback fired when creating a new provider
  * @returns JSX element
@@ -40,92 +59,142 @@ export function DomainConfigureProvidersModal({
   providers,
   isOpen,
   isLoading,
-  isLoadingSwitch,
+  isSaving = false,
   permissions,
   onClose,
-  onToggleSwitch,
+  onAssign,
+  onRemove,
   onOpenProvider,
   onCreateProvider,
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
-  const { t: tCommon } = useTranslator('common', customMessages?.common);
 
-  const handleToggleSwitch = React.useCallback(
-    (provider: IdentityProviderAssociatedWithDomain, newCheckedValue: boolean) => {
-      onToggleSwitch(domain!, provider, newCheckedValue); // Switch component is not rendered if domain is null
-    },
-    [domain, onToggleSwitch],
+  const [selectedProviderId, setSelectedProviderId] = React.useState('');
+
+  const assignedProviders = React.useMemo(
+    () => providers.filter((provider) => provider.is_associated),
+    [providers],
   );
-
-  const canToggleProvider = React.useCallback(
-    (provider: IdentityProviderAssociatedWithDomain) =>
-      provider.is_associated ? permissions.canDissociateProvider : permissions.canAssociateProvider,
-    [permissions],
+  const selectableProviders = React.useMemo(
+    () => providers.filter((provider) => provider.id),
+    [providers],
   );
+  const selectedProvider = selectableProviders.find(
+    (provider) => provider.id === selectedProviderId,
+  );
+  const showProviderField = assignedProviders.length === 0 && providers.length > 0;
+  const showAssignedDescription = !isLoading && assignedProviders.length > 0;
 
-  const columns: Column<IdentityProviderAssociatedWithDomain>[] = React.useMemo(
-    () => [
-      {
-        type: 'text',
-        accessorKey: 'display_name',
-        title: t('table.columns.name'),
-        width: '25%',
-        render: (provider) => (
-          <div className="font-medium text-muted-foreground">{provider.display_name}</div>
-        ),
-      },
-      {
-        type: 'text',
-        accessorKey: 'strategy',
-        title: t('table.columns.provider'),
-        width: '40%',
-        render: (provider) => <div className="text-muted-foreground">{provider.strategy}</div>,
-      },
-      {
-        type: 'actions',
-        title: '',
-        width: '30%',
-        render: (provider) => (
-          <div className="flex items-center justify-end gap-4 min-w-0">
-            {onOpenProvider && (
-              <Button
-                type="button"
-                variant={'outline'}
-                size={'sm'}
-                onClick={() => onOpenProvider(provider)}
+  React.useEffect(() => {
+    if (!isOpen || assignedProviders.length > 0) setSelectedProviderId('');
+  }, [isOpen, assignedProviders.length]);
+
+  const handleSave = () => {
+    if (!domain || !selectedProvider || !permissions.canAssociateProvider) return;
+    onAssign(domain, selectedProvider);
+  };
+
+  const renderAssignedProviders = () => (
+    <div className="space-y-3">
+      <ul className="space-y-2">
+        {assignedProviders.map((provider) => (
+          <li
+            key={provider.id ?? provider.name}
+            className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
+          >
+            <span className="text-paragraph font-medium truncate">
+              {getProviderLabel(provider)}
+            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              {onOpenProvider && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenProvider(provider)}
+                >
+                  {t('table.actions.view_provider_button_text')}
+                </Button>
+              )}
+              <PermissionDeniedTooltip
+                customMessages={customMessages}
+                enabled={!permissions.canDissociateProvider}
               >
-                {t('table.actions.view_provider_button_text')}
-              </Button>
-            )}
-            <Tooltip disableHoverableContent>
-              <TooltipTrigger asChild onFocus={(e) => e.preventDefault()}>
-                <span>
-                  <Switch
-                    checked={provider.is_associated ?? false}
-                    onCheckedChange={(checked) => handleToggleSwitch(provider, checked)}
-                    disabled={isLoadingSwitch || !canToggleProvider(provider)}
-                    aria-label={
-                      provider.is_associated
-                        ? t('table.actions.disable_provider_tooltip')
-                        : t('table.actions.enable_provider_tooltip')
-                    }
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {!canToggleProvider(provider)
-                  ? tCommon('error.forbidden')
-                  : provider.is_associated
-                    ? t('table.actions.disable_provider_tooltip')
-                    : t('table.actions.enable_provider_tooltip')}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        ),
-      },
-    ],
-    [t, tCommon, onOpenProvider, isLoadingSwitch, canToggleProvider, handleToggleSwitch],
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="text-destructive-foreground px-0"
+                  disabled={isSaving || !permissions.canDissociateProvider}
+                  onClick={() => domain && onRemove(domain, provider)}
+                  aria-label={t('actions.remove_button_aria_label', {
+                    provider: getProviderLabel(provider),
+                  })}
+                >
+                  {t('actions.remove_button_text')}
+                </Button>
+              </PermissionDeniedTooltip>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
+
+  const renderProviderField = () => (
+    <div className="space-y-2">
+      <Label htmlFor={PROVIDER_FIELD_ID} className="text-label font-medium">
+        {t('field.label')}
+      </Label>
+      <PermissionDeniedTooltip
+        customMessages={customMessages}
+        enabled={!permissions.canAssociateProvider}
+        className="w-full"
+      >
+        <Select
+          value={selectedProviderId}
+          onValueChange={setSelectedProviderId}
+          disabled={isSaving || !permissions.canAssociateProvider}
+        >
+          <SelectTrigger id={PROVIDER_FIELD_ID} autoFocus>
+            <SelectValue placeholder={t('field.placeholder')} />
+          </SelectTrigger>
+          <SelectContent>
+            {selectableProviders.map((provider) => (
+              <SelectItem key={provider.id} value={provider.id!}>
+                {getProviderLabel(provider)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </PermissionDeniedTooltip>
+    </div>
+  );
+
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center py-6">
+          <Spinner />
+        </div>
+      );
+    }
+
+    if (providers.length === 0) {
+      return (
+        <div className="flex flex-col items-center gap-4 py-6 text-center">
+          <p className="text-muted-foreground text-paragraph">{t('table.empty_message')}</p>
+          {onCreateProvider && (
+            <Button type="button" variant="outline" onClick={onCreateProvider}>
+              {t('table.actions.add_provider_button_text')}
+            </Button>
+          )}
+        </div>
+      );
+    }
+
+    return showProviderField ? renderProviderField() : renderAssignedProviders();
+  };
 
   return (
     <Modal
@@ -137,33 +206,29 @@ export function DomainConfigureProvidersModal({
         domain && (
           <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
             <p className="text-muted-foreground text-paragraph">
-              {t('description', { domain: domain?.domain ?? '' })}
+              {showAssignedDescription
+                ? t('assigned_description')
+                : t('description', { domain: domain?.domain ?? '' })}
             </p>
-            <div className="max-h-[400px] overflow-y-auto">
-              <DataTable
-                columns={columns}
-                data={providers}
-                loading={isLoading}
-                emptyState={{
-                  title: t('table.empty_message'),
-                  action: onCreateProvider
-                    ? {
-                        label: t('table.actions.add_provider_button_text'),
-                        variant: 'outline',
-                        onClick: onCreateProvider,
-                      }
-                    : undefined,
-                }}
-              />
-            </div>
+            <p role="status" className="sr-only">
+              {showProviderField ? t('no_connection_status', { domain: domain.domain }) : ''}
+            </p>
+            {renderContent()}
           </div>
         )
       }
       modalActions={{
-        showNext: false,
+        isLoading: isSaving,
+        showNext: showProviderField,
         previousAction: {
           label: t('actions.close_button_text'),
           onClick: onClose,
+        },
+        nextAction: {
+          type: 'button',
+          label: t('actions.save_button_text'),
+          disabled: isSaving || !selectedProvider || !permissions.canAssociateProvider,
+          onClick: handleSave,
         },
       }}
     />
