@@ -92,16 +92,11 @@ export function ConnectionAccessFields({
               className: classes?.['ProviderConfigure-CrossAppAccess'],
             };
 
-            if (strategy === STRATEGIES.SAMLP) {
-              return <SamlCrossAppAccess {...sectionProps} />;
-            }
-
-            if (strategy === STRATEGIES.OIDC || strategy === STRATEGIES.OKTA) {
-              return <SsoCrossAppAccessSection {...sectionProps} strategy={strategy} />;
-            }
-
-            // Other strategies have no Cross App Access section.
-            return <></>;
+            return strategy === STRATEGIES.SAMLP ? (
+              <SamlCrossAppAccess {...sectionProps} />
+            ) : (
+              <SsoCrossAppAccessSection {...sectionProps} strategy={strategy} />
+            );
           }}
         />
       )}

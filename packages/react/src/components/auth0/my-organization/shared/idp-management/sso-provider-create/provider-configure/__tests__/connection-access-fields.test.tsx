@@ -95,6 +95,16 @@ describe('ConnectionAccessFields', () => {
       },
     );
 
+    it.each<IdpStrategy>([
+      STRATEGIES.WAAD,
+      STRATEGIES.ADFS,
+      STRATEGIES.GOOGLE_APPS,
+      STRATEGIES.PINGFEDERATE,
+    ])('should render for %s when showCrossAppAccess is true', (strategy) => {
+      renderWithProviders(<Harness strategy={strategy} showCrossAppAccess />);
+      expect(screen.getByRole('checkbox')).toBeInTheDocument();
+    });
+
     it('should write { status: "enabled" } when toggled on for okta', async () => {
       const user = userEvent.setup();
       renderWithProviders(<Harness strategy={STRATEGIES.OKTA} showCrossAppAccess />);
