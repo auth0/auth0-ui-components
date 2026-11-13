@@ -16,6 +16,7 @@ import type {
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
   GetIdPProvisioningConfigResponseContent,
+  IdentityProvidersConfigProvisioningMethod,
   SsoProviderAttributeMappingsMessages,
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
@@ -149,7 +150,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isLoadingConfig: boolean;
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
-  showProvisioningTab: boolean;
+  provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   showCrossAppAccess: boolean;
@@ -192,10 +193,9 @@ export interface SsoProviderEditViewProps
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'
+      | 'provisioning'
       | 'enableProviderAction'
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'
       | 'showSignRequest'
-    > {
-  showProvisioningTab: boolean;
-}
+    > {}
