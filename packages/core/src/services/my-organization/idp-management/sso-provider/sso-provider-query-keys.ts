@@ -12,4 +12,6 @@ export const ssoProviderQueryKeys = {
   organization: () => ['organization', 'details'] as const,
   provisioning: (idpId: IdpId) => [...ssoProviderQueryKeys.all, 'provisioning', idpId] as const,
   scimTokens: (idpId: IdpId) => [...ssoProviderQueryKeys.all, 'scim-tokens', idpId] as const,
+  directoryProvisioning: (idpId: IdpId) =>
+    [...ssoProviderQueryKeys.all, 'directory-provisioning', idpId] as const,
 };

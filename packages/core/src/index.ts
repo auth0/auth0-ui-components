@@ -40,6 +40,7 @@ export * from './i18n/custom-messages/my-account/organization-management/organiz
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-create-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
@@ -126,6 +127,7 @@ export * from './services/my-organization/organization-management/organization-d
 
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
+export * from './services/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
@@ -140,6 +142,7 @@ export * from './services/my-organization/member-management/member-management-co
 export * from './services/my-organization/member-management/member-management-permissions';
 
 export * from './services/my-organization/config/config-types';
+export * from './services/my-organization/config/config-constants';
 
 // Permissions (shared across modules)
 export * from './services/permissions/permission-utils';

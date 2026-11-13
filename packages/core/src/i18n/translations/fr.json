@@ -826,6 +826,63 @@
                   "label": "URL du point de terminaison SCIM"
                 }
               }
+            },
+            "google_workspace": {
+              "header": {
+                "title": "Provisionnement",
+                "description_disabled": "Synchronisez automatiquement les utilisateurs depuis votre annuaire Google Workspace. Aucune configuration SCIM manuelle n'est requise.",
+                "description_enabled": "Synchronisez automatiquement les utilisateurs depuis votre annuaire Google Workspace.",
+                "continue_button_label": "Continuer avec Google",
+                "retry_button_label": "Réessayer",
+                "status": {
+                  "granted": "Accordé",
+                  "failed": "N'a pas pu être terminé"
+                },
+                "provider_disabled_tooltip": "Activez le fournisseur pour configurer le provisionnement",
+                "access_level_required_tooltip": "Un accès complet à l'organisation est requis pour connecter Google Workspace",
+                "enable_tooltip": "Basculer pour activer le provisionnement",
+                "disable_tooltip": "Basculer pour désactiver le provisionnement"
+              },
+              "connection_info": {
+                "last_synced_label": "Dernière synchronisation :"
+              },
+              "status_alert": {
+                "unconfirmed_authorization": "Votre autorisation Google Workspace n'a pas encore été confirmée par une synchronisation. Si l'autorisation est révoquée, la prochaine synchronisation planifiée échouera. <link>Continuez avec Google</link> pour l'autoriser à nouveau.",
+                "sync_failed": "Échec de la synchronisation : l'autorisation Google Workspace n'est plus valide. <link>Continuez avec Google</link> pour l'autoriser à nouveau."
+              },
+              "auto_sync": {
+                "title": "Synchroniser automatiquement les utilisateurs depuis Google Workspace",
+                "description": "Lorsque cette option est activée, Auth0 synchronise automatiquement votre annuaire Google Workspace toutes les 30 minutes. Lorsqu'elle est désactivée, les utilisateurs ne sont pas synchronisés tant qu'elle n'est pas réactivée. Pour une synchronisation manuelle, contactez votre administrateur.",
+                "enable_tooltip": "Basculer pour activer la synchronisation automatique",
+                "disable_tooltip": "Basculer pour désactiver la synchronisation automatique"
+              },
+              "error": {
+                "title": "Un problème avec Google ?",
+                "retry_button_label": "Fermer et réessayer"
+              },
+              "modals": {
+                "enable_auto_sync": {
+                  "title": "Accès Google accordé. Activer la synchronisation automatique ?",
+                  "content": {
+                    "description_enabled": "Lorsque cette option est activée, Auth0 synchronise automatiquement votre annuaire Google Workspace toutes les 30 minutes.",
+                    "description_skip": "Si vous ignorez cette étape, les utilisateurs ne seront pas synchronisés tant que la synchronisation automatique n'est pas activée. Pour une synchronisation manuelle, contactez votre administrateur."
+                  },
+                  "actions": {
+                    "dismiss_button_label": "Pas maintenant",
+                    "confirm_button_label": "Activer la synchronisation automatique"
+                  }
+                },
+                "disable": {
+                  "title": "Désactiver le provisionnement",
+                  "content": {
+                    "description": "Êtes-vous sûr de vouloir désactiver le provisionnement ? Cela supprimera votre configuration de provisionnement et arrêtera la synchronisation des utilisateurs. Votre autorisation Google Workspace reste enregistrée et sera réutilisée automatiquement si vous réactivez le provisionnement ultérieurement."
+                  },
+                  "actions": {
+                    "cancel_button_label": "Annuler",
+                    "confirm_button_label": "Désactiver"
+                  }
+                }
+              }
             }
           }
         },
@@ -985,7 +1042,14 @@
       "scim_token_delete_success": "Le jeton a été supprimé.",
       "scim_token_create_success": "Jeton généré avec succès",
       "sso_attributes_sync_success": "Les mappages du fournisseur ont été mis à jour.",
-      "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour."
+      "provisioning_attributes_sync_success": "Les mappages de provisionnement ont été mis à jour.",
+      "google_workspace_provisioning": {
+        "connected_success": "L'accès à Google Workspace a été accordé.",
+        "connected_with_auto_sync_success": "Accès Google accordé et synchronisation automatique activée.",
+        "connect_error": "L'autorisation Google n'a pas pu être finalisée. Veuillez réessayer.",
+        "auto_sync_enabled_success": "La synchronisation automatique a été activée.",
+        "auto_sync_disabled_success": "La synchronisation automatique a été désactivée."
+      }
     }
   },
   "user_mfa_management": {

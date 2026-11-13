@@ -130,7 +130,8 @@ describe('useSsoProviderEditService', () => {
     expect(result.current.isRemoving).toBe(false);
     expect(result.current.isProvisioningUpdating).toBe(false);
     expect(result.current.isProvisioningDeleting).toBe(false);
-    expect(result.current.isProvisioningLoading).toBe(true);
+    // The SCIM config is only fetched once the provider and IdP config are loaded.
+    expect(result.current.isProvisioningLoading).toBe(false);
     expect(result.current.isScimTokensLoading).toBe(false);
     expect(result.current.isScimTokenCreating).toBe(false);
     expect(result.current.isScimTokenDeleting).toBe(false);
@@ -1665,6 +1666,43 @@ describe('useSsoProviderEditService', () => {
       await waitFor(() => {
         expect(mockProvisioningGet).toHaveBeenCalledWith(mockIdpId);
       });
+    });
+
+    it('should not fetch the SCIM config before the provider is loaded', () => {
+      mockGet.mockReturnValue(new Promise(() => {}));
+      renderUseSsoProviderEdit(mockIdpId);
+
+      expect(mockProvisioningGet).not.toHaveBeenCalled();
+    });
+
+    it('should not fetch the SCIM config while the IdP config is loading', async () => {
+      vi.mocked(useIdpConfig).mockReturnValue({
+        ...createMockUseIdpConfig(),
+        isLoadingIdpConfig: true,
+      });
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => expect(result.current.provider).toEqual(mockProvider));
+
+      expect(mockProvisioningGet).not.toHaveBeenCalled();
+    });
+
+    it('should not fetch the SCIM config for Google Workspace directory provisioning', async () => {
+      const isProvisioningEnabled = vi.fn(
+        (_strategy: unknown, method: string) => method === 'google_workspace',
+      );
+      vi.mocked(useIdpConfig).mockReturnValue({
+        ...createMockUseIdpConfig(),
+        isProvisioningEnabled,
+      });
+      mockGet.mockResolvedValue({ ...mockProvider, strategy: 'google-apps' });
+      const { result } = renderUseSsoProviderEdit(mockIdpId);
+
+      await waitFor(() => expect(result.current.provider?.strategy).toBe('google-apps'));
+
+      expect(isProvisioningEnabled).toHaveBeenCalledWith('google-apps', 'google_workspace');
+      expect(mockProvisioningGet).not.toHaveBeenCalled();
+      expect(result.current.provisioningConfig).toBeNull();
     });
   });
 });
