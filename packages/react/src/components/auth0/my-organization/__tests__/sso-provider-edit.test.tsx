@@ -1,5 +1,5 @@
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
@@ -442,6 +442,130 @@ describe('SsoProviderEdit', () => {
 
         expect(screen.queryByText(/tabs.provisioning.name/i)).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('domains tab', () => {
+    const verified = (id: string, domain: string, extra = {}) => ({
+      id,
+      org_id: 'org_1',
+      domain,
+      status: 'verified' as const,
+      verification_txt: 'txt',
+      verification_host: 'host',
+      ...extra,
+    });
+    const orgDomains = [
+      verified('d_assigned', 'assigned.com', { identity_provider_association: 'associated' }),
+      verified('d_free1', 'free1.com', { identity_provider_association: 'unassociated' }),
+      verified('d_free2', 'free2.com', { identity_provider_association: 'unassociated' }),
+      verified('d_taken', 'taken.com', { identity_provider_association: 'associated' }),
+      { ...verified('d_pending', 'pending.com'), status: 'pending' as const },
+    ];
+    const providerWithDomain = createMockIdentityProvider({
+      domains: ['assigned.com'],
+    } as Partial<IdpKnownResponse>);
+
+    const editProps = createMockSsoProviderEditProps();
+
+    const openDomainsTab = async (user: ReturnType<typeof userEvent.setup>) => {
+      renderWithProviders(<SsoProviderEdit {...editProps} />);
+      await waitForComponentToLoad();
+      await user.click(await screen.findByRole('tab', { name: /tabs.domains.name/i }));
+    };
+
+    const openAssignModal = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(await screen.findByRole('button', { name: 'create_button_text' }));
+      await user.click(await screen.findByLabelText('field.label'));
+    };
+
+    beforeEach(() => {
+      const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(providerWithDomain);
+      Object.assign(organizationApi.domains, {
+        list: vi.fn().mockResolvedValue({ response: { organization_domains: orgDomains } }),
+      });
+      (organizationApi.identityProviders.domains.create as ReturnType<typeof vi.fn>)
+        .mockReset()
+        .mockResolvedValue({});
+    });
+
+    it('should list only the domains assigned to this provider, without toggles', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+
+      expect(await screen.findByText('assigned.com')).toBeInTheDocument();
+      expect(screen.queryByText('free1.com')).not.toBeInTheDocument();
+      expect(screen.queryByText('taken.com')).not.toBeInTheDocument();
+      expect(screen.queryByText('pending.com')).not.toBeInTheDocument();
+      expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+    });
+
+    it('should remove a domain from the provider with the existing dissociate call', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+
+      await user.click(
+        await screen.findByRole('button', { name: 'table.actions.remove_domain_aria_label' }),
+      );
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
+        ).toHaveBeenCalledWith(providerWithDomain.id, 'assigned.com');
+      });
+    });
+
+    it('should offer only verified, unassigned domains and assign the selection', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+      await openAssignModal(user);
+
+      expect(await screen.findByRole('button', { name: 'free1.com' })).toBeInTheDocument();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({ take: 100, from: undefined });
+      expect(screen.getByRole('button', { name: 'free2.com' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'taken.com' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'pending.com' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'assigned.com' })).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'free1.com' }));
+      await user.click(screen.getByRole('button', { name: 'free2.com' }));
+      await user.click(screen.getByRole('button', { name: 'actions.assign_button_text' }));
+
+      const create =
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create;
+      await waitFor(() => {
+        expect(create).toHaveBeenCalledTimes(2);
+      });
+      expect(create).toHaveBeenNthCalledWith(1, editProps.providerId, { domain: 'free1.com' });
+      expect(create).toHaveBeenNthCalledWith(2, editProps.providerId, { domain: 'free2.com' });
+    });
+
+    it('should keep the modal open when a domain is rejected as already associated', async () => {
+      const user = userEvent.setup();
+      const create = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .domains.create as ReturnType<typeof vi.fn>;
+      create.mockResolvedValueOnce({}).mockRejectedValueOnce(
+        Object.assign(new Error('Domain Already Associated'), {
+          statusCode: 409,
+          body: { type: 'https://auth0.com/api-errors#A0E-409-0004', status: 409 },
+        }),
+      );
+      await openDomainsTab(user);
+      await openAssignModal(user);
+
+      await user.click(await screen.findByRole('button', { name: 'free1.com' }));
+      await user.click(screen.getByRole('button', { name: 'free2.com' }));
+      await user.click(screen.getByRole('button', { name: 'actions.assign_button_text' }));
+
+      await waitFor(() => {
+        expect(create).toHaveBeenCalledTimes(2);
+      });
+      expect(
+        await screen.findByRole('button', { name: 'actions.assign_button_text' }),
+      ).toBeInTheDocument();
     });
   });
 

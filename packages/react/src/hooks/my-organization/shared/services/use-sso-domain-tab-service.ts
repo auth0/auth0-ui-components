@@ -7,11 +7,13 @@
 
 import {
   BusinessError,
+  domainQueryKeys,
   ssoDomainQueryKeys,
   ssoProviderQueryKeys,
   type CreateOrganizationDomainRequestContent,
   type Domain,
   type IdpId,
+  type IdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useMemo } from 'react';
@@ -27,6 +29,9 @@ import type {
 
 const keepPreviousDataOption = getPreviousDataOption();
 
+const DOMAIN_PAGE_SIZE = 100;
+const MAX_DOMAIN_PAGES = 5;
+
 /**
  * Internal service hook for SSO domain tab data and CRUD operations.
  * @param idpId - Identity provider ID.
@@ -36,48 +41,58 @@ const keepPreviousDataOption = getPreviousDataOption();
  */
 export function useSsoDomainTabService(
   idpId: IdpId,
-  {
-    customMessages = {},
-    domains,
-    provider,
-    pageSize,
-    fromToken,
-  }: Partial<UseSsoDomainTabServiceOptions> = {},
+  { customMessages = {}, domains, provider }: Partial<UseSsoDomainTabServiceOptions> = {},
 ): UseSsoDomainTabServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.notifications', customMessages);
   const queryClient = useQueryClient();
 
+  const domainsListKey = ssoDomainQueryKeys.list(idpId);
+
   const domainsQuery = useQuery({
-    queryKey: ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
+    queryKey: domainsListKey,
     queryFn: async () => {
-      const { response } = await coreClient!
-        .getMyOrganizationApiClient()
-        .organization.domains.list({
-          take: pageSize,
-          from: fromToken,
-        });
-      return {
-        domains: response?.organization_domains ?? [],
-        next: response?.next ?? null,
-      };
+      const organizationDomains: Domain[] = [];
+      let from: string | undefined;
+      for (let page = 0; page < MAX_DOMAIN_PAGES; page += 1) {
+        const { response } = await coreClient!
+          .getMyOrganizationApiClient()
+          .organization.domains.list({ take: DOMAIN_PAGE_SIZE, from });
+        organizationDomains.push(...(response?.organization_domains ?? []));
+        from = response?.next ?? undefined;
+        if (!from) break;
+      }
+      return { domains: organizationDomains, next: null };
     },
     enabled: !!coreClient && !!idpId,
     ...keepPreviousDataOption,
   });
 
-  const domainsList = domainsQuery.data?.domains ?? [];
-  const nextToken = domainsQuery.data?.next ?? null;
-  const isLoading = domainsQuery.isLoading;
+  const organizationDomains = useMemo(
+    () => domainsQuery.data?.domains ?? [],
+    [domainsQuery.data?.domains],
+  );
 
   useQueryErrorToast(domainsQuery, t('general_error'));
 
-  const idpDomains = useMemo(() => {
-    const idpDomainNames = provider?.domains ?? [];
-    return domainsList
-      .filter((domain) => idpDomainNames.includes(domain.domain))
-      .map((domain) => domain.id);
-  }, [provider?.domains, domainsList]);
+  const domainsList = useMemo(() => {
+    const providerDomainNames = provider?.domains ?? [];
+    return organizationDomains.filter(
+      (domain) => domain.status === 'verified' && providerDomainNames.includes(domain.domain),
+    );
+  }, [provider?.domains, organizationDomains]);
+
+  const availableDomains = useMemo(() => {
+    const providerDomainNames = provider?.domains ?? [];
+    return organizationDomains.filter(
+      (domain) =>
+        domain.status === 'verified' &&
+        domain.identity_provider_association === 'unassociated' &&
+        !providerDomainNames.includes(domain.domain),
+    );
+  }, [provider?.domains, organizationDomains]);
+
+  const idpDomains = useMemo(() => domainsList.map((domain) => domain.id), [domainsList]);
 
   const createDomainMutation = useMutation({
     mutationFn: async (data: CreateOrganizationDomainRequestContent) => {
@@ -132,7 +147,7 @@ export function useSsoDomainTabService(
     onSuccess: ({ updatedDomain, isVerified }, domain) => {
       if (isVerified) {
         queryClient.setQueryData<{ domains: Domain[]; next: string | null }>(
-          ssoDomainQueryKeys.list(idpId, { pageSize, fromToken }),
+          domainsListKey,
           (oldData) => {
             if (!oldData) return oldData;
             return {
@@ -174,6 +189,21 @@ export function useSsoDomainTabService(
     },
   });
 
+  const invalidateAssignments = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) }),
+      queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() }),
+      queryClient.invalidateQueries({ queryKey: domainQueryKeys.all }),
+    ]);
+
+  // Reflects a confirmed change in the cached connection now; the background refresh reconciles it.
+  const setProviderDomains = (update: (names: string[]) => string[]) =>
+    queryClient.setQueryData<IdpKnownResponse>(ssoProviderQueryKeys.detail(idpId), (current) =>
+      current
+        ? ({ ...current, domains: update(current.domains ?? []) } as IdpKnownResponse)
+        : current,
+    );
+
   const associateToProviderMutation = useMutation({
     mutationFn: async (domain: Domain) => {
       if (!coreClient) {
@@ -192,6 +222,7 @@ export function useSsoDomainTabService(
         .organization.identityProviders.domains.create(idpId, {
           domain: domain.domain,
         });
+      setProviderDomains((names) => [...new Set([...names, domain.domain])]);
 
       if (domains?.associateToProviderAction?.onAfter) {
         await domains.associateToProviderAction.onAfter(domain, provider);
@@ -200,7 +231,7 @@ export function useSsoDomainTabService(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+      void invalidateAssignments();
     },
   });
 
@@ -220,6 +251,7 @@ export function useSsoDomainTabService(
       await coreClient
         .getMyOrganizationApiClient()
         .organization.identityProviders.domains.delete(provider.id, domain.domain);
+      setProviderDomains((names) => names.filter((name) => name !== domain.domain));
 
       if (domains?.deleteFromProviderAction?.onAfter) {
         await domains.deleteFromProviderAction.onAfter(domain);
@@ -228,22 +260,24 @@ export function useSsoDomainTabService(
       return domain;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(idpId) });
+      void invalidateAssignments();
     },
   });
 
   return {
     domainsList,
-    isLoading,
+    availableDomains,
+    isLoading: domainsQuery.isLoading,
     isRefetchingDomains: domainsQuery.isFetching,
     isDomainsStale: domainsQuery.isStale,
     domainsUpdatedAt: domainsQuery.dataUpdatedAt,
-    nextToken,
+    nextToken: null,
     refetchDomains: domainsQuery.refetch,
     idpDomains,
     isCreating: createDomainMutation.isPending,
     isVerifying: verifyDomainMutation.isPending,
     isDeleting: deleteDomainMutation.isPending,
+    isAssociating: associateToProviderMutation.isPending,
     createDomain: createDomainMutation.mutateAsync,
     verifyDomain: verifyDomainMutation.mutateAsync,
     deleteDomain: deleteDomainMutation.mutateAsync,

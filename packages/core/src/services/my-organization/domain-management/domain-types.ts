@@ -19,4 +19,8 @@ export type DomainStatus = MyOrganization.OrgDomainStatusEnum;
 
 export type DomainCreate = MyOrganization.CreateOrganizationDomainRequestContent;
 
-export type Domain = MyOrganization.OrgDomain;
+export type DomainIdentityProviderAssociation = 'associated' | 'unassociated';
+
+export type Domain = MyOrganization.OrgDomain & {
+  identity_provider_association?: DomainIdentityProviderAssociation;
+};
