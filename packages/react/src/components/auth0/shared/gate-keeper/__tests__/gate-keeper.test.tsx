@@ -102,7 +102,7 @@ describe('GateKeeper', () => {
   });
 
   describe('MFA required error', () => {
-    it('shows MFA error fallback without retry button', async () => {
+    it('shows MFA dialog overlaid on children without blocking them', async () => {
       setupMfaError();
 
       renderWithProviders(
@@ -111,9 +111,10 @@ describe('GateKeeper', () => {
         </GateKeeper>,
       );
 
-      expect(await screen.findByText('mfa_error.title')).toBeInTheDocument();
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+      expect(await screen.findByText('mfa.title')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: /fallback.retry/i })).not.toBeInTheDocument();
-      expect(screen.queryByText('child content')).not.toBeInTheDocument();
+      expect(screen.getByText('child content')).toBeInTheDocument();
     });
 
     it('emits console.warn in SPA mode', async () => {
@@ -126,7 +127,7 @@ describe('GateKeeper', () => {
         </GateKeeper>,
       );
 
-      await screen.findByText('mfa_error.title');
+      await screen.findByRole('dialog');
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[Auth0 Components Warning]'));
     });
 
@@ -141,7 +142,7 @@ describe('GateKeeper', () => {
         { coreClient: { ...createMockCoreClient(), isProxyMode: () => true } },
       );
 
-      await screen.findByText('mfa_error.title');
+      await screen.findByRole('dialog');
       expect(warnSpy).not.toHaveBeenCalled();
     });
   });
