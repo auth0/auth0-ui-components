@@ -31,6 +31,7 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+.env-*
 
 # Misc
 coverage/
@@ -40,3 +41,9 @@ coverage/
 
 # Generated API documentation
 docs-api/
+
+# Playwright (functional-tests)
+functional-tests/.auth/
+functional-tests/.run-state.json
+functional-tests/playwright-report/
+functional-tests/test-results/
