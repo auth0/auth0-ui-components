@@ -106,7 +106,9 @@ export function useIdpConfig(): UseConfigIdpResult {
     const config = getCrossAppAccessConfig(strategy);
     if (!config) return undefined;
     const isReadOnly = (config.status.allowed_values?.length ?? 0) <= 1;
-    return isReadOnly ? config.status.allowed_values?.[0] : config.status.default_value;
+    return isReadOnly
+      ? (config.status.allowed_values?.[0] ?? config.status.default_value)
+      : config.status.default_value;
   };
 
   return {

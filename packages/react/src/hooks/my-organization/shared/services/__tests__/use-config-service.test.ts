@@ -220,6 +220,20 @@ describe('useConfig', () => {
       expect(result.current.thirdPartyAccessDefaultValue).toBe('allow');
     });
 
+    it('thirdPartyAccessDefaultValue uses default_value when read-only and allowed_values omitted', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          third_party_client_access: {
+            default_value: 'allow',
+          },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.thirdPartyAccessDefaultValue).toBe('allow');
+    });
+
     it('thirdPartyAccessDefaultValue uses default_value when editable', async () => {
       mockGet.mockResolvedValue(
         createMockConfig({
