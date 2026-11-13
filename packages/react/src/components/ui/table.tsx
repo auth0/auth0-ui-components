@@ -7,6 +7,7 @@
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import React from 'react';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
@@ -92,10 +93,20 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
           {showSortIcon && (
             <div className="ml-2 flex items-center">
               {sortDirection === false && (
-                <ChevronDownIcon className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                <Button variant="ghost" size="sm" className="px-0.5 py-1">
+                  <ChevronUpIcon className="text-muted-foreground h-4 w-4 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                </Button>
               )}
-              {sortDirection === 'asc' && <ChevronUpIcon className="h-4 w-4" />}
-              {sortDirection === 'desc' && <ChevronDownIcon className="h-4 w-4" />}
+              {sortDirection === 'asc' && (
+                <Button variant="ghost" size="sm" className="px-0.5 py-1">
+                  <ChevronUpIcon className="h-4 w-4" />
+                </Button>
+              )}
+              {sortDirection === 'desc' && (
+                <Button variant="ghost" size="sm" className="px-0.5 py-1">
+                  <ChevronDownIcon className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
         </div>
