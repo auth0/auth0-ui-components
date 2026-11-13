@@ -50,6 +50,7 @@ export const createDomainCreateSchema = (
       required: true,
       ...domainConfig,
     }),
+    use_for_discovery: z.boolean().optional(),
   });
 };
 

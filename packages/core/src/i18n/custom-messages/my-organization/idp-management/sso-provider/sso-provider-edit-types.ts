@@ -23,6 +23,7 @@ export interface SsoProviderEditMessages extends SharedMessages {
     back_button_text?: string;
     enable_provider_tooltip_text?: string;
     disable_provider_tooltip_text?: string;
+    enable_provider_blocked_domains_tooltip_text?: string;
   };
   tabs?: {
     sso?: {

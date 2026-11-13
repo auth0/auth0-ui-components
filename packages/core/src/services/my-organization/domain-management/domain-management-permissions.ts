@@ -9,6 +9,7 @@ export const getDomainManagementPermissions = createPermissionResolver({
   canListDomains: ['read:my_org:domains'],
   canCreateDomain: ['create:my_org:domains'],
   canVerifyDomain: ['update:my_org:domains'],
+  canUpdateDomainDiscovery: ['update:my_org:domains'],
   canDeleteDomain: ['delete:my_org:domains'],
   canAssociateProvider: ['create:my_org:identity_providers_domains'],
   canDissociateProvider: ['delete:my_org:identity_providers_domains'],
