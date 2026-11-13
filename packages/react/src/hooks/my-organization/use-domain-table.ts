@@ -232,6 +232,7 @@ export function useDomainTable({
             idp: provider.name,
           }),
         });
+        setShowConfigureModal(false);
       } catch (error) {
         handleError(error, {
           fallbackMessage: t('domain_table.notifications.domain_associate_provider.error'),

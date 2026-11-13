@@ -7,6 +7,7 @@
 import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
 import React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
@@ -94,41 +95,50 @@ export function DomainConfigureProvidersModal({
   };
 
   const renderAssignedProviders = () => (
-    <ul className="space-y-2">
-      {assignedProviders.map((provider) => (
-        <li
-          key={provider.id ?? provider.name}
-          className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
-        >
-          <span className="text-paragraph font-medium truncate">{getProviderLabel(provider)}</span>
-          <div className="flex items-center gap-2 shrink-0">
-            {onOpenProvider && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => onOpenProvider(provider)}
+    <div className="space-y-3">
+      <ul className="space-y-2">
+        {assignedProviders.map((provider) => (
+          <li
+            key={provider.id ?? provider.name}
+            className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
+          >
+            <span className="text-paragraph font-medium truncate">
+              {getProviderLabel(provider)}
+            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              {onOpenProvider && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOpenProvider(provider)}
+                >
+                  {t('table.actions.view_provider_button_text')}
+                </Button>
+              )}
+              <PermissionDeniedTooltip
+                customMessages={customMessages}
+                enabled={!permissions.canDissociateProvider}
               >
-                {t('table.actions.view_provider_button_text')}
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              className="text-destructive-foreground px-0"
-              disabled={isSaving || !permissions.canDissociateProvider}
-              onClick={() => domain && onRemove(domain, provider)}
-              aria-label={t('actions.remove_button_aria_label', {
-                provider: getProviderLabel(provider),
-              })}
-            >
-              {t('actions.remove_button_text')}
-            </Button>
-          </div>
-        </li>
-      ))}
-    </ul>
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="text-destructive-foreground px-0"
+                  disabled={isSaving || !permissions.canDissociateProvider}
+                  onClick={() => domain && onRemove(domain, provider)}
+                  aria-label={t('actions.remove_button_aria_label', {
+                    provider: getProviderLabel(provider),
+                  })}
+                >
+                  {t('actions.remove_button_text')}
+                </Button>
+              </PermissionDeniedTooltip>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 
   const renderProviderField = () => (
@@ -136,22 +146,28 @@ export function DomainConfigureProvidersModal({
       <Label htmlFor={PROVIDER_FIELD_ID} className="text-label font-medium">
         {t('field.label')}
       </Label>
-      <Select
-        value={selectedProviderId}
-        onValueChange={setSelectedProviderId}
-        disabled={isSaving || !permissions.canAssociateProvider}
+      <PermissionDeniedTooltip
+        customMessages={customMessages}
+        enabled={!permissions.canAssociateProvider}
+        className="w-full"
       >
-        <SelectTrigger id={PROVIDER_FIELD_ID}>
-          <SelectValue placeholder={t('field.placeholder')} />
-        </SelectTrigger>
-        <SelectContent>
-          {selectableProviders.map((provider) => (
-            <SelectItem key={provider.id} value={provider.id!}>
-              {getProviderLabel(provider)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select
+          value={selectedProviderId}
+          onValueChange={setSelectedProviderId}
+          disabled={isSaving || !permissions.canAssociateProvider}
+        >
+          <SelectTrigger id={PROVIDER_FIELD_ID} autoFocus>
+            <SelectValue placeholder={t('field.placeholder')} />
+          </SelectTrigger>
+          <SelectContent>
+            {selectableProviders.map((provider) => (
+              <SelectItem key={provider.id} value={provider.id!}>
+                {getProviderLabel(provider)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </PermissionDeniedTooltip>
     </div>
   );
 
@@ -193,6 +209,9 @@ export function DomainConfigureProvidersModal({
               {showAssignedDescription
                 ? t('assigned_description')
                 : t('description', { domain: domain?.domain ?? '' })}
+            </p>
+            <p role="status" className="sr-only">
+              {showProviderField ? t('no_connection_status', { domain: domain.domain }) : ''}
             </p>
             {renderContent()}
           </div>

@@ -81,7 +81,6 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
-  /** Hide the Domains tab. Defaults to `false`. */
   hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
@@ -93,7 +92,6 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }

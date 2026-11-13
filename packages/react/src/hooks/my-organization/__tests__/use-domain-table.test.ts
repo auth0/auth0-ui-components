@@ -305,7 +305,7 @@ describe('useDomainTable', () => {
         expect(result.current.isSavingProvider).toBe(false);
       });
 
-      it('should keep the configure modal open after assigning', async () => {
+      it('should close the configure modal after assigning', async () => {
         const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }]);
 
         act(() => result.current.setShowConfigureModal(true));
@@ -313,7 +313,7 @@ describe('useDomainTable', () => {
           await result.current.handleAssignProvider(verifiedDomain, providerA);
         });
 
-        expect(result.current.showConfigureModal).toBe(true);
+        expect(result.current.showConfigureModal).toBe(false);
       });
     });
 

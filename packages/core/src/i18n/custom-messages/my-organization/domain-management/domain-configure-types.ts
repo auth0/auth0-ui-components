@@ -14,6 +14,7 @@ export interface DomainConfigureMessages extends SharedMessages {
     placeholder?: string;
   };
   assigned_description?: string;
+  no_connection_status?: string;
   table?: {
     empty_message?: string;
     columns?: {

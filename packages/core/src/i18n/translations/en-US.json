@@ -172,12 +172,13 @@
     "domain_configure_providers": {
       "modal": {
         "title": "Configure ${domain}",
-        "description": "Direct users with an ${domain} email domain to your identity provider for authentication for the selected providers.",
+        "description": "Direct users with the ${domain} email domain to the selected connection for authentication.",
         "field": {
           "label": "Name",
           "placeholder": "Select a connection to associate"
         },
         "assigned_description": "This domain is already associated with a connection. To use a different connection, remove the current one first, then select a new one.",
+        "no_connection_status": "No connection is associated with ${domain}. Select a connection to associate it.",
         "table": {
           "empty_message": "You do not have any providers.",
           "columns": {

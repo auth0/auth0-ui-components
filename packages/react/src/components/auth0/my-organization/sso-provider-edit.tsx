@@ -16,17 +16,12 @@ import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edi
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type {
   SsoProviderEditProps,
   SsoProviderEditViewProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
-
-const TAB_GRID_COLUMNS: Record<number, string> = {
-  1: 'grid-cols-1',
-  2: 'grid-cols-2',
-  3: 'grid-cols-3',
-};
 
 /**
  * SSO provider edit container component.
@@ -236,7 +231,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
           <TabsList
             className={cn(
               'grid w-full',
-              TAB_GRID_COLUMNS[1 + Number(showProvisioningTab) + Number(!hideDomainsTab)],
+              SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS[
+                1 + Number(showProvisioningTab) + Number(!hideDomainsTab)
+              ],
             )}
           >
             <TabsTrigger value="sso" className="text-sm">
