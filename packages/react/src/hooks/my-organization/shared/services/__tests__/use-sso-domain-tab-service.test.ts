@@ -433,31 +433,18 @@ describe('useSsoDomainTabService', () => {
       expect(result.current.availableDomains).toEqual([]);
     });
 
-    it('should ask for up to 100 domains per page and follow the cursor', async () => {
+    it('should load all org domains with a single request of up to 250', async () => {
       const first = unassociated('domain-2', 'first.com');
       const second = unassociated('domain-3', 'second.com');
       const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
         .list as ReturnType<typeof vi.fn>;
-      list
-        .mockResolvedValueOnce({ response: { organization_domains: [first], next: 'token-2' } })
-        .mockResolvedValueOnce({ response: { organization_domains: [second] } });
+      list.mockResolvedValue({ response: { organization_domains: [first, second] } });
 
       const { result } = await renderWithAvailable();
 
-      expect(list).toHaveBeenCalledTimes(2);
-      expect(list).toHaveBeenNthCalledWith(1, { take: 100, from: undefined });
-      expect(list).toHaveBeenNthCalledWith(2, { take: 100, from: 'token-2' });
+      expect(list).toHaveBeenCalledTimes(1);
+      expect(list).toHaveBeenCalledWith({ take: 250 });
       expect(result.current.availableDomains).toEqual([first, second]);
-    });
-
-    it('should stop after 5 pages', async () => {
-      const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
-        .list as ReturnType<typeof vi.fn>;
-      list.mockResolvedValue({ response: { organization_domains: [], next: 'again' } });
-
-      await renderWithAvailable();
-
-      expect(list).toHaveBeenCalledTimes(5);
     });
 
     it('should report an error when the domains cannot be read', async () => {

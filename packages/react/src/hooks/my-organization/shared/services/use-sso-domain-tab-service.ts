@@ -29,8 +29,7 @@ import type {
 
 const keepPreviousDataOption = getPreviousDataOption();
 
-const DOMAIN_PAGE_SIZE = 100;
-const MAX_DOMAIN_PAGES = 5;
+const MAX_ORG_DOMAINS = 250;
 
 /**
  * Internal service hook for SSO domain tab data and CRUD operations.
@@ -52,16 +51,10 @@ export function useSsoDomainTabService(
   const domainsQuery = useQuery({
     queryKey: domainsListKey,
     queryFn: async () => {
-      const organizationDomains: Domain[] = [];
-      let from: string | undefined;
-      for (let page = 0; page < MAX_DOMAIN_PAGES; page += 1) {
-        const { response } = await coreClient!
-          .getMyOrganizationApiClient()
-          .organization.domains.list({ take: DOMAIN_PAGE_SIZE, from });
-        organizationDomains.push(...(response?.organization_domains ?? []));
-        from = response?.next ?? undefined;
-        if (!from) break;
-      }
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list({ take: MAX_ORG_DOMAINS });
+      const organizationDomains: Domain[] = response?.organization_domains ?? [];
       return { domains: organizationDomains, next: null };
     },
     enabled: !!coreClient && !!idpId,
