@@ -288,7 +288,7 @@ export function useSsoDomainTab(
       }
       if (failed.length > 0) {
         handleError(failed[0]!.error, {
-          fallbackMessage: t('domain_assign.error', {
+          messagePrefix: t('domain_assign.error', {
             domains: failed.map(({ domain }) => domain.domain).join(', '),
             idp: provider?.name,
           }),

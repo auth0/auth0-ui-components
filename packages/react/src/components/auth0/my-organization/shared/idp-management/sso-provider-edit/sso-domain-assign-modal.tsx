@@ -70,12 +70,12 @@ export function SsoDomainAssignModal({
   return (
     <Modal
       open={isOpen}
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => !open && !isAssigning && onClose()}
       className={cn('p-10', className)}
       title={t('title')}
+      description={t('description')}
       content={
         <div className="space-y-6">
-          <p className="text-muted-foreground text-paragraph">{t('description')}</p>
           <div className="space-y-2">
             <Label htmlFor={DOMAIN_FIELD_ID} className="text-label font-medium">
               {t('field.label')}

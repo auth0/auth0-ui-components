@@ -230,7 +230,7 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => {
+    onSettled: () => {
       void invalidateAssignments();
     },
   });
@@ -259,7 +259,7 @@ export function useSsoDomainTabService(
 
       return domain;
     },
-    onSuccess: () => {
+    onSettled: () => {
       void invalidateAssignments();
     },
   });

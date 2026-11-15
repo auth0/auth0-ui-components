@@ -33,7 +33,7 @@ export function SsoDomainTabActionsColumn({
   customMessages = {},
   permissions,
   domain,
-  idpName = '',
+  idpName,
   isUpdating,
   isUpdatingId,
   onRemove,
@@ -53,6 +53,12 @@ export function SsoDomainTabActionsColumn({
   }
 
   const canRemove = permissions.canDissociateDomain;
+  const removeLabel = t('table.actions.remove_domain_aria_label', { domain: domain.domain });
+  const tooltip = canRemove
+    ? idpName
+      ? t('table.actions.remove_domain_tooltip', { idp: idpName })
+      : removeLabel
+    : tCommon('error.forbidden');
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -66,17 +72,13 @@ export function SsoDomainTabActionsColumn({
               className="border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20"
               disabled={!canRemove || isUpdating}
               onClick={() => onRemove(domain)}
-              aria-label={t('table.actions.remove_domain_aria_label', { domain: domain.domain })}
+              aria-label={removeLabel}
             >
               <CircleMinus aria-hidden="true" />
             </Button>
           </span>
         </TooltipTrigger>
-        <TooltipContent>
-          {canRemove
-            ? t('table.actions.remove_domain_tooltip', { idp: idpName })
-            : tCommon('error.forbidden')}
-        </TooltipContent>
+        <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
     </div>
   );

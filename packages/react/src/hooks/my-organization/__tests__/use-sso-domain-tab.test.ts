@@ -483,7 +483,7 @@ describe('useSsoDomainTab', () => {
       });
       expect(mockHandleError).toHaveBeenCalledTimes(1);
       expect(mockHandleError).toHaveBeenCalledWith(error, {
-        fallbackMessage: 'domain_assign.error',
+        messagePrefix: 'domain_assign.error',
       });
       expect(result.current.isAssigning).toBe(false);
     });
