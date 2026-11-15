@@ -165,6 +165,69 @@ describe('DomainCreateModal', () => {
       expect(screen.queryByText('use_for_discovery.locked_hint')).not.toBeInTheDocument();
     });
 
+    describe('info tooltip', () => {
+      const infoName = 'use_for_discovery.tooltip';
+      const renderWithOption = (overrides: Partial<DomainCreateModalProps> = {}) => {
+        const props = createMockDomainCreateModalProps({ showDiscoveryOption: true, ...overrides });
+        renderWithProviders(<DomainCreateModal {...props} />);
+        return props;
+      };
+
+      it('is a button next to the label, named by the tooltip text', () => {
+        renderWithOption();
+
+        const info = screen.getByRole('button', { name: infoName });
+        expect(info).toHaveAttribute('type', 'button');
+        expect(screen.getByText('use_for_discovery.label')).toBeInTheDocument();
+      });
+
+      it('shows the tooltip text on hover', async () => {
+        const user = userEvent.setup();
+        renderWithOption();
+
+        await user.hover(screen.getByRole('button', { name: infoName }));
+
+        expect(await screen.findAllByText(infoName)).not.toHaveLength(0);
+      });
+
+      it('shows the tooltip text when a keyboard user reaches the button', async () => {
+        const user = userEvent.setup();
+        renderWithOption();
+        const info = screen.getByRole('button', { name: infoName });
+
+        for (let step = 0; step < 6 && document.activeElement !== info; step++) {
+          await user.tab();
+        }
+
+        expect(info).toHaveFocus();
+        expect(info).toHaveClass('focus-visible:ring-4');
+        expect(await screen.findAllByText(infoName)).not.toHaveLength(0);
+      });
+
+      it('does not toggle the checkbox or submit the form when used', async () => {
+        const user = userEvent.setup();
+        const props = renderWithOption();
+
+        await user.click(screen.getByRole('button', { name: infoName }));
+
+        expect(screen.getByRole('checkbox')).not.toBeChecked();
+        expect(props.onCreate).not.toHaveBeenCalled();
+      });
+
+      it('is not shown when the discovery option is hidden', () => {
+        renderWithOption({ showDiscoveryOption: false });
+
+        expect(screen.queryByRole('button', { name: infoName })).not.toBeInTheDocument();
+      });
+
+      it('sits alongside the locked hint rather than replacing it', () => {
+        renderWithOption({ isDiscoveryReadOnly: true });
+
+        expect(screen.getByRole('button', { name: infoName })).toBeInTheDocument();
+        expect(screen.getByText('use_for_discovery.locked_hint')).toBeInTheDocument();
+      });
+    });
+
     it('does not show a validation error just because the modal opened', () => {
       renderWithProviders(
         <DomainCreateModal {...createMockDomainCreateModalProps({ showDiscoveryOption: true })} />,

@@ -15,6 +15,7 @@ export interface DomainCreateMessages extends SharedMessages {
   };
   use_for_discovery?: {
     label?: string;
+    tooltip?: string;
     locked_hint?: string;
   };
   actions?: {
