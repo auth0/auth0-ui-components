@@ -178,6 +178,7 @@
         },
         "use_for_discovery": {
           "label": "Use for discovery",
+          "tooltip": "Takes effect once the domain is verified. Users who enter an email at this domain at login will be taken straight to this organization.",
           "locked_hint": "Your organization's policy sets this and it can't be changed."
         },
         "actions": {
@@ -189,7 +190,7 @@
     "domain_discovery": {
       "modal": {
         "title": "Domain verified. Use for discovery?",
-        "description": "Users with an @${domainName} email will be sent to your identity provider's login page.",
+        "description": "Users who enter an @${domainName} email at login will be taken straight to this organization.",
         "actions": {
           "not_now_button_text": "Not now",
           "use_button_text": "Use for discovery"

@@ -9,6 +9,7 @@ import {
   type InternalDomainCreateFormValues,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -24,6 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Modal } from '@/components/ui/modal';
 import { TextField } from '@/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
@@ -71,6 +73,7 @@ export function DomainCreateModal({
     return null;
   };
   const discoveryHint = getDiscoveryHint();
+  const discoveryInfo = t('use_for_discovery.tooltip');
 
   const domainCreateSchema = React.useMemo(
     () => createDomainCreateSchema(schema, t('field.error')),
@@ -173,9 +176,25 @@ export function DomainCreateModal({
                         />
                       </FormControl>
                       <div className="space-y-1">
-                        <FormLabel className="text-label font-medium text-foreground peer-disabled:opacity-100">
-                          {t('use_for_discovery.label')}
-                        </FormLabel>
+                        <div className="flex items-center gap-1.5">
+                          <FormLabel className="text-label font-medium text-foreground peer-disabled:opacity-100">
+                            {t('use_for_discovery.label')}
+                          </FormLabel>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                aria-label={discoveryInfo}
+                                className="text-muted-foreground inline-flex shrink-0 cursor-help rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring"
+                              >
+                                <Info className="h-4 w-4" aria-hidden="true" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              {discoveryInfo}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                         {discoveryHint && (
                           <FormDescription className="text-sm">{discoveryHint}</FormDescription>
                         )}
