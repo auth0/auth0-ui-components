@@ -1,8 +1,9 @@
 /** @module sso-provider-create */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { getComponentStyles, getInstructionsLocale } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
+import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup';
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
@@ -11,10 +12,12 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
+import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import type { SsoGuidedSetupConfigureForm } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 import type {
   FormState,
   SsoProviderCreateProps,
@@ -31,6 +34,7 @@ import type {
  * @param props.onNext - Callback for next action
  * @param props.onPrevious - Callback for previous action
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
+ * @param props.guidedSetup - Guided setup on the Configure step (off by default)
  * @internal
  * @returns JSX element
  */
@@ -50,6 +54,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     resolveSamlMetadata,
     showSignRequest,
     connectionNamePrefix,
+    guidedSetup,
   } = props;
 
   const ssoProviderCreate = useSsoProviderCreate({
@@ -57,6 +62,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     customMessages,
     onNext,
     onPrevious,
+    guidedSetup,
   });
 
   const { strategy, details, configure } = ssoProviderCreate.formData;
@@ -116,10 +122,22 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     setFormData,
     handleCreate,
     createStepActions,
+    guidedSetup,
   } = props;
 
   const { isDarkMode } = useTheme();
-  const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
+  const { t, currentLanguage } = useTranslator(
+    'idp_management.create_sso_provider',
+    customMessages,
+  );
+
+  const { instructions } = useIdpInstructionsService({
+    kind: 'creation',
+    strategy,
+    locale: getInstructionsLocale(currentLanguage),
+    enabled: Boolean(guidedSetup?.isAvailable),
+  });
+  const canStartGuidedSetup = Boolean(guidedSetup?.isAvailable && instructions?.pages.length);
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -190,6 +208,14 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               resolveSamlMetadata={resolveSamlMetadata}
               showSignRequest={showSignRequest}
               styling={styling}
+              guidedSetupAction={
+                guidedSetup && canStartGuidedSetup
+                  ? {
+                      onClick: guidedSetup.start,
+                      className: currentStyles?.classes?.['SsoProviderCreate-guidedSetupButton'],
+                    }
+                  : undefined
+              }
             />
           ) : null,
         actions: createStepActions('provider_configure', configureRef),
@@ -217,8 +243,56 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       resolveSamlMetadata,
       showSignRequest,
       connectionNamePrefix,
+      canStartGuidedSetup,
+      guidedSetup,
     ],
   );
+
+  const guidedConfigure = useMemo<SsoGuidedSetupConfigureForm | undefined>(
+    () =>
+      guidedSetup && {
+        ref: guidedSetup.configureRef,
+        props: {
+          initialData: configure ?? undefined,
+          idpConfig: idpConfig ?? null,
+          connectionName: details?.name,
+          connectionNamePrefix,
+          connectionSourceSelector: 'tabs',
+          customMessages: { fields: customMessages?.provider_configure?.fields },
+          showThirdPartyAccess,
+          isThirdPartyAccessReadOnly,
+          showCrossAppAccess,
+          isCrossAppAccessReadOnly,
+          crossAppAccessDefaultValue,
+          isOrganizationBlocked,
+          resolveSamlMetadata,
+          showSignRequest,
+          styling,
+        },
+      },
+    [
+      guidedSetup,
+      configure,
+      idpConfig,
+      details?.name,
+      connectionNamePrefix,
+      customMessages?.provider_configure?.fields,
+      showThirdPartyAccess,
+      isThirdPartyAccessReadOnly,
+      showCrossAppAccess,
+      isCrossAppAccessReadOnly,
+      crossAppAccessDefaultValue,
+      isOrganizationBlocked,
+      resolveSamlMetadata,
+      showSignRequest,
+      styling,
+    ],
+  );
+
+  const guidedConnectionName =
+    connectionNamePrefix && details?.name
+      ? `${connectionNamePrefix}-${details.name}`
+      : details?.name;
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -234,18 +308,36 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
           className={currentStyles?.classes?.['SsoProviderCreate-header']}
         />
         <div className="sso-provider-create__content" data-testid="sso-provider-create-content">
-          <Wizard
-            isLoading={isCreating}
-            hideStepperNumbers
-            steps={wizardSteps}
-            onComplete={handleCreate}
-            formActionLabels={{
-              nextButtonLabel: t('nextButtonLabel'),
-              previousButtonLabel: t('previousButtonLabel'),
-              completeButtonLabel: t('completeButtonLabel'),
-            }}
-            className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
-          />
+          {guidedSetup?.isActive && strategy ? (
+            <SsoGuidedSetup
+              strategy={strategy}
+              connectionName={guidedConnectionName}
+              companyName={guidedSetup.companyName}
+              provider={guidedSetup.provider}
+              resolveSamlMetadata={resolveSamlMetadata}
+              configure={guidedConfigure}
+              isSubmitting={isCreating}
+              onBeforeCreate={guidedSetup.validate}
+              onCreateProvider={guidedSetup.create}
+              onLeavePage={guidedSetup.saveConfigure}
+              onComplete={guidedSetup.complete}
+              customMessages={customMessages?.guided_setup}
+              className={currentStyles?.classes?.['SsoProviderCreate-guidedSetup']}
+            />
+          ) : (
+            <Wizard
+              isLoading={isCreating}
+              hideStepperNumbers
+              steps={wizardSteps}
+              onComplete={handleCreate}
+              formActionLabels={{
+                nextButtonLabel: t('nextButtonLabel'),
+                previousButtonLabel: t('previousButtonLabel'),
+                completeButtonLabel: t('completeButtonLabel'),
+              }}
+              className={currentStyles?.classes?.['SsoProviderCreate-wizard']}
+            />
+          )}
         </div>
       </div>
     </StyledScope>
@@ -265,6 +357,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * @param props.onNext - Callback when moving to next step
  * @param props.onPrevious - Callback when moving to previous step
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
+ * @param props.guidedSetup - Guided setup on the Configure step (off by default)
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @returns SSO provider creation wizard component

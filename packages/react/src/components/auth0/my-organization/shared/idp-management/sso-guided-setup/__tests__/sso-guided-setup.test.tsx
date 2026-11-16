@@ -74,6 +74,23 @@ describe('SsoGuidedSetup', () => {
     expect(pageTitle()).toHaveTextContent('Create Application');
   });
 
+  it('reports the page being left before moving', async () => {
+    const onLeavePage = vi.fn();
+    renderSetup({ onLeavePage });
+    await screen.findByText('Okta');
+
+    await userEvent.click(primary(/^next$/));
+    expect(onLeavePage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ key: 'okta-create-application' }),
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /^back$/ }));
+    expect(onLeavePage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ key: 'okta-configure-connection' }),
+    );
+    expect(onLeavePage).toHaveBeenCalledTimes(2);
+  });
+
   describe('creating the provider', () => {
     const goToConfigure = async () => {
       await screen.findByText('Okta');

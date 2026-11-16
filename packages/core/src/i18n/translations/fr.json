@@ -326,6 +326,7 @@
       "provider_configure": {
         "title": "Configurer le fournisseur",
         "description": "Établissez une connexion entre votre fournisseur d'identité et Auth0.",
+        "guided_setup_button_text": "Configuration guidée",
         "fields": {
           "common": {
             "show_as_button": {

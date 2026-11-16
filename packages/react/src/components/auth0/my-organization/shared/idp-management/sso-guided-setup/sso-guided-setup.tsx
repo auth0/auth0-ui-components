@@ -57,6 +57,7 @@ export interface SsoGuidedSetupProps
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
   onComplete?: () => void;
+  onLeavePage?: (page: InstructionsPageItem) => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
   className?: string;
 }
@@ -91,6 +92,7 @@ export function SsoGuidedSetup({
   onBeforeCreate,
   onCreateProvider,
   onComplete,
+  onLeavePage,
   customMessages = {},
   className,
 }: SsoGuidedSetupProps) {
@@ -131,6 +133,16 @@ export function SsoGuidedSetup({
     initialPageKey,
   });
 
+  const currentPage = flow.currentPage;
+
+  const leavePage = React.useCallback(
+    (navigate: () => void) => {
+      if (currentPage) onLeavePage?.(currentPage);
+      navigate();
+    },
+    [currentPage, onLeavePage],
+  );
+
   const [isConfirmOpen, setConfirmOpen] = React.useState(false);
   const [isCreating, setCreating] = React.useState(false);
   const [advanceWhenCreated, setAdvanceWhenCreated] = React.useState(false);
@@ -139,12 +151,11 @@ export function SsoGuidedSetup({
   React.useEffect(() => {
     if (advanceWhenCreated && provider) {
       setAdvanceWhenCreated(false);
-      flow.goNext();
+      leavePage(flow.goNext);
     }
-  }, [advanceWhenCreated, provider, flow]);
+  }, [advanceWhenCreated, provider, flow, leavePage]);
 
   const company = companyName || t('company_fallback');
-  const currentPage = flow.currentPage;
   const isConnectionPage = currentPage?.exit_condition === 'connection_exists';
   const needsCreate = isConnectionPage && !provider;
 
@@ -158,7 +169,7 @@ export function SsoGuidedSetup({
       onComplete?.();
       return;
     }
-    flow.goNext();
+    leavePage(flow.goNext);
   };
 
   const handleProceed = async () => {
@@ -243,7 +254,7 @@ export function SsoGuidedSetup({
             orientation="vertical"
             steps={flow.visiblePages.map((page) => ({ id: page.key, title: page.title }))}
             currentStep={flow.currentIndex}
-            onStepClick={(index) => flow.goToPage(index)}
+            onStepClick={(index) => leavePage(() => flow.goToPage(index))}
           />
         </nav>
 
@@ -261,7 +272,11 @@ export function SsoGuidedSetup({
             hasUnsavedChanges
             isLoading={isSubmitting}
             showPrevious={!flow.isFirstPage}
-            previousAction={{ label: t('back'), variant: 'outline', onClick: flow.goBack }}
+            previousAction={{
+              label: t('back'),
+              variant: 'outline',
+              onClick: () => leavePage(flow.goBack),
+            }}
             nextAction={{
               type: 'button',
               label: primaryLabel,

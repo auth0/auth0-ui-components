@@ -27,6 +27,8 @@ import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
+
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
@@ -46,6 +48,8 @@ export type FormMode = 'create' | 'edit';
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
   'SsoProviderCreate-wizard'?: string;
+  'SsoProviderCreate-guidedSetup'?: string;
+  'SsoProviderCreate-guidedSetupButton'?: string;
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
@@ -100,6 +104,7 @@ export interface ProviderConfigureProps
    * @returns An object containing `entityId` for the SP Issuer URN.
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  guidedSetupAction?: { onClick: () => void; className?: string };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -139,6 +144,25 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+export interface SsoProviderCreateGuidedSetup {
+  enabled?: boolean;
+  companyName?: string;
+}
+
+export interface SsoProviderCreateGuidedSetupState {
+  isAvailable: boolean;
+  isActive: boolean;
+  provider: IdpKnownResponse | null;
+  companyName?: string;
+  configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
+  start: () => void;
+  saveConfigure: () => void;
+  validate: () => Promise<boolean>;
+  create: () => Promise<boolean>;
+  complete: () => void;
+}
+
 export interface SsoProviderCreateProps
   extends SharedComponentProps<
     SsoProviderCreateMessages,
@@ -160,6 +184,7 @@ export interface SsoProviderCreateProps
    * @returns An object containing `entityId` for the SP Issuer URN.
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 
 export interface UseSsoProviderCreateOptions {
@@ -179,6 +204,7 @@ export interface UseSsoProviderCreateServiceReturn {
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
   onNext?: (stepId: string, values: Partial<FormState>) => boolean;
   onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
+  guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 
 export interface UseSsoProviderCreateResult {
@@ -201,6 +227,7 @@ export interface UseSsoProviderCreateResult {
   getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
   isOrganizationBlocked: boolean;
   crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  guidedSetup?: SsoProviderCreateGuidedSetupState;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

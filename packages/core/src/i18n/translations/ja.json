@@ -379,6 +379,7 @@
       "provider_configure": {
         "title": "Configure Provider",
         "description": "Establish a connection between your identity provider and Auth0.",
+        "guided_setup_button_text": "ガイド付きセットアップ",
         "fields": {
           "common": {
             "show_as_button": {
