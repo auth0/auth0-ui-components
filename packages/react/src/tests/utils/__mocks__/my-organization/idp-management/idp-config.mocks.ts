@@ -22,6 +22,7 @@ export const createMockUseIdpConfig = (
       can_set_assign_membership_on_login: true,
       can_set_show_as_button: true,
     },
+    domain_aliases_config: { domain_verification: 'optional' },
   } as GetIdpConfigurationResponseContent,
   isLoadingIdpConfig: false,
   isIdpConfigValid: true,
