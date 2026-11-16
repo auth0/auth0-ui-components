@@ -7,6 +7,7 @@ import {
   BusinessError,
   domainQueryKeys,
   ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
 } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -964,6 +965,36 @@ describe('useDomainTableService', () => {
       ).toHaveBeenCalledWith({
         take: undefined,
         from: undefined,
+      });
+    });
+  });
+
+  describe('provider detail cache', () => {
+    it('should invalidate the provider detail after associating a domain', async () => {
+      const mockProvider = createMockIdentityProvider({ id: 'con_assoc' });
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await result.current.onAssociateToProvider(createMockDomain(), mockProvider);
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({
+          queryKey: ssoProviderQueryKeys.detail('con_assoc'),
+        });
+      });
+    });
+
+    it('should invalidate the provider detail after dissociating a domain', async () => {
+      const mockProvider = createMockIdentityProvider({ id: 'con_dissoc' });
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+      await result.current.onDeleteFromProvider(createMockDomain(), mockProvider);
+
+      await waitFor(() => {
+        expect(invalidateSpy).toHaveBeenCalledWith({
+          queryKey: ssoProviderQueryKeys.detail('con_dissoc'),
+        });
       });
     });
   });

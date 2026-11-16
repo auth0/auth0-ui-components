@@ -14,16 +14,12 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
-import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
-import {
-  getDomainVerificationMode,
-  isDomainUsedForDiscovery,
-} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { isDomainUsedForDiscovery } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   UseDomainTableOptions,
   UseDomainTableReturn,
@@ -55,8 +51,6 @@ export function useDomainTable({
 
   const { discoveryPolicy, showDiscovery, isDiscoveryReadOnly, discoveryDefaultValue } =
     useConfig();
-  const { idpConfig, isLoadingIdpConfig } = useIdpConfig();
-  const domainVerificationMode = getDomainVerificationMode(idpConfig);
 
   const {
     pageSize,
@@ -110,6 +104,7 @@ export function useDomainTable({
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
+  const [isSavingProvider, setIsSavingProvider] = useState(false);
   const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
   const isConfigureOnHoldRef = useRef(false);
   const [updatingDiscoveryId, setUpdatingDiscoveryId] = useState<string | null>(null);
@@ -256,6 +251,61 @@ export function useDomainTable({
     [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
+  const handleAssignProvider = useCallback(
+    async (domain: Domain, provider: IdpKnownResponse) => {
+      if (!permissions.canAssociateProvider) return;
+      const isOnAnotherProvider = providers.some(
+        (current) => current.is_associated && current.id !== provider.id,
+      );
+      if (isOnAnotherProvider) return;
+
+      setIsSavingProvider(true);
+      try {
+        await onAssociateToProvider(domain, provider);
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_associate_provider.success', {
+            domainName: domain.domain,
+            idp: provider.name,
+          }),
+        });
+        setShowConfigureModal(false);
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_associate_provider.error'),
+        });
+      } finally {
+        setIsSavingProvider(false);
+      }
+    },
+    [permissions, providers, onAssociateToProvider, t, handleError],
+  );
+
+  const handleRemoveProvider = useCallback(
+    async (domain: Domain, provider: IdpKnownResponse) => {
+      if (!permissions.canDissociateProvider) return;
+
+      setIsSavingProvider(true);
+      try {
+        await onDeleteFromProvider(domain, provider);
+        showToast({
+          type: 'success',
+          message: t('domain_table.notifications.domain_delete_provider.success', {
+            domainName: domain.domain,
+            idp: provider.name,
+          }),
+        });
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_delete_provider.error'),
+        });
+      } finally {
+        setIsSavingProvider(false);
+      }
+    },
+    [permissions, onDeleteFromProvider, t, handleError],
+  );
+
   const handleCloseVerifyModal = useCallback(() => {
     setShowVerifyModal(false);
     setVerifyError(undefined);
@@ -272,10 +322,11 @@ export function useDomainTable({
       if (domain.status !== 'verified') {
         setShowVerifyModal(true);
       } else {
+        setShowConfigureModal(true);
         try {
           await fetchProviders(domain);
-          setShowConfigureModal(true);
         } catch (error) {
+          setShowConfigureModal(false);
           handleError(error, {
             fallbackMessage: t('domain_table.notifications.fetch_providers_error'),
           });
@@ -434,7 +485,8 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
-    isLoadingProviders: isLoadingProviders || isLoadingIdpConfig,
+    isLoadingProviders,
+    isSavingProvider,
     isUpdatingDiscovery,
     updatingDiscoveryId,
     // Pagination
@@ -444,9 +496,6 @@ export function useDomainTable({
       hasNextPage: !!nextToken,
       hasPreviousPage,
     },
-
-    // Domain verification
-    domainVerificationMode,
 
     // Discovery policy
     discoveryPolicy,
@@ -478,6 +527,8 @@ export function useDomainTable({
     handleCloseDiscoveryModal,
     handleDelete,
     handleToggleSwitch,
+    handleAssignProvider,
+    handleRemoveProvider,
     handleCloseVerifyModal,
     handleCreateClick,
     handleConfigureClick,
