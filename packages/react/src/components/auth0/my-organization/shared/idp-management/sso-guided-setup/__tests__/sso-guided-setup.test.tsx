@@ -140,42 +140,18 @@ describe('SsoGuidedSetup', () => {
     });
   });
 
-  describe('edit mode', () => {
-    it('lands on the configure page and saves with Next', async () => {
-      const onSaveConnection = vi.fn().mockResolvedValue(true);
-      renderSetup({ mode: 'edit', provider: PROVIDER, onSaveConnection });
-
-      await waitFor(() => expect(pageTitle()).toHaveTextContent('Configure Connection'));
-      await userEvent.click(primary(/^next$/));
-
-      expect(onSaveConnection).toHaveBeenCalledTimes(1);
-      expect(pageTitle()).toHaveTextContent('Claims Mapping');
+  it('finishes with Done on the last page', async () => {
+    const onComplete = vi.fn();
+    renderSetup({
+      provider: PROVIDER,
+      initialPageKey: 'okta-test-connection',
+      onComplete,
     });
 
-    it('stays on the configure page when saving fails', async () => {
-      const onSaveConnection = vi.fn().mockResolvedValue(false);
-      renderSetup({ mode: 'edit', provider: PROVIDER, onSaveConnection });
+    await waitFor(() => expect(pageTitle()).toHaveTextContent('Test SSO'));
+    await userEvent.click(primary(/done/));
 
-      await waitFor(() => expect(pageTitle()).toHaveTextContent('Configure Connection'));
-      await userEvent.click(primary(/^next$/));
-
-      expect(pageTitle()).toHaveTextContent('Configure Connection');
-    });
-
-    it('finishes with Done on the last page', async () => {
-      const onComplete = vi.fn();
-      renderSetup({
-        mode: 'edit',
-        provider: PROVIDER,
-        initialPageKey: 'okta-test-connection',
-        onComplete,
-      });
-
-      await waitFor(() => expect(pageTitle()).toHaveTextContent('Test SSO'));
-      await userEvent.click(primary(/done/));
-
-      expect(onComplete).toHaveBeenCalledTimes(1);
-    });
+    expect(onComplete).toHaveBeenCalledTimes(1);
   });
 
   describe('content renderers', () => {
@@ -197,7 +173,6 @@ describe('SsoGuidedSetup', () => {
 
     it('fills the test connection slot', async () => {
       renderSetup({
-        mode: 'edit',
         provider: PROVIDER,
         initialPageKey: 'okta-test-connection',
         slots: { testConnection: <p>test slot</p> },

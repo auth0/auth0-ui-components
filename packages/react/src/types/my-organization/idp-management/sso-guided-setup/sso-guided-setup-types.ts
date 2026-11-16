@@ -41,7 +41,6 @@ export interface SsoGuidedSetupSlots {
 export interface SsoGuidedSetupContextValue {
   kind: InstructionsKind;
   strategy: IdpStrategy;
-  mode?: 'create' | 'edit';
   baseUrl?: string;
   tenant?: string;
   connectionName?: string;

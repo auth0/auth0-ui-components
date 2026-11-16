@@ -48,7 +48,6 @@ export interface SsoGuidedSetupProps
   > {
   strategy: IdpStrategy;
   kind?: InstructionsKind;
-  mode?: 'create' | 'edit';
   entryContext?: Partial<InstructionsEntryContext>;
   googleWorkspaceSetupComplete?: boolean;
   initialPageKey?: string;
@@ -57,7 +56,6 @@ export interface SsoGuidedSetupProps
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
-  onSaveConnection?: () => Promise<boolean>;
   onComplete?: () => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
   className?: string;
@@ -66,7 +64,7 @@ export interface SsoGuidedSetupProps
 /**
  * Guided setup for one strategy. Loads the instructions, shows the visible pages in a vertical
  * stepper and renders the current page. On the page whose exit condition is `connection_exists`
- * the primary action creates the provider (after confirmation) or, when it exists, saves it.
+ * the primary action creates the provider after confirmation; once it exists, Next moves on.
  *
  * Entry condition defaults: `if_mapping_present` is true when the provider has attribute
  * mappings, and before the provider exists (mapping data before creation is not available yet).
@@ -77,7 +75,6 @@ export interface SsoGuidedSetupProps
 export function SsoGuidedSetup({
   strategy,
   kind = 'creation',
-  mode = 'create',
   connectionName,
   companyName,
   provider = null,
@@ -93,7 +90,6 @@ export function SsoGuidedSetup({
   isSubmitting = false,
   onBeforeCreate,
   onCreateProvider,
-  onSaveConnection,
   onComplete,
   customMessages = {},
   className,
@@ -128,13 +124,11 @@ export function SsoGuidedSetup({
     [provider, googleWorkspaceSetupComplete],
   );
 
-  const connectionPageKey = pages.find((page) => page.exit_condition === 'connection_exists')?.key;
-
   const flow = useGuidedSetupFlow({
     pages,
     entryContext: resolvedEntryContext,
     exitState,
-    initialPageKey: initialPageKey ?? (mode === 'edit' ? connectionPageKey : undefined),
+    initialPageKey,
   });
 
   const [isConfirmOpen, setConfirmOpen] = React.useState(false);
@@ -159,10 +153,6 @@ export function SsoGuidedSetup({
       const canCreate = onBeforeCreate ? await onBeforeCreate() : true;
       if (canCreate) setConfirmOpen(true);
       return;
-    }
-    if (isConnectionPage && onSaveConnection) {
-      const saved = await onSaveConnection();
-      if (!saved) return;
     }
     if (flow.isLastPage) {
       onComplete?.();
@@ -192,7 +182,6 @@ export function SsoGuidedSetup({
     () => ({
       kind,
       strategy,
-      mode,
       baseUrl: instructions?.base_url,
       tenant: instructions?.tenant,
       connectionName,
@@ -207,7 +196,6 @@ export function SsoGuidedSetup({
     [
       kind,
       strategy,
-      mode,
       instructions?.base_url,
       instructions?.tenant,
       connectionName,
