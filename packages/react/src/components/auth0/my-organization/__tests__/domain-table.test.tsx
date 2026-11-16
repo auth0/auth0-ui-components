@@ -634,6 +634,80 @@ describe('DomainTable', () => {
     });
   });
 
+  describe('configure single provider', () => {
+    it('should remove the current provider, then assign the selected one on Save', async () => {
+      const user = userEvent.setup();
+      const currentProvider = createMockIdentityProvider({
+        id: 'con_current',
+        name: 'current-idp',
+        display_name: 'Current IdP',
+        strategy: 'okta',
+      });
+      const nextProvider = createMockIdentityProvider({
+        id: 'con_next',
+        name: 'next-idp',
+        display_name: 'Next IdP',
+        strategy: 'samlp',
+      });
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listProviders = apiService.organization.identityProviders.list as ReturnType<
+        typeof vi.fn
+      >;
+      listProviders.mockResolvedValue({
+        identity_providers: [
+          { ...currentProvider, domains: [mockVerifiedDomain.domain] },
+          { ...nextProvider, domains: [] },
+        ],
+      });
+      (
+        apiService.organization.identityProviders.domains.delete as ReturnType<typeof vi.fn>
+      ).mockImplementation(async () => {
+        listProviders.mockResolvedValue({
+          identity_providers: [
+            { ...currentProvider, domains: [] },
+            { ...nextProvider, domains: [] },
+          ],
+        });
+      });
+
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      const verifiedRow = (await screen.findByText(/shared\.domain_statuses\.verified/i)).closest(
+        'tr',
+      ) as HTMLElement;
+      await user.click(within(verifiedRow).getByRole('button'));
+      await user.click(await screen.findByRole('menuitem', { name: /configure_button_text/i }));
+
+      const configureModal = await screen.findByRole('dialog');
+      expect(within(configureModal).queryByRole('switch')).not.toBeInTheDocument();
+      expect(within(configureModal).queryByRole('combobox')).not.toBeInTheDocument();
+
+      await user.click(within(configureModal).getByRole('button', { name: /remove_button/i }));
+
+      await waitFor(() => {
+        expect(apiService.organization.identityProviders.domains.delete).toHaveBeenCalledWith(
+          'con_current',
+          mockVerifiedDomain.domain,
+        );
+      });
+      const providerField = await within(configureModal).findByRole('combobox');
+      expect(apiService.organization.identityProviders.domains.create).not.toHaveBeenCalled();
+
+      await user.click(providerField);
+      await user.click(await screen.findByRole('option', { name: 'Next IdP (samlp)' }));
+      await user.click(within(configureModal).getByRole('button', { name: /save_button_text/i }));
+
+      await waitFor(() => {
+        expect(apiService.organization.identityProviders.domains.create).toHaveBeenCalledWith(
+          'con_next',
+          { domain: mockVerifiedDomain.domain },
+        );
+      });
+    });
+  });
+
   describe('onCreateProvider', () => {
     describe('when create provider is clicked', () => {
       it('should call onCreateProvider', async () => {
