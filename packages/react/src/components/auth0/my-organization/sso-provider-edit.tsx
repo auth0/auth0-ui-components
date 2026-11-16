@@ -2,11 +2,12 @@
 
 'use client';
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { PROVISIONING_METHODS, getComponentStyles } from '@auth0/universal-components-core';
 import { useState, useMemo } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
+import { SsoProvisioningGoogleSyncPanel } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
@@ -16,6 +17,7 @@ import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edi
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type {
   SsoProviderEditProps,
@@ -32,6 +34,7 @@ import type {
  * @param props.domains - Array of domains
  * @param props.hideHeader - Whether to hide the header
  * @param props.hideProvisioningTab - Whether to hide the provisioning tab
+ * @param props.hideDomainsTab - Whether to hide the domains tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
  * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
@@ -54,6 +57,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     domains,
     hideHeader = false,
     hideProvisioningTab = false,
+    hideDomainsTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
     hideAttributeMappings = false,
@@ -89,7 +93,6 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     <GateKeeper isLoading={isLoading} styling={styling}>
       <SsoProviderEditView
         {...ssoProviderEdit}
-        showProvisioningTab={ssoProviderEdit.showProvisioningTab && !hideProvisioningTab}
         styling={styling}
         customMessages={customMessages}
         backButton={backButton}
@@ -99,9 +102,11 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         domains={domains}
         hideHeader={hideHeader}
         hideProvisioningTab={hideProvisioningTab}
+        hideDomainsTab={hideDomainsTab}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideAttributeMappings={hideAttributeMappings}
+        provisioning={provisioning}
         enableProviderAction={enableProviderAction}
         connectionNamePrefix={connectionNamePrefix}
         resolveSamlMetadata={resolveSamlMetadata}
@@ -126,10 +131,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     providerId,
     domains,
     hideHeader,
+    hideProvisioningTab,
     hideDeleteProvider,
     hideRemoveFromOrganization,
     hideAttributeMappings,
     provider,
+    provisioning,
     organization,
     isLoading,
     isUpdating,
@@ -137,13 +144,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isDeleting,
     isRemoving,
     idpConfig,
-    discoveryPolicy,
-    domainVerificationMode,
     isEnableBlockedByDomains,
     customMessages,
     backButton,
     shouldAllowDeletion,
-    showProvisioningTab,
+    provisioningMethod,
+    hideDomainsTab = false,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     showCrossAppAccess,
@@ -174,6 +180,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     resolveSamlMetadata,
     showSignRequest,
   } = props;
+
+  const showProvisioningTab = !!provisioningMethod && !hideProvisioningTab;
 
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
@@ -237,7 +245,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
           className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
         >
           <TabsList
-            className={cn('grid w-full', showProvisioningTab ? 'grid-cols-3' : 'grid-cols-2')}
+            className={cn(
+              'grid w-full',
+              SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS[
+                1 + Number(showProvisioningTab) + Number(!hideDomainsTab)
+              ],
+            )}
           >
             <TabsTrigger value="sso" className="text-sm">
               {t('tabs.sso.name')}
@@ -247,9 +260,11 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 {t('tabs.provisioning.name')}
               </TabsTrigger>
             )}
-            <TabsTrigger value="domain" className="text-sm">
-              {t('tabs.domains.name')}
-            </TabsTrigger>
+            {!hideDomainsTab && (
+              <TabsTrigger value="domain" className="text-sm">
+                {t('tabs.domains.name')}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="sso">
@@ -297,44 +312,57 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
           {showProvisioningTab && (
             <TabsContent value="provisioning">
-              <SsoProvisioningTab
-                provider={provider!}
-                readOnly={readOnly}
-                isProvisioningUpdating={isProvisioningUpdating}
-                isProvisioningDeleting={isProvisioningDeleting}
-                isScimTokensLoading={isScimTokensLoading}
-                isScimTokenCreating={isScimTokenCreating}
-                isScimTokenDeleting={isScimTokenDeleting}
-                hideAttributeMappings={hideAttributeMappings}
-                hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
-                onAttributeSync={syncProvisioningAttributes}
-                isSyncingAttributes={isProvisioningAttributesSyncing}
-                onCreateProvisioning={createProvisioning}
-                onDeleteProvisioning={deleteProvisioning}
-                onListScimTokens={listScimTokens}
-                onCreateScimToken={createScimToken}
-                onDeleteScimToken={deleteScimToken}
-                customMessages={customMessages?.tabs?.provisioning?.content}
-                styling={styling}
-                permissions={permissions}
-              />
+              {provisioningMethod === PROVISIONING_METHODS.GOOGLE_WORKSPACE ? (
+                <SsoProvisioningGoogleSyncPanel
+                  key={provider!.id}
+                  provider={provider!}
+                  permissions={permissions}
+                  readOnly={readOnly}
+                  createAction={provisioning?.createAction}
+                  deleteAction={provisioning?.deleteAction}
+                  customMessages={customMessages?.tabs?.provisioning?.content}
+                  styling={styling}
+                />
+              ) : (
+                <SsoProvisioningTab
+                  provider={provider!}
+                  readOnly={readOnly}
+                  isProvisioningUpdating={isProvisioningUpdating}
+                  isProvisioningDeleting={isProvisioningDeleting}
+                  isScimTokensLoading={isScimTokensLoading}
+                  isScimTokenCreating={isScimTokenCreating}
+                  isScimTokenDeleting={isScimTokenDeleting}
+                  hideAttributeMappings={hideAttributeMappings}
+                  hasProvisioningAttributeSyncWarning={hasProvisioningAttributeSyncWarning}
+                  onAttributeSync={syncProvisioningAttributes}
+                  isSyncingAttributes={isProvisioningAttributesSyncing}
+                  onCreateProvisioning={createProvisioning}
+                  onDeleteProvisioning={deleteProvisioning}
+                  onListScimTokens={listScimTokens}
+                  onCreateScimToken={createScimToken}
+                  onDeleteScimToken={deleteScimToken}
+                  customMessages={customMessages?.tabs?.provisioning?.content}
+                  styling={styling}
+                  permissions={permissions}
+                />
+              )}
             </TabsContent>
           )}
 
-          <TabsContent value="domain">
-            <SsoDomainTab
-              customMessages={customMessages?.tabs?.domains?.content}
-              styling={styling}
-              domains={domains}
-              schema={schema?.domains}
-              idpId={providerId}
-              provider={provider}
-              permissions={permissions}
-              readOnly={readOnly}
-              domainVerificationMode={domainVerificationMode}
-              discoveryPolicy={discoveryPolicy}
-            />
-          </TabsContent>
+          {!hideDomainsTab && (
+            <TabsContent value="domain">
+              <SsoDomainTab
+                customMessages={customMessages?.tabs?.domains?.content}
+                styling={styling}
+                domains={domains}
+                schema={schema?.domains}
+                idpId={providerId}
+                provider={provider}
+                permissions={permissions}
+                readOnly={readOnly}
+              />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </StyledScope>
