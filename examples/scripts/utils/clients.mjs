@@ -1,7 +1,7 @@
 import { $ } from "execa"
 import ora from "ora"
 
-import { auth0ApiCall, auth0ApiGetAll } from "./auth0-api.mjs"
+import { auth0ApiCall, auth0ApiGetAll, throwIfApiError } from "./auth0-api.mjs"
 import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 
 // Constants
@@ -928,10 +928,12 @@ function buildTemplatePatch(updates, existing, refs) {
 async function applyDiscoveryPolicy(templateId) {
   const spinner = ora({ text: `Setting the organization discovery policy` }).start()
   try {
-    const updated = await auth0ApiCall("patch", `organization-templates/${templateId}`, {
-      use_for_organization_discovery: DEMO_DISCOVERY_POLICY,
-    })
-    if (!updated) throw new Error("the tenant didn't accept the policy (missing scope or field)")
+    const updated = throwIfApiError(
+      await auth0ApiCall("patch", `organization-templates/${templateId}`, {
+        use_for_organization_discovery: DEMO_DISCOVERY_POLICY,
+      }),
+      "the tenant didn't accept the policy (missing scope or field)"
+    )
     spinner.succeed(`Set the organization discovery policy`)
     return updated
   } catch (e) {
