@@ -1,7 +1,7 @@
 import { $ } from "execa"
 import ora from "ora"
 
-import { auth0ApiCall } from "./auth0-api.mjs"
+import { auth0ApiCall, throwIfApiError } from "./auth0-api.mjs"
 import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 
 // Constants
@@ -407,15 +407,15 @@ export async function applyConnectionProfileChanges(changePlan) {
     try {
       const { existing, updates } = changePlan
 
-      const patched = await auth0ApiCall(
-        "patch",
-        `connection-profiles/${existing.id}`,
-        updates.config
+      // A successful PATCH returns the updated profile; null or an error body means it wasn't applied
+      throwIfApiError(
+        await auth0ApiCall(
+          "patch",
+          `connection-profiles/${existing.id}`,
+          updates.config
+        ),
+        "Missing scope update:connection_profiles"
       )
-      // A successful PATCH returns the updated profile; null means it wasn't applied (e.g. missing scope)
-      if (!patched) {
-        throw new Error("Missing scope update:connection_profiles")
-      }
       spinner.succeed(`Updated Connection Profile`)
 
       // Fetch updated profile
