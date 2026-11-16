@@ -1061,7 +1061,8 @@
           "label": "Endpoint URL"
         }
       },
-      "attribute_mapping_pending": "Attribute mappings appear here once the provider is created."
+      "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
+      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider."
     }
   },
   "user_mfa_management": {

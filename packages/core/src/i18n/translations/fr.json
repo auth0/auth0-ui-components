@@ -978,7 +978,8 @@
           "label": "URL du point de terminaison"
         }
       },
-      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé."
+      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
+      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur."
     }
   },
   "user_mfa_management": {

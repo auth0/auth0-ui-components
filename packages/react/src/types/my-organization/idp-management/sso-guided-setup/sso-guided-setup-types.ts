@@ -49,6 +49,7 @@ export interface SsoGuidedSetupContextValue {
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   configure?: SsoGuidedSetupConfigureForm;
   attributeMappings?: IdpUserAttributeMapItem[] | IdpProvisioningUserAttributeMapItem[] | null;
+  attributeMappingsError?: boolean;
   slots?: SsoGuidedSetupSlots;
   customMessages?: Partial<Record<string, unknown>>;
 }

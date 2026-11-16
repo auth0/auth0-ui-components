@@ -34,13 +34,21 @@ export function InstructionConfigureConnection() {
 
 /**
  * Lists the attribute mappings: the given ones, or the provider's for creation instructions.
- * Before the provider exists (ADFS, PingFederate), shows a short note instead.
+ * Without either, shows a short note; when the mappings can't be loaded, an error.
  * @returns JSX element
  */
 export function InstructionAttributeMapping() {
-  const { kind, strategy, provider, attributeMappings, customMessages } =
+  const { kind, strategy, provider, attributeMappings, attributeMappingsError, customMessages } =
     useSsoGuidedSetupContext();
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
+
+  if (attributeMappingsError) {
+    return (
+      <p className="text-sm text-destructive" role="alert" data-slot="attribute-mapping-error">
+        {t('attribute_mapping_unavailable')}
+      </p>
+    );
+  }
 
   const providerAttributes = provider && 'attributes' in provider ? provider.attributes : undefined;
   const mappings = attributeMappings ?? (kind === 'creation' ? providerAttributes : undefined);

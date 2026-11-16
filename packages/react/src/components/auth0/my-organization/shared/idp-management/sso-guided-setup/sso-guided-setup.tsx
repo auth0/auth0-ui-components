@@ -44,6 +44,7 @@ export interface SsoGuidedSetupProps
     | 'resolveSamlMetadata'
     | 'configure'
     | 'attributeMappings'
+    | 'attributeMappingsError'
     | 'slots'
   > {
   strategy: IdpStrategy;
@@ -82,6 +83,7 @@ export function SsoGuidedSetup({
   resolveSamlMetadata,
   configure,
   attributeMappings,
+  attributeMappingsError = false,
   slots,
   entryContext,
   googleWorkspaceSetupComplete = false,
@@ -158,6 +160,9 @@ export function SsoGuidedSetup({
   const company = companyName || t('company_fallback');
   const isConnectionPage = currentPage?.exit_condition === 'connection_exists';
   const needsCreate = isConnectionPage && !provider;
+  const isBlockedByMappings =
+    attributeMappingsError &&
+    Boolean(currentPage?.contents.some((content) => content.type === MAPPING_CONTENT_TYPE));
 
   const handlePrimary = async () => {
     if (needsCreate) {
@@ -201,6 +206,7 @@ export function SsoGuidedSetup({
       resolveSamlMetadata,
       configure,
       attributeMappings,
+      attributeMappingsError,
       slots,
       customMessages,
     }),
@@ -215,6 +221,7 @@ export function SsoGuidedSetup({
       resolveSamlMetadata,
       configure,
       attributeMappings,
+      attributeMappingsError,
       slots,
       customMessages,
     ],
@@ -281,6 +288,7 @@ export function SsoGuidedSetup({
               type: 'button',
               label: primaryLabel,
               variant: 'primary',
+              disabled: isBlockedByMappings,
               onClick: handlePrimary,
             }}
           />
@@ -302,6 +310,8 @@ export function SsoGuidedSetup({
 type InstructionsPageItem = IdpInstructionsPage | IdpProvisioningInstructionsPage;
 
 const EMPTY_PAGES: InstructionsPageItem[] = [];
+
+const MAPPING_CONTENT_TYPE = 'attribute_mapping_list_component';
 
 /**
  * Attribute mappings of a provider, for strategies whose response carries them.
