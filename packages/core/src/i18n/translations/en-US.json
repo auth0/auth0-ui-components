@@ -199,10 +199,16 @@
     "domain_configure_providers": {
       "modal": {
         "title": "Configure ${domain}",
-        "description": "Direct users with an ${domain} email domain to your identity provider for authentication for the selected providers.",
         "alerts": {
           "domain_verification_none": "Domain association isn't available for identity providers. Your admin has disabled domain verification."
         },
+        "description": "Direct users with the ${domain} email domain to the selected connection for authentication.",
+        "field": {
+          "label": "Name",
+          "placeholder": "Select a connection to associate"
+        },
+        "assigned_description": "This domain is already associated with a connection. To use a different connection, remove the current one first, then select a new one.",
+        "no_connection_status": "No connection is associated with ${domain}. Select a connection to associate it.",
         "table": {
           "empty_message": "You do not have any providers.",
           "columns": {
@@ -219,7 +225,10 @@
           }
         },
         "actions": {
-          "close_button_text": "Close"
+          "close_button_text": "Close",
+          "save_button_text": "Save",
+          "remove_button_text": "Remove",
+          "remove_button_aria_label": "Remove ${provider}"
         }
       }
     },
@@ -925,6 +934,63 @@
                   "label": "SCIM Endpoint URL"
                 }
               }
+            },
+            "google_workspace": {
+              "header": {
+                "title": "Provisioning",
+                "description_disabled": "Sync users automatically from your Google Workspace directory. No manual SCIM configuration required.",
+                "description_enabled": "Sync users automatically from your Google Workspace directory.",
+                "continue_button_label": "Continue with Google",
+                "retry_button_label": "Retry",
+                "status": {
+                  "granted": "Granted",
+                  "failed": "Could not be completed"
+                },
+                "provider_disabled_tooltip": "Enable provider to set up provisioning",
+                "access_level_required_tooltip": "Full organization access is required to connect Google Workspace",
+                "enable_tooltip": "Toggle to enable provisioning",
+                "disable_tooltip": "Toggle to disable provisioning"
+              },
+              "connection_info": {
+                "last_synced_label": "Last synced:"
+              },
+              "status_alert": {
+                "unconfirmed_authorization": "Your Google Workspace authorization hasn't been confirmed by a sync yet. If the authorization is revoked, the next scheduled sync will fail. <link>Continue with Google</link> to re-authorize.",
+                "sync_failed": "Sync failed: Google Workspace authorization is no longer valid. <link>Continue with Google</link> to re-authorize."
+              },
+              "auto_sync": {
+                "title": "Automatically sync users from Google Workspace",
+                "description": "When enabled, Auth0 will automatically sync your Google Workspace directory every 30 minutes. When disabled, users won't be synced until this is turned back on. To sync manually, contact your admin.",
+                "enable_tooltip": "Toggle to enable automatic sync",
+                "disable_tooltip": "Toggle to disable automatic sync"
+              },
+              "error": {
+                "title": "Having trouble with Google?",
+                "retry_button_label": "Close and Retry"
+              },
+              "modals": {
+                "enable_auto_sync": {
+                  "title": "Google access granted. Turn on automatic sync?",
+                  "content": {
+                    "description_enabled": "When enabled, Auth0 will automatically sync your Google Workspace directory every 30 minutes.",
+                    "description_skip": "If you skip this, users won't be synced until automatic synchronization is enabled. To sync manually, contact your admin."
+                  },
+                  "actions": {
+                    "dismiss_button_label": "Not now",
+                    "confirm_button_label": "Enable auto sync"
+                  }
+                },
+                "disable": {
+                  "title": "Disable Provisioning",
+                  "content": {
+                    "description": "Are you sure you want to disable provisioning? This will delete your provisioning configuration and stop syncing users. Your Google Workspace authorization remains stored and will be reused automatically if you re-enable provisioning later."
+                  },
+                  "actions": {
+                    "cancel_button_label": "Cancel",
+                    "confirm_button_label": "Disable"
+                  }
+                }
+              }
             }
           }
         },
@@ -932,14 +998,14 @@
           "name": "Domains",
           "content": {
             "title": "Domains",
-            "description": "Enhance security and streamline login by directing users to your identity provider based in their email domain.",
-            "create_button_text": "Add Domain",
             "alerts": {
               "domain_verification_none": "Domain association isn't available for this identity provider. Your admin has disabled domain verification for this identity provider.",
               "domain_verification_required": "Verify at least one domain to enable this identity provider."
             },
+            "description": "Enhance security and streamline login by directing users to your identity provider based on their email domain.",
+            "create_button_text": "Assign Domain",
             "table": {
-              "empty_message": "You do not have any domains",
+              "empty_message": "No domains are assigned to this connection.",
               "columns": {
                 "name": "Domain Name",
                 "status": "Status",
@@ -954,12 +1020,34 @@
                 "enable_domain_tooltip": "Toggle to enable this domain",
                 "disable_domain_tooltip": "Toggle to disable this domain",
                 "domain_association_unavailable_tooltip": "Domain association isn't available for this identity provider.",
-                "last_verified_domain_tooltip": "An enabled identity provider needs at least one verified domain."
+                "last_verified_domain_tooltip": "An enabled identity provider needs at least one verified domain.",
+                "remove_domain_tooltip": "Disassociate this domain with ${idp}",
+                "remove_domain_aria_label": "Remove ${domain}"
               },
               "domain_statuses": {
                 "pending": "Pending",
                 "verified": "Verified",
                 "failed": "Failed"
+              }
+            },
+            "domain_assign": {
+              "modal": {
+                "title": "Assign Domain(s)",
+                "description": "Select a verified domain to use with this identity provider.",
+                "field": {
+                  "label": "Domain(s)",
+                  "placeholder": "Select domains",
+                  "helper_text": "Only verified domains that aren't already associated with an identity provider appear here.",
+                  "empty_message": "No domains are available to assign."
+                },
+                "learn_more": {
+                  "text": "Need a different domain?",
+                  "link_text": "Learn more"
+                },
+                "actions": {
+                  "cancel_button_text": "Cancel",
+                  "assign_button_text": "Assign Domain(s)"
+                }
               }
             },
             "domain_create": {
@@ -1107,12 +1195,23 @@
       "domain_delete_provider": {
         "success": "${domain} disabled for ${idp}"
       },
+      "domain_assign": {
+        "success": "${domains} assigned to ${idp}.",
+        "error": "There was an issue assigning ${domains} to ${idp}."
+      },
       "provisioning_disabled_success": "Provisioning has been disabled.",
       "scim_token_delete_sucess": "Token has been deleted.",
       "scim_token_delete_success": "Token has been deleted.",
       "scim_token_create_success": "Token generated successfully",
       "sso_attributes_sync_success": "The provider mappings have been updated.",
-      "provisioning_attributes_sync_success": "The provisioning mappings have been updated."
+      "provisioning_attributes_sync_success": "The provisioning mappings have been updated.",
+      "google_workspace_provisioning": {
+        "connected_success": "Google Workspace access has been granted.",
+        "connected_with_auto_sync_success": "Google access granted and auto sync turned on.",
+        "connect_error": "Google authorization could not be completed. Please try again.",
+        "auto_sync_enabled_success": "Automatic sync has been enabled.",
+        "auto_sync_disabled_success": "Automatic sync has been disabled."
+      }
     }
   },
   "user_mfa_management": {

@@ -4,109 +4,45 @@
  * @internal
  */
 
-import { DEFAULT_DOMAIN_VERIFICATION_MODE } from '@auth0/universal-components-core';
+import { CircleMinus } from 'lucide-react';
 
-import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import {
-  ASSOCIATION_BLOCK_REASONS,
-  type AssociationBlockReason,
-} from '@/lib/constants/my-organization/domain-management/domain-management-constants';
-import {
-  getAssociationBlockReason,
-  isDomainAssociationUnavailable,
-} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
-import { useId } from '@/lib/utils/use-id-compat';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
  * SsoDomainTabActionsColumn component
  * Handles the actions column for SSO provider edit on domain tab table
- * with enable/disable toggle and verify button
+ * with a remove button that dissociates the domain from the identity provider
  * @param props - Component props.
  * @param props.translatorKey - Translation namespace key
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.permissions - What the current user is allowed to do
- * @param props.idpDomains - Identity provider domains
  * @param props.domain - Domain object or domain name
- * @param props.handleVerify - Handler function for domain verification
+ * @param props.idpName - Name of the identity provider, shown in the tooltip
  * @param props.isUpdating - Whether an update operation is in progress
  * @param props.isUpdatingId - ID of the item currently being updated
- * @param props.onToggle - Callback fired when toggle state changes
+ * @param props.onRemove - Callback fired when the domain is removed
  * @param props.readOnly - Whether the component is in read-only mode
- * @param props.domainVerificationMode - How identity providers use verified domains
- * @param props.lockLastDomain - Whether the provider's last verified domain must stay associated
  * @returns JSX element
  */
 export function SsoDomainTabActionsColumn({
   translatorKey = 'idp_management.edit_sso_provider.tabs.domains',
   customMessages = {},
   permissions,
-  idpDomains,
   domain,
-  handleVerify,
+  idpName,
   isUpdating,
   isUpdatingId,
-  onToggle,
+  onRemove,
   readOnly = false,
-  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
-  lockLastDomain = false,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
-  const disabledReasonId = useId();
 
-  const providerHasDomain = idpDomains.includes(domain.id);
-  const isVerifyForbidden = !readOnly && !permissions.canVerifyDomain;
-
-  const hasPermission = providerHasDomain
-    ? permissions.canDissociateDomain
-    : permissions.canAssociateDomain;
-  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
-  const isLastDomainLocked = lockLastDomain && providerHasDomain;
-
-  const blockReason = getAssociationBlockReason({
-    hasPermission,
-    isAssociationUnavailable,
-    isLastDomainLocked,
-  });
-  const blockReasonMessages: Record<AssociationBlockReason, string> = {
-    [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
-    [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
-      'table.actions.domain_association_unavailable_tooltip',
-    ),
-    [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: t('table.actions.last_verified_domain_tooltip'),
-  };
-  const disabledReason = blockReason ? blockReasonMessages[blockReason] : null;
-
-  const toggleLabel = providerHasDomain
-    ? t('table.actions.disable_domain_tooltip')
-    : t('table.actions.enable_domain_tooltip');
-  const isToggleDisabled = !!blockReason || isUpdating;
-  const describedBy = disabledReason ? disabledReasonId : undefined;
-
-  const isReasonFocusable = !!disabledReason && !readOnly;
-
-  const domainToggle = (
-    <span tabIndex={isReasonFocusable ? 0 : undefined}>
-      <Switch
-        checked={providerHasDomain}
-        onCheckedChange={(checked) => onToggle(domain, checked)}
-        disabled={isToggleDisabled}
-        aria-label={toggleLabel}
-        aria-describedby={describedBy}
-      />
-      {disabledReason && (
-        <span id={disabledReasonId} className="sr-only">
-          {disabledReason}
-        </span>
-      )}
-    </span>
-  );
+  if (readOnly) return null;
 
   if (isUpdating && isUpdatingId === domain.id) {
     return (
@@ -115,29 +51,35 @@ export function SsoDomainTabActionsColumn({
       </div>
     );
   }
+
+  const canRemove = permissions.canDissociateDomain;
+  const removeLabel = t('table.actions.remove_domain_aria_label', { domain: domain.domain });
+  const tooltip = canRemove
+    ? idpName
+      ? t('table.actions.remove_domain_tooltip', { idp: idpName })
+      : removeLabel
+    : tCommon('error.forbidden');
+
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
-      {domain.status === 'verified' ? (
-        readOnly ? (
-          domainToggle
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>{domainToggle}</TooltipTrigger>
-            <TooltipContent>{disabledReason ?? toggleLabel}</TooltipContent>
-          </Tooltip>
-        )
-      ) : (
-        <PermissionDeniedTooltip customMessages={customMessages} enabled={isVerifyForbidden}>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleVerify(domain)}
-            disabled={!permissions.canVerifyDomain}
-          >
-            {t('table.columns.verify')}
-          </Button>
-        </PermissionDeniedTooltip>
-      )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20"
+              disabled={!canRemove || isUpdating}
+              onClick={() => onRemove(domain)}
+              aria-label={removeLabel}
+            >
+              <CircleMinus aria-hidden="true" />
+            </Button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
     </div>
   );
 }

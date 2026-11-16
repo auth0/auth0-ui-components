@@ -5,7 +5,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useDomainTable } from '../use-domain-table';
 
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
-import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { PermissionContext } from '@/providers/permission-provider';
 import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -28,19 +27,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-domain-table-service', () =
   useDomainTableService: vi.fn(),
 }));
 
-vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
-  useIdpConfig: vi.fn(),
-}));
-
 const mockUseDomainTableService = vi.mocked(useDomainTableService);
-const mockUseIdpConfig = vi.mocked(useIdpConfig);
-
-const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
-  mockUseIdpConfig.mockReturnValue({
-    idpConfig: domainVerification
-      ? { domain_aliases_config: { domain_verification: domainVerification } }
-      : null,
-  } as ReturnType<typeof useIdpConfig>);
 
 describe('useDomainTable', () => {
   const mockDomain = {
@@ -74,7 +61,6 @@ describe('useDomainTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
-    mockIdpConfig();
   });
 
   const renderWithGranted = (permissions: string[], options: UseDomainTableOptions) => {
@@ -236,6 +222,149 @@ describe('useDomainTable', () => {
 
     expect(mockHandleError).toHaveBeenCalledWith(error, {
       fallbackMessage: 'domain_table.notifications.domain_delete.error',
+    });
+  });
+
+  describe('single-provider assignment', () => {
+    const providerA = { ...mockProvider, id: 'con_a', name: 'idp-a', is_associated: true };
+    const providerB = { ...mockProvider, id: 'con_b', name: 'idp-b', is_associated: false };
+
+    const renderWithServiceProviders = (
+      providers: Array<typeof providerA>,
+      overrides: Partial<ReturnType<typeof createMockDomainTableServiceReturn>> = {},
+      permissions: string[] = ALL_MY_ORG_PERMISSIONS,
+    ) => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({
+          providers,
+          onAssociateToProvider: vi.fn().mockResolvedValue(undefined),
+          onDeleteFromProvider: vi.fn().mockResolvedValue(undefined),
+          ...overrides,
+        }),
+      );
+      return renderWithGranted(permissions, defaultOptions);
+    };
+
+    describe('handleAssignProvider', () => {
+      it('should associate the domain when it has no provider', async () => {
+        const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not associate while the domain is on another provider', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should not associate without the create scope', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'create:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when associating fails', async () => {
+        const error = new Error('Associate failed');
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }], {
+          onAssociateToProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_associate_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should close the configure modal after assigning', async () => {
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }]);
+
+        act(() => result.current.setShowConfigureModal(true));
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(result.current.showConfigureModal).toBe(false);
+      });
+    });
+
+    describe('handleRemoveProvider', () => {
+      it('should dissociate the domain from the provider', async () => {
+        const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onDeleteFromProvider,
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not dissociate without the delete scope', async () => {
+        const onDeleteFromProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [providerA],
+          { onDeleteFromProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'delete:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when dissociating fails', async () => {
+        const error = new Error('Delete failed');
+        const { result } = renderWithServiceProviders([providerA], {
+          onDeleteFromProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_delete_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
     });
   });
 
@@ -701,32 +830,6 @@ describe('useDomainTable', () => {
 
       expect(result.current.showCreateModal).toBe(false);
       expect(result.current.showDeleteModal).toBe(false);
-    });
-  });
-
-  describe('domain verification mode', () => {
-    it.each(['none', 'optional', 'required'] as const)('exposes the configured %s mode', (mode) => {
-      mockIdpConfig(mode);
-      const { result } = render();
-
-      expect(result.current.domainVerificationMode).toBe(mode);
-    });
-
-    it('defaults to optional when the IdP configuration is unavailable', () => {
-      mockIdpConfig();
-      const { result } = render();
-
-      expect(result.current.domainVerificationMode).toBe('optional');
-    });
-
-    it('keeps the providers loading until the IdP configuration resolves', () => {
-      mockUseIdpConfig.mockReturnValue({
-        idpConfig: null,
-        isLoadingIdpConfig: true,
-      } as ReturnType<typeof useIdpConfig>);
-      const { result } = render();
-
-      expect(result.current.isLoadingProviders).toBe(true);
     });
   });
 });
