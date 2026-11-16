@@ -17,7 +17,6 @@ import type {
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
-  IdpDomainVerificationMode,
   OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -151,13 +150,11 @@ export interface UseDomainTableReturn {
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+  isSavingProvider: boolean;
   isUpdatingDiscovery: boolean;
   updatingDiscoveryId: string | null;
   // Pagination
   pagination: DomainTablePaginationState;
-
-  // Domain verification
-  domainVerificationMode: IdpDomainVerificationMode;
 
   // Discovery policy
   discoveryPolicy: OrganizationDiscoveryConfig | null;
@@ -188,11 +185,16 @@ export interface UseDomainTableReturn {
   handleEnableDiscovery: (domain: Domain) => Promise<void>;
   handleCloseDiscoveryModal: () => void;
   handleDelete: (domain: Domain) => Promise<void>;
+  /** @deprecated Use `handleAssignProvider` and `handleRemoveProvider`, which keep a domain on a single provider. */
   handleToggleSwitch: (
     domain: Domain,
     provider: IdpKnownResponse,
     checked: boolean,
   ) => Promise<void>;
+  /** Assigns the domain to a provider. Does nothing while the domain is on another provider. */
+  handleAssignProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
+  /** Removes the domain from a provider. */
+  handleRemoveProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;
   handleConfigureClick: (domain: Domain) => void;

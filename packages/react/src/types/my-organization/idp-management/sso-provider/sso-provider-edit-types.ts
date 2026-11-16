@@ -16,6 +16,7 @@ import type {
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
   GetIdPProvisioningConfigResponseContent,
+  IdentityProvidersConfigProvisioningMethod,
   SsoProviderAttributeMappingsMessages,
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
@@ -83,6 +84,7 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
+  hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
   hideAttributeMappings?: boolean;
@@ -93,7 +95,6 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
@@ -151,7 +152,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isLoadingConfig: boolean;
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
-  showProvisioningTab: boolean;
+  provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   discoveryPolicy: OrganizationDiscoveryConfig | null;
@@ -195,13 +196,13 @@ export interface SsoProviderEditViewProps
       | 'domains'
       | 'hideHeader'
       | 'hideProvisioningTab'
+      | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'
+      | 'provisioning'
       | 'enableProviderAction'
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'
       | 'showSignRequest'
-    > {
-  showProvisioningTab: boolean;
-}
+    > {}

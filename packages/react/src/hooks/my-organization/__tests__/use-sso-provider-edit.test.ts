@@ -17,13 +17,15 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   }),
 }));
 const mockIdpConfig = vi.hoisted(() => ({ current: {} as Record<string, unknown> }));
+const idpConfigMock = vi.hoisted(() => ({ methods: ['scim'] as string[] }));
 
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
     idpConfig: mockIdpConfig.current,
     isLoadingIdpConfig: false,
-    isProvisioningEnabled: vi.fn(() => true),
-    isProvisioningMethodEnabled: vi.fn(() => true),
+    isProvisioningEnabled: vi.fn((_strategy: unknown, method: string) =>
+      idpConfigMock.methods.includes(method),
+    ),
     showCrossAppAccess: vi.fn(() => false),
     isCrossAppAccessReadOnly: vi.fn(() => true),
     getCrossAppAccessDefaultValue: vi.fn(() => undefined),
@@ -52,6 +54,7 @@ describe('useSsoProviderEdit - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIdpConfig.current = {};
+    idpConfigMock.methods = ['scim'];
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       updateProvider: mockUpdateProvider,
       enableProvider: mockEnableProvider,
@@ -84,8 +87,22 @@ describe('useSsoProviderEdit - logic behavior', () => {
     expect(result.current.isLoadingConfig).toBe(false);
     expect(result.current.idpConfig).toEqual({});
     expect(result.current.isLoadingIdpConfig).toBe(false);
-    expect(result.current.showProvisioningTab).toBe(true);
+    expect(result.current.provisioningMethod).toBe('scim');
     expect(typeof result.current.handleToggleProvider).toBe('function');
+  });
+
+  it('should use Google Workspace provisioning when the strategy supports it', () => {
+    idpConfigMock.methods = ['google_workspace'];
+    const { result } = render();
+
+    expect(result.current.provisioningMethod).toBe('google_workspace');
+  });
+
+  it('should hide the provisioning tab without a provisioning method', () => {
+    idpConfigMock.methods = [];
+    const { result } = render();
+
+    expect(result.current.provisioningMethod).toBeUndefined();
   });
 
   it('should call enableProvider with correct params on handleToggleProvider', async () => {

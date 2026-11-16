@@ -111,8 +111,8 @@ function DomainTableView({
     isDomainsStale,
     domainsUpdatedAt,
     isLoadingProviders,
+    isSavingProvider,
     isDeleting,
-    domainVerificationMode,
     pagination,
     showCreateModal,
     showConfigureModal,
@@ -127,7 +127,8 @@ function DomainTableView({
     handleCreate,
     handleVerify,
     handleDelete,
-    handleToggleSwitch,
+    handleAssignProvider,
+    handleRemoveProvider,
     handleCloseVerifyModal,
     handleCreateClick,
     handleConfigureClick,
@@ -271,11 +272,11 @@ function DomainTableView({
         providers={providers}
         isOpen={showConfigureModal}
         isLoading={isLoadingProviders}
-        isLoadingSwitch={false}
+        isSaving={isSavingProvider}
         permissions={permissions}
-        domainVerificationMode={domainVerificationMode}
         onClose={() => setShowConfigureModal(false)}
-        onToggleSwitch={handleToggleSwitch}
+        onAssign={handleAssignProvider}
+        onRemove={handleRemoveProvider}
         onOpenProvider={onOpenProvider}
         onCreateProvider={onCreateProvider}
         customMessages={customMessages?.configure}

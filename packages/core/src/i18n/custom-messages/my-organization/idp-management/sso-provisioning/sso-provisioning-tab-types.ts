@@ -11,6 +11,7 @@ import type {
   AttributeSyncAlertMessages,
 } from '../sso-provider/sso-provider-edit-types';
 
+import type { GoogleWorkspaceProvisioningMessages } from './google-workspace-provisioning-types';
 import type { ProvisioningManageTokenMessages } from './provisioning-manage-token-types';
 
 export interface SsoProvisioningTabMessages extends SharedMessages {
@@ -26,6 +27,7 @@ export interface SsoProvisioningTabMessages extends SharedMessages {
   notifications?: SsoProviderNotificationMessages;
   details?: SsoProvisioningDetailsMessages;
   delete?: SsoProvisioningDeleteMessages;
+  google_workspace?: GoogleWorkspaceProvisioningMessages;
 }
 
 export interface SsoProvisioningDetailsMessages {
