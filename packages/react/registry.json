@@ -2798,6 +2798,7 @@
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-label@2.1.7",
+        "@radix-ui/react-popover@1.1.14",
         "@radix-ui/react-radio-group@1.2.0",
         "@radix-ui/react-select@2.2.5",
         "@radix-ui/react-slot@1.2.3",
@@ -2817,21 +2818,6 @@
           "path": "src/components/auth0/my-organization/sso-provider-edit.tsx",
           "type": "registry:block",
           "target": "components/auth0/my-organization/sso-provider-edit.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
@@ -2897,6 +2883,11 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-assign-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-assign-modal.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx",
@@ -2994,11 +2985,6 @@
           "target": "components/auth0/shared/copyable-text-field.tsx"
         },
         {
-          "path": "src/components/auth0/shared/data-pagination.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/data-pagination.tsx"
-        },
-        {
           "path": "src/components/auth0/shared/data-table.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/data-table.tsx"
@@ -3027,11 +3013,6 @@
           "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/middle-ellipsis-text.tsx"
-        },
-        {
-          "path": "src/components/auth0/shared/pagination.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/pagination.tsx"
         },
         {
           "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
@@ -3092,6 +3073,16 @@
           "path": "src/components/ui/checkbox.tsx",
           "type": "registry:component",
           "target": "components/ui/checkbox.tsx"
+        },
+        {
+          "path": "src/components/ui/chip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/chip.tsx"
+        },
+        {
+          "path": "src/components/ui/combobox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/combobox.tsx"
         },
         {
           "path": "src/components/ui/dialog.tsx",
@@ -3219,11 +3210,6 @@
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
         },
         {
-          "path": "src/hooks/shared/use-checkpoint-pagination.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-checkpoint-pagination.ts"
-        },
-        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -3334,24 +3320,9 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
-          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-create-types.ts"
-        },
-        {
-          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-delete-types.ts"
-        },
-        {
           "path": "src/types/my-organization/domain-management/domain-table-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-table-types.ts"
-        },
-        {
-          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
           "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
@@ -3437,11 +3408,6 @@
           "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
-        },
-        {
-          "path": "src/lib/constants/shared/constants.ts",
-          "type": "registry:component",
-          "target": "lib/constants/shared/constants.ts"
         },
         {
           "path": "src/lib/constants/telemetry-constants.ts",
