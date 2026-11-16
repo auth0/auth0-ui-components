@@ -63,6 +63,7 @@ export interface SsoProviderEditClasses
     SsoProviderAttributeSyncAlertClasses {
   'SsoProviderEdit-header'?: string;
   'SsoProviderEdit-tabs'?: string;
+  'SsoProviderEdit-provisioningGuidedSetup'?: string;
 }
 
 /** SSO provider edit schemas. */
@@ -162,6 +163,7 @@ export interface SsoProviderAttributeMappingsProps
   userAttributeMap: IdpProvisioningUserAttributeMapItem[] | IdpUserAttributeMapItem[] | null;
   strategy: IdpStrategy | null;
   isProvisioning?: boolean;
+  hideExternalNamespace?: boolean;
   className?: string;
 }
 
@@ -187,6 +189,7 @@ export interface SsoProviderEditViewProps
       | 'readOnly'
       | 'providerId'
       | 'domains'
+      | 'provisioning'
       | 'hideHeader'
       | 'hideProvisioningTab'
       | 'hideDeleteProvider'

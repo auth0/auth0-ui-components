@@ -852,6 +852,10 @@
       },
       "provider_details": {
         "save_button_label": "Enregistrer"
+      },
+      "provisioning_setup": {
+        "title": "Configurer le provisionnement",
+        "back_button_text": "Retour à ${providerName}"
       }
     },
     "sso_provider_details": {
@@ -976,6 +980,12 @@
         },
         "pingfederate_endpoint_url": {
           "label": "URL du point de terminaison"
+        },
+        "scim_endpoint_url": {
+          "label": "URL du point de terminaison SCIM"
+        },
+        "external_namespace": {
+          "label": "Espace de noms externe"
         }
       },
       "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",

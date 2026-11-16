@@ -26,6 +26,8 @@ export interface SsoGuidedSetupCopyValueMessages {
   google_redirect_uri?: LabelMessages;
   pingfederate_partner_entity_id?: LabelMessages;
   pingfederate_endpoint_url?: LabelMessages;
+  scim_endpoint_url?: LabelMessages;
+  external_namespace?: LabelMessages;
 }
 
 export interface SsoGuidedSetupMessages {
@@ -41,4 +43,10 @@ export interface SsoGuidedSetupMessages {
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
   attribute_mapping_unavailable?: string;
+}
+
+export interface SsoProvisioningSetupMessages {
+  title?: string;
+  back_button_text?: string;
+  guided_setup?: SsoGuidedSetupMessages;
 }

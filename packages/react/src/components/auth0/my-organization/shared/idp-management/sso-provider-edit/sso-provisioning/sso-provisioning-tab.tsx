@@ -4,12 +4,18 @@
  * @internal
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  getInstructionsLocale,
+  type IdpStrategy,
+} from '@auth0/universal-components-core';
+import { ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
 import { SsoProvisioningDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -21,6 +27,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -39,6 +46,7 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.isSyncingAttributes - Whether attribute sync is in progress.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -52,8 +60,9 @@ export function SsoProvisioningTab({
   isSyncingAttributes = false,
   permissions,
   readOnly = false,
+  onStartGuidedSetup,
 }: SsoProvisioningTabProps): React.JSX.Element {
-  const { t } = useTranslator(
+  const { t, currentLanguage } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
     customMessages,
   );
@@ -113,6 +122,18 @@ export function SsoProvisioningTab({
   const enableProvisioningToggle =
     isLoading || !provider?.id || !provider.is_enabled || !canToggleProvisioning;
 
+  const strategy = provider?.strategy as IdpStrategy | undefined;
+  const canOfferGuidedSetup =
+    Boolean(onStartGuidedSetup) && !readOnly && permissions.canReadConfiguration;
+  const { instructions: provisioningInstructions } = useIdpInstructionsService({
+    kind: 'provisioning',
+    strategy,
+    locale: getInstructionsLocale(currentLanguage),
+    enabled: canOfferGuidedSetup && isProvisioningEnabled,
+  });
+  const showGuidedSetup =
+    canOfferGuidedSetup && isProvisioningEnabled && Boolean(provisioningInstructions?.pages.length);
+
   const provisioningToggle = (
     <span>
       <Switch
@@ -151,6 +172,21 @@ export function SsoProvisioningTab({
           </CardDescription>
           <CardAction>
             <div className="flex items-center gap-3">
+              {showGuidedSetup && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onStartGuidedSetup}
+                  className={cn(
+                    'flex items-center gap-2',
+                    currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
+                  )}
+                >
+                  {t('header.guided_setup_button_label')}
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              )}
               <div className="flex items-center gap-2">
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />

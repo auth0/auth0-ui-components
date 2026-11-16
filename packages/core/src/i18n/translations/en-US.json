@@ -918,6 +918,10 @@
       },
       "provider_details": {
         "save_button_label": "Save"
+      },
+      "provisioning_setup": {
+        "title": "Set Up Provisioning",
+        "back_button_text": "Back to ${providerName}"
       }
     },
     "sso_provider_details": {
@@ -1059,6 +1063,12 @@
         },
         "pingfederate_endpoint_url": {
           "label": "Endpoint URL"
+        },
+        "scim_endpoint_url": {
+          "label": "SCIM Endpoint URL"
+        },
+        "external_namespace": {
+          "label": "External Namespace"
         }
       },
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",

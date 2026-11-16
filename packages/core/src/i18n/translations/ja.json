@@ -905,6 +905,10 @@
       },
       "provider_details": {
         "save_button_label": "保存"
+      },
+      "provisioning_setup": {
+        "title": "プロビジョニングの設定",
+        "back_button_text": "${providerName} に戻る"
       }
     },
     "delete_sso_provider": {
@@ -1030,6 +1034,12 @@
         },
         "pingfederate_endpoint_url": {
           "label": "エンドポイント URL"
+        },
+        "scim_endpoint_url": {
+          "label": "SCIMエンドポイントURL"
+        },
+        "external_namespace": {
+          "label": "外部ネームスペース"
         }
       },
       "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",

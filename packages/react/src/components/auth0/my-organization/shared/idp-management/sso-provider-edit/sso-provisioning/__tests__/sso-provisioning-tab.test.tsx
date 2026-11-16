@@ -312,4 +312,37 @@ describe('SsoProvisioningTab', () => {
       expect(screen.getByRole('button', { name: /sync_button_label/i })).toBeEnabled();
     });
   });
+
+  describe('guided setup', () => {
+    const PROVISIONING_ON = { provisioningConfig: { strategy: 'waad', attributes: [] } };
+    const guidedSetupButton = () =>
+      screen.queryByRole('button', { name: /guided_setup_button_label/ });
+
+    it('offers guided setup when provisioning is on and the strategy has instructions', async () => {
+      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
+      const onStartGuidedSetup = vi.fn();
+      renderComponent({ onStartGuidedSetup });
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+      );
+
+      expect(onStartGuidedSetup).toHaveBeenCalled();
+    });
+
+    it('is not offered unless enabled', async () => {
+      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
+      renderComponent();
+
+      await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
+      expect(guidedSetupButton()).not.toBeInTheDocument();
+    });
+
+    it('is not offered while provisioning is off', async () => {
+      renderComponent({ onStartGuidedSetup: vi.fn() });
+
+      await waitFor(() => expect(screen.getByRole('switch')).not.toBeChecked());
+      expect(guidedSetupButton()).not.toBeInTheDocument();
+    });
+  });
 });

@@ -66,6 +66,7 @@ export function InstructionAttributeMapping() {
       userAttributeMap={mappings}
       strategy={strategy}
       isProvisioning={kind === 'provisioning'}
+      hideExternalNamespace={kind === 'provisioning' && strategy === 'okta'}
     />
   );
 }

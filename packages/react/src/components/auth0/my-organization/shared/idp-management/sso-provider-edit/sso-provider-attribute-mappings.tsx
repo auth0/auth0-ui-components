@@ -25,7 +25,7 @@ type AttributeItem = BaseUserAttributeMapItem & {
   sso_field?: string[];
 };
 
-const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
+export const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
 const CHANGE_STATUS = {
   UPDATED: 'updated',
@@ -107,6 +107,7 @@ const AttributeNameCell = ({
  * @param props.userAttributeMap - User attribute mapping configuration.
  * @param props.strategy - SSO strategy type.
  * @param props.isProvisioning - Whether provisioning is enabled.
+ * @param props.hideExternalNamespace - Leave out the External Namespace field.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.className - Additional CSS class names.
  * @returns Attribute mappings component.
@@ -116,6 +117,7 @@ export function SsoProviderAttributeMappings({
   userAttributeMap = [],
   strategy,
   isProvisioning = false,
+  hideExternalNamespace = false,
   customMessages,
   className,
 }: SsoProviderAttributeMappingsProps) {
@@ -179,7 +181,7 @@ export function SsoProviderAttributeMappings({
           },
         }}
         content={
-          isProvisioning ? (
+          isProvisioning && !hideExternalNamespace ? (
             <div className="space-y-1.5 pt-2">
               <Label className="text-sm font-medium">
                 {t('mappings.external_namespace.label')}
