@@ -95,6 +95,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
         crossAppAccessDefaultValue,
         mode,
         showCrossAppAccess,
+        showThirdPartyAccess,
       ),
     },
   });

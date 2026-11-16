@@ -101,6 +101,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
           crossAppAccessDefaultValue,
           mode,
           showCrossAppAccess,
+          showThirdPartyAccess,
         ),
       },
     });

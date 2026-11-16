@@ -26,6 +26,7 @@ type ConnectionAccessDefaultValues = Omit<
  * @param crossAppAccessDefaultValue - Tenant default for Cross App Access.
  * @param mode - Form mode. In edit mode an omitted third-party access value stays `undefined` so it is not submitted as `false`.
  * @param showCrossAppAccess - Whether Cross App Access applies to the strategy, per the API config.
+ * @param showThirdPartyAccess - Whether the tenant exposes third-party access, per the API config. When false the field is omitted so it is never submitted.
  * @returns Default values to spread into the form's `defaultValues`.
  */
 export function getConnectionAccessDefaults(
@@ -33,13 +34,16 @@ export function getConnectionAccessDefaults(
   crossAppAccessDefaultValue?: CrossAppAccessStatus,
   mode: FormMode = 'create',
   showCrossAppAccess = false,
+  showThirdPartyAccess = false,
 ): ConnectionAccessDefaultValues {
-  const defaults: ConnectionAccessDefaultValues = {
-    use_for_third_party_client_access:
+  const defaults: ConnectionAccessDefaultValues = {};
+
+  if (showThirdPartyAccess) {
+    defaults.use_for_third_party_client_access =
       mode === 'edit'
         ? initialData?.use_for_third_party_client_access
-        : (initialData?.use_for_third_party_client_access ?? false),
-  };
+        : (initialData?.use_for_third_party_client_access ?? false);
+  }
 
   if (showCrossAppAccess) {
     const tenantDefault = crossAppAccessDefaultValue && { status: crossAppAccessDefaultValue };

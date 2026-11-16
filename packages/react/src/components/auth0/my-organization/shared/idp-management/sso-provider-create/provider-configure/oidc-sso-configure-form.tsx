@@ -88,6 +88,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
           crossAppAccessDefaultValue,
           mode,
           showCrossAppAccess,
+          showThirdPartyAccess,
         ),
       },
     });

@@ -93,6 +93,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
           crossAppAccessDefaultValue,
           mode,
           showCrossAppAccess,
+          showThirdPartyAccess,
         ),
       },
     });

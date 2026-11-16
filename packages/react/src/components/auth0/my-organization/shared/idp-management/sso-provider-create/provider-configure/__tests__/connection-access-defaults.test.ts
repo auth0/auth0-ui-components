@@ -4,11 +4,21 @@ import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/
 
 describe('getConnectionAccessDefaults', () => {
   it('should default use_for_third_party_client_access to false when there is no initialData', () => {
-    expect(getConnectionAccessDefaults().use_for_third_party_client_access).toBe(false);
+    expect(
+      getConnectionAccessDefaults(undefined, undefined, 'create', false, true)
+        .use_for_third_party_client_access,
+    ).toBe(false);
+  });
+
+  it('should omit use_for_third_party_client_access when showThirdPartyAccess is false', () => {
+    expect(getConnectionAccessDefaults()).not.toHaveProperty('use_for_third_party_client_access');
+    expect(
+      getConnectionAccessDefaults({ use_for_third_party_client_access: true }, undefined, 'edit'),
+    ).not.toHaveProperty('use_for_third_party_client_access');
   });
 
   it('should leave use_for_third_party_client_access undefined in edit mode when initialData omits it', () => {
-    const result = getConnectionAccessDefaults({}, undefined, 'edit');
+    const result = getConnectionAccessDefaults({}, undefined, 'edit', false, true);
     expect(result.use_for_third_party_client_access).toBeUndefined();
   });
 
@@ -17,12 +27,20 @@ describe('getConnectionAccessDefaults', () => {
       { use_for_third_party_client_access: false },
       undefined,
       'edit',
+      false,
+      true,
     );
     expect(result.use_for_third_party_client_access).toBe(false);
   });
 
   it('should read use_for_third_party_client_access from initialData', () => {
-    const result = getConnectionAccessDefaults({ use_for_third_party_client_access: true });
+    const result = getConnectionAccessDefaults(
+      { use_for_third_party_client_access: true },
+      undefined,
+      'create',
+      false,
+      true,
+    );
     expect(result.use_for_third_party_client_access).toBe(true);
   });
 

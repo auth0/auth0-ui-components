@@ -20,8 +20,6 @@ const ALL_STRATEGIES: IdpStrategy[] = [
   STRATEGIES.SAMLP,
   STRATEGIES.OIDC,
 ];
-/** Strategies that have a Cross App Access section. */
-const XAA_SECTION_STRATEGIES: IdpStrategy[] = [STRATEGIES.OIDC, STRATEGIES.OKTA, STRATEGIES.SAMLP];
 const thirdPartyCheckbox = () => screen.getByRole('checkbox', { name: 'label' });
 
 describe('ProviderConfigureFields connection-level third-party access', () => {
@@ -38,6 +36,14 @@ describe('ProviderConfigureFields connection-level third-party access', () => {
     it('should not render the 3P checkbox when showThirdPartyAccess is false', () => {
       renderWithProviders(<ProviderConfigureFields strategy={strategy} idpConfig={null} />);
       expect(screen.queryByRole('checkbox', { name: 'label' })).not.toBeInTheDocument();
+    });
+
+    it('should not include use_for_third_party_client_access in getData when showThirdPartyAccess is false', () => {
+      const ref = React.createRef<ProviderConfigureFormHandle>();
+      renderWithProviders(
+        <ProviderConfigureFields ref={ref} strategy={strategy} idpConfig={null} />,
+      );
+      expect(ref.current?.getData()).not.toHaveProperty('use_for_third_party_client_access');
     });
 
     it('should render the 3P checkbox when showThirdPartyAccess is true', () => {
@@ -96,21 +102,69 @@ describe('ProviderConfigureFields connection-level third-party access', () => {
     });
   });
 
-  describe('when showCrossAppAccess is true', () => {
-    it.each(ALL_STRATEGIES)(
-      'should render the XAA section for %s only when it has one',
-      (strategy) => {
+  describe.each(ALL_STRATEGIES)(
+    'when strategy is %s, the submitted third-party value',
+    (strategy) => {
+      const getValue = (props: {
+        mode: 'create' | 'edit';
+        showThirdPartyAccess: boolean;
+        initial?: boolean;
+      }) => {
+        const ref = React.createRef<ProviderConfigureFormHandle>();
         renderWithProviders(
-          <ProviderConfigureFields strategy={strategy} idpConfig={null} showCrossAppAccess />,
+          <ProviderConfigureFields
+            ref={ref}
+            strategy={strategy}
+            idpConfig={null}
+            mode={props.mode}
+            showThirdPartyAccess={props.showThirdPartyAccess}
+            initialData={
+              props.initial === undefined
+                ? undefined
+                : { use_for_third_party_client_access: props.initial }
+            }
+          />,
         );
-        const section = screen.queryByRole('heading', { name: 'title' });
-        if (XAA_SECTION_STRATEGIES.includes(strategy)) {
-          expect(section).toBeInTheDocument();
-        } else {
-          expect(section).not.toBeInTheDocument();
-        }
-      },
-    );
+        return ref.current?.getData() as { use_for_third_party_client_access?: boolean };
+      };
+
+      it.each(['create', 'edit'] as const)(
+        'should never be present in %s mode when the flag is off, whatever the initial value',
+        (mode) => {
+          for (const initial of [undefined, true, false]) {
+            expect(getValue({ mode, showThirdPartyAccess: false, initial })).not.toHaveProperty(
+              'use_for_third_party_client_access',
+            );
+          }
+        },
+      );
+
+      it.each([
+        ['create', undefined, false],
+        ['create', true, true],
+        ['create', false, false],
+        ['edit', undefined, undefined],
+        ['edit', true, true],
+        ['edit', false, false],
+      ] as const)(
+        'should resolve in %s mode with initial %s when the flag is on to %s',
+        (mode, initial, expected) => {
+          expect(
+            getValue({ mode, showThirdPartyAccess: true, initial })
+              .use_for_third_party_client_access,
+          ).toBe(expected);
+        },
+      );
+    },
+  );
+
+  describe('when showCrossAppAccess is true', () => {
+    it.each(ALL_STRATEGIES)('should render the XAA section for %s', (strategy) => {
+      renderWithProviders(
+        <ProviderConfigureFields strategy={strategy} idpConfig={null} showCrossAppAccess />,
+      );
+      expect(screen.getByRole('heading', { name: 'title' })).toBeInTheDocument();
+    });
 
     it('should not include cross_app_access_resource_app in getData when showCrossAppAccess is false', () => {
       const ref = React.createRef<ProviderConfigureFormHandle>();

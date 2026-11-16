@@ -119,6 +119,7 @@ export const PingFederateProviderForm = React.forwardRef<
         crossAppAccessDefaultValue,
         mode,
         showCrossAppAccess,
+        showThirdPartyAccess,
       ),
     },
   });

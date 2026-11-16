@@ -168,6 +168,7 @@ export const SamlpProviderForm = React.forwardRef<
         crossAppAccessDefaultValue,
         mode,
         showCrossAppAccess,
+        showThirdPartyAccess,
       ),
     },
   });

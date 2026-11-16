@@ -90,6 +90,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
           crossAppAccessDefaultValue,
           mode,
           showCrossAppAccess,
+          showThirdPartyAccess,
         ),
       },
     });
