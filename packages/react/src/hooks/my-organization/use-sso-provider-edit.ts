@@ -5,6 +5,7 @@
  */
 
 import {
+  PROVISIONING_METHODS,
   getIdpManagementPermissions,
   type IdpId,
   type UpdateIdentityProviderRequestContentPrivate,
@@ -89,15 +90,13 @@ export function useSsoProviderEdit(
     idpConfig,
     isLoadingIdpConfig,
     isProvisioningEnabled,
-    isProvisioningMethodEnabled,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
   } = useIdpConfig();
 
-  const showProvisioningTab =
-    isProvisioningEnabled(service.provider?.strategy) &&
-    isProvisioningMethodEnabled(service.provider?.strategy);
-
+  const provisioningMethod = Object.values(PROVISIONING_METHODS).find((method) =>
+    isProvisioningEnabled(service.provider?.strategy, method),
+  );
   const domainVerificationMode = getDomainVerificationMode(idpConfig);
   const isEnableBlockedByDomains = isProviderEnableBlockedByDomains(
     domainVerificationMode,
@@ -188,7 +187,7 @@ export function useSsoProviderEdit(
     isLoadingConfig,
     idpConfig,
     isLoadingIdpConfig,
-    showProvisioningTab,
+    provisioningMethod,
     handleToggleProvider,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,

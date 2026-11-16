@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { formatNumber, getRelativeTimeLabel } from '../helper-utils';
+import { formatNumber, getRelativeTimeLabel, openHttpsUrlInNewTab } from '../helper-utils';
 
 const mockT = ((_key: string, vars?: Record<string, unknown>, fallback?: string): string => {
   const template = fallback ?? '';
@@ -189,5 +189,35 @@ describe('formatNumber', () => {
 
   it('groups digits for the given locale', () => {
     expect(formatNumber(5000, 'de-DE')).toBe('5.000');
+  });
+});
+
+describe('openHttpsUrlInNewTab', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('opens an https URL in a new tab without opener or referrer', () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+
+    expect(openHttpsUrlInNewTab('https://auth0.example.com/ticket?id=1')).toBe(true);
+    expect(open).toHaveBeenCalledWith(
+      'https://auth0.example.com/ticket?id=1',
+      '_blank',
+      'noopener,noreferrer',
+    );
+  });
+
+  it.each([
+    'javascript:alert(1)',
+    'http://auth0.example.com',
+    'data:text/html,hi',
+    'not a url',
+    '',
+  ])('does not open %s', (url) => {
+    const open = vi.spyOn(window, 'open');
+
+    expect(openHttpsUrlInNewTab(url)).toBe(false);
+    expect(open).not.toHaveBeenCalled();
   });
 });

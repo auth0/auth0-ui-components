@@ -5,7 +5,6 @@
  */
 
 import {
-  DEFAULT_DOMAIN_VERIFICATION_MODE,
   getIdpManagementPermissions,
   type Domain,
   type IdpId,
@@ -14,13 +13,9 @@ import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
-import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
-import { isDomainAssociationUnavailable } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
-import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -33,7 +28,6 @@ import type {
  * @param options.customMessages - Custom translation messages.
  * @param options.domains - Initial domains data.
  * @param options.provider - SSO provider data.
- * @param options.domainVerificationMode - How the provider uses verified domains; verifying skips associating in `none` mode, without the associate permission, or when the access level is below full.
  * @returns Hook state and methods
  */
 export function useSsoDomainTab(
@@ -43,7 +37,6 @@ export function useSsoDomainTab(
     domains,
     provider,
     readOnly = false,
-    domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -56,24 +49,12 @@ export function useSsoDomainTab(
   );
 
   const {
-    pageSize,
-    currentPage,
-    fromToken,
-    hasPreviousPage,
-    goToNextPage,
-    goToPreviousPage,
-    changePageSize,
-  } = useCheckpointPagination({
-    defaultPageSize: DEFAULT_PAGE_SIZE_OPTIONS[0],
-  });
-
-  const {
     domainsList,
+    availableDomains,
     isLoading,
     isRefetchingDomains,
     isDomainsStale,
     domainsUpdatedAt,
-    nextToken,
     refetchDomains,
     idpDomains,
     isCreating,
@@ -88,8 +69,6 @@ export function useSsoDomainTab(
     customMessages,
     domains,
     provider,
-    pageSize,
-    fromToken,
   });
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
@@ -97,6 +76,8 @@ export function useSsoDomainTab(
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [verifyError, setVerifyError] = useState<string | undefined>(undefined);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [isAssigning, setIsAssigning] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingId, setIsUpdatingId] = useState<string | null>(null);
 
@@ -125,11 +106,6 @@ export function useSsoDomainTab(
     [handleError, createDomain, t],
   );
 
-  const isAssociationAllowed =
-    permissions.canAssociateDomain && getProviderAccess(provider).canManageDomains;
-  const canAssociateAfterVerify =
-    !isDomainAssociationUnavailable(domainVerificationMode) && isAssociationAllowed;
-
   const handleCloseVerifyModal = useCallback(() => {
     setShowVerifyModal(false);
     setVerifyError(undefined);
@@ -150,7 +126,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerify) await associateToProvider(domain);
+          await associateToProvider(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -160,7 +136,7 @@ export function useSsoDomainTab(
         });
       }
     },
-    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
+    [verifyDomain, t, handleError, associateToProvider],
   );
 
   const handleDeleteClick = useCallback(
@@ -213,7 +189,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerify) await associateToProvider(domain);
+          await associateToProvider(domain);
         } else {
           showToast({
             type: 'error',
@@ -231,15 +207,14 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
+    [verifyDomain, t, handleError, associateToProvider],
   );
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
-      const hasPermission = newCheckedValue
-        ? permissions.canAssociateDomain
-        : permissions.canDissociateDomain;
-      if (!hasPermission || !getProviderAccess(provider).canManageDomains) return;
+      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
+        return;
+      }
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -286,24 +261,60 @@ export function useSsoDomainTab(
     [associateToProvider, t, provider, handleError, deleteFromProvider],
   );
 
-  const handleNextPage = useCallback(() => {
-    if (nextToken) {
-      goToNextPage(nextToken);
-    }
-  }, [nextToken, goToNextPage]);
+  const handleAssign = useCallback(
+    async (domainsToAssign: Domain[]) => {
+      if (!permissions.canAssociateDomain || domainsToAssign.length === 0) return false;
+      setIsAssigning(true);
 
-  const handlePreviousPage = useCallback(() => {
-    goToPreviousPage();
-  }, [goToPreviousPage]);
+      const assigned: Domain[] = [];
+      const failed: { domain: Domain; error: unknown }[] = [];
+      for (const domain of domainsToAssign) {
+        try {
+          await associateToProvider(domain);
+          assigned.push(domain);
+        } catch (error) {
+          failed.push({ domain, error });
+        }
+      }
 
-  const handlePageSizeChange = useCallback(
-    (newPageSize: number) => {
-      changePageSize(newPageSize);
+      if (assigned.length > 0) {
+        showToast({
+          type: 'success',
+          message: t('domain_assign.success', {
+            domains: assigned.map(({ domain }) => domain).join(', '),
+            idp: provider?.name,
+          }),
+        });
+      }
+      if (failed.length > 0) {
+        handleError(failed[0]!.error, {
+          messagePrefix: t('domain_assign.error', {
+            domains: failed.map(({ domain }) => domain.domain).join(', '),
+            idp: provider?.name,
+          }),
+        });
+      }
+
+      setIsAssigning(false);
+      return failed.length === 0;
     },
-    [changePageSize],
+    [permissions, associateToProvider, handleError, t, provider],
   );
 
+  const handleRemove = useCallback(
+    (domain: Domain) => handleToggleSwitch(domain, false),
+    [handleToggleSwitch],
+  );
+
+  const noop = useCallback(() => {}, []);
+
   return {
+    availableDomains,
+    showAssignModal,
+    setShowAssignModal,
+    isAssigning,
+    handleAssign,
+    handleRemove,
     isLoading,
     isRefetchingDomains,
     isDomainsStale,
@@ -318,10 +329,10 @@ export function useSsoDomainTab(
     isDeleting,
     showCreateModal,
     pagination: {
-      pageSize,
-      currentPage,
-      hasNextPage: !!nextToken,
-      hasPreviousPage,
+      pageSize: domainsList.length,
+      currentPage: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
     },
     refetchDomains,
     handleCreate,
@@ -336,8 +347,8 @@ export function useSsoDomainTab(
     isUpdating,
     isUpdatingId,
     handleToggleSwitch,
-    handleNextPage,
-    handlePreviousPage,
-    handlePageSizeChange,
+    handleNextPage: noop,
+    handlePreviousPage: noop,
+    handlePageSizeChange: noop,
   };
 }

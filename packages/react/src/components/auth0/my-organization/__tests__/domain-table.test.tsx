@@ -13,7 +13,6 @@ import {
   createMockVerifyAction,
   createMockDeleteAction,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
-import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
@@ -635,6 +634,80 @@ describe('DomainTable', () => {
     });
   });
 
+  describe('configure single provider', () => {
+    it('should remove the current provider, then assign the selected one on Save', async () => {
+      const user = userEvent.setup();
+      const currentProvider = createMockIdentityProvider({
+        id: 'con_current',
+        name: 'current-idp',
+        display_name: 'Current IdP',
+        strategy: 'okta',
+      });
+      const nextProvider = createMockIdentityProvider({
+        id: 'con_next',
+        name: 'next-idp',
+        display_name: 'Next IdP',
+        strategy: 'samlp',
+      });
+
+      const apiService = mockCoreClient.getMyOrganizationApiClient();
+      const listProviders = apiService.organization.identityProviders.list as ReturnType<
+        typeof vi.fn
+      >;
+      listProviders.mockResolvedValue({
+        identity_providers: [
+          { ...currentProvider, domains: [mockVerifiedDomain.domain] },
+          { ...nextProvider, domains: [] },
+        ],
+      });
+      (
+        apiService.organization.identityProviders.domains.delete as ReturnType<typeof vi.fn>
+      ).mockImplementation(async () => {
+        listProviders.mockResolvedValue({
+          identity_providers: [
+            { ...currentProvider, domains: [] },
+            { ...nextProvider, domains: [] },
+          ],
+        });
+      });
+
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      const verifiedRow = (await screen.findByText(/shared\.domain_statuses\.verified/i)).closest(
+        'tr',
+      ) as HTMLElement;
+      await user.click(within(verifiedRow).getByRole('button'));
+      await user.click(await screen.findByRole('menuitem', { name: /configure_button_text/i }));
+
+      const configureModal = await screen.findByRole('dialog');
+      expect(within(configureModal).queryByRole('switch')).not.toBeInTheDocument();
+      expect(within(configureModal).queryByRole('combobox')).not.toBeInTheDocument();
+
+      await user.click(within(configureModal).getByRole('button', { name: /remove_button/i }));
+
+      await waitFor(() => {
+        expect(apiService.organization.identityProviders.domains.delete).toHaveBeenCalledWith(
+          'con_current',
+          mockVerifiedDomain.domain,
+        );
+      });
+      const providerField = await within(configureModal).findByRole('combobox');
+      expect(apiService.organization.identityProviders.domains.create).not.toHaveBeenCalled();
+
+      await user.click(providerField);
+      await user.click(await screen.findByRole('option', { name: 'Next IdP (samlp)' }));
+      await user.click(within(configureModal).getByRole('button', { name: /save_button_text/i }));
+
+      await waitFor(() => {
+        expect(apiService.organization.identityProviders.domains.create).toHaveBeenCalledWith(
+          'con_next',
+          { domain: mockVerifiedDomain.domain },
+        );
+      });
+    });
+  });
+
   describe('onCreateProvider', () => {
     describe('when create provider is clicked', () => {
       it('should call onCreateProvider', async () => {
@@ -899,52 +972,6 @@ describe('DomainTable', () => {
 
         expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
       });
-    });
-  });
-
-  describe('domain verification mode', () => {
-    const arrange = (mode: 'none' | 'optional' | 'required') => {
-      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
-      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
-        createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
-      );
-      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-        response: { organization_domains: [createMockVerifiedDomain()] },
-      });
-      (organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
-        identity_providers: [
-          createMockIdentityProvider({ id: 'con_okta', display_name: 'Okta', strategy: 'okta' }),
-        ],
-      });
-    };
-
-    const openConfigureModal = async (user: ReturnType<typeof userEvent.setup>) => {
-      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
-      await waitForComponentToLoad();
-      await user.click(await screen.findByText(createMockVerifiedDomain().domain));
-      return await screen.findByRole('dialog');
-    };
-
-    it('lets providers be associated in optional mode', async () => {
-      const user = userEvent.setup();
-      arrange('optional');
-
-      const dialog = await openConfigureModal(user);
-
-      expect(await within(dialog).findByRole('switch')).toBeEnabled();
-      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
-    });
-
-    it('explains and disables association in none mode', async () => {
-      const user = userEvent.setup();
-      arrange('none');
-
-      const dialog = await openConfigureModal(user);
-
-      expect(await within(dialog).findByRole('switch')).toBeDisabled();
-      expect(within(dialog).getByRole('alert')).toHaveTextContent(
-        'alerts.domain_verification_none',
-      );
     });
   });
 

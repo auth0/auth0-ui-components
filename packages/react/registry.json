@@ -305,6 +305,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/form-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/form-constants.ts"
@@ -542,6 +547,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/my-account/organization-management/organization-management-constants.ts",
@@ -860,6 +870,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -1238,6 +1253,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/form-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/form-constants.ts"
@@ -1534,6 +1554,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -1796,11 +1821,6 @@
           "target": "hooks/my-organization/shared/services/use-domain-table-service.ts"
         },
         {
-          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
-          "type": "registry:component",
-          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
-        },
-        {
           "path": "src/hooks/my-organization/use-domain-table.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-domain-table.ts"
@@ -1906,11 +1926,6 @@
           "target": "types/i18n-types.ts"
         },
         {
-          "path": "src/types/my-organization/config/config-idp-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/config/config-idp-types.ts"
-        },
-        {
           "path": "src/types/my-organization/config/config-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/config/config-types.ts"
@@ -1946,11 +1961,6 @@
           "target": "types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
-          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
-        },
-        {
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
@@ -1969,6 +1979,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -2004,11 +2019,6 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
-        },
-        {
-          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
-          "type": "registry:component",
-          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -2404,6 +2414,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/form-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/form-constants.ts"
@@ -2781,6 +2796,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -3237,6 +3257,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -3740,6 +3765,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/form-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/form-constants.ts"
@@ -3848,6 +3878,7 @@
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-label@2.1.7",
+        "@radix-ui/react-popover@1.1.14",
         "@radix-ui/react-radio-group@1.2.0",
         "@radix-ui/react-select@2.2.5",
         "@radix-ui/react-slot@1.2.3",
@@ -3867,21 +3898,6 @@
           "path": "src/components/auth0/my-organization/sso-provider-edit.tsx",
           "type": "registry:block",
           "target": "components/auth0/my-organization/sso-provider-edit.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-create/domain-create-modal.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
@@ -3949,6 +3965,11 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-delete/provider-delete.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-assign-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-assign-modal.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab-action-column.tsx"
@@ -4014,6 +4035,21 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-disable-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-disable-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-enable-auto-sync-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-enable-auto-sync-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx"
@@ -4044,11 +4080,6 @@
           "target": "components/auth0/shared/copyable-text-field.tsx"
         },
         {
-          "path": "src/components/auth0/shared/data-pagination.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/data-pagination.tsx"
-        },
-        {
           "path": "src/components/auth0/shared/data-table.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/data-table.tsx"
@@ -4077,11 +4108,6 @@
           "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/middle-ellipsis-text.tsx"
-        },
-        {
-          "path": "src/components/auth0/shared/pagination.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/shared/pagination.tsx"
         },
         {
           "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
@@ -4142,6 +4168,16 @@
           "path": "src/components/ui/checkbox.tsx",
           "type": "registry:component",
           "target": "components/ui/checkbox.tsx"
+        },
+        {
+          "path": "src/components/ui/chip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/chip.tsx"
+        },
+        {
+          "path": "src/components/ui/combobox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/combobox.tsx"
         },
         {
           "path": "src/components/ui/dialog.tsx",
@@ -4234,6 +4270,11 @@
           "target": "hooks/my-organization/shared/services/use-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-google-workspace-provisioning-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-google-workspace-provisioning-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
@@ -4254,6 +4295,11 @@
           "target": "hooks/my-organization/shared/services/use-sso-provider-edit-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-google-workspace-provisioning.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-google-workspace-provisioning.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-provider-form-mode.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-provider-form-mode.ts"
@@ -4267,11 +4313,6 @@
           "path": "src/hooks/my-organization/use-sso-provider-edit.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
-        },
-        {
-          "path": "src/hooks/shared/use-checkpoint-pagination.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-checkpoint-pagination.ts"
         },
         {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
@@ -4292,6 +4333,11 @@
           "path": "src/hooks/shared/use-permissions.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-permissions.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-poll-until.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-poll-until.ts"
         },
         {
           "path": "src/hooks/shared/use-query-error-toast.ts",
@@ -4384,24 +4430,9 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
-          "path": "src/types/my-organization/domain-management/domain-create-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-create-types.ts"
-        },
-        {
-          "path": "src/types/my-organization/domain-management/domain-delete-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-delete-types.ts"
-        },
-        {
           "path": "src/types/my-organization/domain-management/domain-table-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-table-types.ts"
-        },
-        {
-          "path": "src/types/my-organization/domain-management/domain-verify-types.ts",
-          "type": "registry:component",
-          "target": "types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
           "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
@@ -4432,6 +4463,11 @@
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts"
         },
         {
           "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
@@ -4484,6 +4520,11 @@
           "target": "types/toast-types.ts"
         },
         {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
+        },
+        {
           "path": "src/lib/constants/common-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/common-constants.ts"
@@ -4504,11 +4545,6 @@
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
         },
         {
-          "path": "src/lib/constants/shared/constants.ts",
-          "type": "registry:component",
-          "target": "lib/constants/shared/constants.ts"
-        },
-        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -4522,6 +4558,11 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts"
         },
         {
           "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
@@ -4895,6 +4936,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
