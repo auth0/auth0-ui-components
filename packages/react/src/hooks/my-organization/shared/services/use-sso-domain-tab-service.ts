@@ -29,7 +29,7 @@ import type {
 
 const keepPreviousDataOption = getPreviousDataOption();
 
-const MAX_ORG_DOMAINS = 250;
+const MAX_ORG_DOMAINS = 100;
 
 /**
  * Internal service hook for SSO domain tab data and CRUD operations.

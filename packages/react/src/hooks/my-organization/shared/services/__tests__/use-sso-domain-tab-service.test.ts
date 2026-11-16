@@ -433,7 +433,7 @@ describe('useSsoDomainTabService', () => {
       expect(result.current.availableDomains).toEqual([]);
     });
 
-    it('should load all org domains with a single request of up to 250', async () => {
+    it('should load all org domains with a single request of up to 100', async () => {
       const first = unassociated('domain-2', 'first.com');
       const second = unassociated('domain-3', 'second.com');
       const list = mockCoreClient.getMyOrganizationApiClient().organization.domains
@@ -443,7 +443,7 @@ describe('useSsoDomainTabService', () => {
       const { result } = await renderWithAvailable();
 
       expect(list).toHaveBeenCalledTimes(1);
-      expect(list).toHaveBeenCalledWith({ take: 250 });
+      expect(list).toHaveBeenCalledWith({ take: 100 });
       expect(result.current.availableDomains).toEqual([first, second]);
     });
 

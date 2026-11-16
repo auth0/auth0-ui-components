@@ -524,7 +524,7 @@ describe('SsoProviderEdit', () => {
       expect(await screen.findByRole('button', { name: 'free1.com' })).toBeInTheDocument();
       expect(
         mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
-      ).toHaveBeenCalledWith({ take: 250 });
+      ).toHaveBeenCalledWith({ take: 100 });
       expect(screen.getByRole('button', { name: 'free2.com' })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'taken.com' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'pending.com' })).not.toBeInTheDocument();
