@@ -6,6 +6,7 @@
 
 import type { SharedMessages } from '../../../shared/shared-types';
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
+import type { GoogleWorkspaceProvisioningNotificationMessages } from '../sso-provisioning/google-workspace-provisioning-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
 import type {
@@ -100,6 +101,7 @@ export interface SsoProviderNotificationMessages {
   scim_token_delete_success?: string;
   sso_attributes_sync_success?: string;
   provisioning_attributes_sync_success?: string;
+  google_workspace_provisioning?: GoogleWorkspaceProvisioningNotificationMessages;
 }
 
 interface AttributeMappingSectionMessages {
