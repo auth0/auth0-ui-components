@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { test as base, type Browser } from '@playwright/test';
 
 import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
+import { env } from '../env';
 
 /**
  * Refresh tokens rotate on every exchange, so a `storageState` snapshot can capture a token that a
@@ -27,13 +28,8 @@ const configFingerprint = crypto
   .slice(0, 8);
 
 async function loginAndPersist(browser: Browser, stateFile: string): Promise<void> {
-  const email = process.env.FT_TEST_USER_EMAIL;
-  const password = process.env.FT_TEST_USER_PASSWORD;
-  if (!email || !password) {
-    throw new Error(
-      'FT_TEST_USER_EMAIL / FT_TEST_USER_PASSWORD are not set — see functional-tests/.env',
-    );
-  }
+  const email = env.FT_TEST_USER_EMAIL;
+  const password = env.FT_TEST_USER_PASSWORD;
 
   const context = await browser.newContext();
   try {

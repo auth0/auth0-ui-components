@@ -2,14 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { config as loadEnv } from 'dotenv';
+import '../env';
 
 import { deleteOrganization, deleteSsoProvider, listConnections } from '../lib/management-api';
 import { clearRunState, readRunState } from '../lib/run-state';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-
-loadEnv({ path: path.resolve(dirname, '../.env') });
 
 const state = readRunState();
 

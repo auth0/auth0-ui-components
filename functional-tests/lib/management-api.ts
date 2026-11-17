@@ -3,6 +3,8 @@
  * Uses M2M credentials (not the end-user session) so reads here confirm what the component actually persisted.
  */
 
+import { env } from '../env';
+
 import { POLL_TIMEOUT_MS } from './poll';
 
 const API_VERSION_PATH = 'api/v2';
@@ -14,16 +16,8 @@ interface TokenCache {
 
 let tokenCache: TokenCache | undefined;
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} is not set — see functional-tests/.env.example`);
-  }
-  return value;
-}
-
 function domain(): string {
-  return requireEnv('FT_AUTH0_DOMAIN');
+  return env.FT_AUTH0_DOMAIN;
 }
 
 async function getAccessToken(): Promise<string> {
@@ -41,8 +35,8 @@ async function getAccessToken(): Promise<string> {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           grant_type: 'client_credentials',
-          client_id: requireEnv('FT_AUTH0_MGMT_CLIENT_ID'),
-          client_secret: requireEnv('FT_AUTH0_MGMT_CLIENT_SECRET'),
+          client_id: env.FT_AUTH0_MGMT_CLIENT_ID,
+          client_secret: env.FT_AUTH0_MGMT_CLIENT_SECRET,
           audience: `https://${domain()}/${API_VERSION_PATH}/`,
         }),
         signal: AbortSignal.timeout(10_000),
@@ -256,6 +250,38 @@ export function enableConnection(organizationId: string, connectionId: string): 
   });
 }
 
+export interface DiscoveryDomain {
+  id: string;
+  domain: string;
+  status: 'pending' | 'verified';
+}
+
+export function createDiscoveryDomain(
+  organizationId: string,
+  domainName: string,
+  status: DiscoveryDomain['status'] = 'pending',
+): Promise<DiscoveryDomain> {
+  return mgmt<DiscoveryDomain>('POST', `organizations/${organizationId}/discovery-domains`, {
+    domain: domainName,
+    status,
+  });
+}
+
+// Tolerates 404 so cleanup after a test that already deleted the domain through the UI is a no-op.
+export async function deleteDiscoveryDomain(
+  organizationId: string,
+  discoveryDomainId: string,
+): Promise<void> {
+  try {
+    await mgmt<void>(
+      'DELETE',
+      `organizations/${organizationId}/discovery-domains/${discoveryDomainId}`,
+    );
+  } catch (error) {
+    if (!(error instanceof ManagementApiError) || error.status !== 404) throw error;
+  }
+}
+
 export interface SsoProvider {
   id: string;
   name: string;
@@ -273,10 +299,11 @@ export function deleteSsoProvider(connectionId: string): Promise<void> {
   return mgmt<void>('DELETE', `connections/${encodeURIComponent(connectionId)}`);
 }
 
-export function listOrgEnabledConnections(
+// Every connection attached to the org, on or off; check is_enabled for the switch state.
+export function listOrgConnections(
   organizationId: string,
-): Promise<Array<{ connection_id: string; connection: { name: string; strategy: string } }>> {
-  return mgmt('GET', `organizations/${organizationId}/enabled_connections`);
+): Promise<Array<{ connection_id: string; is_enabled: boolean }>> {
+  return mgmt('GET', `organizations/${organizationId}/connections?per_page=100`);
 }
 
 const CONNECTIONS_PAGE_SIZE = 100;

@@ -8,6 +8,18 @@ This doc explains the key design decisions: how the run is structured, how we ha
 
 ---
 
+## Playwright Overview
+
+Playwright automates real browsers (Chromium, Firefox, WebKit) the way a user would: clicking, typing, navigating, and checking what appears on the page. We run on Chromium. The features that matter most to us:
+
+- **Auto-waiting**: actions wait until the element is ready, so there are no sleeps and fewer flaky tests.
+- **Role and label locators**: tests find elements the way users and assistive tech do, so they survive styling changes.
+- **Isolated browser contexts**: every test gets a clean context, so tests don't affect each other.
+- **Debugging tools**: an HTML report, screenshots, videos, and traces that replay a failed test step by step.
+- **Fixtures**: reusable setup and cleanup around each test, such as the logged-in session.
+
+---
+
 ## Test Execution Flow
 
 Playwright owns the whole run: it drives the browser as a real user and manages the test lifecycle. Everything outside the browser (org creation, verification, cleanup) is plain TypeScript calling the Auth0 Management API directly.
