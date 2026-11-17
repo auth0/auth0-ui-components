@@ -7,10 +7,11 @@ on:
   workflow_call:
 
 concurrency:
-  # run_id for non-PR runs: when called from publish, github.ref is the caller's, so a
-  # manual run on main would otherwise share this group and cancel the release gate.
-  group: functional-tests-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.label.name }}
-  cancel-in-progress: true
+  # One shared queue for run-ft: all runs hit the same tenant, SPA client and test user.
+  # Anything else (other labels, manual, publish gate) gets its own group via run_id so it
+  # can't displace a queued run-ft run or the release gate.
+  group: functional-tests-${{ github.event.label.name == 'run-ft' && 'shared' || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   consume-label:

@@ -128,7 +128,7 @@ FT_CONNECTION_NAME  # default "Universal-Components-Demo"
 FT_ADMIN_ROLE_NAME  # default "admin"
 ```
 
-In CI these six values live in a GitHub **Environment** (not repository secrets), same names. Locally, mirror them into a gitignored `.env` so local runs hit the same tenant.
+In CI these six values are GitHub repository secrets with the same names. Locally, mirror them into a gitignored `.env` so local runs hit the same tenant.
 
 **Required by the SSO invitation spec** (`specs/sso-invitation.spec.ts`). Any missing variable fails the run before it starts, naming the missing ones:
 
@@ -140,7 +140,7 @@ FT_OKTA_SSO_USER_EMAIL       # also the invited email; must match the Okta usern
 FT_OKTA_SSO_USER_PASSWORD
 ```
 
-These need a real Okta app and test user. Console setup: [Okta console setup](#okta-console-setup-sso-invitation-spec). In CI they are five more secrets in the same Environment.
+These need a real Okta app and test user. Console setup: [Okta console setup](#okta-console-setup-sso-invitation-spec). In CI they are five more repository secrets.
 
 ---
 
@@ -216,6 +216,6 @@ One running server = one org value, so the org is pinned per run, not per worker
 
 ## CI
 
-Workflow: `.github/workflows/functional-tests.yml`. Triggers on `pull_request` (paths-filtered); fork PRs are skipped since GitHub strips their secrets. Runs behind a `functional-tests` GitHub Environment (add required reviewers there to gate on approval).
+Workflow: `.github/workflows/functional-tests.yml`. It does not run on every push. Add the `run-ft` label to a PR to start a run (the workflow removes the label once it starts, so re-add it to re-run). It can also be started manually (`workflow_dispatch`) or called from the release workflow as a gate. Fork PRs are skipped since GitHub strips their secrets.
 
-Steps: `pnpm install --frozen-lockfile` → build the react package → `playwright install chromium ffmpeg` → `org:setup` → `playwright test` → `org:teardown` (`always()`) → upload the HTML report + traces (`always()`). Currently `continue-on-error` and `retries: 1` until the suite is proven stable across several consecutive runs.
+Steps: `pnpm install --frozen-lockfile` → build the react package → `playwright install chromium ffmpeg` → `org:setup` → `playwright test` → `org:teardown` (`always()`) → upload the HTML report and `test-results/` (`always()`). Playwright retries failed tests twice in CI, and traces are off in CI.
