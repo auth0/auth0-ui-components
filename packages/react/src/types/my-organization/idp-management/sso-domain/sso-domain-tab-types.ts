@@ -10,6 +10,7 @@ import type {
   DomainCreateSchemas,
   IdpDomainVerificationMode,
   IdpKnownResponse,
+  OrganizationDiscoveryConfig,
   SharedComponentProps,
   SsoDomainAssignMessages,
   SsoDomainTabMessages,
@@ -76,6 +77,7 @@ export interface SsoDomainsTabProps extends SharedComponentProps<
   provider: IdpKnownResponse | null;
   permissions: IdpManagementPermissions;
   domainVerificationMode?: IdpDomainVerificationMode;
+  discoveryPolicy?: OrganizationDiscoveryConfig | null;
 }
 
 export interface SsoDomainTabActionColumn extends SharedComponentProps<

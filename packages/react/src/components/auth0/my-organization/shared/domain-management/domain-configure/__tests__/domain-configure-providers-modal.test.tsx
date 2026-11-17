@@ -189,7 +189,10 @@ describe('DomainConfigureProvidersModal', () => {
         permissions: createDomainPermissions(['create:my_org:identity_providers_domains']),
       });
 
-      expect(getRemoveButton('Google Workspace (google-apps)')).toBeDisabled();
+      expect(getRemoveButton('Google Workspace (google-apps)')).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     });
 
     it('should open the assigned provider from View', async () => {
@@ -462,7 +465,7 @@ describe('DomainConfigureProvidersModal', () => {
         });
         const button = getRemoveButton('Google Workspace (google-apps)');
 
-        expect(button).toBeDisabled();
+        expect(button).toHaveAttribute('aria-disabled', 'true');
         expect(reasonOf(button)).toHaveTextContent('table.actions.last_verified_domain_tooltip');
         expect(screen.getByRole('alert')).toHaveTextContent(
           'table.actions.last_verified_domain_tooltip',
@@ -509,12 +512,33 @@ describe('DomainConfigureProvidersModal', () => {
           });
           const button = getRemoveButton('Google Workspace (google-apps)');
 
-          expect(button).toBeDisabled();
+          expect(button).toHaveAttribute('aria-disabled', 'true');
           expect(reasonOf(button)).toHaveTextContent(
             'table.actions.provider_access_restricted_tooltip',
           );
         },
       );
+
+      it('should point aria-describedby at a real description for a missing permission', () => {
+        renderModal({ permissions: createDomainPermissions([]) });
+        const button = getRemoveButton('Google Workspace (google-apps)');
+
+        expect(button).toHaveAttribute('aria-disabled', 'true');
+        expect(document.getElementById(button.getAttribute('aria-describedby')!)).toHaveTextContent(
+          'error.forbidden',
+        );
+      });
+
+      it('should not remove while blocked, even when activated', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({
+          providers: [{ ...googleProvider, access_level: 'limited' } as typeof googleProvider],
+        });
+
+        await user.click(getRemoveButton('Google Workspace (google-apps)'));
+
+        expect(props.onRemove).not.toHaveBeenCalled();
+      });
 
       it('should report a missing permission before the access level', () => {
         renderModal({
@@ -522,7 +546,10 @@ describe('DomainConfigureProvidersModal', () => {
           providers: [{ ...googleProvider, access_level: 'limited' } as typeof googleProvider],
         });
 
-        expect(getRemoveButton('Google Workspace (google-apps)')).toBeDisabled();
+        expect(getRemoveButton('Google Workspace (google-apps)')).toHaveAttribute(
+          'aria-disabled',
+          'true',
+        );
         expect(
           screen.queryByText('table.actions.provider_access_restricted_tooltip'),
         ).not.toBeInTheDocument();

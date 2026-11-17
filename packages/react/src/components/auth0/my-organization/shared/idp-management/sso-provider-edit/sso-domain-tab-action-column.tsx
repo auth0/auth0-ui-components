@@ -81,20 +81,20 @@ export function SsoDomainTabActionsColumn({
     <div className="flex items-center justify-end gap-4 min-w-0">
       <Tooltip>
         <TooltipTrigger asChild>
-          <span
-            tabIndex={disabledReason ? 0 : undefined}
-            className={cn(
-              disabledReason &&
-                'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring',
-            )}
-          >
+          <span>
             <Button
               type="button"
               variant="outline"
               size="icon"
-              className="border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20"
-              disabled={!!blockReason || isUpdating}
-              onClick={() => onRemove(domain)}
+              className={cn(
+                'border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20',
+                blockReason && 'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+              )}
+              disabled={isUpdating}
+              aria-disabled={blockReason ? true : undefined}
+              onClick={() => {
+                if (!blockReason) onRemove(domain);
+              }}
               aria-label={removeLabel}
               aria-describedby={disabledReason ? disabledReasonId : undefined}
             >

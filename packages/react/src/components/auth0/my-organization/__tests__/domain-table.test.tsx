@@ -1214,7 +1214,7 @@ describe('DomainTable', () => {
 
       const dialog = await openConfigureModal(user);
 
-      expect(await removeButton(dialog)).toBeDisabled();
+      expect(await removeButton(dialog)).toHaveAttribute('aria-disabled', 'true');
       expect(within(dialog).getByRole('alert')).toHaveTextContent(
         'table.actions.last_verified_domain_tooltip',
       );

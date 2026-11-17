@@ -24,6 +24,7 @@ import {
   getDomainVerificationMode,
   isDomainAssociationUnavailable,
   isDomainUsedForDiscovery,
+  isLastRequiredDomainLocked,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
@@ -216,11 +217,24 @@ export function useDomainTable({
     [permissions, onDeleteDomain, t, handleError],
   );
 
+  const canAssociateWith = useCallback(
+    (provider: IdpKnownResponse) =>
+      permissions.canAssociateProvider &&
+      getProviderAccess(provider).canManageDomains &&
+      !isDomainAssociationUnavailable(domainVerificationMode),
+    [permissions, domainVerificationMode],
+  );
+  const canRemoveFrom = useCallback(
+    (provider: IdpKnownResponse) =>
+      permissions.canDissociateProvider &&
+      getProviderAccess(provider).canManageDomains &&
+      !isLastRequiredDomainLocked(domainVerificationMode, provider),
+    [permissions, domainVerificationMode],
+  );
+
   const handleToggleSwitch = useCallback(
     async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
-      if (
-        newCheckedValue ? !permissions.canAssociateProvider : !permissions.canDissociateProvider
-      ) {
+      if (newCheckedValue ? !canAssociateWith(provider) : !canRemoveFrom(provider)) {
         return;
       }
 
@@ -256,14 +270,12 @@ export function useDomainTable({
         }
       }
     },
-    [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
+    [canAssociateWith, canRemoveFrom, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
   const handleAssignProvider = useCallback(
     async (domain: Domain, provider: IdpKnownResponse) => {
-      if (!permissions.canAssociateProvider || !getProviderAccess(provider).canManageDomains)
-        return;
-      if (isDomainAssociationUnavailable(domainVerificationMode)) return;
+      if (!canAssociateWith(provider)) return;
       const isOnAnotherProvider = providers.some(
         (current) => current.is_associated && current.id !== provider.id,
       );
@@ -288,13 +300,12 @@ export function useDomainTable({
         setIsSavingProvider(false);
       }
     },
-    [permissions, providers, domainVerificationMode, onAssociateToProvider, t, handleError],
+    [canAssociateWith, providers, onAssociateToProvider, t, handleError],
   );
 
   const handleRemoveProvider = useCallback(
     async (domain: Domain, provider: IdpKnownResponse) => {
-      if (!permissions.canDissociateProvider || !getProviderAccess(provider).canManageDomains)
-        return;
+      if (!canRemoveFrom(provider)) return;
 
       setIsSavingProvider(true);
       try {
@@ -314,7 +325,7 @@ export function useDomainTable({
         setIsSavingProvider(false);
       }
     },
-    [permissions, onDeleteFromProvider, t, handleError],
+    [canRemoveFrom, onDeleteFromProvider, t, handleError],
   );
 
   const handleCloseVerifyModal = useCallback(() => {

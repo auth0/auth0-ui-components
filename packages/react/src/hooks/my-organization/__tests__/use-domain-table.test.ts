@@ -440,6 +440,106 @@ describe('useDomainTable', () => {
         expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
       });
 
+      describe('the last domain of an enabled provider in required mode', () => {
+        const enabledProvider = {
+          ...providerA,
+          is_enabled: true,
+          domains: [verifiedDomain.domain],
+        };
+
+        it('should not remove it', async () => {
+          mockIdpConfig('required');
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([enabledProvider], {
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleRemoveProvider(verifiedDomain, enabledProvider);
+          });
+
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it('should not remove it through the legacy toggle either', async () => {
+          mockIdpConfig('required');
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([enabledProvider], {
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, enabledProvider, false);
+          });
+
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it.each([
+          ['a second domain', { domains: [verifiedDomain.domain, 'other.com'] }],
+          ['a disabled provider', { is_enabled: false }],
+        ])('should remove it with %s', async (_label, override) => {
+          mockIdpConfig('required');
+          const provider = { ...enabledProvider, ...override };
+          const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+          const { result } = renderWithServiceProviders([provider], { onDeleteFromProvider });
+
+          await act(async () => {
+            await result.current.handleRemoveProvider(verifiedDomain, provider);
+          });
+
+          expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, provider);
+        });
+      });
+
+      describe('the legacy toggle', () => {
+        it('should not associate in none mode', async () => {
+          mockIdpConfig('none');
+          const onAssociateToProvider = vi.fn();
+          const { result } = renderWithServiceProviders([providerB], { onAssociateToProvider });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, true);
+          });
+
+          expect(onAssociateToProvider).not.toHaveBeenCalled();
+        });
+
+        it('should not associate with, or remove from, a provider below full access', async () => {
+          const onAssociateToProvider = vi.fn();
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([limitedProvider], {
+            onAssociateToProvider,
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, limitedProvider, true);
+            await result.current.handleToggleSwitch(verifiedDomain, limitedProvider, false);
+          });
+
+          expect(onAssociateToProvider).not.toHaveBeenCalled();
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it('should still associate and remove with full access', async () => {
+          const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+          const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+          const { result } = renderWithServiceProviders([providerB], {
+            onAssociateToProvider,
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, true);
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, false);
+          });
+
+          expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+          expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+        });
+      });
+
       it('should not remove from a provider the organization cannot fully manage', async () => {
         const onDeleteFromProvider = vi.fn();
         const limitedAssigned = { ...providerA, access_level: 'limited' as const };

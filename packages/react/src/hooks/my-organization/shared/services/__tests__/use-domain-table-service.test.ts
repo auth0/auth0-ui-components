@@ -979,7 +979,6 @@ describe('useDomainTableService', () => {
       (mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
         .fn()
         .mockResolvedValue({ identity_providers: [providerWith(domains)] }));
-    // What the configure modal opens with: the cache as fetchProviders leaves it.
     const cachedDomainsFor = (queryClient: QueryClient, domainId: string) =>
       queryClient.getQueryData<Array<{ domains?: string[] }>>(
         domainQueryKeys.providers(domainId),

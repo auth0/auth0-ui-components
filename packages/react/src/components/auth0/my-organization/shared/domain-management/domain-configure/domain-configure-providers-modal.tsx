@@ -110,7 +110,6 @@ export function DomainConfigureProvidersModal({
   );
   const showProviderField = assignedProviders.length === 0 && providers.length > 0;
   const showAssignedDescription = !isLoading && assignedProviders.length > 0;
-  // The alert already says why nothing can change, so the usual description would contradict it.
   const showDescription = !isAssociationUnavailable && !hasLockedLastDomain;
 
   React.useEffect(() => {
@@ -133,46 +132,58 @@ export function DomainConfigureProvidersModal({
       isLastDomainLocked: isLastRequiredDomainLocked(domainVerificationMode, provider),
     });
     const reasonId = `${idPrefix}-${provider.id ?? provider.name}-reason`;
+    const reason = blockReason ? blockReasonMessages[blockReason] : null;
     const button = (
       <Button
         type="button"
         variant="link"
         size="sm"
-        className="text-destructive-foreground px-0"
-        disabled={isSaving || !!blockReason}
-        onClick={() => domain && onRemove(domain, provider)}
+        className={cn(
+          'text-destructive-foreground px-0',
+          blockReason && 'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+        )}
+        disabled={isSaving}
+        aria-disabled={blockReason ? true : undefined}
+        onClick={() => {
+          if (domain && !blockReason) onRemove(domain, provider);
+        }}
         aria-label={t('actions.remove_button_aria_label', {
           provider: getProviderLabel(provider),
         })}
-        aria-describedby={blockReason ? reasonId : undefined}
+        aria-describedby={reason ? reasonId : undefined}
       >
         {t('actions.remove_button_text')}
       </Button>
     );
 
-    if (!blockReason) return button;
+    if (!blockReason || !reason) return button;
+
+    const reasonText = (
+      <span id={reasonId} className="sr-only">
+        {reason}
+      </span>
+    );
+
     if (blockReason === ASSOCIATION_BLOCK_REASONS.FORBIDDEN) {
       return (
-        <PermissionDeniedTooltip customMessages={customMessages} enabled>
-          {button}
-        </PermissionDeniedTooltip>
+        <>
+          <PermissionDeniedTooltip customMessages={customMessages} enabled>
+            {button}
+          </PermissionDeniedTooltip>
+          {reasonText}
+        </>
       );
     }
 
     return (
       <Tooltip disableHoverableContent>
         <TooltipTrigger asChild>
-          <span
-            tabIndex={0}
-            className="rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring"
-          >
+          <span>
             {button}
-            <span id={reasonId} className="sr-only">
-              {blockReasonMessages[blockReason]}
-            </span>
+            {reasonText}
           </span>
         </TooltipTrigger>
-        <TooltipContent>{blockReasonMessages[blockReason]}</TooltipContent>
+        <TooltipContent>{reason}</TooltipContent>
       </Tooltip>
     );
   };

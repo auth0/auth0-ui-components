@@ -10,14 +10,17 @@ import {
   type Domain,
   type IdpId,
 } from '@auth0/universal-components-core';
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo, useRef } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { isDomainAssociationUnavailable } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  isDomainAssociationUnavailable,
+  isLastRequiredDomainLocked,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoDomainTabOptions,
@@ -80,6 +83,12 @@ export function useSsoDomainTab(
   const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
   const canAssociate = permissions.canAssociateDomain && canManageProviderDomains;
   const canAssociateAfterVerify = canAssociate && !isAssociationUnavailable;
+  const canAssociateAfterVerifyRef = useRef(canAssociateAfterVerify);
+  canAssociateAfterVerifyRef.current = canAssociateAfterVerify;
+  const isLastDomainLocked = isLastRequiredDomainLocked(domainVerificationMode, {
+    is_enabled: provider?.is_enabled,
+    domains: domainsList.map(({ domain }) => domain),
+  });
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -136,7 +145,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerify) await associateToProvider(domain);
+          if (canAssociateAfterVerifyRef.current) await associateToProvider(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -146,7 +155,7 @@ export function useSsoDomainTab(
         });
       }
     },
-    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
+    [verifyDomain, t, handleError, associateToProvider],
   );
 
   const handleDeleteClick = useCallback(
@@ -199,7 +208,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerify) await associateToProvider(domain);
+          if (canAssociateAfterVerifyRef.current) await associateToProvider(domain);
         } else {
           showToast({
             type: 'error',
@@ -217,7 +226,7 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
+    [verifyDomain, t, handleError, associateToProvider],
   );
 
   const handleToggleSwitch = useCallback(
@@ -225,6 +234,7 @@ export function useSsoDomainTab(
       const hasPermission = newCheckedValue ? canAssociate : permissions.canDissociateDomain;
       if (!hasPermission || !canManageProviderDomains) return;
       if (newCheckedValue && isAssociationUnavailable) return;
+      if (!newCheckedValue && isLastDomainLocked) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -278,6 +288,7 @@ export function useSsoDomainTab(
       canAssociate,
       canManageProviderDomains,
       isAssociationUnavailable,
+      isLastDomainLocked,
     ],
   );
 

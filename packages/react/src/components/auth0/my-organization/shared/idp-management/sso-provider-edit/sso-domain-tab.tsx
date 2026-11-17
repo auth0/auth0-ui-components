@@ -28,6 +28,7 @@ import {
   getAssociationBlockReasonMessages,
   getStatusBadgeVariant,
   isDomainAssociationUnavailable,
+  isDomainUsedForDiscovery,
   isLastRequiredDomainLocked,
   isRequiredDomainMissing,
 } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
@@ -45,6 +46,7 @@ import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/
  * @param props.domains - Array of domains
  * @param props.provider - SSO provider object
  * @param props.domainVerificationMode - How the provider uses verified domains: `none` disables Assign, `required` keeps the last domain
+ * @param props.discoveryPolicy - Organization discovery policy; the Use for discovery column is hidden without it
  * @returns JSX element
  */
 export function SsoDomainTab({
@@ -59,6 +61,7 @@ export function SsoDomainTab({
   domains,
   provider,
   domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
+  discoveryPolicy,
 }: SsoDomainsTabProps) {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.domains.content',
@@ -121,6 +124,27 @@ export function SsoDomainTab({
     ? getAssociationBlockReasonMessages(t, tCommon)[assignBlockReason]
     : null;
 
+  const discoveryColumns: Column<Domain>[] = React.useMemo(() => {
+    if (!discoveryPolicy) return [];
+
+    return [
+      {
+        type: 'custom',
+        accessorKey: 'use_for_organization_discovery',
+        title: t('table.columns.use_for_discovery'),
+        enableSorting: false,
+        render: (domain) => {
+          const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
+          const discoveryLabel = isDiscoveryOn
+            ? t('table.discovery_values.yes')
+            : t('table.discovery_values.no');
+
+          return <span className="text-foreground">{discoveryLabel}</span>;
+        },
+      },
+    ];
+  }, [t, discoveryPolicy]);
+
   const columns: Column<Domain>[] = React.useMemo(
     () => [
       {
@@ -141,6 +165,7 @@ export function SsoDomainTab({
           </Badge>
         ),
       },
+      ...discoveryColumns,
       {
         type: 'actions',
         title: '',
@@ -173,6 +198,7 @@ export function SsoDomainTab({
       handleRemove,
       lockLastDomain,
       canManageProviderDomains,
+      discoveryColumns,
     ],
   );
 

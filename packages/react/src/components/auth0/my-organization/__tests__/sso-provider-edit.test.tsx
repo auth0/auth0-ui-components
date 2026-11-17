@@ -540,6 +540,44 @@ describe('SsoProviderEdit', () => {
       expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
     });
 
+    describe('use for discovery column', () => {
+      const withPolicy = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.get).mockResolvedValue({
+          allowed_strategies: ['okta'],
+          connection_deletion_behavior: 'allow',
+          ...(policy ? { use_for_organization_discovery: policy } : {}),
+        });
+        Object.assign(organizationApi.domains, {
+          list: vi.fn().mockResolvedValue({
+            response: {
+              organization_domains: [{ ...orgDomains[0], use_for_organization_discovery: true }],
+            },
+          }),
+        });
+      };
+
+      it('should show the discovery value of each assigned domain when the organization has a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy({ default_value: false, allowed_values: [true, false] });
+        await openDomainsTab(user);
+
+        expect(await screen.findByText('table.columns.use_for_discovery')).toBeInTheDocument();
+        const row = screen.getByRole('row', { name: /assigned\.com/i });
+        expect(within(row).getByText('table.discovery_values.yes')).toBeInTheDocument();
+        expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+      });
+
+      it('should not show the column without a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy();
+        await openDomainsTab(user);
+
+        await screen.findByText('assigned.com');
+        expect(screen.queryByText('table.columns.use_for_discovery')).not.toBeInTheDocument();
+      });
+    });
+
     describe('domain_aliases_config', () => {
       const withMode = (
         mode: 'none' | 'optional' | 'required',
@@ -562,7 +600,7 @@ describe('SsoProviderEdit', () => {
         withMode('required', { is_enabled: true, domains: ['assigned.com'] });
         await openDomainsTab(user);
 
-        expect(await removeButton()).toBeDisabled();
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
         expect(within(screen.getByRole('tabpanel')).getByRole('alert')).toHaveTextContent(
           'table.actions.last_verified_domain_tooltip',
         );
@@ -585,7 +623,7 @@ describe('SsoProviderEdit', () => {
         await openDomainsTab(user);
 
         expect(await removeButtons()).toHaveLength(1);
-        expect(await removeButton()).toBeDisabled();
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
       });
 
       it('should let a disabled provider drop its only domain in required mode', async () => {

@@ -116,7 +116,7 @@ describe('SsoDomainTabActionsColumn', () => {
         />,
       );
 
-      expect(getRemoveButton()).toBeDisabled();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should be enabled with only the dissociate permission', () => {
@@ -191,7 +191,7 @@ describe('SsoDomainTabActionsColumn', () => {
         />,
       );
 
-      expect(getRemoveButton()).toBeDisabled();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
       expect(reasonFor()).toHaveTextContent('table.actions.last_verified_domain_tooltip');
 
       await user.hover(getRemoveButton());
@@ -209,7 +209,7 @@ describe('SsoDomainTabActionsColumn', () => {
         />,
       );
 
-      expect(getRemoveButton()).toBeDisabled();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
       expect(reasonFor()).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
     });
 
@@ -240,6 +240,18 @@ describe('SsoDomainTabActionsColumn', () => {
       expect(reasonFor()).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
     });
 
+    it('should not call onRemove while blocked, even when activated', async () => {
+      const user = userEvent.setup();
+      const props = createMockSsoDomainTabActionColumnProps({ lockLastDomain: true });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      await user.click(getRemoveButton());
+      getRemoveButton().focus();
+      await user.keyboard('{Enter}');
+
+      expect(props.onRemove).not.toHaveBeenCalled();
+    });
+
     it('should have no description when it can be used', () => {
       renderWithProviders(
         <SsoDomainTabActionsColumn {...createMockSsoDomainTabActionColumnProps()} />,
@@ -260,8 +272,8 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await user.tab();
 
-      expect(getRemoveButton().parentElement).toHaveFocus();
-      expect(getRemoveButton().parentElement).toHaveClass('focus-visible:ring-4');
+      expect(getRemoveButton()).toHaveFocus();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
     });
   });
 });
