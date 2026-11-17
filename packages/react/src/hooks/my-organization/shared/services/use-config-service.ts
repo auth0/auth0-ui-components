@@ -47,6 +47,16 @@ export function useConfig(): UseConfigResult {
     config?.connection_deletion_behavior === 'allow' ||
     config?.connection_deletion_behavior === 'allow_if_empty';
 
+  // The API treats an unset value as `allow_if_empty`.
+  const organizationDeletionBehavior: UseConfigResult['organizationDeletionBehavior'] =
+    config && (config.organization_deletion_behavior ?? 'allow_if_empty');
+
+  // Unlike connections, an unavailable configuration doesn't block: the API still decides.
+  const shouldAllowOrganizationDeletion =
+    organizationDeletionBehavior === undefined ||
+    organizationDeletionBehavior === 'allow' ||
+    organizationDeletionBehavior === 'allow_if_empty';
+
   const isConfigValid = !!allowedStrategies?.length;
 
   const showThirdPartyAccess = config?.third_party_client_access !== undefined;
@@ -62,6 +72,8 @@ export function useConfig(): UseConfigResult {
     fetchConfig: async () => await queryClient.getQueryData(configQueryKeys.details()),
     filteredStrategies,
     shouldAllowDeletion,
+    organizationDeletionBehavior,
+    shouldAllowOrganizationDeletion,
     isConfigValid,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,

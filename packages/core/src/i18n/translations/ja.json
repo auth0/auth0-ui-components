@@ -282,7 +282,7 @@
       "cancel_button_label": "破棄"
     },
     "organization_delete": {
-      "title": "${organizationName}を削除",
+      "title": "この組織を削除",
       "description": "一度確認すると、この操作は元に戻すことができません。",
       "delete_button_label": "削除",
       "modal_title": "${organizationName}を削除",
@@ -290,7 +290,12 @@
       "organization_name_field_placeholder": "組織名を入力してください",
       "organization_name_field_label": "組織名",
       "organization_name_field_error": "削除を確認するために「${organizationName}」と入力してください",
-      "cancel_button_label": "キャンセル"
+      "cancel_button_label": "キャンセル",
+      "notifications": {
+        "success": "${organizationName}を削除しました。",
+        "not_empty_error": "他のメンバーがいるため、${organizationName}を削除できません。他のメンバーをすべて削除してから、もう一度お試しください。",
+        "general_error": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+      }
     },
     "organization_details_edit": {
       "header": {
@@ -300,6 +305,62 @@
       "save_organization_changes_message": "${organizationName}の変更が保存されました。",
       "organization_changes_error_message": "リクエストの処理中に問題が発生しました。${message}.",
       "organization_changes_error_message_generic": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+    },
+    "organization_table": {
+      "header": {
+        "title": "組織",
+        "description": "取引のある組織を管理し、そのユーザーがアプリケーションにアクセスする際のエクスペリエンスをカスタマイズします。",
+        "create_button_text": "組織を作成"
+      },
+      "table": {
+        "empty_message": "組織がありません。",
+        "error_message": "情報を読み込めませんでした",
+        "error_description": "もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
+        "retry_button_text": "再試行",
+        "columns": {
+          "display_name": "表示名",
+          "name": "名前",
+          "id": "識別子"
+        },
+        "actions": {
+          "menu_label": "${organizationName}のアクション",
+          "edit_button_text": "編集"
+        }
+      }
+    },
+    "organization_create": {
+      "header": {
+        "title": "組織を作成",
+        "back_button_text": "組織一覧に戻る"
+      },
+      "details": {
+        "submit_button_label": "組織を作成",
+        "sections": {
+          "settings": {
+            "fields": {
+              "name": {
+                "placeholder": "この組織の識別子を入力してください"
+              },
+              "display_name": {
+                "placeholder": "この組織のわかりやすい名前を入力してください"
+              }
+            }
+          }
+        }
+      },
+      "notifications": {
+        "success": "${organizationName}を作成しました。",
+        "conflict_error": "「${organizationName}」という名前の組織はすでに存在します。別の名前を選択してください。",
+        "general_error": "リクエストの処理中に問題が発生しました。再度お試しいただくか、問題が解決しない場合はサポートまでお問い合わせください。"
+      }
+    },
+    "organization_switcher": {
+      "trigger_placeholder": "組織を選択",
+      "trigger_label": "組織を切り替え、現在の組織: ${organizationName}",
+      "menu_label": "組織",
+      "error_message": "組織の読み込み中に問題が発生しました。",
+      "retry_button_text": "再試行",
+      "create_button_text": "組織を作成"
     }
   },
   "idp_management": {
@@ -822,6 +883,63 @@
                   "label": "SCIMエンドポイントURL"
                 }
               }
+            },
+            "google_workspace": {
+              "header": {
+                "title": "プロビジョニング",
+                "description_disabled": "Google Workspace ディレクトリからユーザーを自動的に同期します。SCIM の手動設定は不要です。",
+                "description_enabled": "Google Workspace ディレクトリからユーザーを自動的に同期します。",
+                "continue_button_label": "Google で続行",
+                "retry_button_label": "再試行",
+                "status": {
+                  "granted": "許可済み",
+                  "failed": "完了できませんでした"
+                },
+                "provider_disabled_tooltip": "プロビジョニングを設定するにはプロバイダーを有効にしてください",
+                "access_level_required_tooltip": "Google Workspace に接続するには、組織へのフルアクセスが必要です",
+                "enable_tooltip": "トグルでプロビジョニングを有効にします",
+                "disable_tooltip": "トグルでプロビジョニングを無効にします"
+              },
+              "connection_info": {
+                "last_synced_label": "最終同期:"
+              },
+              "status_alert": {
+                "unconfirmed_authorization": "Google Workspace の認可はまだ同期で確認されていません。認可が取り消された場合、次回の定期同期は失敗します。再認可するには <link>Google で続行</link> してください。",
+                "sync_failed": "同期に失敗しました: Google Workspace の認可は無効になっています。再認可するには <link>Google で続行</link> してください。"
+              },
+              "auto_sync": {
+                "title": "Google Workspace からユーザーを自動的に同期",
+                "description": "有効にすると、Auth0 は 30 分ごとに Google Workspace ディレクトリを自動的に同期します。無効にすると、再度有効にするまでユーザーは同期されません。手動で同期するには管理者にお問い合わせください。",
+                "enable_tooltip": "トグルで自動同期を有効にします",
+                "disable_tooltip": "トグルで自動同期を無効にします"
+              },
+              "error": {
+                "title": "Google で問題が発生していますか?",
+                "retry_button_label": "閉じて再試行"
+              },
+              "modals": {
+                "enable_auto_sync": {
+                  "title": "Google へのアクセスが許可されました。自動同期を有効にしますか?",
+                  "content": {
+                    "description_enabled": "有効にすると、Auth0 は 30 分ごとに Google Workspace ディレクトリを自動的に同期します。",
+                    "description_skip": "スキップした場合、自動同期を有効にするまでユーザーは同期されません。手動で同期するには管理者にお問い合わせください。"
+                  },
+                  "actions": {
+                    "dismiss_button_label": "後で",
+                    "confirm_button_label": "自動同期を有効にする"
+                  }
+                },
+                "disable": {
+                  "title": "プロビジョニングを無効にする",
+                  "content": {
+                    "description": "プロビジョニングを無効にしてもよろしいですか?プロビジョニング設定が削除され、ユーザーの同期が停止します。Google Workspace の認可は保存されたままで、後でプロビジョニングを再度有効にすると自動的に再利用されます。"
+                  },
+                  "actions": {
+                    "cancel_button_label": "キャンセル",
+                    "confirm_button_label": "無効にする"
+                  }
+                }
+              }
             }
           }
         },
@@ -982,7 +1100,14 @@
       "scim_token_delete_success": "トークンが削除されました。",
       "scim_token_create_success": "トークンが正常に生成されました",
       "sso_attributes_sync_success": "プロバイダーマッピングが更新されました。",
-      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。"
+      "provisioning_attributes_sync_success": "プロビジョニングマッピングが更新されました。",
+      "google_workspace_provisioning": {
+        "connected_success": "Google Workspace へのアクセスが許可されました。",
+        "connected_with_auto_sync_success": "Google へのアクセスが許可され、自動同期が有効になりました。",
+        "connect_error": "Google の認可を完了できませんでした。もう一度お試しください。",
+        "auto_sync_enabled_success": "自動同期が有効になりました。",
+        "auto_sync_disabled_success": "自動同期が無効になりました。"
+      }
     },
     "sso_guided_setup": {
       "stepper_label": "セットアップ手順",
