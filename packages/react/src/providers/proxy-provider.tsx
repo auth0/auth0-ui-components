@@ -29,7 +29,7 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for RWAs using backend proxy auth.
- * @param props - Provider configuration including domain, proxyConfig, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, disablePermissionEnforcement, disableTokenCoordination, and children.
+ * @param props - Provider configuration including domain, proxyConfig, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, disablePermissionEnforcement, disableTokenRequestQueue, and children.
  * @returns Provider component tree
  */
 export const Auth0ComponentProvider = ({
@@ -54,7 +54,7 @@ export const Auth0ComponentProvider = ({
   children,
   telemetry: telemetryEnabled = true,
   disablePermissionEnforcement = false,
-  disableTokenCoordination = false,
+  disableTokenRequestQueue = false,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
   const { baseUrl, fetcher } = proxyConfig;
@@ -75,9 +75,9 @@ export const Auth0ComponentProvider = ({
       authProxyUrl: baseUrl,
       fetcher,
       previewMode,
-      disableTokenCoordination,
+      disableTokenRequestQueue,
     }),
-    [domain, baseUrl, fetcher, previewMode, disableTokenCoordination],
+    [domain, baseUrl, fetcher, previewMode, disableTokenRequestQueue],
   );
 
   const telemetry = React.useMemo<TelemetryConfig>(

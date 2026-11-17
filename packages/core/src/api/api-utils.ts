@@ -27,7 +27,7 @@ export interface ProxyFetcherConfig {
   ) => Promise<Response>;
   telemetry: TelemetryConfig;
   getComponent: TelemetryComponentGetter;
-  disableTokenCoordination?: boolean;
+  disableTokenRequestQueue?: boolean;
 }
 
 /**
@@ -67,7 +67,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
       }
       return fetch(url, { ...init, headers: requestHeaders });
     };
-    return config.disableTokenCoordination
+    return config.disableTokenRequestQueue
       ? send(authParams?.scope)
       : coordinateProxyRequest(authParams, init, send);
   };
@@ -89,10 +89,10 @@ export function createSpaFetcher(
   telemetry: TelemetryConfig,
   getComponent: TelemetryComponentGetter,
 ): FetcherSupplier {
-  const { contextInterface, disableTokenCoordination } = config;
+  const { contextInterface, disableTokenRequestQueue } = config;
   const sdkFetcher = contextInterface.createFetcher({
     dpopNonceId,
-    ...(!disableTokenCoordination &&
+    ...(!disableTokenRequestQueue &&
       contextInterface.getAccessTokenSilently && {
         getAccessToken: createCoordinatedTokenGetter(contextInterface.getAccessTokenSilently),
       }),

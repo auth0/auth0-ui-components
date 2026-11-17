@@ -557,14 +557,14 @@ describe('api-utils', () => {
         expect(scopeOf(1)).toBe('read:me:factors');
       });
 
-      describe('when token coordination is disabled', () => {
+      describe('when the token request queue is disabled', () => {
         it('sends every request right away with its own scope', () => {
           const mockFetch = vi.fn().mockReturnValue(new Promise<Response>(() => undefined));
           vi.stubGlobal('fetch', mockFetch);
           const fetcher = createProxyFetcher({
             telemetry: defaultTelemetry,
             getComponent: mockGetComponent,
-            disableTokenCoordination: true,
+            disableTokenRequestQueue: true,
           });
 
           void fetcher('https://example.com/me/v1/a', undefined, {
@@ -598,7 +598,7 @@ describe('api-utils', () => {
             customFetcher,
             telemetry: defaultTelemetry,
             getComponent: mockGetComponent,
-            disableTokenCoordination: true,
+            disableTokenRequestQueue: true,
           });
 
           await fetcher('https://example.com/me/v1/a', undefined, authParams);
@@ -654,7 +654,7 @@ describe('api-utils', () => {
         expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId: '__test_nonce__' });
       });
 
-      it('leaves the SDK default when token coordination is disabled', () => {
+      it('leaves the SDK default when the token request queue is disabled', () => {
         const config: SpaAuthConfig = {
           mode: 'spa',
           domain: TEST_DOMAIN,
@@ -663,7 +663,7 @@ describe('api-utils', () => {
             createFetcher: mockCreateFetcher,
             getAccessTokenSilently: vi.fn(),
           },
-          disableTokenCoordination: true,
+          disableTokenRequestQueue: true,
         };
 
         createSpaFetcher(config, '__test_nonce__', defaultTelemetry, mockGetComponent);

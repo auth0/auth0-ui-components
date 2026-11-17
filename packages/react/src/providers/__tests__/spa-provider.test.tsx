@@ -65,16 +65,16 @@ describe('Auth0ComponentProvider (SPA)', () => {
     );
   });
 
-  it('should pass disableTokenCoordination to the core client', () => {
+  it('should pass disableTokenRequestQueue to the core client', () => {
     render(
-      <Auth0ComponentProvider disableTokenCoordination>
+      <Auth0ComponentProvider disableTokenRequestQueue>
         <div />
       </Auth0ComponentProvider>,
     );
 
     expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
       expect.objectContaining({
-        authDetails: expect.objectContaining({ disableTokenCoordination: true }),
+        authDetails: expect.objectContaining({ disableTokenRequestQueue: true }),
       }),
     );
   });

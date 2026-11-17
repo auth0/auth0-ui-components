@@ -31,7 +31,7 @@ import type { Auth0ComponentProviderProps } from '@/types/auth-types';
 
 /**
  * Auth0 provider for SPAs. Wraps components with required contexts.
- * @param props - Provider configuration including domain, mode, authContext, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, disablePermissionEnforcement, disableTokenCoordination, and children.
+ * @param props - Provider configuration including domain, mode, authContext, i18n, themeSettings, toastSettings, cacheConfig, retryConfig, loader, disablePermissionEnforcement, disableTokenRequestQueue, and children.
  * @returns Provider component tree
  */
 export const Auth0ComponentProvider = (
@@ -58,7 +58,7 @@ export const Auth0ComponentProvider = (
     authContext,
     telemetry: telemetryEnabled = true,
     disablePermissionEnforcement = false,
-    disableTokenCoordination = false,
+    disableTokenRequestQueue = false,
   } = props;
   const mergedToastSettings = useToastProvider(toastSettings);
 
@@ -92,9 +92,9 @@ export const Auth0ComponentProvider = (
       contextInterface: resolvedAuthContext,
       previewMode,
       domain,
-      disableTokenCoordination,
+      disableTokenRequestQueue,
     }),
-    [resolvedAuthContext, previewMode, domain, disableTokenCoordination],
+    [resolvedAuthContext, previewMode, domain, disableTokenRequestQueue],
   );
 
   const telemetry = React.useMemo<TelemetryConfig>(

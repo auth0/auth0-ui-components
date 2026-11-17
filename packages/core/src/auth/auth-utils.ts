@@ -54,7 +54,7 @@ export const AuthUtils = {
         proxyUrl: normalizeProxyUrl(auth.authProxyUrl),
         ...(auth.domain && { domain: auth.domain.trim() }),
         ...(auth.fetcher && { fetcher: auth.fetcher }),
-        ...(auth.disableTokenCoordination && { disableTokenCoordination: true }),
+        ...(auth.disableTokenRequestQueue && { disableTokenRequestQueue: true }),
       };
     }
 
@@ -78,7 +78,7 @@ export const AuthUtils = {
       mode: 'spa',
       contextInterface,
       domain: domain.trim(),
-      ...(auth.disableTokenCoordination && { disableTokenCoordination: true }),
+      ...(auth.disableTokenRequestQueue && { disableTokenRequestQueue: true }),
     };
   },
 };

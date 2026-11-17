@@ -54,13 +54,13 @@ describe('Auth0ComponentProvider', () => {
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
-  it('should pass disableTokenCoordination to the core client', () => {
+  it('should pass disableTokenRequestQueue to the core client', () => {
     render(
       <Auth0ComponentProvider
         domain="test.auth0.com"
         mode="proxy"
         proxyConfig={{ baseUrl: '/api/auth' }}
-        disableTokenCoordination
+        disableTokenRequestQueue
       >
         <div />
       </Auth0ComponentProvider>,
@@ -68,7 +68,7 @@ describe('Auth0ComponentProvider', () => {
 
     expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
       expect.objectContaining({
-        authDetails: expect.objectContaining({ disableTokenCoordination: true }),
+        authDetails: expect.objectContaining({ disableTokenRequestQueue: true }),
       }),
     );
   });

@@ -124,10 +124,10 @@ describe('createMyOrganizationClient', () => {
       expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBe('read:org write:org');
     });
 
-    it('sends requests right away when disableTokenCoordination is set', () => {
+    it('sends requests right away when disableTokenRequestQueue is set', () => {
       const mockFetch = stubFetch();
       createMyOrganizationClient(
-        { ...mockProxyConfig, disableTokenCoordination: true },
+        { ...mockProxyConfig, disableTokenRequestQueue: true },
         defaultTelemetry,
         mockGetComponent,
       );
