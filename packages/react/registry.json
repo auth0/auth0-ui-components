@@ -9,7 +9,7 @@
       "title": "Organization create component.",
       "description": "A block component for organization create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -68,6 +68,11 @@
           "path": "src/components/auth0/shared/header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/section.tsx",
@@ -270,6 +275,11 @@
           "target": "types/my-account/organization-management/organization-create-types.ts"
         },
         {
+          "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/organization-management/organization-delete-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-details-edit-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-details-edit-types.ts"
@@ -285,6 +295,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -298,6 +313,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/form-constants.ts",
@@ -342,7 +362,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -351,7 +371,7 @@
       "title": "OrganizationSwitcher container component.",
       "description": "A block component for organization switcher.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-slot@1.2.3",
@@ -524,6 +544,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -537,6 +562,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/my-account/organization-management/organization-management-constants.ts",
@@ -571,7 +601,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -580,7 +610,7 @@
       "title": "OrganizationTable container component.",
       "description": "A block component for organization table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.4",
+        "@auth0/universal-components-core@3.5.5",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -605,6 +635,11 @@
           "path": "src/components/auth0/my-account/shared/organization-management/organization-table/organization-table-actions-column.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-account/shared/organization-management/organization-table/organization-table-actions-column.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text.tsx",
@@ -737,6 +772,11 @@
           "target": "hooks/shared/use-checkpoint-pagination.ts"
         },
         {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
+        },
+        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -745,6 +785,16 @@
           "path": "src/hooks/shared/use-core-client.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-error-handler.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-error-handler.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-error-toast.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-error-toast.ts"
         },
         {
           "path": "src/hooks/shared/use-telemetry.ts",
@@ -832,6 +882,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -845,6 +900,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -899,7 +959,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.4"
+        "coreVersion": "3.5.5"
       }
     },
     {
@@ -971,6 +1031,11 @@
           "path": "src/components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-account/shared/user-mfa-management/factor-list/factors-list.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -1093,6 +1158,11 @@
           "target": "hooks/my-account/use-user-mfa.ts"
         },
         {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
+        },
+        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -1208,6 +1278,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -1221,6 +1296,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/form-constants.ts",
@@ -1504,6 +1584,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -1517,6 +1602,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/telemetry-constants.ts",
@@ -1604,6 +1694,11 @@
           "path": "src/components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/domain-management/domain-verify/domain-verify-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -1771,6 +1866,11 @@
           "target": "hooks/shared/use-checkpoint-pagination.ts"
         },
         {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
+        },
+        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -1896,6 +1996,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -1909,6 +2014,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -2314,6 +2424,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -2327,6 +2442,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/form-constants.ts",
@@ -2436,6 +2556,11 @@
           "path": "src/components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/member-management/organization-member-detail/organization-member-roles-tab.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text.tsx",
@@ -2573,6 +2698,11 @@
           "target": "hooks/my-organization/use-member-detail.ts"
         },
         {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
+        },
+        {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-core-client-initialization.ts"
@@ -2683,6 +2813,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -2696,6 +2831,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -3139,6 +3279,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -3152,6 +3297,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -3230,16 +3380,21 @@
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
         "@radix-ui/react-checkbox@1.1.1",
+        "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-label@2.1.7",
         "@radix-ui/react-radio-group@1.2.0",
         "@radix-ui/react-select@2.2.5",
         "@radix-ui/react-slot@1.2.3",
         "@radix-ui/react-switch@1.1.0",
+        "@radix-ui/react-tabs@1.1.12",
         "@radix-ui/react-tooltip@1.2.7",
+        "@tanstack/react-table@8.21.3",
         "class-variance-authority@0.7.1",
         "clsx@2.1.1",
         "lucide-react@1.16.0",
         "react-hook-form@7.57.0",
+        "react-markdown@8.0.7",
+        "remark-gfm@3.0.1",
         "sonner@2.0.5",
         "tailwind-merge@3.3.0"
       ],
@@ -3248,6 +3403,61 @@
           "path": "src/components/auth0/my-organization/sso-provider-create.tsx",
           "type": "registry:block",
           "target": "components/auth0/my-organization/sso-provider-create.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-markdown.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-markdown.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-renderers.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-renderers.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-tabs.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-tabs.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
@@ -3310,9 +3520,79 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-adfs-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-adfs-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-help-text.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-help-text.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx",
@@ -3320,9 +3600,34 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/copyable-text-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/data-table.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/data-table.tsx"
         },
         {
           "path": "src/components/auth0/shared/form-actions.tsx",
@@ -3338,6 +3643,26 @@
           "path": "src/components/auth0/shared/header.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/header.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/mapping.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/mapping.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/markdown-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/markdown-content.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/middle-ellipsis-text.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/permission-denied-tooltip.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/permission-denied-tooltip.tsx"
         },
         {
           "path": "src/components/auth0/shared/section.tsx",
@@ -3375,6 +3700,16 @@
           "target": "components/ui/accordion.tsx"
         },
         {
+          "path": "src/components/ui/alert.tsx",
+          "type": "registry:component",
+          "target": "components/ui/alert.tsx"
+        },
+        {
+          "path": "src/components/ui/badge.tsx",
+          "type": "registry:component",
+          "target": "components/ui/badge.tsx"
+        },
+        {
           "path": "src/components/ui/button.tsx",
           "type": "registry:component",
           "target": "components/ui/button.tsx"
@@ -3390,6 +3725,16 @@
           "target": "components/ui/checkbox.tsx"
         },
         {
+          "path": "src/components/ui/code-block.tsx",
+          "type": "registry:component",
+          "target": "components/ui/code-block.tsx"
+        },
+        {
+          "path": "src/components/ui/dialog.tsx",
+          "type": "registry:component",
+          "target": "components/ui/dialog.tsx"
+        },
+        {
           "path": "src/components/ui/file-upload.tsx",
           "type": "registry:component",
           "target": "components/ui/file-upload.tsx"
@@ -3400,6 +3745,11 @@
           "target": "components/ui/form.tsx"
         },
         {
+          "path": "src/components/ui/inline-code.tsx",
+          "type": "registry:component",
+          "target": "components/ui/inline-code.tsx"
+        },
+        {
           "path": "src/components/ui/label.tsx",
           "type": "registry:component",
           "target": "components/ui/label.tsx"
@@ -3408,6 +3758,16 @@
           "path": "src/components/ui/link.tsx",
           "type": "registry:component",
           "target": "components/ui/link.tsx"
+        },
+        {
+          "path": "src/components/ui/markdown.tsx",
+          "type": "registry:component",
+          "target": "components/ui/markdown.tsx"
+        },
+        {
+          "path": "src/components/ui/modal.tsx",
+          "type": "registry:component",
+          "target": "components/ui/modal.tsx"
         },
         {
           "path": "src/components/ui/radio-group.tsx",
@@ -3440,6 +3800,16 @@
           "target": "components/ui/switch.tsx"
         },
         {
+          "path": "src/components/ui/table.tsx",
+          "type": "registry:component",
+          "target": "components/ui/table.tsx"
+        },
+        {
+          "path": "src/components/ui/tabs.tsx",
+          "type": "registry:component",
+          "target": "components/ui/tabs.tsx"
+        },
+        {
           "path": "src/components/ui/text-field.tsx",
           "type": "registry:component",
           "target": "components/ui/text-field.tsx"
@@ -3465,6 +3835,11 @@
           "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-idp-instructions-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-instructions-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-organization-details-edit-service.ts"
@@ -3475,14 +3850,54 @@
           "target": "hooks/my-organization/shared/services/use-sso-provider-create-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-sso-provider-test-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-sso-provider-test-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-file-content-field.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-file-content-field.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-guided-setup-flow.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-guided-setup-flow.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-oidc-channel.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-oidc-channel.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-provider-form-mode.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-provider-form-mode.ts"
         },
         {
+          "path": "src/hooks/my-organization/use-service-provider-values.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-service-provider-values.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-sso-provider-create.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-create.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-test.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-test.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-strategy-configure-form.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-strategy-configure-form.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
         },
         {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
@@ -3508,6 +3923,11 @@
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-poll-until.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-poll-until.ts"
         },
         {
           "path": "src/hooks/shared/use-telemetry.ts",
@@ -3595,6 +4015,16 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -3605,9 +4035,34 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-edit-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types.ts"
         },
         {
           "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
@@ -3630,6 +4085,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -3643,6 +4103,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/form-constants.ts",
@@ -3663,6 +4128,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/json-tokens.ts",
+          "type": "registry:component",
+          "target": "lib/utils/json-tokens.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -3755,6 +4225,8 @@
         "clsx@2.1.1",
         "lucide-react@1.16.0",
         "react-hook-form@7.57.0",
+        "react-markdown@8.0.7",
+        "remark-gfm@3.0.1",
         "sonner@2.0.5",
         "tailwind-merge@3.3.0"
       ],
@@ -3763,6 +4235,61 @@
           "path": "src/components/auth0/my-organization/sso-provider-edit.tsx",
           "type": "registry:block",
           "target": "components/auth0/my-organization/sso-provider-edit.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-markdown.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-markdown.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-provisioning-components.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-provisioning-components.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-renderers.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-renderers.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-tabs.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-tabs.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form.tsx",
@@ -3900,6 +4427,26 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-disable-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-disable-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-enable-auto-sync-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-enable-auto-sync-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-guided-setup.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-guided-setup.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.tsx"
@@ -3915,14 +4462,104 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-adfs-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-adfs-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-help-text.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-help-text.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon.tsx"
+        },
+        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/copy-button.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/copy-button.tsx"
         },
         {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
@@ -3953,6 +4590,11 @@
           "path": "src/components/auth0/shared/mapping.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/mapping.tsx"
+        },
+        {
+          "path": "src/components/auth0/shared/markdown-content.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/markdown-content.tsx"
         },
         {
           "path": "src/components/auth0/shared/middle-ellipsis-text.tsx",
@@ -3990,6 +4632,11 @@
           "target": "components/auth0/shared/toast.tsx"
         },
         {
+          "path": "src/components/auth0/shared/wizard-stepper.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/shared/wizard-stepper.tsx"
+        },
+        {
           "path": "src/components/ui/accordion.tsx",
           "type": "registry:component",
           "target": "components/ui/accordion.tsx"
@@ -4023,6 +4670,11 @@
           "path": "src/components/ui/chip.tsx",
           "type": "registry:component",
           "target": "components/ui/chip.tsx"
+        },
+        {
+          "path": "src/components/ui/code-block.tsx",
+          "type": "registry:component",
+          "target": "components/ui/code-block.tsx"
         },
         {
           "path": "src/components/ui/combobox.tsx",
@@ -4060,6 +4712,11 @@
           "target": "components/ui/link.tsx"
         },
         {
+          "path": "src/components/ui/markdown.tsx",
+          "type": "registry:component",
+          "target": "components/ui/markdown.tsx"
+        },
+        {
           "path": "src/components/ui/modal.tsx",
           "type": "registry:component",
           "target": "components/ui/modal.tsx"
@@ -4083,6 +4740,11 @@
           "path": "src/components/ui/spinner.tsx",
           "type": "registry:component",
           "target": "components/ui/spinner.tsx"
+        },
+        {
+          "path": "src/components/ui/stepper.tsx",
+          "type": "registry:component",
+          "target": "components/ui/stepper.tsx"
         },
         {
           "path": "src/components/ui/switch.tsx",
@@ -4120,9 +4782,19 @@
           "target": "hooks/my-organization/shared/services/use-config-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-google-workspace-provisioning-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-google-workspace-provisioning-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-instructions-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-instructions-service.ts"
         },
         {
           "path": "src/hooks/my-organization/shared/services/use-organization-details-edit-service.ts",
@@ -4140,9 +4812,39 @@
           "target": "hooks/my-organization/shared/services/use-sso-provider-edit-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-sso-provider-test-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-sso-provider-test-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-file-content-field.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-file-content-field.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-google-workspace-provisioning.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-google-workspace-provisioning.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-guided-setup-flow.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-guided-setup-flow.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-oidc-channel.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-oidc-channel.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-provider-form-mode.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-provider-form-mode.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-service-provider-values.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-service-provider-values.ts"
         },
         {
           "path": "src/hooks/my-organization/use-sso-domain-tab.ts",
@@ -4153,6 +4855,21 @@
           "path": "src/hooks/my-organization/use-sso-provider-edit.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-test.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-test.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-strategy-configure-form.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-strategy-configure-form.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-copy-to-clipboard.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-copy-to-clipboard.ts"
         },
         {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
@@ -4175,9 +4892,19 @@
           "target": "hooks/shared/use-permissions.ts"
         },
         {
+          "path": "src/hooks/shared/use-poll-until.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-poll-until.ts"
+        },
+        {
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
+        },
+        {
+          "path": "src/hooks/shared/use-query-poll-until.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-query-poll-until.ts"
         },
         {
           "path": "src/hooks/shared/use-telemetry.ts",
@@ -4275,6 +5002,11 @@
           "target": "types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -4293,6 +5025,16 @@
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts"
         },
         {
           "path": "src/types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types.ts",
@@ -4330,6 +5072,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -4343,6 +5090,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
@@ -4370,9 +5122,19 @@
           "target": "lib/utils.ts"
         },
         {
+          "path": "src/lib/utils/json-tokens.ts",
+          "type": "registry:component",
+          "target": "lib/utils/json-tokens.ts"
+        },
+        {
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -4393,6 +5155,41 @@
           "path": "src/lib/utils/use-id-compat.ts",
           "type": "registry:component",
           "target": "lib/utils/use-id-compat.ts"
+        },
+        {
+          "path": "src/assets/icons/entraid-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/entraid-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/google-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/google-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/microsoft-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/microsoft-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/oidc-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/oidc-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/okta-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/okta-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/pingid-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/pingid-logo.tsx"
+        },
+        {
+          "path": "src/assets/icons/sampl-logo.tsx",
+          "type": "registry:component",
+          "target": "assets/icons/sampl-logo.tsx"
         },
         {
           "path": "src/styles/globals.css",
@@ -4718,6 +5515,11 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
+          "path": "src/types/poll-types.ts",
+          "type": "registry:component",
+          "target": "types/poll-types.ts"
+        },
+        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -4731,6 +5533,11 @@
           "path": "src/types/toast-types.ts",
           "type": "registry:component",
           "target": "types/toast-types.ts"
+        },
+        {
+          "path": "src/types/use-poll-until-types.ts",
+          "type": "registry:component",
+          "target": "types/use-poll-until-types.ts"
         },
         {
           "path": "src/lib/constants/common-constants.ts",
