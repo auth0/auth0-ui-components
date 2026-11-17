@@ -3,6 +3,7 @@
  * @module organization-details-edit-types
  * @internal
  */
+import type { OrganizationDeleteMessages } from './organization-delete-types';
 import type { OrganizationDetailsMessages } from './organization-details-types';
 
 export interface OrganizationDetailsEditMessages {
@@ -11,7 +12,7 @@ export interface OrganizationDetailsEditMessages {
     back_button_text?: string;
   };
   details?: OrganizationDetailsMessages;
-  // delete?: OrganizationDeleteMessages; // TODO: Enable it when delete is enabled
+  delete?: OrganizationDeleteMessages;
   save_organization_changes_message?: string;
   organization_changes_error_message?: string;
   organization_changes_error_message_generic?: string;

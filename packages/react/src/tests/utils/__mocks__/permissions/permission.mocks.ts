@@ -25,6 +25,7 @@ export const ALL_MY_ORG_PERMISSIONS: OauthScope[] = [
   'delete:my_org:member_invitations',
   'delete:my_org:member_roles',
   'delete:my_org:memberships',
+  'delete:my_org:organizations',
   'read:my_org:configuration',
   'read:my_org:details',
   'read:my_org:domains',
