@@ -16,6 +16,7 @@ import type {
   GetIdpConfigurationResponseContent,
   ThirdPartyAccessMessages,
   CrossAppAccessMessages,
+  IdpStrategy,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -150,7 +151,7 @@ interface CrossAppAccessSectionBaseProps {
 }
 
 type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
-  strategy?: 'oidc' | 'okta';
+  strategy?: Exclude<IdpStrategy, 'samlp'>;
 };
 
 type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {

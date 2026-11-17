@@ -53,7 +53,8 @@ export function useConfig(): UseConfigResult {
   const isThirdPartyAccessReadOnly =
     (config?.third_party_client_access?.allowed_values?.length ?? 0) <= 1;
   const thirdPartyAccessDefaultValue = isThirdPartyAccessReadOnly
-    ? config?.third_party_client_access?.allowed_values?.[0]
+    ? (config?.third_party_client_access?.allowed_values?.[0] ??
+      config?.third_party_client_access?.default_value)
     : config?.third_party_client_access?.default_value;
 
   return {
