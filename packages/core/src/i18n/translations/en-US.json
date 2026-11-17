@@ -1254,7 +1254,12 @@
         }
       },
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
-      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider."
+      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider.",
+      "lifecycle": {
+        "out_of_date": "Provider instructions may be outdated. Please contact ${companyName} support for assistance if needed.",
+        "dismiss": "Dismiss",
+        "deprecated": "Guided setup isn't available for this provider."
+      }
     }
   },
   "user_mfa_management": {

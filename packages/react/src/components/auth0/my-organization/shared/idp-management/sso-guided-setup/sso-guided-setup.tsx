@@ -16,6 +16,7 @@ import {
   type InstructionsKind,
   type SsoGuidedSetupMessages,
 } from '@auth0/universal-components-core';
+import { MessageSquareWarning, X } from 'lucide-react';
 import * as React from 'react';
 
 import { InstructionsPage } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page';
@@ -24,6 +25,8 @@ import { SsoGuidedSetupCreateModal } from '@/components/auth0/my-organization/sh
 import { SsoStrategyIcon } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { WizardStepper } from '@/components/auth0/shared/wizard-stepper';
+import { Alert, AlertAction, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
@@ -54,6 +57,7 @@ export interface SsoGuidedSetupProps
   initialPageKey?: string;
   renderers?: InstructionRenderers;
   enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
@@ -90,6 +94,7 @@ export function SsoGuidedSetup({
   initialPageKey,
   renderers,
   enabled = true,
+  hideLifecycleWarnings = false,
   isSubmitting = false,
   onBeforeCreate,
   onCreateProvider,
@@ -107,7 +112,14 @@ export function SsoGuidedSetup({
     enabled,
   });
 
-  const pages: readonly InstructionsPageItem[] = instructions?.pages ?? EMPTY_PAGES;
+  const lifecycleStatus = instructions?.version_info?.lifecycle_status;
+  const isDeprecated = lifecycleStatus === 'deprecated';
+  const [isOutOfDateDismissed, setOutOfDateDismissed] = React.useState(false);
+  const showOutOfDate =
+    lifecycleStatus === 'out_of_date' && !hideLifecycleWarnings && !isOutOfDateDismissed;
+
+  const pages: readonly InstructionsPageItem[] =
+    !isDeprecated && instructions?.pages ? instructions.pages : EMPTY_PAGES;
   const providerAttributes = getProviderAttributes(provider);
 
   const resolvedEntryContext = React.useMemo<InstructionsEntryContext>(
@@ -242,7 +254,7 @@ export function SsoGuidedSetup({
       <Card className={className} data-slot="sso-guided-setup">
         <CardContent>
           <p className="text-sm text-muted-foreground" role="status">
-            {error ? t('load_error') : t('unavailable')}
+            {error ? t('load_error') : isDeprecated ? t('lifecycle.deprecated') : t('unavailable')}
           </p>
         </CardContent>
       </Card>
@@ -266,6 +278,27 @@ export function SsoGuidedSetup({
         </nav>
 
         <section className="min-w-0 space-y-6" aria-labelledby="sso-guided-setup-page-title">
+          {showOutOfDate && (
+            <Alert variant="warning" className="pr-10" data-slot="sso-guided-setup-out-of-date">
+              <MessageSquareWarning aria-hidden="true" />
+              <AlertDescription className="text-warning-foreground">
+                {t('lifecycle.out_of_date', { companyName: company })}
+              </AlertDescription>
+              <AlertAction>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label={t('lifecycle.dismiss')}
+                  onClick={() => setOutOfDateDismissed(true)}
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+
           <h3 id="sso-guided-setup-page-title" className="text-lg font-medium text-foreground">
             {currentPage.title}
           </h3>

@@ -15,6 +15,7 @@ import * as React from 'react';
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
 import { SsoProvisioningDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -61,6 +62,7 @@ export function SsoProvisioningTab({
   permissions,
   readOnly = false,
   onStartGuidedSetup,
+  hideGuidedSetupLifecycleWarnings = false,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t, currentLanguage } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -137,6 +139,9 @@ export function SsoProvisioningTab({
     enabled: canOfferGuidedSetup,
   });
   const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
+  const isGuidedSetupDeprecated =
+    provisioningInstructions?.version_info?.lifecycle_status === 'deprecated';
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup');
 
   const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
   const handleStartGuidedSetup = async () => {
@@ -192,20 +197,25 @@ export function SsoProvisioningTab({
           <CardAction>
             <div className="flex items-center gap-3">
               {showGuidedSetup && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleStartGuidedSetup}
-                  disabled={isStartingGuidedSetup || isLoading}
-                  className={cn(
-                    'flex items-center gap-2',
-                    currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
-                  )}
+                <PermissionDeniedTooltip
+                  enabled={isGuidedSetupDeprecated && !hideGuidedSetupLifecycleWarnings}
+                  customMessage={tGuided('lifecycle.deprecated')}
                 >
-                  {t('header.guided_setup_button_label')}
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleStartGuidedSetup}
+                    disabled={isStartingGuidedSetup || isLoading || isGuidedSetupDeprecated}
+                    className={cn(
+                      'flex items-center gap-2',
+                      currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
+                    )}
+                  >
+                    {t('header.guided_setup_button_label')}
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </PermissionDeniedTooltip>
               )}
               <div className="flex items-center gap-2">
                 {isLoading ? (

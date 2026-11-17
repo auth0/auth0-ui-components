@@ -8,6 +8,7 @@ import type { ActionButton as CoreActionButton } from '@auth0/universal-componen
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,7 @@ import { cn } from '@/lib/utils';
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
   icon?: LucideIcon;
   iconPosition?: 'start' | 'end';
+  tooltip?: string;
   className?: string;
 }
 
@@ -43,6 +45,7 @@ interface SectionProps {
 const ButtonAction: React.FC<ButtonActionProps> = ({
   icon: Icon,
   iconPosition = 'start',
+  tooltip,
   className,
   label,
   onClick,
@@ -50,22 +53,24 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
   variant,
   size,
 }) => (
-  <Button
-    onClick={onClick}
-    disabled={disabled}
-    variant={variant}
-    size={size}
-    className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
-    aria-label={label}
-  >
-    {Icon && iconPosition === 'start' && (
-      <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-    )}
-    <span className="truncate">{label}</span>
-    {Icon && iconPosition === 'end' && (
-      <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-    )}
-  </Button>
+  <PermissionDeniedTooltip enabled={Boolean(tooltip)} customMessage={tooltip}>
+    <Button
+      onClick={onClick}
+      disabled={disabled}
+      variant={variant}
+      size={size}
+      className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
+      aria-label={label}
+    >
+      {Icon && iconPosition === 'start' && (
+        <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      )}
+      <span className="truncate">{label}</span>
+      {Icon && iconPosition === 'end' && (
+        <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      )}
+    </Button>
+  </PermissionDeniedTooltip>
 );
 
 const ToggleAction: React.FC<ToggleActionProps> = ({

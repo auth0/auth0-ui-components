@@ -145,6 +145,12 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     enabled: Boolean(guidedSetup?.isAvailable),
   });
   const canStartGuidedSetup = Boolean(guidedSetup?.isAvailable && instructions?.pages.length);
+  const isGuidedSetupDeprecated = instructions?.version_info?.lifecycle_status === 'deprecated';
+  const guidedMessages = useMemo(
+    () => ({ ...customMessages?.guided_setup }),
+    [customMessages?.guided_setup],
+  );
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup', guidedMessages);
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -220,6 +226,11 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
                   ? {
                       onClick: guidedSetup.start,
                       className: currentStyles?.classes?.['SsoProviderCreate-guidedSetupButton'],
+                      disabled: isGuidedSetupDeprecated,
+                      tooltip:
+                        isGuidedSetupDeprecated && !guidedSetup.hideLifecycleWarnings
+                          ? tGuided('lifecycle.deprecated')
+                          : undefined,
                     }
                   : undefined
               }
@@ -252,6 +263,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       connectionNamePrefix,
       canStartGuidedSetup,
       guidedSetup,
+      isGuidedSetupDeprecated,
+      tGuided,
     ],
   );
 
@@ -342,6 +355,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               strategy={strategy}
               connectionName={guidedConnectionName}
               companyName={guidedSetup.companyName}
+              hideLifecycleWarnings={guidedSetup.hideLifecycleWarnings}
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}

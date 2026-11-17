@@ -41,6 +41,7 @@ export interface SsoProvisioningTabEditProps {
 export interface SsoProvisioningGuidedSetup {
   enabled?: boolean;
   companyName?: string;
+  hideLifecycleWarnings?: boolean;
 }
 
 /** CSS classes for SsoProvisioningTab. */
@@ -78,6 +79,7 @@ export interface SsoProvisioningTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   onStartGuidedSetup?: () => void;
+  hideGuidedSetupLifecycleWarnings?: boolean;
 }
 
 export interface SsoProvisioningTabSchemas {}

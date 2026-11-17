@@ -30,6 +30,12 @@ export interface SsoGuidedSetupCopyValueMessages {
   external_namespace?: LabelMessages;
 }
 
+export interface SsoGuidedSetupLifecycleMessages {
+  out_of_date?: string;
+  dismiss?: string;
+  deprecated?: string;
+}
+
 export interface SsoGuidedSetupMessages {
   stepper_label?: string;
   back?: string;
@@ -43,6 +49,7 @@ export interface SsoGuidedSetupMessages {
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
   attribute_mapping_unavailable?: string;
+  lifecycle?: SsoGuidedSetupLifecycleMessages;
 }
 
 export interface SsoProvisioningSetupMessages {

@@ -104,7 +104,12 @@ export interface ProviderConfigureProps
    * @returns An object containing `entityId` for the SP Issuer URN.
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
-  guidedSetupAction?: { onClick: () => void; className?: string };
+  guidedSetupAction?: {
+    onClick: () => void;
+    className?: string;
+    disabled?: boolean;
+    tooltip?: string;
+  };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -148,6 +153,7 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 export interface SsoProviderCreateGuidedSetup {
   enabled?: boolean;
   companyName?: string;
+  hideLifecycleWarnings?: boolean;
 }
 
 export interface SsoProviderCreateGuidedSetupState {
@@ -155,6 +161,7 @@ export interface SsoProviderCreateGuidedSetupState {
   isActive: boolean;
   provider: IdpKnownResponse | null;
   companyName?: string;
+  hideLifecycleWarnings?: boolean;
   configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
   start: () => void;
   saveConfigure: () => void;

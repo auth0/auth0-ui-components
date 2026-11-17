@@ -149,6 +149,7 @@ export function useSsoProviderCreate({
       isActive: isGuidedSetup,
       provider: guidedProvider,
       companyName: guidedSetupOptions?.companyName,
+      hideLifecycleWarnings: guidedSetupOptions?.hideLifecycleWarnings,
       configureRef: guidedConfigureRef,
       start: () => {
         const data = configureRef.current?.getData();
@@ -187,6 +188,7 @@ export function useSsoProviderCreate({
       isGuidedSetup,
       guidedProvider,
       guidedSetupOptions?.companyName,
+      guidedSetupOptions?.hideLifecycleWarnings,
       saveGuidedConfigure,
       strategy,
       details,

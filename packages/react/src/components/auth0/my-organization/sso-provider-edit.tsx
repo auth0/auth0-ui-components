@@ -218,6 +218,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             provisioningConfig={provisioningConfig}
             idpConfig={idpConfig}
             companyName={provisioning?.guidedSetup?.companyName}
+            hideLifecycleWarnings={provisioning?.guidedSetup?.hideLifecycleWarnings}
             onComplete={closeGuidedSetup}
             isScimTokensLoading={isScimTokensLoading}
             isScimTokenCreating={isScimTokenCreating}
@@ -383,6 +384,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                     provisioning?.guidedSetup?.enabled
                       ? () => setProvisioningGuidedSetup(true)
                       : undefined
+                  }
+                  hideGuidedSetupLifecycleWarnings={
+                    provisioning?.guidedSetup?.hideLifecycleWarnings
                   }
                   customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}

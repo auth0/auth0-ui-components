@@ -21,6 +21,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
+import { createMockIdpInstructions } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -608,6 +609,40 @@ describe('SsoProviderCreate', () => {
       await user.click(screen.getByRole('button', { name: /^next$/ }));
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(domainInput()).toHaveValue('acme.okta.com');
+    });
+
+    describe('with deprecated instructions', () => {
+      beforeEach(() => {
+        const { identityProviderInstructions } =
+          mockCoreClient.getMyOrganizationApiClient().organization.configuration;
+        vi.mocked(identityProviderInstructions.get).mockResolvedValue(
+          createMockIdpInstructions('okta', {
+            version_info: { version: '1', lifecycle_status: 'deprecated' },
+          }),
+        );
+      });
+
+      it('disables guided setup and explains why', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+
+        const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
+        expect(button).toBeDisabled();
+        await user.hover(button.parentElement!);
+        expect((await screen.findAllByText('lifecycle.deprecated')).length).toBeGreaterThan(0);
+      });
+
+      it('keeps it disabled without the explanation when lifecycle warnings are hidden', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true, hideLifecycleWarnings: true } });
+        await goToConfigureStep(user);
+
+        const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
+        expect(button).toBeDisabled();
+        await user.hover(button);
+        expect(screen.queryByText('lifecycle.deprecated')).not.toBeInTheDocument();
+      });
     });
 
     it('keeps the configure values when moving between pages', async () => {

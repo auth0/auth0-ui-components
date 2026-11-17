@@ -1114,7 +1114,12 @@
         }
       },
       "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
-      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur."
+      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur.",
+      "lifecycle": {
+        "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${companyName} si besoin.",
+        "dismiss": "Ignorer",
+        "deprecated": "La configuration guidée n’est pas disponible pour ce fournisseur."
+      }
     }
   },
   "user_mfa_management": {

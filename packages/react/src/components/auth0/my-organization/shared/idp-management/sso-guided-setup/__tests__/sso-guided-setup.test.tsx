@@ -5,6 +5,8 @@ import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { createMockIdpInstructions } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const PROVIDER = {
@@ -207,6 +209,57 @@ describe('SsoGuidedSetup', () => {
         ),
       ).toBeInTheDocument();
       expect(screen.getByDisplayValue('urn:auth0:test-domain:my-saml')).toBeInTheDocument();
+    });
+  });
+
+  describe('instructions lifecycle', () => {
+    const renderWithLifecycle = (
+      lifecycleStatus: 'latest' | 'out_of_date' | 'deprecated',
+      props: Partial<React.ComponentProps<typeof SsoGuidedSetup>> = {},
+    ) => {
+      const coreClient = createMockCoreClient();
+      const { identityProviderInstructions } =
+        coreClient.getMyOrganizationApiClient().organization.configuration;
+      vi.mocked(identityProviderInstructions.get).mockResolvedValue(
+        createMockIdpInstructions('okta', {
+          version_info: { version: '1', lifecycle_status: lifecycleStatus },
+        }),
+      );
+      return renderWithProviders(
+        <SsoGuidedSetup strategy="okta" connectionName="my-okta" companyName="Acme" {...props} />,
+        { coreClient },
+      );
+    };
+
+    it('warns that out of date instructions may be outdated until dismissed', async () => {
+      renderWithLifecycle('out_of_date');
+
+      expect(await screen.findByText('lifecycle.out_of_date')).toBeInTheDocument();
+      await userEvent.click(screen.getByRole('button', { name: 'lifecycle.dismiss' }));
+
+      expect(screen.queryByText('lifecycle.out_of_date')).not.toBeInTheDocument();
+      expect(pageTitle()).toHaveTextContent('Create Application');
+    });
+
+    it('hides the out of date warning with hideLifecycleWarnings', async () => {
+      renderWithLifecycle('out_of_date', { hideLifecycleWarnings: true });
+
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      expect(screen.queryByText('lifecycle.out_of_date')).not.toBeInTheDocument();
+    });
+
+    it('shows no warning for the latest instructions', async () => {
+      renderWithLifecycle('latest');
+
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      expect(screen.queryByText('lifecycle.out_of_date')).not.toBeInTheDocument();
+    });
+
+    it('does not show deprecated instructions', async () => {
+      renderWithLifecycle('deprecated');
+
+      expect(await screen.findByRole('status')).toHaveTextContent('lifecycle.deprecated');
+      expect(pageTitle()).toBeNull();
     });
   });
 
