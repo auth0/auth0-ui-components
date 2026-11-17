@@ -56,6 +56,19 @@ describe('AuthUtils', () => {
         const config = AuthUtils.resolveAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
         expect(config).not.toHaveProperty('domain');
       });
+
+      it('passes disableTokenCoordination through when it is set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          authProxyUrl: 'https://proxy.example.com',
+          disableTokenCoordination: true,
+        });
+        expect(config).toMatchObject({ disableTokenCoordination: true });
+      });
+
+      it('omits disableTokenCoordination when it is not set', () => {
+        const config = AuthUtils.resolveAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
+        expect(config).not.toHaveProperty('disableTokenCoordination');
+      });
     });
 
     describe('SPA mode', () => {
@@ -79,6 +92,23 @@ describe('AuthUtils', () => {
           contextInterface: context,
         });
         expect(config).toMatchObject({ mode: 'spa', domain: 'test.auth0.com' });
+      });
+
+      it('passes disableTokenCoordination through when it is set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          domain: 'test.auth0.com',
+          contextInterface: createMockContextInterface(),
+          disableTokenCoordination: true,
+        });
+        expect(config).toMatchObject({ disableTokenCoordination: true });
+      });
+
+      it('omits disableTokenCoordination when it is not set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          domain: 'test.auth0.com',
+          contextInterface: createMockContextInterface(),
+        });
+        expect(config).not.toHaveProperty('disableTokenCoordination');
       });
 
       it('falls back to domain from contextInterface.getConfiguration()', () => {

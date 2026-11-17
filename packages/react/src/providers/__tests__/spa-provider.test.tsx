@@ -65,6 +65,20 @@ describe('Auth0ComponentProvider (SPA)', () => {
     );
   });
 
+  it('should pass disableTokenCoordination to the core client', () => {
+    render(
+      <Auth0ComponentProvider disableTokenCoordination>
+        <div />
+      </Auth0ComponentProvider>,
+    );
+
+    expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        authDetails: expect.objectContaining({ disableTokenCoordination: true }),
+      }),
+    );
+  });
+
   it('should use authContext prop when provided', () => {
     const customAuthContext = {
       isAuthenticated: true,

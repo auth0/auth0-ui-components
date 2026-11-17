@@ -45,4 +45,6 @@ export type Auth0ComponentProviderProps = (
   telemetry?: boolean;
   /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */
   disablePermissionEnforcement?: boolean;
+  /** Turns off the components' coordination of token requests. Set it if your app coordinates its own. */
+  disableTokenCoordination?: boolean;
 };

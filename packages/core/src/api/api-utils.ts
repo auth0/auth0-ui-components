@@ -27,6 +27,7 @@ export interface ProxyFetcherConfig {
   ) => Promise<Response>;
   telemetry: TelemetryConfig;
   getComponent: TelemetryComponentGetter;
+  disableTokenCoordination?: boolean;
 }
 
 /**
@@ -54,7 +55,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
         }),
       );
     }
-    return coordinateProxyRequest(authParams, init, (scope) => {
+    const send = (scope: string[] | undefined) => {
       const requestHeaders = new Headers(headers);
       if (scope?.length) {
         requestHeaders.set(HeaderName.Auth0Scope, scope.join(' '));
@@ -65,7 +66,10 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
         return fetchFn(url, { ...init, headers: requestHeaders }, requestAuthParams);
       }
       return fetch(url, { ...init, headers: requestHeaders });
-    });
+    };
+    return config.disableTokenCoordination
+      ? send(authParams?.scope)
+      : coordinateProxyRequest(authParams, init, send);
   };
 }
 
@@ -85,12 +89,13 @@ export function createSpaFetcher(
   telemetry: TelemetryConfig,
   getComponent: TelemetryComponentGetter,
 ): FetcherSupplier {
-  const { contextInterface } = config;
+  const { contextInterface, disableTokenCoordination } = config;
   const sdkFetcher = contextInterface.createFetcher({
     dpopNonceId,
-    ...(contextInterface.getAccessTokenSilently && {
-      getAccessToken: createCoordinatedTokenGetter(contextInterface.getAccessTokenSilently),
-    }),
+    ...(!disableTokenCoordination &&
+      contextInterface.getAccessTokenSilently && {
+        getAccessToken: createCoordinatedTokenGetter(contextInterface.getAccessTokenSilently),
+      }),
   });
   return (url, init, authParams) => {
     const headers = new Headers(init?.headers);

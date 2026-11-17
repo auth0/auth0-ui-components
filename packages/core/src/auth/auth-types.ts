@@ -133,6 +133,7 @@ export type ProxyAuthConfig = {
   proxyUrl: string;
   domain?: string;
   fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  disableTokenCoordination?: boolean;
 };
 
 /**
@@ -143,6 +144,7 @@ export type SpaAuthConfig = {
   mode: 'spa';
   contextInterface: BasicAuth0ContextInterface;
   domain: string;
+  disableTokenCoordination?: boolean;
 };
 
 /**
@@ -160,6 +162,7 @@ export interface AuthDetails {
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
   fetcher?: (url: string, init?: RequestInit, authParams?: FetcherAuthParams) => Promise<Response>;
+  disableTokenCoordination?: boolean;
   previewMode?: boolean; // For docs - skip API client initialization
 }
 

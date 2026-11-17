@@ -38,6 +38,7 @@ export function createMyAccountClient(
         customFetcher: config.fetcher,
         telemetry,
         getComponent,
+        disableTokenCoordination: config.disableTokenCoordination,
       }),
     });
   }

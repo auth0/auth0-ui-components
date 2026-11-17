@@ -556,6 +556,56 @@ describe('api-utils', () => {
         expect(scopeOf(0)).toBe('read:me:organizations read:me:factors');
         expect(scopeOf(1)).toBe('read:me:factors');
       });
+
+      describe('when token coordination is disabled', () => {
+        it('sends every request right away with its own scope', () => {
+          const mockFetch = vi.fn().mockReturnValue(new Promise<Response>(() => undefined));
+          vi.stubGlobal('fetch', mockFetch);
+          const fetcher = createProxyFetcher({
+            telemetry: defaultTelemetry,
+            getComponent: mockGetComponent,
+            disableTokenCoordination: true,
+          });
+
+          void fetcher('https://example.com/me/v1/a', undefined, {
+            audience: ACCOUNT_API,
+            scope: ['read:me:organizations'],
+          });
+          void fetcher('https://example.com/my-org/v1/b', undefined, {
+            audience: ORG_API,
+            scope: ['read:my_org:details'],
+          });
+          void fetcher('https://example.com/me/v1/c', undefined, {
+            audience: ACCOUNT_API,
+            scope: ['read:me:factors'],
+          });
+
+          expect(mockFetch).toHaveBeenCalledTimes(3);
+          const scopes = mockFetch.mock.calls.map(([, init]) =>
+            (init?.headers as Headers).get(AUTH0_SCOPE_HEADER),
+          );
+          expect(scopes).toEqual([
+            'read:me:organizations',
+            'read:my_org:details',
+            'read:me:factors',
+          ]);
+        });
+
+        it('hands the custom fetcher the auth params it was given', async () => {
+          const customFetcher = vi.fn().mockResolvedValue(new Response());
+          const authParams = { audience: ACCOUNT_API, scope: ['read:me:organizations'] };
+          const fetcher = createProxyFetcher({
+            customFetcher,
+            telemetry: defaultTelemetry,
+            getComponent: mockGetComponent,
+            disableTokenCoordination: true,
+          });
+
+          await fetcher('https://example.com/me/v1/a', undefined, authParams);
+
+          expect(customFetcher.mock.calls[0]![2]).toBe(authParams);
+        });
+      });
     });
 
     describe('createSpaFetcher', () => {
@@ -597,6 +647,23 @@ describe('api-utils', () => {
           mode: 'spa',
           domain: TEST_DOMAIN,
           contextInterface: { ...createMockContextInterface(), createFetcher: mockCreateFetcher },
+        };
+
+        createSpaFetcher(config, '__test_nonce__', defaultTelemetry, mockGetComponent);
+
+        expect(mockCreateFetcher).toHaveBeenCalledWith({ dpopNonceId: '__test_nonce__' });
+      });
+
+      it('leaves the SDK default when token coordination is disabled', () => {
+        const config: SpaAuthConfig = {
+          mode: 'spa',
+          domain: TEST_DOMAIN,
+          contextInterface: {
+            ...createMockContextInterface(),
+            createFetcher: mockCreateFetcher,
+            getAccessTokenSilently: vi.fn(),
+          },
+          disableTokenCoordination: true,
         };
 
         createSpaFetcher(config, '__test_nonce__', defaultTelemetry, mockGetComponent);
