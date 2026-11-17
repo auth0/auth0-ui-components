@@ -40,6 +40,11 @@ export const getIdpManagementPermissions = createPermissionResolver({
   canDeleteScimToken: ['delete:my_org:identity_providers_scim_tokens'],
 
   canReadConfiguration: ['read:my_org:configuration'],
+  // Starting a test is useless without polling its result, so both are required.
+  canTestProvider: [
+    'create:my_org:identity_providers_tests',
+    'read:my_org:identity_providers_tests',
+  ],
 
   canConfigureProvider: { any: CONFIGURE_ONLY_SCOPES },
 

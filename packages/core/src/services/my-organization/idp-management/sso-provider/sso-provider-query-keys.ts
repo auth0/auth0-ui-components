@@ -3,7 +3,7 @@
  * @module sso-provider-query-keys
  */
 
-import type { IdpId } from './sso-provider-types';
+import type { IdpId, IdpTestId } from './sso-provider-types';
 
 export const ssoProviderQueryKeys = {
   all: ['sso-providers'] as const,
@@ -14,4 +14,6 @@ export const ssoProviderQueryKeys = {
   scimTokens: (idpId: IdpId) => [...ssoProviderQueryKeys.all, 'scim-tokens', idpId] as const,
   directoryProvisioning: (idpId: IdpId) =>
     [...ssoProviderQueryKeys.all, 'directory-provisioning', idpId] as const,
+  test: (idpId: IdpId, testId: IdpTestId) =>
+    [...ssoProviderQueryKeys.all, 'test', idpId, testId] as const,
 };
