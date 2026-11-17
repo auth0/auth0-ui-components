@@ -662,6 +662,28 @@ describe('SsoProviderCreate', () => {
       );
     });
 
+    it('offers the provider test on the last page once the provider exists', async () => {
+      const user = userEvent.setup();
+      const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .create as ReturnType<typeof vi.fn>;
+      createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await fillOktaConnection(user);
+      await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+      await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Claims Mapping'));
+
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(pageTitle()).toHaveTextContent('Test SSO');
+      expect(screen.getByRole('button', { name: 'test_button_label' })).toBeEnabled();
+    });
+
     it('stays on the configure page when creating fails', async () => {
       const user = userEvent.setup();
       const createAction = createMockCreateAction();

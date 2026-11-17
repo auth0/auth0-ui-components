@@ -9,6 +9,7 @@ import {
 import { useMemo } from 'react';
 
 import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup';
+import { SsoGuidedSetupTestConnection } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection';
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
@@ -128,6 +129,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     handleCreate,
     createStepActions,
     guidedSetup,
+    permissions,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -300,6 +302,22 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       : undefined;
   }, [guidedAttributeMappings, guidedAttributeMappingsError]);
 
+  const guidedProvider = guidedSetup?.provider;
+  const guidedSlots = useMemo(
+    () =>
+      guidedProvider
+        ? {
+            testConnection: (
+              <SsoGuidedSetupTestConnection
+                provider={guidedProvider}
+                canTest={permissions.canTestProvider}
+              />
+            ),
+          }
+        : undefined,
+    [guidedProvider, permissions.canTestProvider],
+  );
+
   const guidedConnectionName =
     connectionNamePrefix && details?.name
       ? `${connectionNamePrefix}-${details.name}`
@@ -330,6 +348,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               attributeMappings={guidedAttributeMappings}
               attributeMappingsError={guidedAttributeMappingsError}
               entryContext={guidedEntryContext}
+              slots={guidedSlots}
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}
               onCreateProvider={guidedSetup.create}
