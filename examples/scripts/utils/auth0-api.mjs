@@ -36,12 +36,17 @@ function isAuthError(e) {
  * @param {string} endpoint - API endpoint
  * @param {object} data - Optional data payload
  * @param {number} timeout - Optional timeout in ms (default 30s)
+ * @param {object} query - Optional query parameters, sent as -q key=value
  */
-export async function auth0ApiCall(method, endpoint, data = null, timeout = DEFAULT_API_TIMEOUT) {
+export async function auth0ApiCall(method, endpoint, data = null, timeout = DEFAULT_API_TIMEOUT, query = null) {
   const args = ["api", method, endpoint, "--no-input"]
 
   if (data) {
     args.push("--data", JSON.stringify(data))
+  }
+
+  for (const [key, value] of Object.entries(query ?? {})) {
+    args.push("-q", `${key}=${value}`)
   }
 
   try {
@@ -64,6 +69,31 @@ export async function auth0ApiCall(method, endpoint, data = null, timeout = DEFA
     console.warn(`⚠️  Warning: API Call failed: ${e.message}`)
     throw e
   }
+}
+
+// Stops a list that keeps returning a cursor from being read forever
+const MAX_PAGES = 100
+
+/**
+ * GET a list the API returns a page at a time, following the `next` cursor until every page is read
+ * @param {string} endpoint - API endpoint
+ * @param {string} listKey - Property of each response that holds the items
+ * @returns {Promise<Array|null>} All items, or null when they can't be read in full (e.g. missing scope)
+ */
+export async function auth0ApiGetAll(endpoint, listKey) {
+  const items = []
+  let from = null
+
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const response = await auth0ApiCall("get", endpoint, null, undefined, from ? { from } : null)
+    if (!response) return null
+    if (Array.isArray(response)) return [...items, ...response]
+
+    items.push(...(response[listKey] || []))
+    if (!response.next) return items
+    from = response.next
+  }
+  return null
 }
 
 /**

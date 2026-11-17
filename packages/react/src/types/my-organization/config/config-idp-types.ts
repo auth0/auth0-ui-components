@@ -5,6 +5,7 @@
 
 import type {
   GetIdpConfigurationResponseContent,
+  IdentityProvidersConfigProvisioningMethod,
   IdpStrategy,
 } from '@auth0/universal-components-core';
 
@@ -13,8 +14,10 @@ export interface UseConfigIdpResult {
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
   fetchIdpConfig: () => Promise<void>;
-  isProvisioningEnabled: (strategy: IdpStrategy | undefined) => boolean;
-  isProvisioningMethodEnabled: (strategy: IdpStrategy | undefined) => boolean;
+  isProvisioningEnabled: (
+    strategy: IdpStrategy | undefined,
+    method: IdentityProvidersConfigProvisioningMethod,
+  ) => boolean;
   isIdpConfigValid: boolean;
   showCrossAppAccess: (strategy: IdpStrategy | undefined) => boolean;
   isCrossAppAccessReadOnly: (strategy: IdpStrategy | undefined) => boolean;
