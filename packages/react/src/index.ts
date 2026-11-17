@@ -12,6 +12,18 @@ export {
   UserPasskeyManagementView,
 } from './components/auth0/my-account/user-passkey-management';
 export {
+  OrganizationTable,
+  OrganizationTableView,
+} from './components/auth0/my-account/organization-table';
+export {
+  OrganizationCreate,
+  OrganizationCreateView,
+} from './components/auth0/my-account/organization-create';
+export {
+  OrganizationSwitcher,
+  OrganizationSwitcherView,
+} from './components/auth0/my-account/organization-switcher';
+export {
   SsoProviderEdit,
   SsoProviderEditView,
 } from './components/auth0/my-organization/sso-provider-edit';
@@ -51,10 +63,14 @@ export { usePermissions } from './hooks/shared/use-permissions';
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
 export { useUserPasskey } from './hooks/my-account/use-user-passkey';
+export { useOrganizationTable } from './hooks/my-account/use-organization-table';
+export { useOrganizationCreate } from './hooks/my-account/use-organization-create';
+export { useOrganizationSwitcher } from './hooks/my-account/use-organization-switcher';
 
 // My Organization hooks
 export { useConfig } from './hooks/my-organization/shared/services/use-config-service';
 export { useIdpConfig } from './hooks/my-organization/shared/services/use-idp-config-service';
+export { useOrganizationDelete } from './hooks/my-organization/use-organization-delete';
 export { useOrganizationDetailsEdit } from './hooks/my-organization/use-organization-details-edit';
 export { useDomainTable } from './hooks/my-organization/use-domain-table';
 export { useProviderFormMode } from './hooks/my-organization/use-provider-form-mode';
@@ -73,6 +89,9 @@ export * from './types/auth-types';
 // My Account types
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';
 export * from './types/my-account/user-passkey-management/user-passkey-management-types';
+export * from './types/my-account/organization-management/organization-table-types';
+export * from './types/my-account/organization-management/organization-create-types';
+export * from './types/my-account/organization-management/organization-switcher-types';
 
 // My Organization types
 export * from './types/my-organization/config/config-types';
@@ -91,6 +110,7 @@ export * from './types/my-organization/idp-management/sso-provider/sso-provider-
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+export * from './types/my-organization/organization-management/organization-delete-types';
 export * from './types/my-organization/organization-management/organization-details-edit-types';
 export * from './types/my-organization/organization-management/organization-details-types';
 export * from './types/my-organization/member-management/organization-invitation-table-types';

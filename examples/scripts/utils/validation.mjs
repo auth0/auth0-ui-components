@@ -40,6 +40,10 @@ const BOOTSTRAP_SCOPES = [
   "create:resource_servers",
   "update:resource_servers",
   "update:tenant_settings",
+  "read:organization_templates",
+  "create:organization_templates",
+  "update:organization_templates",
+  "update:organizations",
 ]
 
 /**
