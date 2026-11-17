@@ -17,8 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { config as loadEnv } from 'dotenv';
-
+import { env } from '../env';
 import {
   addMembers,
   assignMemberRoles,
@@ -34,8 +33,6 @@ import {
 import { clearRunState, readRunState, writeRunState } from '../lib/run-state';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-
-loadEnv({ path: path.resolve(dirname, '../.env') });
 
 const DEFAULT_CONNECTION_NAME = 'Universal-Components-Demo';
 const DEFAULT_ADMIN_ROLE_NAME = 'admin';
@@ -57,8 +54,7 @@ async function discardStaleOrganization(): Promise<void> {
 const REFRESH_TOKEN_LEEWAY_SECONDS = 300;
 
 async function ensureRefreshTokenLeeway(): Promise<void> {
-  const clientId = process.env.FT_AUTH0_SPA_CLIENT_ID;
-  if (!clientId) return;
+  const clientId = env.FT_AUTH0_SPA_CLIENT_ID;
 
   try {
     const policy = await getClientRefreshTokenPolicy(clientId);
@@ -85,11 +81,7 @@ async function ensureRefreshTokenLeeway(): Promise<void> {
 async function main(): Promise<void> {
   const connectionName = process.env.FT_CONNECTION_NAME ?? DEFAULT_CONNECTION_NAME;
   const adminRoleName = process.env.FT_ADMIN_ROLE_NAME ?? DEFAULT_ADMIN_ROLE_NAME;
-  const userEmail = process.env.FT_TEST_USER_EMAIL;
-
-  if (!userEmail) {
-    throw new Error('FT_TEST_USER_EMAIL is not set — see functional-tests/.env.example');
-  }
+  const userEmail = env.FT_TEST_USER_EMAIL;
 
   await discardStaleOrganization();
 

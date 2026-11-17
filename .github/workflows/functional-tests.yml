@@ -2,26 +2,38 @@ name: Functional Tests
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - functional-tests/**
-      - packages/**
-      - examples/react-spa-npm/**
-      - .github/workflows/functional-tests.yml
+    types: [labeled]
   workflow_dispatch:
+  workflow_call:
 
 concurrency:
-  group: functional-tests-${{ github.event.pull_request.number || github.ref }}
+  # run_id for non-PR runs: when called from publish, github.ref is the caller's, so a
+  # manual run on main would otherwise share this group and cancel the release gate.
+  group: functional-tests-${{ github.event.pull_request.number || github.run_id }}-${{ github.event.label.name }}
   cancel-in-progress: true
 
 jobs:
+  consume-label:
+    name: Consume run-ft label
+    if: github.event_name == 'pull_request' && github.event.label.name == 'run-ft'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Remove run-ft label
+        run: gh pr edit "$PR_NUMBER" --remove-label run-ft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
   functional-tests:
     name: Functional Tests
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.head.repo.fork == false &&
-      github.event.pull_request.draft == false &&
-      github.actor != 'dependabot[bot]')
+      (github.event.label.name == 'run-ft' &&
+      github.event.pull_request.head.repo.fork == false)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -30,6 +42,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
@@ -68,6 +82,11 @@ jobs:
         # TODO: remove --pass-with-no-tests in specs pr
         run: pnpm exec playwright test --pass-with-no-tests
         env:
+          FT_OKTA_DOMAIN: ${{ secrets.FT_OKTA_DOMAIN }}
+          FT_OKTA_CLIENT_ID: ${{ secrets.FT_OKTA_CLIENT_ID }}
+          FT_OKTA_CLIENT_SECRET: ${{ secrets.FT_OKTA_CLIENT_SECRET }}
+          FT_OKTA_SSO_USER_EMAIL: ${{ secrets.FT_OKTA_SSO_USER_EMAIL }}
+          FT_OKTA_SSO_USER_PASSWORD: ${{ secrets.FT_OKTA_SSO_USER_PASSWORD }}
           FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
           FT_AUTH0_SPA_CLIENT_ID: ${{ secrets.FT_AUTH0_SPA_CLIENT_ID }}
           FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}

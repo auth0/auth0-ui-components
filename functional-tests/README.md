@@ -45,13 +45,66 @@ The suite needs a correctly configured Auth0 tenant before any env var below exi
 4. Create the **CI test user** in the tenant: a dedicated email (e.g. a `+ci` alias) + strong password. This is the identity Playwright logs in as; each run's `setup-org.ts` adds it to the run's ephemeral org and grants it admin, so no manual org membership is needed here.
 5. Create a **separate M2M app** for setup/teardown (Applications → Create → Machine to Machine), authorized for the **Management API**, granting exactly:
 
-   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`
+   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`, `create:organization_discovery_domains`, `read:organization_discovery_domains`, `update:organization_discovery_domains`, `delete:organization_discovery_domains`
+
+   The `*_organization_discovery_domains` scopes let `fixtures/domain.fixture.ts` seed pending and verified domains directly through the Management API (a verified one needs no DNS record) and clean them up, so specs that aren't about the create flow don't click through it.
 
    `read:clients` / `update:clients` are used for one thing: `setup-org.ts` raises the SPA client's refresh-token rotation **leeway** to 300s so overlapping exchanges don't fail with "invalid refresh token". Setup warns and continues if these grants are missing.
 
    **Deliberately no `update:organizations`:** only the component under test may modify org details (via the My Organization API). Admin write access would let an assertion pass while the component is broken. Kept separate from the SPA client so CI credentials rotate independently.
 
 When swapping to a new tenant later, repeat these steps, update the secrets below, and delete the old M2M app. No code or spec changes needed; tenant identity is entirely secrets-driven.
+
+---
+
+## Okta console setup (SSO invitation spec)
+
+One Okta app serves both strategies: the `oidc` test points Auth0's `Custom OIDC` connection at the org's discovery URL (`https://<okta host>/.well-known/openid-configuration`), and the `okta` test points Auth0's `Okta` connection at the org host. Both use the same client ID and secret. Nothing is set up by hand in Auth0; the test creates and deletes its connection through the SSO wizard. The Okta org is shared, so scope every change to this one app and user, and don't edit built-in or shared policies.
+
+### 1. Create the app
+
+Admin console > Applications > Applications > Create App Integration > **Classic experience** tab > Sign-in method **OIDC - OpenID Connect** > Application type **Web Application** > Next. (Not Single-Page Application: Auth0 is a confidential client and sends a client secret.)
+
+| Setting                                 | Value                                                                                                                                                                      |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App integration name                    | `auth0-ui-components e2e`                                                                                                                                                  |
+| Client definition                       | Okta-generated client ID (not CIMD)                                                                                                                                        |
+| Grant type                              | Authorization Code only. Client Credentials, Refresh Token and DPoP unchecked                                                                                              |
+| Sign-in redirect URI                    | `https://vkuifttenant.dx-uic-4.auth0c.com/login/callback` (the Auth0 tenant callback, shared by all connections). Replace the default `localhost:8080`; wildcard unchecked |
+| Sign-out redirect URIs, Trusted Origins | leave empty                                                                                                                                                                |
+| Assignments                             | Skip group assignment (keeps the app off other people's dashboards); "Allow everyone in your organization" also works                                                      |
+| Federation Broker Mode                  | leave **unchecked** (it disables dashboard and provisioning features, not needed)                                                                                          |
+
+Save, then copy the client ID and secret from the General tab into `.env` (never print or paste them) and fill the other `FT_OKTA_*` variables under [Environment](#environment). The domain is the org host without `-admin`: users sign in there, and the test matches the browser hostname against it.
+
+### 2. Sign-in policy: password only
+
+Security > Authentication Policies > App sign-in. Attach the org's built-in `Password only` policy (its Catch-all Rule allows password only, no MFA): open the policy > Apps tab > Add app > `auth0-ui-components e2e`, or app > Sign On > User authentication > Edit. The policy list should then show "1 app". If your org has no such policy, create one and set its Catch-all Rule Access to "Allowed with password". The other built-ins (`Any two factors`, `Classic Migrated`, etc.) require more than a password and can't be used.
+
+### 3. Test user
+
+Directory > People > Add person:
+
+- User type `User`, first name `FT`, last name `E2E`.
+- Username and primary email both `auth0-ui-components-e2e@example.com` (use the reserved `example.com` domain so no email can reach a real person). `FT_OKTA_SSO_USER_EMAIL` must be this exact string, because the test invites that address and Auth0 rejects a mismatch.
+- No groups. Activation `Activate now`.
+- Check "I will set password" and set a strong password (store it in a password manager). **Uncheck** "User must change password on first login". Status must be Active.
+
+Then open the app > Assignments > Assign > Assign to People > the test user.
+
+### 4. One-time authenticator enrollment
+
+The oktapreview org's authenticator Enrollment policy requires a Security Question for every user, separate from the app sign-in policy. Without it Okta shows "Set up security methods, Required now" after the password and the test stalls. Enroll once by hand:
+
+1. In a private browser window open `https://auth0-occ-poc.oktapreview.com/` and sign in as the test user.
+2. Click **Set up** next to Security Question, choose a question, set the answer, and save the answer in a password manager.
+3. Finish the sign-in.
+
+Enrollment is stored on the user, so later logins don't prompt and the answer doesn't go in `.env`. Repeat it if the user is recreated or an admin resets its authenticators. To avoid the manual step, use a group-scoped Enrollment policy for a group containing only this user, with only Password required (more setup, adds shared-org objects).
+
+### 5. Verify
+
+Run `HEADLESS=false pnpm test specs/sso-invitation.spec.ts` twice. The second run confirms the enrollment was a one-time prompt.
 
 ---
 
@@ -76,6 +129,18 @@ FT_ADMIN_ROLE_NAME  # default "admin"
 ```
 
 In CI these six values live in a GitHub **Environment** (not repository secrets), same names. Locally, mirror them into a gitignored `.env` so local runs hit the same tenant.
+
+**Required by the SSO invitation spec** (`specs/sso-invitation.spec.ts`). Any missing variable fails the run before it starts, naming the missing ones:
+
+```
+FT_OKTA_DOMAIN               # Okta org host without "-admin", e.g. auth0-occ-poc.oktapreview.com
+FT_OKTA_CLIENT_ID
+FT_OKTA_CLIENT_SECRET
+FT_OKTA_SSO_USER_EMAIL       # also the invited email; must match the Okta username exactly
+FT_OKTA_SSO_USER_PASSWORD
+```
+
+These need a real Okta app and test user. Console setup: [Okta console setup](#okta-console-setup-sso-invitation-spec). In CI they are five more secrets in the same Environment.
 
 ---
 
@@ -108,7 +173,7 @@ pnpm run org:teardown
 HEADLESS=true pnpm exec playwright test
 ```
 
-> Kill any stale dev server on port 5173 before `pnpm exec playwright test`. Playwright reuses an existing server if one is bound, and if it predates the current `org:setup` it has the wrong org id baked in and login hangs at the org picker.
+> Kill any stale dev server on port 5173 before `pnpm exec playwright test`. Playwright reuses an existing server if one is bound, and if it predates the current `org:setup` it has a deleted org id baked in. Login then ends at `http://localhost:5173/?error=invalid_request&error_description=parameter organization is invalid`. Kill it with `lsof -ti tcp:5173 -sTCP:LISTEN | xargs kill`.
 
 **Report** after a run: `pnpm run report`.
 

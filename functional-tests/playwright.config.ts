@@ -1,4 +1,4 @@
-import './load-env';
+import './env';
 
 import { defineConfig } from '@playwright/test';
 
@@ -13,6 +13,7 @@ export default defineConfig({
   workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: [['list'], ['html', { open: 'never' }]],
+  // CI runners are slower and shared, so tests get double the local time.
   timeout: process.env.CI ? 120_000 : 60_000,
   expect: {
     // Covers backend-data assertions (rows, toggles) which lag on CI like mgmt polls — matches the 30s toast/poll/create budgets.
@@ -23,6 +24,11 @@ export default defineConfig({
     video: 'retain-on-failure',
     permissions: ['clipboard-read', 'clipboard-write'],
     headless: process.env.CI ? true : process.env.HEADLESS === 'true',
+    ...(process.env.FULLSCREEN ? { viewport: null } : {}),
+    launchOptions: {
+      slowMo: Number(process.env.SLOWMO ?? 0),
+      args: process.env.FULLSCREEN ? ['--window-position=0,0', '--window-size=1920,1080'] : [],
+    },
   },
   projects: [
     {
