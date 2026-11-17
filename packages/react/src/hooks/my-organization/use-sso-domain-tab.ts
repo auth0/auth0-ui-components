@@ -5,6 +5,7 @@
  */
 
 import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
   getIdpManagementPermissions,
   type Domain,
   type IdpId,
@@ -16,6 +17,8 @@ import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { isDomainAssociationUnavailable } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseSsoDomainTabOptions,
   UseSsoDomainTabReturn,
@@ -28,6 +31,7 @@ import type {
  * @param options.customMessages - Custom translation messages.
  * @param options.domains - Initial domains data.
  * @param options.provider - SSO provider data.
+ * @param options.domainVerificationMode - How the provider uses verified domains; assigning is skipped in `none` mode, without the associate permission, or when the access level is below full.
  * @returns Hook state and methods
  */
 export function useSsoDomainTab(
@@ -37,6 +41,7 @@ export function useSsoDomainTab(
     domains,
     provider,
     readOnly = false,
+    domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   }: Partial<UseSsoDomainTabOptions> = {},
 ): UseSsoDomainTabReturn {
   const { t } = useTranslator('idp_management.notifications', customMessages);
@@ -70,6 +75,11 @@ export function useSsoDomainTab(
     domains,
     provider,
   });
+
+  const canManageProviderDomains = getProviderAccess(provider).canManageDomains;
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const canAssociate = permissions.canAssociateDomain && canManageProviderDomains;
+  const canAssociateAfterVerify = canAssociate && !isAssociationUnavailable;
 
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -126,7 +136,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -136,7 +146,7 @@ export function useSsoDomainTab(
         });
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleDeleteClick = useCallback(
@@ -189,7 +199,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           showToast({
             type: 'error',
@@ -207,14 +217,14 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleToggleSwitch = useCallback(
     async (domain: Domain, newCheckedValue: boolean) => {
-      if (newCheckedValue ? !permissions.canAssociateDomain : !permissions.canDissociateDomain) {
-        return;
-      }
+      const hasPermission = newCheckedValue ? canAssociate : permissions.canDissociateDomain;
+      if (!hasPermission || !canManageProviderDomains) return;
+      if (newCheckedValue && isAssociationUnavailable) return;
       setIsUpdating(true);
       setIsUpdatingId(domain.id);
 
@@ -258,12 +268,22 @@ export function useSsoDomainTab(
         }
       }
     },
-    [associateToProvider, t, provider, handleError, deleteFromProvider],
+    [
+      associateToProvider,
+      t,
+      provider,
+      handleError,
+      deleteFromProvider,
+      permissions,
+      canAssociate,
+      canManageProviderDomains,
+      isAssociationUnavailable,
+    ],
   );
 
   const handleAssign = useCallback(
     async (domainsToAssign: Domain[]) => {
-      if (!permissions.canAssociateDomain || domainsToAssign.length === 0) return false;
+      if (!canAssociate || isAssociationUnavailable || domainsToAssign.length === 0) return false;
       setIsAssigning(true);
 
       const assigned: Domain[] = [];
@@ -298,7 +318,7 @@ export function useSsoDomainTab(
       setIsAssigning(false);
       return failed.length === 0;
     },
-    [permissions, associateToProvider, handleError, t, provider],
+    [canAssociate, isAssociationUnavailable, associateToProvider, handleError, t, provider],
   );
 
   const handleRemove = useCallback(

@@ -540,6 +540,72 @@ describe('SsoProviderEdit', () => {
       expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
     });
 
+    describe('domain_aliases_config', () => {
+      const withMode = (
+        mode: 'none' | 'optional' | 'required',
+        provider: Partial<IdpKnownResponse>,
+      ) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.identityProviders.get).mockResolvedValue(
+          createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+        );
+        vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(
+          createMockIdentityProvider(provider),
+        );
+      };
+      const removeButtons = () =>
+        screen.findAllByRole('button', { name: 'table.actions.remove_domain_aria_label' });
+      const removeButton = async () => (await removeButtons())[0]!;
+
+      it('should keep the only domain of an enabled provider in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeDisabled();
+        expect(within(screen.getByRole('tabpanel')).getByRole('alert')).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeEnabled();
+      });
+
+      it('should let an enabled provider with two domains drop one in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'taken.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(2);
+        expect(within(screen.getByRole('tabpanel')).queryByRole('alert')).not.toBeInTheDocument();
+        (await removeButtons()).forEach((button) => expect(button).toBeEnabled());
+      });
+
+      it('should count only the verified domains it lists when locking the last one', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'pending.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(1);
+        expect(await removeButton()).toBeDisabled();
+      });
+
+      it('should let a disabled provider drop its only domain in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: false, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+      });
+
+      it('should disable Assign but keep Remove in none mode', async () => {
+        const user = userEvent.setup();
+        withMode('none', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeDisabled();
+      });
+    });
+
     it('should remove a domain from the provider with the existing dissociate call', async () => {
       const user = userEvent.setup();
       await openDomainsTab(user);

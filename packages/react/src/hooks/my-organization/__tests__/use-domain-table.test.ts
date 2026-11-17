@@ -6,6 +6,7 @@ import { useDomainTable } from '../use-domain-table';
 
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { PermissionContext } from '@/providers/permission-provider';
 import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -32,8 +33,20 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
   useConfig: vi.fn(),
 }));
 
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
+  useIdpConfig: vi.fn(),
+}));
+
 const mockUseDomainTableService = vi.mocked(useDomainTableService);
 const mockUseConfig = vi.mocked(useConfig);
+const mockUseIdpConfig = vi.mocked(useIdpConfig);
+
+const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
+  mockUseIdpConfig.mockReturnValue({
+    idpConfig: domainVerification
+      ? { domain_aliases_config: { domain_verification: domainVerification } }
+      : null,
+  } as ReturnType<typeof useIdpConfig>);
 
 const createMockConfig = (overrides: Partial<ReturnType<typeof useConfig>> = {}) =>
   ({
@@ -85,6 +98,7 @@ describe('useDomainTable', () => {
     vi.clearAllMocks();
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
     mockUseConfig.mockReturnValue(createMockConfig());
+    mockIdpConfig();
   });
 
   const renderWithGranted = (permissions: string[], options: UseDomainTableOptions) => {
@@ -249,6 +263,32 @@ describe('useDomainTable', () => {
     });
   });
 
+  describe('domain verification mode', () => {
+    it.each(['none', 'optional', 'required'] as const)('exposes the configured %s mode', (mode) => {
+      mockIdpConfig(mode);
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe(mode);
+    });
+
+    it('defaults to optional when the IdP configuration is unavailable', () => {
+      mockIdpConfig();
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe('optional');
+    });
+
+    it('keeps the providers loading until the IdP configuration resolves', () => {
+      mockUseIdpConfig.mockReturnValue({
+        idpConfig: null,
+        isLoadingIdpConfig: true,
+      } as ReturnType<typeof useIdpConfig>);
+      const { result } = render();
+
+      expect(result.current.isLoadingProviders).toBe(true);
+    });
+  });
+
   describe('single-provider assignment', () => {
     const providerA = { ...mockProvider, id: 'con_a', name: 'idp-a', is_associated: true };
     const providerB = { ...mockProvider, id: 'con_b', name: 'idp-b', is_associated: false };
@@ -338,6 +378,78 @@ describe('useDomainTable', () => {
         });
 
         expect(result.current.showConfigureModal).toBe(false);
+      });
+    });
+
+    describe('association gating', () => {
+      const limitedProvider = { ...providerB, access_level: 'limited' as const };
+
+      it('should not associate in none mode', async () => {
+        mockIdpConfig('none');
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it.each(['optional', 'required'] as const)('should associate in %s mode', async (mode) => {
+        mockIdpConfig(mode);
+        const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+      });
+
+      it('should not associate with a provider the organization cannot fully manage', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, limitedProvider],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, limitedProvider);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should still remove in none mode', async () => {
+        mockIdpConfig('none');
+        const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders([providerA], { onDeleteFromProvider });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
+      });
+
+      it('should not remove from a provider the organization cannot fully manage', async () => {
+        const onDeleteFromProvider = vi.fn();
+        const limitedAssigned = { ...providerA, access_level: 'limited' as const };
+        const { result } = renderWithServiceProviders([limitedAssigned], { onDeleteFromProvider });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, limitedAssigned);
+        });
+
+        expect(onDeleteFromProvider).not.toHaveBeenCalled();
       });
     });
 

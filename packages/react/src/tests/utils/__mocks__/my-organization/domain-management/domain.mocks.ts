@@ -158,6 +158,7 @@ export const createMockDomainTableReturn = (
     hasNextPage: false,
     hasPreviousPage: false,
   },
+  domainVerificationMode: 'optional',
   discoveryPolicy: null,
   showDiscovery: false,
   isDiscoveryReadOnly: true,

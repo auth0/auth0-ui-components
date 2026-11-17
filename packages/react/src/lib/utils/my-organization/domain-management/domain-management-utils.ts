@@ -144,6 +144,29 @@ export function getAssociationBlockReason({
 }
 
 /**
+ * The message for each reason an association action can be blocked.
+ * @param t - Translator for the component's `table.actions` messages
+ * @param tCommon - Translator for the `common` messages
+ * @returns A message per blocking reason
+ * @internal
+ */
+export function getAssociationBlockReasonMessages(
+  t: (key: string) => string,
+  tCommon: (key: string) => string,
+): Record<AssociationBlockReason, string> {
+  return {
+    [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: tCommon('error.forbidden'),
+    [ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED]: t(
+      'table.actions.provider_access_restricted_tooltip',
+    ),
+    [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]: t(
+      'table.actions.domain_association_unavailable_tooltip',
+    ),
+    [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: t('table.actions.last_verified_domain_tooltip'),
+  };
+}
+
+/**
  * Resolves what the organization discovery policy means for the UI.
  * @param policy - `use_for_organization_discovery` from the organization configuration
  * @returns Whether discovery is shown, whether it is locked, and the value to start from

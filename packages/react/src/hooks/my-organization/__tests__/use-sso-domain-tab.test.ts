@@ -582,6 +582,105 @@ describe('useSsoDomainTab', () => {
     });
   });
 
+  describe('domain verification mode and access level', () => {
+    const associate = () => mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>;
+    const dissociate = () => mockServiceReturn.deleteFromProvider as ReturnType<typeof vi.fn>;
+
+    it.each(['optional', 'required'] as const)('should assign in %s mode', async (mode) => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: mode });
+
+      let assigned = false;
+      await act(async () => {
+        assigned = await result.current.handleAssign([mockVerifiedDomain]);
+      });
+
+      expect(assigned).toBe(true);
+      expect(associate()).toHaveBeenCalledWith(mockVerifiedDomain);
+    });
+
+    it('should not assign in none mode', async () => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: 'none' });
+
+      let assigned = true;
+      await act(async () => {
+        assigned = await result.current.handleAssign([mockVerifiedDomain]);
+      });
+
+      expect(assigned).toBe(false);
+      expect(associate()).not.toHaveBeenCalled();
+    });
+
+    it('should still remove a domain in none mode', async () => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: 'none' });
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(dissociate()).toHaveBeenCalledWith(mockDomain);
+    });
+
+    it.each(['limited', 'readonly'] as const)(
+      'should not assign or remove with %s access',
+      async (access_level) => {
+        const { result } = renderUseSsoDomainTab({
+          provider: createMockSsoProvider({ access_level }),
+        });
+
+        await act(async () => {
+          await result.current.handleAssign([mockVerifiedDomain]);
+          await result.current.handleRemove(mockDomain);
+        });
+
+        expect(associate()).not.toHaveBeenCalled();
+        expect(dissociate()).not.toHaveBeenCalled();
+      },
+    );
+
+    it('should assign and remove with full access', async () => {
+      const { result } = renderUseSsoDomainTab({
+        provider: createMockSsoProvider({ access_level: 'full' }),
+      });
+
+      await act(async () => {
+        await result.current.handleAssign([mockVerifiedDomain]);
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(associate()).toHaveBeenCalledWith(mockVerifiedDomain);
+      expect(dissociate()).toHaveBeenCalledWith(mockDomain);
+    });
+
+    it.each([
+      ['none mode', { domainVerificationMode: 'none' as const }],
+      ['limited access', { provider: createMockSsoProvider({ access_level: 'limited' }) }],
+    ])('should verify without associating in %s', async (_label, options) => {
+      const { result } = renderUseSsoDomainTab(options);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).toHaveBeenCalledTimes(2);
+      expect(associate()).not.toHaveBeenCalled();
+    });
+
+    it('should verify without associating when the associate scope is missing', async () => {
+      const { result } = renderUseSsoDomainTab(
+        undefined,
+        ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'create:my_org:identity_providers_domains'),
+      );
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).toHaveBeenCalled();
+      expect(associate()).not.toHaveBeenCalled();
+    });
+  });
+
   describe('permission guards', () => {
     const VIEWER = ['read:my_org:domains', 'read:my_org:identity_providers'];
 

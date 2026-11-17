@@ -120,6 +120,7 @@ function DomainTableView({
     isDeleting,
     updatingDiscoveryId,
     isUpdatingDiscovery,
+    domainVerificationMode,
     discoveryPolicy,
     showDiscovery,
     isDiscoveryReadOnly,
@@ -348,6 +349,7 @@ function DomainTableView({
         isLoading={isLoadingProviders}
         isSaving={isSavingProvider}
         permissions={permissions}
+        domainVerificationMode={domainVerificationMode}
         onClose={() => setShowConfigureModal(false)}
         onAssign={handleAssignProvider}
         onRemove={handleRemoveProvider}

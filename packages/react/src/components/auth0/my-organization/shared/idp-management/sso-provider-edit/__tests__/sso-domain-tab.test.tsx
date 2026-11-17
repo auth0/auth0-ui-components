@@ -210,4 +210,181 @@ describe('SsoDomainTab', () => {
       expect(handleAssign).toHaveBeenCalledWith([available]);
     });
   });
+  describe('domain verification mode', () => {
+    const domain = createMockVerifiedSsoDomain({
+      id: 'domain-1',
+      domain: 'testdomain.acmetest.org',
+    });
+    const renderTab = (
+      mode: SsoDomainsTabProps['domainVerificationMode'],
+      providerOverrides: Parameters<typeof createMockSsoProvider>[0] = {},
+      tabProps: Partial<SsoDomainsTabProps> = {},
+      listedDomains = [domain],
+    ) => {
+      mockedUseSsoDomainTab.mockReturnValue(
+        createMockSsoDomainTabReturn({ domainsList: listedDomains }),
+      );
+      return renderWithProviders(
+        <SsoDomainTab
+          {...mockProps}
+          domainVerificationMode={mode}
+          provider={createMockSsoProvider(providerOverrides)}
+          {...tabProps}
+        />,
+      );
+    };
+    const removeButton = () =>
+      within(screen.getByRole('row', { name: /testdomain\.acmetest\.org/i })).getByRole('button');
+    const assignButton = () => screen.getByRole('button', { name: 'create_button_text' });
+    const describedBy = (element: HTMLElement) =>
+      document.getElementById(element.getAttribute('aria-describedby')!);
+
+    it('hands the mode to the hook so assigning is skipped in none mode', () => {
+      renderTab('none');
+
+      expect(mockedUseSsoDomainTab).toHaveBeenCalledWith(
+        'idp_123',
+        expect.objectContaining({ domainVerificationMode: 'none' }),
+      );
+    });
+
+    it.each([undefined, 'optional'] as const)(
+      'shows no alert and allows assigning in %s mode',
+      (mode) => {
+        renderTab(mode, { is_enabled: true, domains: ['testdomain.acmetest.org', 'other.com'] });
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(assignButton()).toBeEnabled();
+        expect(removeButton()).toBeEnabled();
+      },
+    );
+
+    it('explains that association is unavailable in none mode and disables Assign', () => {
+      renderTab('none');
+
+      expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_none');
+      expect(assignButton()).toBeDisabled();
+      expect(describedBy(assignButton())).toHaveTextContent(
+        'table.actions.domain_association_unavailable_tooltip',
+      );
+    });
+
+    it('still lets a domain be removed in none mode', () => {
+      renderTab('none', { is_enabled: true, domains: ['testdomain.acmetest.org', 'other.com'] });
+
+      expect(removeButton()).toBeEnabled();
+    });
+
+    it('asks for a verified domain in required mode when the provider has none', () => {
+      renderTab('required', { domains: [] });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_required');
+      expect(assignButton()).toBeEnabled();
+    });
+
+    it('hides the required alert once the provider has a domain', () => {
+      renderTab('required', { domains: ['testdomain.acmetest.org'], is_enabled: false });
+
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('keeps the last verified domain of an enabled provider in required mode', () => {
+      renderTab('required', { is_enabled: true, domains: ['testdomain.acmetest.org'] });
+
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+      expect(removeButton()).toBeDisabled();
+      expect(describedBy(removeButton())).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+    });
+
+    it('lets an enabled provider drop a domain when it has another one', () => {
+      renderTab(
+        'required',
+        { is_enabled: true, domains: ['testdomain.acmetest.org', 'other.com'] },
+        {},
+        [domain, createMockVerifiedSsoDomain({ id: 'domain-2', domain: 'other.com' })],
+      );
+
+      expect(removeButton()).toBeEnabled();
+    });
+
+    it('lets a disabled provider drop its last domain in required mode', () => {
+      renderTab('required', { is_enabled: false, domains: ['testdomain.acmetest.org'] });
+
+      expect(removeButton()).toBeEnabled();
+    });
+  });
+
+  describe('provider access level', () => {
+    const domain = createMockVerifiedSsoDomain({
+      id: 'domain-1',
+      domain: 'testdomain.acmetest.org',
+    });
+    const renderWithAccess = (
+      access_level: 'readonly' | 'limited' | 'full' | undefined,
+      tabProps: Partial<SsoDomainsTabProps> = {},
+    ) => {
+      mockedUseSsoDomainTab.mockReturnValue(
+        createMockSsoDomainTabReturn({ domainsList: [domain] }),
+      );
+      return renderWithProviders(
+        <SsoDomainTab
+          {...mockProps}
+          provider={createMockSsoProvider({ access_level })}
+          {...tabProps}
+        />,
+      );
+    };
+    const assignButton = () => screen.getByRole('button', { name: 'create_button_text' });
+    const removeButton = () =>
+      within(screen.getByRole('row', { name: /testdomain\.acmetest\.org/i })).getByRole('button');
+
+    it.each([undefined, 'full'] as const)(
+      'allows assigning and removing with %s access',
+      (level) => {
+        renderWithAccess(level);
+
+        expect(assignButton()).toBeEnabled();
+        expect(removeButton()).toBeEnabled();
+      },
+    );
+
+    it.each(['readonly', 'limited'] as const)(
+      'disables Assign and Remove with %s access and says why',
+      (level) => {
+        renderWithAccess(level);
+
+        expect(assignButton()).toBeDisabled();
+        expect(removeButton()).toBeDisabled();
+        expect(
+          document.getElementById(assignButton().getAttribute('aria-describedby')!),
+        ).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
+        expect(
+          document.getElementById(removeButton().getAttribute('aria-describedby')!),
+        ).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
+      },
+    );
+
+    it('reports a missing permission before the access level', () => {
+      renderWithAccess('limited', {
+        permissions: createIdpPermissions(['delete:my_org:identity_providers_domains']),
+      });
+
+      expect(
+        document.getElementById(assignButton().getAttribute('aria-describedby')!),
+      ).toHaveTextContent('error.forbidden');
+    });
+
+    it('lets keyboard users reach why Assign is disabled', async () => {
+      const user = userEvent.setup();
+      renderWithAccess('limited');
+
+      await user.tab();
+
+      expect(assignButton().parentElement).toHaveFocus();
+    });
+  });
 });

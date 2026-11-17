@@ -8,6 +8,7 @@ import type {
   CreateOrganizationDomainRequestContent,
   Domain,
   DomainCreateSchemas,
+  IdpDomainVerificationMode,
   IdpKnownResponse,
   SharedComponentProps,
   SsoDomainAssignMessages,
@@ -65,24 +66,23 @@ export interface SsoDomainTabPaginationState {
 }
 
 /** Props for SsoDomainsTab component. */
-export interface SsoDomainsTabProps
-  extends SharedComponentProps<
-    SsoDomainTabMessages,
-    SsoDomainTabClasses,
-    SsoProviderEditDomainsTabSchema
-  > {
+export interface SsoDomainsTabProps extends SharedComponentProps<
+  SsoDomainTabMessages,
+  SsoDomainTabClasses,
+  SsoProviderEditDomainsTabSchema
+> {
   domains: SsoDomainsTabEditProps | undefined;
   idpId: string;
   provider: IdpKnownResponse | null;
   permissions: IdpManagementPermissions;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
-export interface SsoDomainTabActionColumn
-  extends SharedComponentProps<
-    SsoDomainTabMessages,
-    SsoDomainTabClasses,
-    SsoProviderEditDomainsTabSchema
-  > {
+export interface SsoDomainTabActionColumn extends SharedComponentProps<
+  SsoDomainTabMessages,
+  SsoDomainTabClasses,
+  SsoProviderEditDomainsTabSchema
+> {
   translatorKey?: string;
   permissions: IdpManagementPermissions;
   domain: Domain;
@@ -90,6 +90,8 @@ export interface SsoDomainTabActionColumn
   isUpdating: boolean;
   isUpdatingId: string | null;
   onRemove: (domain: Domain) => Promise<void>;
+  lockLastDomain?: boolean;
+  canManageProviderDomains?: boolean;
   /** @deprecated The Domains tab no longer renders a toggle. */
   idpDomains?: string[];
   /** @deprecated The Domains tab no longer lists unverified domains. */
@@ -114,6 +116,7 @@ export interface SsoDomainAssignModalProps {
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
 export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {
