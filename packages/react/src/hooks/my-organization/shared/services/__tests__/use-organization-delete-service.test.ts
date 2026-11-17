@@ -1,0 +1,290 @@
+import { configQueryKeys, organizationDetailsQueryKeys } from '@auth0/universal-components-core';
+import { QueryClient } from '@tanstack/react-query';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useOrganizationDeleteService } from '@/hooks/my-organization/shared/services/use-organization-delete-service';
+import * as useCoreClientModule from '@/hooks/shared/use-core-client';
+import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
+import { createQueryClientWrapper } from '@/tests/utils/test-provider';
+import { mockCore, mockToast } from '@/tests/utils/test-setup';
+
+const { mockedShowToast } = mockToast();
+const { mockTranslate } = vi.hoisted(() => ({ mockTranslate: vi.fn((key: string) => key) }));
+
+// Keep translations as plain keys, and record what values are passed in.
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({
+    t: Object.assign(mockTranslate, { trans: vi.fn((key: string) => key) }),
+  }),
+}));
+const { initMockCoreClient } = mockCore();
+
+// The error type the API returns when the organization still has other members.
+const NOT_EMPTY_TYPE = 'https://auth0.com/api-errors#A0E-403-0001';
+
+const createApiError = (status: number, type?: string) =>
+  Object.assign(new Error('Request failed'), {
+    statusCode: status,
+    body: type ? { type, title: 'Forbidden', status, detail: 'Forbidden' } : undefined,
+  });
+
+async function renderUseOrganizationDeleteService(
+  options: Parameters<typeof useOrganizationDeleteService>[0] = {},
+  customQueryClient?: QueryClient,
+) {
+  const mockCoreClient = initMockCoreClient();
+  const apiService = mockCoreClient.getMyOrganizationApiClient();
+  const mockOrganization = createMockOrganization();
+
+  (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockResolvedValue(
+    mockOrganization,
+  );
+  (apiService.organization.delete as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+  vi.spyOn(useCoreClientModule, 'useCoreClient').mockReturnValue({
+    coreClient: mockCoreClient,
+  });
+
+  const { wrapper, queryClient } = createQueryClientWrapper(customQueryClient);
+  const hookResult = renderHook(() => useOrganizationDeleteService(options), { wrapper });
+
+  await waitFor(() => {
+    expect(hookResult.result.current.organization.name).toBe(mockOrganization.name);
+  });
+
+  return { ...hookResult, queryClient, apiService, mockOrganization };
+}
+
+describe('useOrganizationDeleteService', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe('when the organization loads', () => {
+    it('exposes the organization details', async () => {
+      const { result, mockOrganization } = await renderUseOrganizationDeleteService();
+
+      expect(result.current.organization.display_name).toBe(mockOrganization.display_name);
+    });
+
+    it('reports loading for the first load only, not while it refetches', async () => {
+      const { result, queryClient, apiService } = await renderUseOrganizationDeleteService();
+      expect(result.current.isLoading).toBe(false);
+
+      let finishRefetch!: () => void;
+      (apiService.organizationDetails.get as ReturnType<typeof vi.fn>).mockReturnValue(
+        new Promise((resolve) => {
+          finishRefetch = () => resolve(createMockOrganization());
+        }),
+      );
+      const detailsKey = organizationDetailsQueryKeys.details();
+      void queryClient.refetchQueries({ queryKey: detailsKey });
+
+      await waitFor(() => expect(queryClient.isFetching({ queryKey: detailsKey })).toBe(1));
+      expect(result.current.isLoading).toBe(false);
+      finishRefetch();
+    });
+  });
+
+  describe('when deletion succeeds', () => {
+    it('calls the delete endpoint and resolves to true', async () => {
+      const { result, apiService } = await renderUseOrganizationDeleteService();
+
+      let deleted: boolean | undefined;
+      await act(async () => {
+        deleted = await result.current.deleteOrganization();
+      });
+
+      expect(apiService.organization.delete).toHaveBeenCalledTimes(1);
+      expect(deleted).toBe(true);
+    });
+
+    it('shows the success toast', async () => {
+      const { result } = await renderUseOrganizationDeleteService();
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'notifications.success',
+      });
+    });
+
+    it('marks cached organization-scoped queries stale without requesting them again', async () => {
+      // Keep unobserved data around, so the config entry is still there to be checked.
+      const { result, queryClient, apiService } = await renderUseOrganizationDeleteService(
+        {},
+        new QueryClient({ defaultOptions: { queries: { gcTime: Infinity, retry: false } } }),
+      );
+      queryClient.setQueryData(configQueryKeys.details(), { allowed_strategies: [] });
+      const getOrganization = apiService.organizationDetails.get as ReturnType<typeof vi.fn>;
+      const callsBeforeDelete = getOrganization.mock.calls.length;
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+      // Give a refetch from the still-mounted hook time to start, if there were one.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      expect(queryClient.getQueryState(organizationDetailsQueryKeys.details())?.isInvalidated).toBe(
+        true,
+      );
+      expect(queryClient.getQueryState(configQueryKeys.details())?.isInvalidated).toBe(true);
+      expect(getOrganization).toHaveBeenCalledTimes(callsBeforeDelete);
+    });
+
+    it('calls deleteAction.onAfter with the deleted organization', async () => {
+      const onAfter = vi.fn();
+      const { result, mockOrganization } = await renderUseOrganizationDeleteService({
+        deleteAction: { onAfter },
+      });
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(onAfter).toHaveBeenCalledWith(
+        expect.objectContaining({ name: mockOrganization.name }),
+      );
+    });
+  });
+
+  describe('when the organization has a display name', () => {
+    it('uses the name, not the display name, in the success and refusal messages', async () => {
+      const { result, apiService, mockOrganization } = await renderUseOrganizationDeleteService();
+      (apiService.organization.delete as ReturnType<typeof vi.fn>)
+        .mockRejectedValueOnce(createApiError(403, NOT_EMPTY_TYPE))
+        .mockResolvedValueOnce(undefined);
+      mockTranslate.mockClear();
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      const { name, display_name: displayName } = mockOrganization;
+      expect(mockTranslate).toHaveBeenCalledWith('notifications.not_empty_error', {
+        organizationName: name,
+      });
+      expect(mockTranslate).toHaveBeenCalledWith('notifications.success', {
+        organizationName: name,
+      });
+      expect(mockTranslate).not.toHaveBeenCalledWith('notifications.success', {
+        organizationName: displayName,
+      });
+    });
+  });
+
+  describe('when deleteAction.onAfter fails', () => {
+    it('still reports success and shows no error', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onAfter = vi.fn().mockRejectedValue(new Error('navigation failed'));
+      const { result } = await renderUseOrganizationDeleteService({ deleteAction: { onAfter } });
+
+      let deleted: boolean | undefined;
+      await act(async () => {
+        deleted = await result.current.deleteOrganization();
+      });
+
+      expect(deleted).toBe(true);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      consoleError.mockRestore();
+    });
+  });
+
+  describe('when deleteAction.onBefore returns false', () => {
+    it('skips the delete request and resolves to false', async () => {
+      const { result, apiService } = await renderUseOrganizationDeleteService({
+        deleteAction: { onBefore: () => false },
+      });
+
+      let deleted: boolean | undefined;
+      await act(async () => {
+        deleted = await result.current.deleteOrganization();
+      });
+
+      expect(apiService.organization.delete).not.toHaveBeenCalled();
+      expect(deleted).toBe(false);
+    });
+  });
+
+  describe('when deletion fails', () => {
+    it.each([NOT_EMPTY_TYPE, 'https://auth0.com/api-errors/A0E-403-0001'])(
+      'shows the not-empty message when the API reports the has-members error (%s)',
+      async (type) => {
+        const { result, apiService } = await renderUseOrganizationDeleteService();
+        (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+          createApiError(403, type),
+        );
+
+        let deleted: boolean | undefined;
+        await act(async () => {
+          deleted = await result.current.deleteOrganization();
+        });
+
+        expect(deleted).toBe(false);
+        expect(mockedShowToast).toHaveBeenCalledWith({
+          type: 'error',
+          message: 'notifications.not_empty_error',
+        });
+      },
+    );
+
+    it('uses the shared error handler for a 403 without that error type', async () => {
+      const { result, apiService } = await renderUseOrganizationDeleteService();
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+        createApiError(403),
+      );
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledTimes(1);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'notifications.not_empty_error' }),
+      );
+    });
+
+    it('uses the shared error handler for an insufficient-scope 403', async () => {
+      const { result, apiService } = await renderUseOrganizationDeleteService();
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+        createApiError(403, 'https://auth0.com/api-errors#A0E-403-0002'),
+      );
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(mockedShowToast).toHaveBeenCalledTimes(1);
+      expect(mockedShowToast).not.toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'notifications.not_empty_error' }),
+      );
+    });
+
+    it('keeps cached data and skips onAfter', async () => {
+      const onAfter = vi.fn();
+      const { result, apiService, queryClient } = await renderUseOrganizationDeleteService({
+        deleteAction: { onAfter },
+      });
+      (apiService.organization.delete as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Network error'),
+      );
+
+      await act(async () => {
+        await result.current.deleteOrganization();
+      });
+
+      expect(onAfter).not.toHaveBeenCalled();
+      expect(queryClient.getQueryData(organizationDetailsQueryKeys.details())).toBeDefined();
+    });
+  });
+});
