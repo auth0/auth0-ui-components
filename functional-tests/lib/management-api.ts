@@ -295,6 +295,16 @@ export function getConnection(connectionId: string): Promise<SsoProvider> {
   return mgmt<SsoProvider>('GET', `connections/${encodeURIComponent(connectionId)}`);
 }
 
+export async function connectionExists(connectionId: string): Promise<boolean> {
+  try {
+    await getConnection(connectionId);
+    return true;
+  } catch (error) {
+    if (error instanceof ManagementApiError && error.status === 404) return false;
+    throw error;
+  }
+}
+
 export function deleteSsoProvider(connectionId: string): Promise<void> {
   return mgmt<void>('DELETE', `connections/${encodeURIComponent(connectionId)}`);
 }
@@ -568,6 +578,7 @@ export function createInvitation(
     clientId: string;
     roles?: string[];
     connectionId?: string;
+    sendInvitationEmail?: boolean;
   },
 ): Promise<Invitation> {
   return mgmt<Invitation>('POST', `organizations/${organizationId}/invitations`, {
@@ -576,6 +587,9 @@ export function createInvitation(
     client_id: input.clientId,
     ...(input.roles ? { roles: input.roles } : {}),
     ...(input.connectionId ? { connection_id: input.connectionId } : {}),
+    ...(input.sendInvitationEmail !== undefined
+      ? { send_invitation_email: input.sendInvitationEmail }
+      : {}),
   });
 }
 

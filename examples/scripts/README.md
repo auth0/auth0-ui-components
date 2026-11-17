@@ -37,6 +37,12 @@ pnpm run auth0:bootstrap <your-tenant-domain>
 
 The tenant domain argument is required (e.g., `my-tenant.us.auth0.com`).
 
+To log in with an M2M app instead of the browser (e.g. for internal dev or staging domains the CLI's browser login can't reach), pass both flags:
+
+```bash
+pnpm run auth0:bootstrap <your-tenant-domain> --client-id <id> --client-secret <secret>
+```
+
 ### 3. Follow the interactive prompts
 
 The script will guide you through:
@@ -80,6 +86,8 @@ The script creates and configures the following Auth0 resources based on your fe
 | **Admin Role**          | `admin` role with all My Organization API permissions     |
 | **Organization**        | `demo-org` with database connection enabled               |
 | **Organization Member** | Test user created and assigned the admin role             |
+
+> **Invitation links:** if the Application Login URI is empty, the script sets it to `https://127.0.0.1:5173` (Auth0 requires https and rejects `localhost`). The example runs on plain `http://localhost:5173`, so invitation links won't open as-is. To test them, serve the app over https (for example, a tunnel), set the Application Login URI to that URL plus `/auth/login`, and add the URL to Allowed Callback URLs. An existing value is never overwritten.
 
 ### My Account Resources (if enabled)
 
