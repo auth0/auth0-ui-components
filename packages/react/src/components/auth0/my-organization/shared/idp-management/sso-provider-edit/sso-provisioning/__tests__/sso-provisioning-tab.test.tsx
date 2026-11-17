@@ -338,11 +338,62 @@ describe('SsoProvisioningTab', () => {
       expect(guidedSetupButton()).not.toBeInTheDocument();
     });
 
-    it('is not offered while provisioning is off', async () => {
-      renderComponent({ onStartGuidedSetup: vi.fn() });
+    describe('while provisioning is off', () => {
+      beforeEach(() => {
+        mockOnCreateProvisioning.mockReset();
+        mockFetchProvisioning.mockReset();
+      });
 
-      await waitFor(() => expect(screen.getByRole('switch')).not.toBeChecked());
-      expect(guidedSetupButton()).not.toBeInTheDocument();
+      it('turns provisioning on, then opens guided setup', async () => {
+        mockOnCreateProvisioning.mockResolvedValue(undefined);
+        mockFetchProvisioning.mockResolvedValue({ strategy: 'waad', attributes: [] });
+        const onStartGuidedSetup = vi.fn();
+        renderComponent({ onStartGuidedSetup });
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+        );
+
+        await waitFor(() => expect(onStartGuidedSetup).toHaveBeenCalled());
+        expect(mockOnCreateProvisioning).toHaveBeenCalled();
+      });
+
+      it('stays on the tab when turning provisioning on is cancelled', async () => {
+        mockOnCreateProvisioning.mockResolvedValue(undefined);
+        mockFetchProvisioning.mockResolvedValue(null);
+        const onStartGuidedSetup = vi.fn();
+        renderComponent({ onStartGuidedSetup });
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+        );
+
+        await waitFor(() => expect(mockOnCreateProvisioning).toHaveBeenCalled());
+        expect(onStartGuidedSetup).not.toHaveBeenCalled();
+      });
+
+      it('stays on the tab when turning provisioning on fails', async () => {
+        mockOnCreateProvisioning.mockRejectedValue(new Error('boom'));
+        const onStartGuidedSetup = vi.fn();
+        renderComponent({ onStartGuidedSetup });
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+        );
+
+        await waitFor(() => expect(mockOnCreateProvisioning).toHaveBeenCalled());
+        expect(onStartGuidedSetup).not.toHaveBeenCalled();
+      });
+
+      it('is not offered without permission to turn provisioning on', async () => {
+        renderComponent({
+          onStartGuidedSetup: vi.fn(),
+          permissions: createIdpPermissions(['read:my_org:configuration']),
+        });
+
+        await waitFor(() => expect(screen.getByRole('switch')).not.toBeChecked());
+        expect(guidedSetupButton()).not.toBeInTheDocument();
+      });
     });
   });
 });

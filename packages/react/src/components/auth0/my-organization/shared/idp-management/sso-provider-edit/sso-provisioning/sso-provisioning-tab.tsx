@@ -46,7 +46,7 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.isSyncingAttributes - Whether attribute sync is in progress.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
- * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it.
+ * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it, turning provisioning on first when it's off.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -123,16 +123,35 @@ export function SsoProvisioningTab({
     isLoading || !provider?.id || !provider.is_enabled || !canToggleProvisioning;
 
   const strategy = provider?.strategy as IdpStrategy | undefined;
+  const canTurnProvisioningOn =
+    Boolean(provider?.id) && Boolean(provider?.is_enabled) && permissions.canCreateProvisioning;
   const canOfferGuidedSetup =
-    Boolean(onStartGuidedSetup) && !readOnly && permissions.canReadConfiguration;
+    Boolean(onStartGuidedSetup) &&
+    !readOnly &&
+    permissions.canReadConfiguration &&
+    (isProvisioningEnabled || canTurnProvisioningOn);
   const { instructions: provisioningInstructions } = useIdpInstructionsService({
     kind: 'provisioning',
     strategy,
     locale: getInstructionsLocale(currentLanguage),
-    enabled: canOfferGuidedSetup && isProvisioningEnabled,
+    enabled: canOfferGuidedSetup,
   });
-  const showGuidedSetup =
-    canOfferGuidedSetup && isProvisioningEnabled && Boolean(provisioningInstructions?.pages.length);
+  const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
+
+  const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
+  const handleStartGuidedSetup = async () => {
+    if (!onStartGuidedSetup) return;
+    if (isProvisioningEnabled) {
+      onStartGuidedSetup();
+      return;
+    }
+    setStartingGuidedSetup(true);
+    const config = await createProvisioning()
+      .then(() => fetchProvisioning())
+      .catch(() => null);
+    setStartingGuidedSetup(false);
+    if (config) onStartGuidedSetup();
+  };
 
   const provisioningToggle = (
     <span>
@@ -177,7 +196,8 @@ export function SsoProvisioningTab({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={onStartGuidedSetup}
+                  onClick={handleStartGuidedSetup}
+                  disabled={isStartingGuidedSetup || isLoading}
                   className={cn(
                     'flex items-center gap-2',
                     currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
