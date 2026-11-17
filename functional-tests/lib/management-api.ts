@@ -460,7 +460,7 @@ export async function findUserIdByEmail(email: string): Promise<string> {
   return match.user_id;
 }
 
-/** Used by the orphan sweeper to find `ci-*` leftover organizations. */
+/** Used by the scheduled cleanup job (UIC-1999) to find leftover `ci-org-*` organizations. */
 export function listOrganizations(): Promise<Organization[]> {
   return mgmt<Organization[]>('GET', 'organizations?per_page=100');
 }

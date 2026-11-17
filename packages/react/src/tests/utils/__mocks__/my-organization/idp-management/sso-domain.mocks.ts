@@ -41,6 +41,7 @@ export function createMockSsoDomainTabServiceReturn(
 ): UseSsoDomainTabServiceReturn {
   return {
     domainsList: [],
+    availableDomains: [],
     isLoading: false,
     isRefetchingDomains: false,
     isDomainsStale: false,
@@ -51,6 +52,7 @@ export function createMockSsoDomainTabServiceReturn(
     isCreating: false,
     isVerifying: false,
     isDeleting: false,
+    isAssociating: false,
     createDomain: vi.fn(),
     verifyDomain: vi.fn(),
     deleteDomain: vi.fn(),
@@ -65,6 +67,12 @@ export function createMockSsoDomainTabReturn(
 ): UseSsoDomainTabReturn {
   return {
     domainsList: [],
+    availableDomains: [],
+    showAssignModal: false,
+    setShowAssignModal: vi.fn(),
+    isAssigning: false,
+    handleAssign: vi.fn(),
+    handleRemove: vi.fn(),
     isLoading: false,
     isRefetchingDomains: false,
     isDomainsStale: false,
