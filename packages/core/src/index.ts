@@ -32,11 +32,15 @@ export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-de
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-enrollment-types';
 export * from './i18n/custom-messages/my-account/user-mfa-management/user-mfa-factors-list-types';
 export * from './i18n/custom-messages/my-account/user-passkey-management/user-passkey-management-types';
+export * from './i18n/custom-messages/my-account/organization-management/organization-table-types';
+export * from './i18n/custom-messages/my-account/organization-management/organization-create-types';
+export * from './i18n/custom-messages/my-account/organization-management/organization-switcher-types';
 
 // i18n custom messages - my-organization idp-management
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-token-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/provisioning-manage-token-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-create-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
@@ -123,6 +127,7 @@ export * from './services/my-organization/organization-management/organization-d
 
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-types';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-types';
+export * from './services/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-urls';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
@@ -139,6 +144,7 @@ export * from './services/my-organization/member-management/member-management-pe
 
 export * from './services/my-organization/config/config-types';
 export * from './services/my-organization/config/instructions/instructions-text';
+export * from './services/my-organization/config/config-constants';
 
 // Permissions (shared across modules)
 export * from './services/permissions/permission-utils';
@@ -155,6 +161,10 @@ export * from './services/my-account/user-mfa-management/user-mfa-management-map
 export * from './services/my-account/user-passkey-management/user-passkey-management-constants';
 export * from './services/my-account/user-passkey-management/user-passkey-management-types';
 export * from './services/my-account/user-passkey-management/user-passkey-management-utils';
+export * from './services/my-account/organization-management/organization-management-types';
+export * from './services/my-account/organization-management/organization-management-query-keys';
+export * from './services/my-account/organization-management/organization-management-constants';
+export * from './services/my-account/organization-management/organization-management-mappers';
 
 // MFA Step-Up services
 export {

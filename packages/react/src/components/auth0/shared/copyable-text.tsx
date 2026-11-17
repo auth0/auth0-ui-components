@@ -7,6 +7,7 @@
 import * as React from 'react';
 
 import { CopyButton } from '@/components/auth0/shared/copy-button';
+import { InlineCode } from '@/components/ui/inline-code';
 import { cn } from '@/lib/utils';
 
 export interface CopyableTextProps {
@@ -16,15 +17,29 @@ export interface CopyableTextProps {
   tooltipSide?: 'top' | 'bottom' | 'left' | 'right';
   tooltipAlign?: 'start' | 'center' | 'end';
   onCopy?: () => void;
+  /** Render the value as an inline code chip (monospace). */
+  asCode?: boolean;
 }
 
 const CopyableText = React.forwardRef<HTMLSpanElement, CopyableTextProps>(
   (
-    { value, className, buttonClassName, tooltipSide = 'top', tooltipAlign = 'end', onCopy },
+    {
+      value,
+      className,
+      buttonClassName,
+      tooltipSide = 'top',
+      tooltipAlign = 'end',
+      onCopy,
+      asCode = false,
+    },
     ref,
   ) => (
     <span ref={ref} className={cn('flex items-center gap-1', className)}>
-      <span className="text-sm text-primary">{value}</span>
+      {asCode ? (
+        <InlineCode className="min-w-0 truncate text-xs">{value}</InlineCode>
+      ) : (
+        <span className="text-sm text-primary">{value}</span>
+      )}
       <CopyButton
         value={value}
         onCopy={onCopy}
