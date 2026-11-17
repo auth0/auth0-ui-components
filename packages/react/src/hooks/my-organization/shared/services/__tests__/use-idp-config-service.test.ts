@@ -395,6 +395,26 @@ describe('useIdpConfig', () => {
       expect(result.current.getCrossAppAccessDefaultValue('oidc')).toBe('enabled');
     });
 
+    it('returns default_value when read-only (allowed_values omitted)', async () => {
+      mockGet.mockResolvedValue(
+        createMockIdpConfig({
+          strategies: {
+            oidc: {
+              enabled_features: [],
+              provisioning_methods: [],
+              cross_app_access_resource_app: createMockCrossAppAccessConfig({
+                status: { default_value: 'enabled' },
+              }),
+            },
+          },
+        }),
+      );
+
+      const { result } = await renderUseIdpConfig();
+
+      expect(result.current.getCrossAppAccessDefaultValue('oidc')).toBe('enabled');
+    });
+
     it('returns undefined when cross_app_access_resource_app is absent', async () => {
       mockGet.mockResolvedValue(
         createMockIdpConfig({
