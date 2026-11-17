@@ -1,5 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
+import { env } from '../env';
+
 /**
  * The create wizard is three steps (select strategy → details → configure) driven by
  * async react-hook-form validation, and a click that lands while a step is still
@@ -33,6 +35,14 @@ export class SsoProviderCreatePage {
 
   get oidcStrategyButton(): Locator {
     return this.root.getByRole('button', { name: /Custom OIDC/i });
+  }
+
+  get oktaStrategyButton(): Locator {
+    return this.root.getByRole('button', { name: /Okta/i });
+  }
+
+  get oktaDomainInput(): Locator {
+    return this.root.getByRole('textbox', { name: 'Okta Domain' });
   }
 
   get nameInput(): Locator {
@@ -97,14 +107,17 @@ export class SsoProviderCreatePage {
     await this.advanceStep(this.oidcStrategyButton, this.nameInput, 'the provider details step');
   }
 
-  async fillProviderDetails(input: { name: string; displayName: string }): Promise<void> {
+  async fillProviderDetails(
+    input: { name: string; displayName: string },
+    nextStepField: Locator = this.discoveryUrlInput,
+  ): Promise<void> {
     await this.nameInput.fill(input.name);
     await this.displayNameInput.fill(input.displayName);
     // Read both values back, because a re-render can quietly wipe the form and the only clue later
     // is a "field is required" error on a field we know we filled.
     await expect(this.nameInput).toHaveValue(input.name);
     await expect(this.displayNameInput).toHaveValue(input.displayName);
-    await this.advanceStep(this.nextButton, this.discoveryUrlInput, 'the configuration step');
+    await this.advanceStep(this.nextButton, nextStepField, 'the configuration step');
   }
 
   async fillOidcConfiguration(input: {
@@ -164,11 +177,29 @@ export class SsoProviderCreatePage {
     await this.fillProviderDetails({ name: input.name, displayName: input.displayName });
     await this.fillOidcConfiguration({
       discoveryUrl:
-        input.discoveryUrl ??
-        `https://${process.env.FT_AUTH0_DOMAIN}/.well-known/openid-configuration`,
+        input.discoveryUrl ?? `https://${env.FT_AUTH0_DOMAIN}/.well-known/openid-configuration`,
       clientId: input.clientId ?? 'ft-test-client-id',
       clientSecret: input.clientSecret ?? 'ft-test-client-secret',
     });
+    await this.submitCreate();
+  }
+
+  async createOktaProvider(input: {
+    name: string;
+    displayName: string;
+    domain: string;
+    clientId: string;
+    clientSecret: string;
+  }): Promise<void> {
+    await expect(this.oktaStrategyButton).toBeVisible({ timeout: STEP_TIMEOUT_MS });
+    await this.advanceStep(this.oktaStrategyButton, this.nameInput, 'the provider details step');
+    await this.fillProviderDetails(
+      { name: input.name, displayName: input.displayName },
+      this.oktaDomainInput,
+    );
+    await this.oktaDomainInput.fill(input.domain);
+    await this.clientIdInput.fill(input.clientId);
+    await this.clientSecretInput.fill(input.clientSecret);
     await this.submitCreate();
   }
 }

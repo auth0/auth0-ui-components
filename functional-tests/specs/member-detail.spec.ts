@@ -36,7 +36,7 @@ test.describe('Member details on page load', () => {
     if (createdUserId) await deleteUser(createdUserId).catch(() => undefined);
   });
 
-  test('renders the real member fetched by id, not the list endpoint', async ({ page }) => {
+  test('loads the member from the page URL', async ({ page }) => {
     const email = uniqueEmail('detail-view');
     const user = await createUser({
       email,

@@ -177,6 +177,15 @@ export class MemberManagementPage {
     });
   }
 
+  get inviteConnectionSelect(): Locator {
+    return this.inviteMemberDialog.getByLabel(t(`${NAMESPACE}.invitation.create.connection_label`));
+  }
+
+  async selectInviteConnection(connectionName: string): Promise<void> {
+    await this.inviteConnectionSelect.click();
+    await this.page.getByRole('option', { name: connectionName }).click();
+  }
+
   get inviteSubmitButton(): Locator {
     return this.inviteMemberDialog.getByRole('button', {
       name: t(`${NAMESPACE}.invitation.create.submit_button`),

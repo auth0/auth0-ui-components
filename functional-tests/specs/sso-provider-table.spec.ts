@@ -6,7 +6,7 @@ import {
   deleteSsoProvider,
   findSsoConnectionIdByProviderName,
   getConnection,
-  listOrgEnabledConnections,
+  listOrgConnections,
 } from '../lib/management-api';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
@@ -35,7 +35,7 @@ test.describe('SSO providers list', () => {
     );
   });
 
-  test('renders a real seeded OIDC provider with its name and display name', async ({ page }) => {
+  test('renders an OIDC provider with its name and display name', async ({ page }) => {
     const name = uniqueProviderName('oidc');
     const displayName = 'FT Seeded OIDC Provider';
 
@@ -67,7 +67,7 @@ test.describe('Enable/disable toggle', () => {
     );
   });
 
-  test('enabling and disabling a provider updates its org enabled_connections', async ({
+  test('enabling and disabling a provider updates its enabled state in the org', async ({
     page,
   }) => {
     const name = uniqueProviderName('toggle');
@@ -96,16 +96,16 @@ test.describe('Enable/disable toggle', () => {
     await enableToasts.expectSuccess(updateToast);
     await expect(switchControl).toHaveAttribute('aria-checked', 'true');
 
-    let enabled = await listOrgEnabledConnections(org.orgId);
-    expect(enabled.map((c) => c.connection_id)).toContain(connectionId);
+    let attached = await listOrgConnections(org.orgId);
+    expect(attached.find((c) => c.connection_id === connectionId)?.is_enabled).toBe(true);
 
     const disableToasts = await watchToasts(page);
     await switchControl.click();
     await disableToasts.expectSuccess(updateToast);
     await expect(switchControl).toHaveAttribute('aria-checked', 'false');
 
-    enabled = await listOrgEnabledConnections(org.orgId);
-    expect(enabled.map((c) => c.connection_id)).not.toContain(connectionId);
+    attached = await listOrgConnections(org.orgId);
+    expect(attached.find((c) => c.connection_id === connectionId)?.is_enabled).toBe(false);
   });
 });
 

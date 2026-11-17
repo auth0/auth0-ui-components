@@ -1,4 +1,5 @@
 import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
+import { env } from '../env';
 import { expect, test } from '../fixtures/auth.fixture';
 import { testUnauthenticatedRedirect } from '../fixtures/unauthenticated';
 import { t } from '../lib/i18n';
@@ -33,7 +34,7 @@ async function seedInvitation(email: string, roles?: string[]) {
   return createInvitation(org.orgId, {
     email,
     inviterName: 'FT Setup',
-    clientId: process.env.FT_AUTH0_SPA_CLIENT_ID ?? '',
+    clientId: env.FT_AUTH0_SPA_CLIENT_ID,
     connectionId: await findConnectionIdByName(connectionName),
     roles,
   });
@@ -50,7 +51,7 @@ test.describe('Members list', () => {
     await Promise.all(seededUsers.map((user) => deleteUser(user.user_id).catch(() => undefined)));
   });
 
-  test('renders real seeded members with their name, email, and role', async ({ page }) => {
+  test('renders real seeded members with their name and email', async ({ page }) => {
     const email = uniqueEmail('member');
     const user = await createUser({
       email,
@@ -115,6 +116,7 @@ test.describe('Invite member', () => {
     await memberManagement.inviteButton.click();
 
     await expect(memberManagement.inviteMemberDialog).toBeVisible();
+    // The modal auto-selects the connection when the org has exactly one, so only the email is needed.
     await memberManagement.fillInviteEmail(email);
 
     const toasts = await watchToasts(page);

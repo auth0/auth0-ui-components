@@ -31,25 +31,8 @@ export class DomainManagementPage {
     return row.getByRole('button');
   }
 
-  async openRowActionsMenu(row: Locator): Promise<void> {
-    await this.rowActionsMenuButton(row).click();
-    await expect(this.page.getByRole('menu')).toBeVisible();
-  }
-
   clickRowAction(row: Locator, item: Locator): Promise<void> {
     return openMenuAndClick(this.page, this.rowActionsMenuButton(row), item);
-  }
-
-  get viewMenuItem(): Locator {
-    return this.page.getByRole('menuitem', {
-      name: t(`${NAMESPACE}.domain_table.table.actions.view_button_text`),
-    });
-  }
-
-  get verifyMenuItem(): Locator {
-    return this.page.getByRole('menuitem', {
-      name: t(`${NAMESPACE}.domain_table.table.actions.verify_button_text`),
-    });
   }
 
   get configureMenuItem(): Locator {
@@ -84,32 +67,37 @@ export class DomainManagementPage {
     });
   }
 
-  txtRecordNameField(domainName: string): Locator {
-    return this.verifyDialog(domainName).getByLabel(
-      t(`${NAMESPACE}.domain_verify.modal.txt_record_name.label`),
-    );
+  private get openDialog(): Locator {
+    return this.page.getByRole('dialog');
   }
 
-  txtRecordContentField(domainName: string): Locator {
-    return this.verifyDialog(domainName).getByLabel(
+  get txtRecordNameField(): Locator {
+    return this.openDialog.getByLabel(t(`${NAMESPACE}.domain_verify.modal.txt_record_name.label`));
+  }
+
+  get txtRecordContentField(): Locator {
+    return this.openDialog.getByLabel(
       t(`${NAMESPACE}.domain_verify.modal.txt_record_content.label`),
     );
   }
 
-  verifySubmitButton(domainName: string): Locator {
-    return this.verifyDialog(domainName).getByRole('button', {
-      name: t(`${NAMESPACE}.domain_verify.modal.actions.verify_button_text`),
-    });
-  }
-
-  verifyDoneButton(domainName: string): Locator {
-    return this.verifyDialog(domainName).getByRole('button', {
+  get verifyDoneButton(): Locator {
+    return this.openDialog.getByRole('button', {
       name: t(`${NAMESPACE}.domain_verify.modal.actions.done_button_text`),
     });
   }
 
-  verifyErrorAlert(domainName: string): Locator {
-    return this.verifyDialog(domainName).getByRole('alert');
+  configureDialog(domain: string): Locator {
+    return this.page.getByRole('dialog', {
+      name: t(`${NAMESPACE}.domain_configure_providers.modal.title`, { domain }),
+    });
+  }
+
+  providerSwitch(domain: string, providerDisplayName: string): Locator {
+    return this.configureDialog(domain)
+      .getByRole('row')
+      .filter({ hasText: providerDisplayName })
+      .getByRole('switch');
   }
 
   get deleteDomainDialog(): Locator {

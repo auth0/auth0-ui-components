@@ -7,7 +7,7 @@ import {
   deleteSsoProvider,
   findSsoConnectionIdByProviderName,
   getConnection,
-  listOrgEnabledConnections,
+  listOrgConnections,
 } from '../lib/management-api';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
@@ -38,7 +38,7 @@ test.describe('Edit provider configuration', () => {
     );
   });
 
-  test('saving a display name change persists via a real update', async ({ page }) => {
+  test('saves an edited display name', async ({ page }) => {
     const name = uniqueProviderName('editcfg');
     const originalDisplayName = 'FT Edit Config Provider';
     const updatedDisplayName = 'FT Edit Config Provider Updated';
@@ -107,6 +107,9 @@ test.describe('Remove provider from organization', () => {
     const ssoProviderEdit = new SsoProviderEditPage(page);
     await ssoProviderEdit.goto(reactSpaNpmApp.routes.ssoProviderEdit(connectionId));
 
+    const attachedBefore = await listOrgConnections(org.orgId);
+    expect(attachedBefore.map((c) => c.connection_id)).toContain(connectionId);
+
     await ssoProviderEdit.openRemoveModal(name);
     const removeToasts = await watchToasts(page);
     await ssoProviderEdit.confirmRemove(name, org.orgName);
@@ -119,7 +122,7 @@ test.describe('Remove provider from organization', () => {
     const connection = await getConnection(connectionId);
     expect(connection.id).toBe(connectionId);
 
-    const enabled = await listOrgEnabledConnections(org.orgId);
-    expect(enabled.map((c) => c.connection_id)).not.toContain(connectionId);
+    const attached = await listOrgConnections(org.orgId);
+    expect(attached.map((c) => c.connection_id)).not.toContain(connectionId);
   });
 });
