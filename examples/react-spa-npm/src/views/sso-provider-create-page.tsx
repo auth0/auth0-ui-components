@@ -17,6 +17,7 @@ const SsoProviderCreatePage = () => {
             navigate('/sso-providers');
           },
         }}
+        guidedSetup={{ enabled: true }}
       />
     </div>
   );

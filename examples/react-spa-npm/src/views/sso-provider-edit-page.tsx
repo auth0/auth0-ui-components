@@ -24,6 +24,7 @@ const SsoProviderEditPage = () => {
             },
           },
         }}
+        provisioning={{ guidedSetup: { enabled: true } }}
       />
     </div>
   );

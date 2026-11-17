@@ -42,6 +42,7 @@ export default function SsoProviderEditPage() {
           },
         }}
         backButton={{ onClick: handleBack }}
+        provisioning={{ guidedSetup: { enabled: true } }}
       />
     </div>
   );
