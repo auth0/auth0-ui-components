@@ -93,11 +93,36 @@ export class DomainManagementPage {
     });
   }
 
-  providerSwitch(domain: string, providerDisplayName: string): Locator {
-    return this.configureDialog(domain)
-      .getByRole('row')
-      .filter({ hasText: providerDisplayName })
-      .getByRole('switch');
+  // Only rendered while the domain has no associated connection.
+  providerSelect(domain: string): Locator {
+    return this.configureDialog(domain).getByRole('combobox', {
+      name: t(`${NAMESPACE}.domain_configure_providers.modal.field.label`),
+    });
+  }
+
+  // Options portal outside the dialog and read "Display name (strategy)".
+  providerOption(providerDisplayName: string): Locator {
+    return this.page.getByRole('option', { name: providerDisplayName });
+  }
+
+  async selectProvider(domain: string, providerDisplayName: string): Promise<void> {
+    await this.providerSelect(domain).click();
+    await this.providerOption(providerDisplayName).click();
+  }
+
+  configureSaveButton(domain: string): Locator {
+    return this.configureDialog(domain).getByRole('button', {
+      name: t(`${NAMESPACE}.domain_configure_providers.modal.actions.save_button_text`),
+      exact: true,
+    });
+  }
+
+  removeProviderButton(domain: string, providerDisplayName: string): Locator {
+    return this.configureDialog(domain).getByRole('button', {
+      name: t(`${NAMESPACE}.domain_configure_providers.modal.actions.remove_button_aria_label`, {
+        provider: providerDisplayName,
+      }),
+    });
   }
 
   get deleteDomainDialog(): Locator {

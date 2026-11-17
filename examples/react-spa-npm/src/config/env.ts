@@ -39,7 +39,7 @@ export const config: AppConfig = {
     enableMyAccount: getOptionalEnvVar('VITE_ENABLE_MY_ACCOUNT', 'false') === 'true',
   },
   queryStaleTimeMs: (() => {
-    const raw = getOptionalEnvVarOrUndefined('VITE_QUERY_STALE_TIME_MS');
-    return raw === undefined ? undefined : Number(raw);
+    const parsed = Number(getOptionalEnvVarOrUndefined('VITE_QUERY_STALE_TIME_MS'));
+    return Number.isFinite(parsed) ? parsed : undefined;
   })(),
 };

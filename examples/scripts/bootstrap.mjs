@@ -42,6 +42,8 @@ import {
   validateRequiredScopes,
 } from "./utils/validation.mjs"
 
+const KNOWN_FLAGS = ["--client-id", "--client-secret"]
+
 // ============================================================================
 // Main Bootstrap Flow
 // ============================================================================
@@ -97,9 +99,12 @@ async function main() {
   const clientId = getFlagValue(args, "--client-id")
   const clientSecret = getFlagValue(args, "--client-secret")
 
-  if ((clientId && !clientSecret) || (!clientId && clientSecret)) {
+  const usesCredentialFlags =
+    args.includes("--client-id") || args.includes("--client-secret")
+
+  if (usesCredentialFlags && !(clientId && clientSecret)) {
     console.error(
-      "\n❌ Error: --client-id and --client-secret must be provided together.\n"
+      "\n❌ Error: --client-id and --client-secret must be provided together, each with a value.\n"
     )
     process.exit(1)
   }
@@ -318,7 +323,11 @@ async function main() {
  */
 function getFlagValue(args, flag) {
   const index = args.indexOf(flag)
-  return index !== -1 ? args[index + 1] : undefined
+  if (index === -1) return undefined
+
+  const value = args[index + 1]
+  // Only our own flags are rejected: a real secret can start with "--".
+  return KNOWN_FLAGS.includes(value) ? undefined : value
 }
 
 /**

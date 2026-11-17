@@ -27,6 +27,7 @@ import { MemberManagementPage } from '../pages/member-management.page';
 const org = requireRunState();
 const route = reactSpaNpmApp.routes.memberManagement;
 const connectionName = process.env.FT_CONNECTION_NAME ?? 'Universal-Components-Demo';
+const adminRoleName = process.env.FT_ADMIN_ROLE_NAME || 'admin';
 
 testUnauthenticatedRedirect(route, (page) => new MemberManagementPage(page).membersTab);
 
@@ -37,6 +38,7 @@ async function seedInvitation(email: string, roles?: string[]) {
     clientId: env.FT_AUTH0_SPA_CLIENT_ID,
     connectionId: await findConnectionIdByName(connectionName),
     roles,
+    sendInvitationEmail: false,
   });
 }
 
@@ -146,7 +148,7 @@ test.describe('Invite member', () => {
 test.describe('View invitation details', () => {
   test('shows the real invitation and copies its accept URL from the modal', async ({ page }) => {
     const email = uniqueEmail('details');
-    const adminRoleId = await findRoleIdByName(process.env.FT_ADMIN_ROLE_NAME ?? 'admin');
+    const adminRoleId = await findRoleIdByName(adminRoleName);
     const invitation = await seedInvitation(email, [adminRoleId]);
     await waitForOrgInvitation(org.orgId, email);
 
@@ -165,7 +167,7 @@ test.describe('View invitation details', () => {
     // Email/invited-by render as read-only <input> (value isn't textContent).
     await expect(memberManagement.detailsField('email_label')).toHaveValue(email);
     await expect(memberManagement.detailsField('invited_by_label')).toHaveValue('FT Setup');
-    await expect(memberManagement.invitationDetailsDialog).toContainText('admin');
+    await expect(memberManagement.invitationDetailsDialog).toContainText(adminRoleName);
 
     // Poll: the click's clipboard write is async, and a bare expect() on a string has no retry.
     await memberManagement.copyInvitationUrlButton.click();
@@ -188,7 +190,6 @@ test.describe('Assign role to member', () => {
 
   test('assigns a real role, verified independently via the Management API', async ({ page }) => {
     const email = uniqueEmail('assign-role');
-    const roleName = process.env.FT_ADMIN_ROLE_NAME ?? 'admin';
     const user = await createUser({
       email,
       password: `Ft!${Math.random().toString(36).slice(2)}A1`,
@@ -208,7 +209,7 @@ test.describe('Assign role to member', () => {
 
     await expect(memberManagement.assignRolesDialog).toBeVisible();
     await memberManagement.rolesCombobox.click();
-    await memberManagement.roleOption(roleName).click();
+    await memberManagement.roleOption(adminRoleName).click();
     await page.keyboard.press('Escape');
 
     const toasts = await watchToasts(page);
@@ -220,7 +221,7 @@ test.describe('Assign role to member', () => {
       .poll(
         pollRead(async () => {
           const roles = await listOrgMemberRoles(org.orgId, user.user_id);
-          return roles.some((role) => role.name === roleName);
+          return roles.some((role) => role.name === adminRoleName);
         }, false),
         { timeout: POLL_TIMEOUT_MS },
       )
@@ -347,16 +348,16 @@ test.describe('Revoke and resend invitation', () => {
     );
     await expect(memberManagement.revokeAndResendInvitationDialog).toBeHidden();
 
-    // A different invitation id for the same email proves delete+recreate happened,
-    // not just a no-op. Toast alone can't distinguish this.
+    // The original id must be gone and a new one present for the same email. A toast alone
+    // can't tell a real revoke-and-resend from a no-op.
     let newInvitationId: string | undefined;
     await expect
       .poll(
         pollRead(async () => {
           const invitations = await listOrgInvitations(org.orgId);
-          const match = invitations.find((i) => i.invitee.email === email);
-          newInvitationId = match?.id;
-          return !!match?.id && match.id !== invitation.id;
+          const forEmail = invitations.filter((i) => i.invitee.email === email);
+          newInvitationId = forEmail.find((i) => i.id !== invitation.id)?.id;
+          return !!newInvitationId && !forEmail.some((i) => i.id === invitation.id);
         }, false),
         { timeout: POLL_TIMEOUT_MS },
       )

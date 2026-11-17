@@ -1,4 +1,4 @@
-import type { JSHandle, Page } from '@playwright/test';
+import { expect, type JSHandle, type Page } from '@playwright/test';
 
 /**
  * Waits for toasts an action just produced, ignoring any already on screen. Toasts last a few
@@ -28,6 +28,8 @@ interface ToastRecord {
 // Handle to the in-page JS object that accumulates every toast ever added to the DOM.
 // Using a MutationObserver means toasts that appear and auto-dismiss before a poll tick
 // are still captured — the primary cause of flaky toast assertions under CI load.
+// The observer is never disconnected, and a full page load drops it with the old document, so
+// toasts shown after one are missed. Create the watcher after any such navigation.
 type AccumulatorHandle = JSHandle<{ records: ToastRecord[] }>;
 
 async function startAccumulator(page: Page): Promise<AccumulatorHandle> {
@@ -107,41 +109,40 @@ export async function watchToasts(page: Page): Promise<ToastWatcher> {
     failOnError: boolean,
     timeout: number,
   ): Promise<void> => {
-    const deadline = Date.now() + timeout;
+    let state = 'waiting' as 'found' | 'error' | 'waiting';
 
-    for (;;) {
+    const check = async () => {
       await flush();
+      if (countContaining(seen[type] ?? [], message) >= 1) state = 'found';
+      else if (failOnError && (seen[ERROR_ATTR] ?? []).length > 0) state = 'error';
+      else state = 'waiting';
+      return state;
+    };
 
-      if (countContaining(seen[type] ?? [], message) >= 1) return;
-
-      if (failOnError) {
-        const errorsSeen = seen[ERROR_ATTR] ?? [];
-        if (errorsSeen.length > 0) {
-          throw new Error(
-            `Expected a success toast "${message}", but the app reported an error: ${errorsSeen.join(' | ')}`,
-          );
-        }
+    try {
+      await expect.poll(check, { timeout, intervals: [POLL_INTERVAL_MS] }).not.toBe('waiting');
+    } catch {
+      const onScreen = await page.locator(TOAST).allInnerTexts();
+      const allSeen = Object.values(seen).flat();
+      let toastContext: string;
+      if (allSeen.length > 0) {
+        toastContext = `Toasts captured since watcher started: ${allSeen.join(' | ')}`;
+      } else if (onScreen.length > 0) {
+        toastContext = `Toasts on screen: ${onScreen.join(' | ')}`;
+      } else {
+        toastContext = 'No toasts seen or on screen.';
       }
+      throw new Error(
+        `Timed out after ${timeout}ms waiting for a new toast containing "${message}". ` +
+          toastContext +
+          `\nPage at timeout:\n${await pageSnapshot(page)}`,
+      );
+    }
 
-      if (Date.now() >= deadline) {
-        const onScreen = await page.locator(TOAST).allInnerTexts();
-        const allSeen = Object.values(seen).flat();
-        let toastContext: string;
-        if (allSeen.length > 0) {
-          toastContext = `Toasts captured since watcher started: ${allSeen.join(' | ')}`;
-        } else if (onScreen.length > 0) {
-          toastContext = `Toasts on screen: ${onScreen.join(' | ')}`;
-        } else {
-          toastContext = 'No toasts seen or on screen.';
-        }
-        throw new Error(
-          `Timed out after ${timeout}ms waiting for a new toast containing "${message}". ` +
-            toastContext +
-            `\nPage at timeout:\n${await pageSnapshot(page)}`,
-        );
-      }
-
-      await page.waitForTimeout(POLL_INTERVAL_MS);
+    if (state === 'error') {
+      throw new Error(
+        `Expected a success toast "${message}", but the app reported an error: ${(seen[ERROR_ATTR] ?? []).join(' | ')}`,
+      );
     }
   };
 

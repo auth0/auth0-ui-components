@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { env } from '../env';
+import { t } from '../lib/i18n';
 
 /**
  * The create wizard is three steps (select strategy → details → configure) driven by
@@ -33,6 +34,7 @@ export class SsoProviderCreatePage {
     await this.page.goto(routePath);
   }
 
+  // Strategy button names are hardcoded in the component (no translation key).
   get oidcStrategyButton(): Locator {
     return this.root.getByRole('button', { name: /Custom OIDC/i });
   }
@@ -42,35 +44,56 @@ export class SsoProviderCreatePage {
   }
 
   get oktaDomainInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Okta Domain' });
+    return this.root.getByRole('textbox', {
+      name: t('idp_management.create_sso_provider.provider_configure.fields.okta.domain.label'),
+    });
   }
 
   get nameInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Name', exact: true });
+    return this.root.getByRole('textbox', {
+      name: t('idp_management.create_sso_provider.provider_details.fields.name.label'),
+      exact: true,
+    });
   }
 
   get displayNameInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Display Name' });
+    return this.root.getByRole('textbox', {
+      name: t('idp_management.create_sso_provider.provider_details.fields.display_name.label'),
+    });
   }
 
   get nextButton(): Locator {
-    return this.root.getByRole('button', { name: 'Next' });
+    return this.root.getByRole('button', {
+      name: t('idp_management.create_sso_provider.nextButtonLabel'),
+    });
   }
 
   get discoveryUrlInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'OpenID Provider Configuration Endpoint' });
+    return this.root.getByRole('textbox', {
+      name: t(
+        'idp_management.create_sso_provider.provider_configure.fields.oidc.discovery_url.label',
+      ),
+    });
   }
 
   get clientIdInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Client ID' });
+    return this.root.getByRole('textbox', {
+      name: t('idp_management.create_sso_provider.provider_configure.fields.oidc.client_id.label'),
+    });
   }
 
   get clientSecretInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Client Secret' });
+    return this.root.getByRole('textbox', {
+      name: t(
+        'idp_management.create_sso_provider.provider_configure.fields.oidc.client_secret.label',
+      ),
+    });
   }
 
   get createProviderButton(): Locator {
-    return this.root.getByRole('button', { name: 'Create Provider' });
+    return this.root.getByRole('button', {
+      name: t('idp_management.create_sso_provider.completeButtonLabel'),
+    });
   }
 
   // Inline react-hook-form messages, collected only to explain a stuck step.
@@ -140,27 +163,31 @@ export class SsoProviderCreatePage {
 
     await this.createProviderButton.click();
 
-    const deadline = Date.now() + CREATE_TIMEOUT_MS;
+    const newErrors = async () =>
+      (await errorToast.allInnerTexts()).filter((text) => !preexistingErrors.includes(text));
+    const status = async () => {
+      if (new URL(this.page.url()).pathname.endsWith('/sso-providers')) return 'done';
+      return (await newErrors()).length > 0 ? 'error' : 'waiting';
+    };
 
-    for (;;) {
-      if (new URL(this.page.url()).pathname.endsWith('/sso-providers')) return;
-
-      const errors = (await errorToast.allInnerTexts()).filter(
-        (text) => !preexistingErrors.includes(text),
+    let outcome: string | undefined;
+    try {
+      await expect
+        .poll(async () => (outcome = await status()), {
+          timeout: CREATE_TIMEOUT_MS,
+          intervals: [200],
+        })
+        .not.toBe('waiting');
+    } catch {
+      const messages = await this.validationMessages();
+      throw new Error(
+        'SSO provider create did not navigate to the providers list' +
+          (messages.length > 0 ? `; form validation says: ${messages.join(' | ')}` : ''),
       );
-      if (errors.length > 0) {
-        throw new Error(`SSO provider create failed: ${errors.join(' | ')}`);
-      }
+    }
 
-      if (Date.now() > deadline) {
-        const messages = await this.validationMessages();
-        throw new Error(
-          'SSO provider create did not navigate to the providers list' +
-            (messages.length > 0 ? `; form validation says: ${messages.join(' | ')}` : ''),
-        );
-      }
-
-      await this.page.waitForTimeout(200);
+    if (outcome === 'error') {
+      throw new Error(`SSO provider create failed: ${(await newErrors()).join(' | ')}`);
     }
   }
 

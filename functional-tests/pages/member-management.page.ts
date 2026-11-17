@@ -110,6 +110,7 @@ export class MemberManagementPage {
     await this.clickMemberAction(row, this.removeFromOrganizationMenuItem);
   }
 
+  // The empty organizationName leaves "Remove Member from ", which still matches as a substring of the full title.
   get removeFromOrganizationDialog(): Locator {
     return this.page.getByRole('dialog', {
       name: t(`${NAMESPACE}.member.detail.actions.remove_from_organization.modal.title`, {

@@ -103,7 +103,7 @@ async function runAuth0Login(domain = null, clientId = null, clientSecret = null
       if (e.timedOut) {
         console.error("\n❌ Login timed out. Please try again.")
       } else {
-        console.error(`\n❌ Machine login failed: ${e.message}`)
+        console.error(`\n❌ Machine login failed (exit code ${e.exitCode ?? "unknown"}).`)
       }
       return false
     }

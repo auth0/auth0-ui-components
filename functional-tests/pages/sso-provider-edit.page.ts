@@ -14,12 +14,18 @@ export class SsoProviderEditPage {
   }
 
   get displayNameInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Display Name' });
+    return this.root.getByRole('textbox', {
+      name: t('idp_management.create_sso_provider.provider_details.fields.display_name.label'),
+    });
   }
 
   // GET never returns client_secret — must be retyped on every save.
   get clientSecretInput(): Locator {
-    return this.root.getByRole('textbox', { name: 'Client Secret' });
+    return this.root.getByRole('textbox', {
+      name: t(
+        'idp_management.create_sso_provider.provider_configure.fields.oidc.client_secret.label',
+      ),
+    });
   }
 
   get saveButton(): Locator {

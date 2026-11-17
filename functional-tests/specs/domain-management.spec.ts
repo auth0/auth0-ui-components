@@ -43,7 +43,7 @@ test.describe('Create domain', () => {
 });
 
 test.describe('Configure domain', () => {
-  test('enables and disables a provider for a verified domain', async ({
+  test('associates and removes a provider for a verified domain', async ({
     page,
     verifiedDomain,
   }) => {
@@ -67,28 +67,40 @@ test.describe('Configure domain', () => {
       await expect(row).toContainText(t('domain_management.shared.domain_statuses.verified'));
 
       await domainManagement.clickRowAction(row, domainManagement.configureMenuItem);
-      const providerSwitch = domainManagement.providerSwitch(domainName, providerDisplayName);
-      await expect(providerSwitch).toBeEnabled();
-      await expect(providerSwitch).not.toBeChecked();
+      const configureDialog = domainManagement.configureDialog(domainName);
+      await expect(domainManagement.providerSelect(domainName)).toBeEnabled();
 
-      const enableToasts = await watchToasts(page);
-      await providerSwitch.click();
-      await enableToasts.expectSuccess(`enabled for ${providerName} provider`);
-      await expect(providerSwitch).toBeChecked();
+      await domainManagement.selectProvider(domainName, providerDisplayName);
+      const associateToasts = await watchToasts(page);
+      await domainManagement.configureSaveButton(domainName).click();
+      await associateToasts.expectSuccess(
+        t('domain_management.domain_table.notifications.domain_associate_provider.success', {
+          domainName,
+          idp: providerName,
+        }),
+      );
+      await expect(configureDialog).toBeHidden();
 
+      // Reload so the association is read back from the API, not from the modal's local state.
       await page.reload();
       await domainManagement.clickRowAction(
         domainManagement.domainRow(domainName),
         domainManagement.configureMenuItem,
       );
-      await expect(domainManagement.providerSwitch(domainName, providerDisplayName)).toBeChecked();
+      const removeButton = domainManagement.removeProviderButton(domainName, providerDisplayName);
+      await expect(removeButton).toBeEnabled();
+      await expect(domainManagement.providerSelect(domainName)).toBeHidden();
 
-      const disableToasts = await watchToasts(page);
-      await domainManagement.providerSwitch(domainName, providerDisplayName).click();
-      await disableToasts.expectSuccess(`disabled for ${providerName} provider`);
-      await expect(
-        domainManagement.providerSwitch(domainName, providerDisplayName),
-      ).not.toBeChecked();
+      const removeToasts = await watchToasts(page);
+      await removeButton.click();
+      await removeToasts.expectSuccess(
+        t('domain_management.domain_table.notifications.domain_delete_provider.success', {
+          domainName,
+          idp: providerName,
+        }),
+      );
+      await expect(removeButton).toBeHidden();
+      await expect(domainManagement.providerSelect(domainName)).toBeVisible();
     } finally {
       await deleteSsoProvider(connectionId).catch(() => undefined);
     }

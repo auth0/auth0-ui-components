@@ -111,7 +111,7 @@ export async function checkDashboardClientChanges(
   )
 
   const initiateLoginUriNeedsUpdate =
-    featureConfig.enableMyOrg && clientToCheck.initiate_login_uri !== APP_LOGIN_URI
+    featureConfig.enableMyOrg && !clientToCheck.initiate_login_uri
 
   // Check refresh token policies based on enabled features
   let refreshTokenPoliciesNeedUpdate = false

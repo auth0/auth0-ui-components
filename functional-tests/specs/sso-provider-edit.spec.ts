@@ -4,11 +4,13 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { expect, test } from '../fixtures/auth.fixture';
 import { t } from '../lib/i18n';
 import {
+  connectionExists,
   deleteSsoProvider,
   findSsoConnectionIdByProviderName,
   getConnection,
   listOrgConnections,
 } from '../lib/management-api';
+import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
 import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
@@ -60,8 +62,12 @@ test.describe('Edit provider configuration', () => {
       t('idp_management.notifications.update_success', { providerName: originalDisplayName }),
     );
 
-    const connection = await getConnection(connectionId);
-    expect(connection.display_name).toBe(updatedDisplayName);
+    await expect
+      .poll(
+        pollRead(async () => (await getConnection(connectionId)).display_name, undefined),
+        { timeout: POLL_TIMEOUT_MS },
+      )
+      .toBe(updatedDisplayName);
   });
 });
 
@@ -84,7 +90,12 @@ test.describe('Delete provider', () => {
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.ssoProviders}$`));
     await expect(new SsoProviderTablePage(page).addProviderButton).toBeVisible();
-    await expect(getConnection(connectionId)).rejects.toThrow();
+    await expect
+      .poll(
+        pollRead(() => connectionExists(connectionId), true),
+        { timeout: POLL_TIMEOUT_MS },
+      )
+      .toBe(false);
   });
 });
 
@@ -107,14 +118,26 @@ test.describe('Remove provider from organization', () => {
     const ssoProviderEdit = new SsoProviderEditPage(page);
     await ssoProviderEdit.goto(reactSpaNpmApp.routes.ssoProviderEdit(connectionId));
 
-    const attachedBefore = await listOrgConnections(org.orgId);
-    expect(attachedBefore.map((c) => c.connection_id)).toContain(connectionId);
+    await expect
+      .poll(
+        pollRead(async () => {
+          const attached = await listOrgConnections(org.orgId);
+          return attached.some((c) => c.connection_id === connectionId);
+        }, false),
+        { timeout: POLL_TIMEOUT_MS },
+      )
+      .toBe(true);
 
     await ssoProviderEdit.openRemoveModal(name);
     const removeToasts = await watchToasts(page);
     await ssoProviderEdit.confirmRemove(name, org.orgName);
     // Match on the provider name only — the org display_name can be mutated by earlier tests in the same run.
-    await removeToasts.expectSuccess(`${displayName} has been removed from`);
+    await removeToasts.expectSuccess(
+      t('idp_management.notifications.remove_success', {
+        providerName: displayName,
+        organizationName: '',
+      }).trimEnd(),
+    );
 
     await expect(page).toHaveURL(new RegExp(`${reactSpaNpmApp.routes.ssoProviders}$`));
     await expect(new SsoProviderTablePage(page).addProviderButton).toBeVisible();
@@ -122,7 +145,14 @@ test.describe('Remove provider from organization', () => {
     const connection = await getConnection(connectionId);
     expect(connection.id).toBe(connectionId);
 
-    const attached = await listOrgConnections(org.orgId);
-    expect(attached.map((c) => c.connection_id)).not.toContain(connectionId);
+    await expect
+      .poll(
+        pollRead(async () => {
+          const attached = await listOrgConnections(org.orgId);
+          return attached.some((c) => c.connection_id === connectionId);
+        }, true),
+        { timeout: POLL_TIMEOUT_MS },
+      )
+      .toBe(false);
   });
 });

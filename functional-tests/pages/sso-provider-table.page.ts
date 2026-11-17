@@ -38,11 +38,12 @@ export class SsoProviderTablePage {
     });
   }
 
-  // The trigger has no label, but it is the row's only button, so matching by role is safe.
   clickEditAction(providerName: string): Promise<void> {
     return openMenuAndClick(
       this.page,
-      this.providerRow(providerName).getByRole('button'),
+      this.providerRow(providerName).getByRole('button', {
+        name: t('idp_management.sso_provider_table.table.actions.menu_label'),
+      }),
       this.editMenuItem,
     );
   }
