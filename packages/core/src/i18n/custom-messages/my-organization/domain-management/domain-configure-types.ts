@@ -9,6 +9,12 @@ import type { SharedMessages } from '../../shared/shared-types';
 export interface DomainConfigureMessages extends SharedMessages {
   title?: string;
   description?: string;
+  field?: {
+    label?: string;
+    placeholder?: string;
+  };
+  assigned_description?: string;
+  no_connection_status?: string;
   table?: {
     empty_message?: string;
     columns?: {
@@ -24,5 +30,8 @@ export interface DomainConfigureMessages extends SharedMessages {
   };
   actions?: {
     close_button_text?: string;
+    save_button_text?: string;
+    remove_button_text?: string;
+    remove_button_aria_label?: string;
   };
 }

@@ -18,6 +18,7 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 
 interface ErrorHandlerCallOptions {
   fallbackMessage?: string;
+  messagePrefix?: string;
 }
 
 /**
@@ -64,11 +65,13 @@ export function useErrorHandler() {
         }
       };
 
+      const message =
+        getCustomErrorMessage(error) ??
+        resolveErrorMessage(error, options.fallbackMessage ?? t('error.generic'));
+
       showToast({
         type: 'error',
-        message:
-          getCustomErrorMessage(error) ??
-          resolveErrorMessage(error, options.fallbackMessage ?? t('error.generic')),
+        message: options.messagePrefix ? `${options.messagePrefix} ${message}` : message,
       });
     },
     [t],
