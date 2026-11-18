@@ -65,6 +65,20 @@ describe('Auth0ComponentProvider (SPA)', () => {
     );
   });
 
+  it('should pass disableTokenRequestQueue to the core client', () => {
+    render(
+      <Auth0ComponentProvider disableTokenRequestQueue>
+        <div />
+      </Auth0ComponentProvider>,
+    );
+
+    expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        authDetails: expect.objectContaining({ disableTokenRequestQueue: true }),
+      }),
+    );
+  });
+
   it('should use authContext prop when provided', () => {
     const customAuthContext = {
       isAuthenticated: true,

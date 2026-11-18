@@ -38,6 +38,7 @@ export function createMyOrganizationClient(
         customFetcher: config.fetcher,
         telemetry,
         getComponent,
+        disableTokenRequestQueue: config.disableTokenRequestQueue,
       }),
     });
   }
