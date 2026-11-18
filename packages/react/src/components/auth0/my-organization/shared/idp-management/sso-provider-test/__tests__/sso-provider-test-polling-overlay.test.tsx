@@ -45,6 +45,16 @@ describe('SsoProviderTestPollingOverlay', () => {
     });
   });
 
+  describe('retryDisabled', () => {
+    describe('when true', () => {
+      it('should disable the retry button', () => {
+        renderWithProviders(<SsoProviderTestPollingOverlay open onRetry={vi.fn()} retryDisabled />);
+
+        expect(screen.getByRole('button', { name: 'retry_button_label' })).toBeDisabled();
+      });
+    });
+  });
+
   describe('onRetry', () => {
     describe('when the retry button is clicked', () => {
       it('should call onRetry', async () => {

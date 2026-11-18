@@ -22,6 +22,7 @@ export interface SsoProviderTestResultMessages extends SharedMessages {
   try_again_text?: string;
   expired_error?: string;
   timeout_error?: string;
+  provider_error?: string;
 }
 
 export interface SsoProviderTestMessages extends SharedMessages {

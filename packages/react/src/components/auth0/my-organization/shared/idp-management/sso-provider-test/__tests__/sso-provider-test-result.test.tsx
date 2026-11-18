@@ -1,13 +1,27 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoProviderTestResult } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result';
+import * as useTranslatorModule from '@/hooks/shared/use-translator';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
 const user = { email: 'bob@acme.corp', email_verified: true };
 
+const echoParamsTranslator = () =>
+  vi.spyOn(useTranslatorModule, 'useTranslator').mockReturnValue({
+    t: (key: string, params?: Record<string, unknown>) =>
+      params ? `${key}:${Object.values(params).join(',')}` : key,
+    changeLanguage: vi.fn(),
+    currentLanguage: 'en',
+    fallbackLanguage: 'en',
+  } as unknown as ReturnType<typeof useTranslatorModule.useTranslator>);
+
 describe('SsoProviderTestResult', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('state', () => {
     describe('when success', () => {
       it('should render the title, description and user profile', () => {
@@ -16,6 +30,12 @@ describe('SsoProviderTestResult', () => {
         expect(screen.getByText('success_title')).toBeInTheDocument();
         expect(screen.getByText('success_description')).toBeInTheDocument();
         expect(screen.getByText('"bob@acme.corp"')).toBeInTheDocument();
+      });
+
+      it('should be announced to screen readers', () => {
+        renderWithProviders(<SsoProviderTestResult state="success" user={user} />);
+
+        expect(screen.getByRole('status')).toHaveTextContent('success_title');
       });
 
       it('should render profile values as text, not markup', () => {
@@ -29,7 +49,8 @@ describe('SsoProviderTestResult', () => {
     });
 
     describe('when error from the provider', () => {
-      it('should render the provider message and try again text', () => {
+      it('should render the provider message through one translated string', () => {
+        echoParamsTranslator();
         renderWithProviders(
           <SsoProviderTestResult
             state="error"
@@ -39,18 +60,24 @@ describe('SsoProviderTestResult', () => {
         );
 
         expect(screen.getByRole('alert')).toHaveTextContent(
-          'The SAML responder could not process the request.',
+          'provider_error:The SAML responder could not process the request.',
         );
+      });
+
+      it('should render only the try again text without a provider message', () => {
+        renderWithProviders(<SsoProviderTestResult state="error" errorReason="provider" />);
+
         expect(screen.getByRole('alert')).toHaveTextContent('try_again_text');
       });
 
       it('should render the provider message as text, not markup', () => {
+        echoParamsTranslator();
         const { container } = renderWithProviders(
           <SsoProviderTestResult state="error" errorReason="provider" errorMessage="<b>bad</b>" />,
         );
 
         expect(container.querySelector('b')).toBeNull();
-        expect(screen.getByRole('alert')).toHaveTextContent('<b>bad</b>');
+        expect(screen.getByRole('alert')).toHaveTextContent('provider_error:<b>bad</b>');
       });
     });
 

@@ -321,6 +321,24 @@ describe('useSsoProviderTest', () => {
     });
   });
 
+  describe('retry while starting', () => {
+    it('should ignore the retry', async () => {
+      startTest.mockReturnValue(new Promise(() => {}));
+      const { result } = renderHook(() => useSsoProviderTest(idpId));
+      act(() => {
+        void result.current.start();
+      });
+      expect(result.current.state).toBe('starting');
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      expect(startTest).toHaveBeenCalledTimes(1);
+      expect(openSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('cancel', () => {
     it('should close the window and return to idle', async () => {
       const { result } = await startTestRun();

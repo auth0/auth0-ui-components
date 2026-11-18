@@ -1141,8 +1141,9 @@
         "success_description": "Please review the user information below and confirm that the correct attributes are being passed.",
         "copy_button_label": "Copy JSON",
         "try_again_text": "Please try again.",
-        "expired_error": "The test expired before it completed.",
-        "timeout_error": "The test timed out before sign-in completed."
+        "expired_error": "The test expired before it completed. Please try again.",
+        "timeout_error": "The test timed out before sign-in completed. Please try again.",
+        "provider_error": "${message} Please try again."
       }
     },
     "notifications": {

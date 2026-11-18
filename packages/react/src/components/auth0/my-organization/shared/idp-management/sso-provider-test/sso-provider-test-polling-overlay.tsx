@@ -18,6 +18,8 @@ const preventDismiss = (event: Event) => event.preventDefault();
  * @param props - Component props.
  * @param props.open - Whether the overlay is shown.
  * @param props.onRetry - Called when Close and Retry is clicked.
+ * @param props.retryDisabled - Disables Close and Retry (while the test is still starting).
+ * @param props.onCloseAutoFocus - Called when the overlay closes; used to restore focus to the trigger.
  * @param props.blockedTestUrl - Test URL shown as a link when the browser blocked the test window.
  * @param props.customMessages - Custom translation messages to override defaults.
  * @param props.styling - Styling configuration.
@@ -26,6 +28,8 @@ const preventDismiss = (event: Event) => event.preventDefault();
 export function SsoProviderTestPollingOverlay({
   open,
   onRetry,
+  retryDisabled = false,
+  onCloseAutoFocus,
   blockedTestUrl,
   customMessages = {},
   styling,
@@ -39,6 +43,7 @@ export function SsoProviderTestPollingOverlay({
         onEscapeKeyDown={preventDismiss}
         onPointerDownOutside={preventDismiss}
         onInteractOutside={preventDismiss}
+        onCloseAutoFocus={onCloseAutoFocus}
         className={cn(
           'flex flex-col items-center gap-6 text-center',
           styling?.classes?.['SsoProviderTest-overlay'],
@@ -65,7 +70,7 @@ export function SsoProviderTestPollingOverlay({
 
         <div className="flex flex-col items-center gap-3">
           <p className="text-subtitle font-semibold">{t('trouble_text')}</p>
-          <Button type="button" variant="outline" onClick={onRetry}>
+          <Button type="button" variant="outline" onClick={onRetry} disabled={retryDisabled}>
             {t('retry_button_label')}
           </Button>
         </div>
