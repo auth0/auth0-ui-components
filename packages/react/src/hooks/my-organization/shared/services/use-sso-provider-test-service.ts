@@ -19,18 +19,18 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePollUntil } from '@/hooks/shared/use-poll-until';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  SSO_PROVIDER_TEST_FATAL_POLL_STATUSES,
+  SSO_PROVIDER_TEST_MAX_POLL_ATTEMPTS,
+  SSO_PROVIDER_TEST_MAX_POLL_DURATION_MS,
+  SSO_PROVIDER_TEST_POLL_INTERVAL_MS,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   SsoProviderTestPoll,
   UseSsoProviderTestServiceOptions,
   UseSsoProviderTestServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
-
-/** Poll errors that end the test: missing scope, or a test that expired or never existed. */
-const FATAL_POLL_STATUSES = new Set([403, 404]);
-const POLL_INTERVAL_MS = 5_000;
-const MAX_POLL_ATTEMPTS = 120;
-const MAX_POLL_DURATION_MS = 600_000;
 
 type PollOutcome = Pick<SsoProviderTestPoll, 'data' | 'error' | 'timedOut'> & {
   testId: IdpTestId | null;
@@ -92,13 +92,16 @@ export function useSsoProviderTestService(
           .getMyOrganizationApiClient()
           .organization.identityProviders.tests.get(idpId, testId!, { abortSignal: signal });
       } catch (error) {
-        if (FATAL_POLL_STATUSES.has(getStatusCode(error) ?? 0)) throw error;
+        if (SSO_PROVIDER_TEST_FATAL_POLL_STATUSES.has(getStatusCode(error) ?? 0)) throw error;
         return null;
       }
     },
     isDone: (data) => data !== null && data.status !== 'in_progress',
     getInterval: ({ elapsedMs, attempts }) =>
-      attempts >= MAX_POLL_ATTEMPTS || elapsedMs >= MAX_POLL_DURATION_MS ? false : POLL_INTERVAL_MS,
+      attempts >= SSO_PROVIDER_TEST_MAX_POLL_ATTEMPTS ||
+      elapsedMs >= SSO_PROVIDER_TEST_MAX_POLL_DURATION_MS
+        ? false
+        : SSO_PROVIDER_TEST_POLL_INTERVAL_MS,
     onDone: (data) => setOutcome({ ...emptyOutcome(testId), data: data ?? undefined }),
     onError: (error) => setOutcome({ ...emptyOutcome(testId), error }),
     onExhausted: () => setOutcome({ ...emptyOutcome(testId), timedOut: true }),

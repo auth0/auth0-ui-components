@@ -9,36 +9,25 @@ import { getStatusCode, type IdpId, type IdpTestId } from '@auth0/universal-comp
 import { useCallback, useRef, useState } from 'react';
 
 import { useSsoProviderTestService } from '@/hooks/my-organization/shared/services/use-sso-provider-test-service';
+import {
+  errorReasonForStatus,
+  getPopupFeatures,
+  isHttpsUrl,
+} from '@/lib/utils/my-organization/idp-management/sso-provider-test-utils';
 import type {
   SsoProviderTestErrorReason,
+  SsoProviderTestPhase,
   SsoProviderTestState,
   UseSsoProviderTestOptions,
   UseSsoProviderTestReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
-type Phase = 'idle' | 'starting' | 'polling';
-
-const POPUP_WIDTH = 500;
-const POPUP_HEIGHT = 700;
-
-/**
- * Builds the `window.open` features string. Browsers only open a popup window
- * (instead of a tab) when explicit size features are supplied.
- * @returns Comma-separated features string that centers the popup on the parent window.
- */
-const getPopupFeatures = (): string => {
-  const left = Math.max(0, Math.round(window.screenX + (window.outerWidth - POPUP_WIDTH) / 2));
-  const top = Math.max(0, Math.round(window.screenY + (window.outerHeight - POPUP_HEIGHT) / 2));
-  return `popup=yes,width=${POPUP_WIDTH},height=${POPUP_HEIGHT},left=${left},top=${top}`;
-};
-
-const errorReasonForStatus = (status: number | undefined): SsoProviderTestErrorReason =>
-  status === 403 ? 'forbidden' : 'expired';
-
 /**
  * Runs identity provider tests for one provider.
  * `start` and `retry` must be called from a click: the test window is opened
  * synchronously so browsers do not block it.
+ * Closing the test window does not stop polling (it runs until the result or
+ * timeout), so the UI must offer `cancel`.
  * @param idpId - Identity provider to test.
  * @param options - {@link UseSsoProviderTestOptions}
  * @returns The test state, its result, and `start` / `retry` / `cancel` handlers.
@@ -47,10 +36,11 @@ export function useSsoProviderTest(
   idpId: IdpId,
   { customMessages = {} }: UseSsoProviderTestOptions = {},
 ): UseSsoProviderTestReturn {
-  const [phase, setPhase] = useState<Phase>('idle');
+  const [phase, setPhase] = useState<SsoProviderTestPhase>('idle');
   const [testId, setTestId] = useState<IdpTestId | null>(null);
   const [blockedTestUrl, setBlockedTestUrl] = useState<string | null>(null);
   const testWindowRef = useRef<Window | null>(null);
+  const runIdRef = useRef(0);
 
   const { startTest, poll } = useSsoProviderTestService(
     idpId,
@@ -65,6 +55,8 @@ export function useSsoProviderTest(
   }, []);
 
   const start = useCallback(async () => {
+    const runId = ++runIdRef.current;
+    closeTestWindow();
     const testWindow = window.open('', '_blank', getPopupFeatures());
     testWindowRef.current = testWindow;
     setPhase('starting');
@@ -72,7 +64,9 @@ export function useSsoProviderTest(
     setBlockedTestUrl(null);
 
     const created = await startTest();
-    if (!created) {
+    if (runId !== runIdRef.current) return;
+
+    if (!created || !isHttpsUrl(created.test_url)) {
       closeTestWindow();
       setPhase('idle');
       return;
@@ -94,6 +88,7 @@ export function useSsoProviderTest(
   }, [closeTestWindow, start]);
 
   const cancel = useCallback(() => {
+    runIdRef.current++;
     closeTestWindow();
     setPhase('idle');
     setTestId(null);
