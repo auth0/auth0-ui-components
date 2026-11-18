@@ -11,6 +11,7 @@ import {
   type CreateOrganizationDomainRequestContent,
   BusinessError,
   domainQueryKeys,
+  ssoProviderQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -153,7 +154,11 @@ export function useDomainTableService({
     },
     onSuccess: (_, { domain, provider }) => {
       associateToProviderAction?.onAfter?.(domain, provider);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) }),
+        provider.id &&
+          queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
+      ]);
     },
   });
 
@@ -171,7 +176,11 @@ export function useDomainTableService({
     },
     onSuccess: (_, { domain, provider }) => {
       deleteFromProviderAction?.onAfter?.(domain, provider);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) }),
+        provider.id &&
+          queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
+      ]);
     },
   });
 

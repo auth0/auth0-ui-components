@@ -28,7 +28,6 @@ export const createMockUseIdpConfig = (
   isIdpConfigValid: true,
   fetchIdpConfig: vi.fn(async () => undefined),
   isProvisioningEnabled: vi.fn(() => false),
-  isProvisioningMethodEnabled: vi.fn(() => false),
   getScimTokenConfig: vi.fn(() => undefined),
   showCrossAppAccess: vi.fn(() => false),
   isCrossAppAccessReadOnly: vi.fn(() => true),

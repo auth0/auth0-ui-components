@@ -23,3 +23,6 @@ export type IdpScimTokenConfig =
   MyOrganization.IdentityProvidersConfigProvisioningConfigurationScimTokens;
 export type IdpScimTokenScope =
   MyOrganization.IdentityProvidersConfigProvisioningConfigurationScimTokensScopesEnum;
+export type DirectoryProvisioningConfig = MyOrganization.DirectoryProvisioningConfig;
+export type DirectoryProvisioningConsentStatus =
+  MyOrganization.DirectoryProvisioningConsentStatusEnum;
