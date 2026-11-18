@@ -25,6 +25,9 @@ export type SsoProviderTestState =
   | 'error'
   | 'timeout';
 
+/** Internal phase of the test hook, before a result is derived from polling. */
+export type SsoProviderTestPhase = Extract<SsoProviderTestState, 'idle' | 'starting' | 'polling'>;
+
 /**
  * Why a test ended in `error`:
  * - `provider`: the identity provider returned an error (see `errorMessage`).
