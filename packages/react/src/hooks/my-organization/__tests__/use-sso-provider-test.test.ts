@@ -1,10 +1,9 @@
-import type { GetIdpTestResponseContent } from '@auth0/universal-components-core';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useSsoProviderTestService } from '@/hooks/my-organization/shared/services/use-sso-provider-test-service';
 import { useSsoProviderTest } from '@/hooks/my-organization/use-sso-provider-test';
-import type { UsePollUntilReturn } from '@/types/poll-types';
+import type { SsoProviderTestPoll } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-test-service');
 
@@ -20,12 +19,9 @@ const created = {
   expires_at: '2026-11-03T05:00:00.000Z',
 };
 
-const createPoll = (
-  overrides: Partial<UsePollUntilReturn<GetIdpTestResponseContent>> = {},
-): UsePollUntilReturn<GetIdpTestResponseContent> => ({
+const createPoll = (overrides: Partial<SsoProviderTestPoll> = {}): SsoProviderTestPoll => ({
   data: undefined,
   error: null,
-  attempts: 0,
   isPolling: true,
   timedOut: false,
   stop: vi.fn(),

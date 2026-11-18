@@ -108,7 +108,11 @@ describe('useSsoProviderTestService', () => {
       it('should fetch the test result', async () => {
         renderService(testId);
 
-        await waitFor(() => expect(mockGet).toHaveBeenCalledWith(idpId, testId));
+        await waitFor(() =>
+          expect(mockGet).toHaveBeenCalledWith(idpId, testId, {
+            abortSignal: expect.any(AbortSignal),
+          }),
+        );
       });
     });
 
@@ -134,12 +138,31 @@ describe('useSsoProviderTestService', () => {
     });
 
     describe('when polling fails with 401', () => {
-      it('should keep polling', async () => {
+      it('should keep polling without reporting an error', async () => {
         mockGet.mockRejectedValue({ status: 401 });
         const { result } = renderService(testId);
 
-        await waitFor(() => expect(result.current.poll.error).toEqual({ status: 401 }));
+        await waitFor(() => expect(mockGet).toHaveBeenCalled());
         expect(result.current.poll.isPolling).toBe(true);
+        expect(result.current.poll.error).toBeNull();
+      });
+    });
+
+    describe('when the attempt cap is reached', () => {
+      it('should stop polling and report a timeout', async () => {
+        vi.useFakeTimers();
+        try {
+          const { result } = renderService(testId);
+
+          await act(async () => {
+            await vi.advanceTimersByTimeAsync(600_000);
+          });
+
+          expect(result.current.poll.timedOut).toBe(true);
+          expect(result.current.poll.isPolling).toBe(false);
+        } finally {
+          vi.useRealTimers();
+        }
       });
     });
   });

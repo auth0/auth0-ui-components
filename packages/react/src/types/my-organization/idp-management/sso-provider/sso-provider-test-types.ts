@@ -16,8 +16,6 @@ import type {
 } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
-import type { UsePollUntilReturn } from '@/types/poll-types';
-
 /** Lifecycle of a provider test. */
 export type SsoProviderTestState =
   | 'idle'
@@ -47,11 +45,23 @@ export interface UseSsoProviderTestServiceOptions {
   customMessages?: Partial<SsoProviderNotificationMessages>;
 }
 
+/**
+ * Poll state for the current test. `error` is set only by a fatal (403 or 404) error;
+ * `timedOut` is set when the attempt or duration cap is reached.
+ */
+export interface SsoProviderTestPoll {
+  data: GetIdpTestResponseContent | undefined;
+  error: unknown;
+  isPolling: boolean;
+  timedOut: boolean;
+  stop: () => void;
+}
+
 /** Return value of useSsoProviderTestService. */
 export interface UseSsoProviderTestServiceReturn {
   startTest: () => Promise<CreateIdpTestResponseContent | null>;
   isStarting: boolean;
-  poll: UsePollUntilReturn<GetIdpTestResponseContent>;
+  poll: SsoProviderTestPoll;
 }
 
 /** Options for useSsoProviderTest. */
