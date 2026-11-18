@@ -41,7 +41,23 @@ describe('createProvisioningCreateTokenSchema', () => {
   });
 
   it('should ignore an invalid lifetime when no expiration is checked', () => {
-    expect(firstError(bounded, { noExpiration: true, tokenLifetime: '5' })).toBeUndefined();
+    expect(firstError(open, { noExpiration: true, tokenLifetime: '5' })).toBeUndefined();
+  });
+
+  it('should reject no expiration when the profile sets a max expiry', () => {
+    expect(firstError(bounded, { noExpiration: true })).toBe('max');
+  });
+
+  it('should reject scopes not allowed by the profile', () => {
+    expect(firstError(bounded, { scopes: ['get:users', 'delete:users'] })).toBeDefined();
+    expect(
+      firstError(bounded, { tokenLifetime: '500000', scopes: ['post:users'] }),
+    ).toBeUndefined();
+  });
+
+  it('should reject a lifetime that is not a safe integer', () => {
+    expect(firstError(open, { tokenLifetime: '9'.repeat(309) })).toBe('integer');
+    expect(firstError(open, { tokenLifetime: '9007199254740993' })).toBe('integer');
   });
 
   it('should require a lifetime when the profile has no default and no max', () => {

@@ -123,30 +123,32 @@ export function ProvisioningCreateTokenForm({
             <FormLabel className="text-label font-medium text-foreground">
               {t('scopes.label')}
             </FormLabel>
-            <div className="grid grid-cols-2 gap-3">
-              {rules.allowedScopes.map((scope) => {
-                const id = `scim-token-scope-${scope.replace(':', '-')}`;
-                const checked = field.value.includes(scope);
-                return (
-                  <div key={scope} className="flex items-center gap-2">
-                    <Checkbox
-                      id={id}
-                      checked={checked}
-                      onCheckedChange={(next) =>
-                        field.onChange(
-                          next === true
-                            ? [...field.value, scope]
-                            : field.value.filter((value) => value !== scope),
-                        )
-                      }
-                    />
-                    <Label htmlFor={id} className="text-sm font-normal text-foreground">
-                      {scope}
-                    </Label>
-                  </div>
-                );
-              })}
-            </div>
+            <FormControl>
+              <div role="group" aria-label={t('scopes.label')} className="grid grid-cols-2 gap-3">
+                {rules.allowedScopes.map((scope) => {
+                  const id = `scim-token-scope-${scope.replace(':', '-')}`;
+                  const checked = field.value.includes(scope);
+                  return (
+                    <div key={scope} className="flex items-center gap-2">
+                      <Checkbox
+                        id={id}
+                        checked={checked}
+                        onCheckedChange={(next) =>
+                          field.onChange(
+                            next === true
+                              ? [...field.value, scope]
+                              : field.value.filter((value) => value !== scope),
+                          )
+                        }
+                      />
+                      <Label htmlFor={id} className="text-sm font-normal text-foreground">
+                        {scope}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            </FormControl>
             <FormMessage className="text-left text-paragraph" role="alert" />
             <FormDescription className="text-paragraph font-normal text-left">
               {t('scopes.helper_text')}

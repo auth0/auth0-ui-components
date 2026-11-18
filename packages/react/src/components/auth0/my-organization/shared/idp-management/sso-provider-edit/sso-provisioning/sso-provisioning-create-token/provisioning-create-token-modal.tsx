@@ -78,15 +78,14 @@ export function ProvisioningCreateTokenModal({
 
   const hasToken = !!createdToken;
   const { reset } = form;
+  const { isSubmitting } = form.formState;
+  const hasScope = form.watch('scopes').length > 0;
+
   React.useEffect(() => {
     if (open && !hasToken) {
       reset(SsoProvisioningMappers.getCreateTokenFormDefaults(rules));
     }
   }, [open, hasToken, rules, reset]);
-
-  const hasScope = form.watch('scopes').length > 0;
-
-  const { isSubmitting } = form.formState;
 
   const submit = async () => {
     if (isLoading || isSubmitting || !hasScope) return;

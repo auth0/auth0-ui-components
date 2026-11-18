@@ -33,18 +33,23 @@ export const createProvisioningCreateTokenSchema = (
       tokenLifetime: z.string().trim(),
       scopes: z
         .array(
-          z.custom<IdpScimTokenScope>((value) =>
-            ALL_SCIM_TOKEN_SCOPES.includes(value as IdpScimTokenScope),
+          z.custom<IdpScimTokenScope>(
+            (value) =>
+              ALL_SCIM_TOKEN_SCOPES.includes(value as IdpScimTokenScope) &&
+              rules.allowedScopes.includes(value as IdpScimTokenScope),
           ),
         )
         .min(1, messages.scopesRequired)
         .max(ALL_SCIM_TOKEN_SCOPES.length),
     })
     .superRefine((values, ctx) => {
-      if (values.noExpiration) return;
-
       const addError = (message: string) =>
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['tokenLifetime'], message });
+
+      if (values.noExpiration) {
+        if (rules.maxAllowedExpiry !== null) addError(messages.max);
+        return;
+      }
 
       if (values.tokenLifetime === '') {
         const hasApiDefault = rules.defaultExpiry !== null || rules.maxAllowedExpiry !== null;
@@ -57,6 +62,10 @@ export const createProvisioningCreateTokenSchema = (
       }
 
       const lifetime = Number(values.tokenLifetime);
+      if (!Number.isSafeInteger(lifetime)) {
+        addError(messages.integer);
+        return;
+      }
       if (lifetime <= SCIM_TOKEN_MIN_LIFETIME_SECONDS) {
         addError(messages.min);
         return;

@@ -3,23 +3,14 @@ import {
   type IdpScimTokenConfig,
   type ProvisioningCreateTokenFormValues,
 } from '@auth0/universal-components-core';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import { ProvisioningCreateTokenForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-form';
 import { Form } from '@/components/ui/form';
-import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
-
-vi.mock('@/hooks/shared/use-translator', () => ({
-  useTranslator: () => ({
-    t: createMockI18nService().translator('manage_tokens.create_modal.fields'),
-    changeLanguage: vi.fn(),
-    currentLanguage: 'en',
-    fallbackLanguage: 'en',
-  }),
-}));
+import { renderWithProviders } from '@/tests/utils/test-provider';
 
 function Harness({ config }: { config?: IdpScimTokenConfig }) {
   const rules = SsoProvisioningMappers.getCreateTokenFormRules(config);
@@ -41,7 +32,7 @@ const bounded = {
 
 describe('ProvisioningCreateTokenForm', () => {
   it('checks no expiration and hides the lifetime field by default', () => {
-    render(<Harness />);
+    renderWithProviders(<Harness />);
 
     expect(screen.getByRole('checkbox', { name: 'no_expiration.label' })).toHaveAttribute(
       'aria-checked',
@@ -51,17 +42,19 @@ describe('ProvisioningCreateTokenForm', () => {
   });
 
   it('offers no expiration only when the profile has no max_allowed_expiry', () => {
-    const { unmount } = render(<Harness config={{ ...bounded, max_allowed_expiry: undefined }} />);
+    const { unmount } = renderWithProviders(
+      <Harness config={{ ...bounded, max_allowed_expiry: undefined }} />,
+    );
     expect(screen.getByRole('checkbox', { name: 'no_expiration.label' })).toBeInTheDocument();
     unmount();
 
-    render(<Harness config={bounded} />);
+    renderWithProviders(<Harness config={bounded} />);
     expect(screen.queryByRole('checkbox', { name: 'no_expiration.label' })).not.toBeInTheDocument();
   });
 
   it('shows the lifetime field and helpers when no expiration is cleared', async () => {
     const user = userEvent.setup();
-    render(<Harness />);
+    renderWithProviders(<Harness />);
 
     await user.click(screen.getByRole('checkbox', { name: 'no_expiration.label' }));
 
@@ -70,7 +63,7 @@ describe('ProvisioningCreateTokenForm', () => {
   });
 
   it('pre-fills the profile default and shows default and max helpers', () => {
-    render(<Harness config={bounded} />);
+    renderWithProviders(<Harness config={bounded} />);
 
     expect(screen.getByRole('textbox', { name: 'token_lifetime.label' })).toHaveValue('432000');
     expect(screen.getByText('token_lifetime.helper_default')).toBeInTheDocument();
@@ -80,7 +73,7 @@ describe('ProvisioningCreateTokenForm', () => {
 
   it('shows the profile scopes, all checked and selectable', async () => {
     const user = userEvent.setup();
-    render(<Harness config={bounded} />);
+    renderWithProviders(<Harness config={bounded} />);
 
     const getUsers = screen.getByRole('checkbox', { name: 'get:users' });
     expect(getUsers).toHaveAttribute('aria-checked', 'true');
@@ -97,7 +90,7 @@ describe('ProvisioningCreateTokenForm', () => {
   });
 
   it('shows all 5 scopes when the profile sets no scope list', () => {
-    render(<Harness />);
+    renderWithProviders(<Harness />);
 
     for (const scope of ['get:users', 'post:users', 'put:users', 'patch:users', 'delete:users']) {
       expect(screen.getByRole('checkbox', { name: scope })).toBeInTheDocument();
