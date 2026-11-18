@@ -54,6 +54,25 @@ describe('Auth0ComponentProvider', () => {
     expect(screen.getByText('Test Content')).toBeInTheDocument();
   });
 
+  it('should pass disableTokenRequestQueue to the core client', () => {
+    render(
+      <Auth0ComponentProvider
+        domain="test.auth0.com"
+        mode="proxy"
+        proxyConfig={{ baseUrl: '/api/auth' }}
+        disableTokenRequestQueue
+      >
+        <div />
+      </Auth0ComponentProvider>,
+    );
+
+    expect(mockUseCoreClientInitialization).toHaveBeenCalledWith(
+      expect.objectContaining({
+        authDetails: expect.objectContaining({ disableTokenRequestQueue: true }),
+      }),
+    );
+  });
+
   it('should render ThemeProvider', () => {
     render(
       <Auth0ComponentProvider
