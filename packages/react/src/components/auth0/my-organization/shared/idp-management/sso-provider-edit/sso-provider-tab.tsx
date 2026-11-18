@@ -67,6 +67,7 @@ export function SsoProviderTab({
   isOrganizationBlocked = false,
   connectionNamePrefix,
   resolveSamlMetadata,
+  showSignRequest,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -115,16 +116,17 @@ export function SsoProviderTab({
               isOrganizationBlocked={isOrganizationBlocked}
               connectionNamePrefix={connectionNamePrefix}
               resolveSamlMetadata={resolveSamlMetadata}
+              showSignRequest={showSignRequest}
             />
           )}
         </CardContent>
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && !hideRemoveFromOrganization && (
+        {provider && organization?.name && !hideRemoveFromOrganization && (
           <SsoProviderRemoveFromOrganization
             provider={provider}
-            organizationName={organization?.name}
+            organizationName={organization.name}
             onRemove={onRemove}
             isLoading={isRemoving}
             readOnly={!permissions.canDetachProvider}

@@ -92,6 +92,8 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
@@ -195,6 +197,7 @@ export interface SsoProviderEditViewProps
       | 'enableProviderAction'
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'
+      | 'showSignRequest'
     > {
   showProvisioningTab: boolean;
 }

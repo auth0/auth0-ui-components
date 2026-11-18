@@ -3,6 +3,7 @@ import { vi } from 'vitest';
 
 import { createMockAuth } from '@/tests/utils/__mocks__/core/auth.mocks';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
+import { createMockUserOrganizationsPage } from '@/tests/utils/__mocks__/my-account/organization-management/organization-table.mocks';
 import {
   createMockAvailableFactors,
   createMockEmptyAuthenticationMethods,
@@ -30,6 +31,10 @@ const createMockMyAccountApiService = (): CoreClientInterface['myAccountApiClien
     mfa: {
       fetchFactors: vi.fn().mockResolvedValue([]),
     },
+    organizations: {
+      list: vi.fn().mockResolvedValue(createMockUserOrganizationsPage([])),
+      create: vi.fn().mockResolvedValue({ id: 'org_new123', name: 'new-org' }),
+    },
   } as unknown as NonNullable<CoreClientInterface['myAccountApiClient']>;
   return service;
 };
@@ -44,6 +49,7 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
       update: vi.fn().mockResolvedValue(mockOrganization),
     },
     organization: {
+      delete: vi.fn().mockResolvedValue(undefined),
       identityProviders: {
         list: vi.fn().mockResolvedValue({ identity_providers: [mockProvider] }),
         get: vi.fn().mockResolvedValue(mockProvider),
