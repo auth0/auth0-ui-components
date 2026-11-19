@@ -100,9 +100,9 @@ export function DomainConfigureProvidersModal({
         {assignedProviders.map((provider) => (
           <li
             key={provider.id ?? provider.name}
-            className="flex items-center justify-between gap-4 rounded-2xl border bg-background px-6 py-4 shadow-sm"
+            className="flex items-center justify-between gap-4 rounded-2xl border border-(--color-border) bg-background px-6 py-4 shadow-sm"
           >
-            <span className="text-paragraph font-medium truncate">
+            <span className="text-paragraph font-medium truncate text-foreground">
               {getProviderLabel(provider)}
             </span>
             <div className="flex items-center gap-2 shrink-0">

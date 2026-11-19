@@ -4,10 +4,11 @@
  * @internal
  */
 
-import type { PingFederateConfigureFormValues } from '@auth0/universal-components-core';
+import { STRATEGIES, type PingFederateConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
@@ -33,7 +34,22 @@ export const PingFederateProviderForm = React.forwardRef<
   PingFederateConfigureFormHandle,
   PingFederateConfigureFormProps
 >(function PingFederateProviderForm(
-  { initialData, readOnly = false, customMessages = {}, className, onFormDirty, idpConfig },
+  {
+    initialData,
+    readOnly = false,
+    customMessages = {},
+    className,
+    onFormDirty,
+    idpConfig,
+    mode = 'create',
+    showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
+    styling,
+  },
   ref,
 ) {
   const pingFederateData = initialData as PingFederateConfigureFormValues | undefined;
@@ -49,6 +65,13 @@ export const PingFederateProviderForm = React.forwardRef<
       digestAlgorithm: pingFederateData?.digestAlgorithm || 'sha256',
       show_as_button: pingFederateData?.show_as_button ?? false,
       assign_membership_on_login: pingFederateData?.assign_membership_on_login ?? false,
+      ...getConnectionAccessDefaults(
+        pingFederateData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+        showThirdPartyAccess,
+      ),
     },
   });
 
@@ -84,6 +107,13 @@ export const PingFederateProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={readOnly}
           customMessages={customMessages}
+          strategy={STRATEGIES.PINGFEDERATE}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
       </div>
     </Form>

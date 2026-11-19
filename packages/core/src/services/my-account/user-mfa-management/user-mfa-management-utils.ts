@@ -54,10 +54,6 @@ export function buildEnrollParams(
       };
     case FACTOR_TYPE_TOTP:
       return { type: FACTOR_TYPE_TOTP };
-    case FACTOR_TYPE_WEBAUTHN_ROAMING:
-      return { type: FACTOR_TYPE_WEBAUTHN_ROAMING };
-    case FACTOR_TYPE_WEBAUTHN_PLATFORM:
-      return { type: FACTOR_TYPE_WEBAUTHN_PLATFORM };
     case FACTOR_TYPE_RECOVERY_CODE:
       return { type: FACTOR_TYPE_RECOVERY_CODE };
     case FACTOR_TYPE_PUSH_NOTIFICATION:
