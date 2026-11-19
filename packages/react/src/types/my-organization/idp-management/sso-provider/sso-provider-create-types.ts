@@ -130,6 +130,7 @@ export interface ProviderConfigureFieldsProps
    * Automatic / Manual tabs (guided setup).
    */
   connectionSourceSelector?: 'radio' | 'tabs';
+  showServiceProviderFields?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;

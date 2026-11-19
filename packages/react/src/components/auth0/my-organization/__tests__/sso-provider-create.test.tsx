@@ -611,6 +611,22 @@ describe('SsoProviderCreate', () => {
       expect(domainInput()).toHaveValue('acme.okta.com');
     });
 
+    it('leaves the SAML service provider values out of the guided form', async () => {
+      const user = userEvent.setup();
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user, 'Custom SAML');
+      expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
+
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      for (const field of ['callback_url', 'acs_url', 'sp_metadata_url', 'sp_issuer_urn']) {
+        expect(screen.queryByText(`fields.samlp.${field}.label`)).not.toBeInTheDocument();
+      }
+    });
+
     describe('with deprecated instructions', () => {
       beforeEach(() => {
         const { identityProviderInstructions } =
