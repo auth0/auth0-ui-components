@@ -15,17 +15,15 @@ import type { InstructionContentProps } from '@/types/my-organization/idp-manage
 interface CopyValueDefinition {
   value: keyof ServiceProviderValues;
   messageKey: string;
-  hasHelperText?: boolean;
 }
 
 /** Copy-value content types and the value each one shows. */
 export const COPY_VALUE_CONTENT_TYPES: Record<string, CopyValueDefinition> = {
-  callback_url_component: { value: 'callbackUrl', messageKey: 'callback_url', hasHelperText: true },
-  sso_url_component: { value: 'samlSsoUrl', messageKey: 'sso_url', hasHelperText: true },
+  callback_url_component: { value: 'callbackUrl', messageKey: 'callback_url' },
+  sso_url_component: { value: 'samlSsoUrl', messageKey: 'sso_url' },
   service_provider_entity_id_component: {
     value: 'serviceProviderEntityId',
     messageKey: 'service_provider_entity_id',
-    hasHelperText: true,
   },
   adfs_relying_party_ws_federation_passive_protocol_url_component: {
     value: 'adfsWsFederationUrl',
@@ -74,9 +72,6 @@ export function InstructionCopyValue({ content }: InstructionContentProps) {
       id={content.key}
       value={values[definition.value]}
       label={t(`copy_values.${definition.messageKey}.label`)}
-      helperText={
-        definition.hasHelperText ? t(`copy_values.${definition.messageKey}.helper_text`) : undefined
-      }
     />
   );
 }
