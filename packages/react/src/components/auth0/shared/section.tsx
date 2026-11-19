@@ -124,26 +124,31 @@ export function Section({
     );
   };
 
+  const hasActions = Boolean(actions && actions.length > 0);
+  const hasHeader = Boolean(title || description || hasActions);
+
   return (
     <div className={cn('space-y-6', className)}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col min-w-0 flex-1 space-y-2">
-          {title && (
-            <h3 className={cn('text-foreground text-subtitle font-semibold mb-1 text-left')}>
-              {title}
-            </h3>
-          )}
-          {description && (
-            <p className={cn('text-muted-foreground text-left text-paragraph')}>{description}</p>
+      {hasHeader && (
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col min-w-0 flex-1 space-y-2">
+            {title && (
+              <h3 className={cn('text-foreground text-subtitle font-semibold mb-1 text-left')}>
+                {title}
+              </h3>
+            )}
+            {description && (
+              <p className={cn('text-muted-foreground text-left text-paragraph')}>{description}</p>
+            )}
+          </div>
+
+          {hasActions && (
+            <div className="flex-shrink-0 flex items-start gap-2 mt-1">
+              {actions?.map(renderAction)}
+            </div>
           )}
         </div>
-
-        {actions && actions.length > 0 && (
-          <div className="flex-shrink-0 flex items-start gap-2 mt-1">
-            {actions.map(renderAction)}
-          </div>
-        )}
-      </div>
+      )}
 
       <div className="space-y-6">{children}</div>
     </div>
