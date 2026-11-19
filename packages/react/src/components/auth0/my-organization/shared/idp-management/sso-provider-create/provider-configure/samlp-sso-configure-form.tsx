@@ -47,6 +47,7 @@ export const SamlpProviderForm = React.forwardRef<
     resolveSamlMetadata,
     showSignRequest = true,
     connectionSourceSelector = 'radio',
+    showServiceProviderFields = true,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -135,10 +136,12 @@ export const SamlpProviderForm = React.forwardRef<
           customMessages={customMessages}
         />
 
-        <SsoSamlServiceProviderFields
-          spIssuerUrn={spValues.serviceProviderEntityId}
-          customMessages={customMessages}
-        />
+        {showServiceProviderFields && (
+          <SsoSamlServiceProviderFields
+            spIssuerUrn={spValues.serviceProviderEntityId}
+            customMessages={customMessages}
+          />
+        )}
 
         <CommonConfigureFields
           idpConfig={idpConfig}

@@ -535,20 +535,23 @@ describe('SsoProviderCreate', () => {
     const pageTitle = () => document.getElementById('sso-guided-setup-page-title');
     const domainInput = () => screen.getByRole('textbox', { name: /fields\.okta\.domain\.label/i });
 
-    const goToConfigureStep = async (user: ReturnType<typeof userEvent.setup>) => {
+    const goToConfigureStep = async (
+      user: ReturnType<typeof userEvent.setup>,
+      strategyName = 'Okta',
+    ) => {
       await waitForComponentToLoad();
       const strategyButtons = await waitForStrategyButtons();
-      const okta = Array.from(strategyButtons).find((button) =>
-        button.textContent?.includes('Okta'),
+      const strategyButton = Array.from(strategyButtons).find((button) =>
+        button.textContent?.includes(strategyName),
       );
-      await user.click(okta!);
+      await user.click(strategyButton!);
       await user.type(screen.getByRole('textbox', { name: /fields\.name\.label/i }), 'my-okta');
       await user.type(
         screen.getByRole('textbox', { name: /fields\.display_name\.label/i }),
         'My Okta',
       );
       await user.click(screen.getByRole('button', { name: /nextbuttonlabel/i }));
-      await waitFor(() => expect(domainInput()).toBeInTheDocument());
+      await screen.findByRole('button', { name: /completebuttonlabel/i });
     };
 
     const fillOktaConnection = async (user: ReturnType<typeof userEvent.setup>) => {
@@ -605,6 +608,22 @@ describe('SsoProviderCreate', () => {
       await user.click(screen.getByRole('button', { name: /^next$/ }));
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(domainInput()).toHaveValue('acme.okta.com');
+    });
+
+    it('leaves the SAML service provider values out of the guided form', async () => {
+      const user = userEvent.setup();
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user, 'Custom SAML');
+      expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
+
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      for (const field of ['callback_url', 'acs_url', 'sp_metadata_url', 'sp_issuer_urn']) {
+        expect(screen.queryByText(`fields.samlp.${field}.label`)).not.toBeInTheDocument();
+      }
     });
 
     it('keeps the configure values when moving between pages', async () => {
