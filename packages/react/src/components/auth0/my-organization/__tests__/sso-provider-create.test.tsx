@@ -659,6 +659,55 @@ describe('SsoProviderCreate', () => {
       );
     });
 
+    describe('connection access set in the advanced form', () => {
+      const createThroughGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
+        await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+        await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+        await fillOktaConnection(user);
+        await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+        await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+      };
+
+      it('sends third-party access set before switching to guided setup', async () => {
+        vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(
+          createMockUseConfig({
+            config: { connection_deletion_behavior: 'allow', allowed_strategies: ['okta'] },
+            filteredStrategies: ['okta'],
+            showThirdPartyAccess: true,
+          }),
+        );
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+        await user.click(screen.getByRole('checkbox', { name: 'label' }));
+
+        await createThroughGuidedSetup(user);
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        expect(createApi.mock.calls[0]![0]).toMatchObject({
+          use_for_third_party_client_access: true,
+        });
+      });
+
+      it('leaves out access fields the advanced form never showed', async () => {
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+
+        await createThroughGuidedSetup(user);
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        expect(createApi.mock.calls[0]![0].use_for_third_party_client_access).toBeUndefined();
+      });
+    });
+
     it('stays on the configure page when creating fails', async () => {
       const user = userEvent.setup();
       const createAction = createMockCreateAction();
