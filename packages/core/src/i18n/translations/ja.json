@@ -1166,9 +1166,9 @@
       "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",
       "attribute_mapping_unavailable": "ユーザー属性プロファイルが割り当てられていないため、属性マッピングを利用できません。このプロバイダーの設定を完了するには、管理者にお問い合わせください。",
       "lifecycle": {
-        "out_of_date": "プロバイダーの手順が古くなっている可能性があります。必要に応じて ${companyName} のサポートにお問い合わせください。",
+        "out_of_date": "プロバイダーの手順が古くなっている可能性があります。必要に応じて ${organizationDisplayName} のサポートにお問い合わせください。",
         "dismiss": "閉じる",
-        "deprecated": "このプロバイダーではガイド付きセットアップを利用できません。"
+        "deprecated": "このプロバイダーの手順はサポートされなくなったため、ガイド付きセットアップを利用できません。サポートが必要な場合は ${organizationDisplayName} のサポートにお問い合わせください。"
       },
       "test_connection": {
         "instructions": "**${testButton}** を選択すると新しいウィンドウが開き、${providerName} でのログインにリダイレクトされます。${protocol} レスポンスが返されます。",

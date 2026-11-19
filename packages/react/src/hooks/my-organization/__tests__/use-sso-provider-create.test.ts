@@ -33,6 +33,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service
   useSsoProviderCreateService: () => ({
     createProvider: mockCreateProvider,
     isCreating: false,
+    organizationDisplayName: 'Cyborg Inc',
   }),
 }));
 const mockOnNext = vi.fn();
@@ -181,6 +182,18 @@ describe('useSsoProviderCreate - logic behavior', () => {
     expect(nextResult).toBe(false);
     expect(ref.current.validate).toHaveBeenCalled();
     expect(mockOnNext).not.toHaveBeenCalled();
+  });
+
+  describe('guidedSetup', () => {
+    it('exposes the organization display name from the organization details', () => {
+      const { result } = renderHook(
+        () => useSsoProviderCreate({ guidedSetup: { enabled: true, companyName: 'Staff0' } }),
+        grantAll,
+      );
+
+      expect(result.current.guidedSetup?.organizationDisplayName).toBe('Cyborg Inc');
+      expect(result.current.guidedSetup?.companyName).toBe('Staff0');
+    });
   });
 
   describe('permission guards', () => {

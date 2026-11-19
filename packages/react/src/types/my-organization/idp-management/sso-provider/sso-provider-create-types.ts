@@ -206,6 +206,7 @@ export interface SsoProviderCreateGuidedSetupState {
   isActive: boolean;
   provider: IdpKnownResponse | null;
   companyName?: string;
+  organizationDisplayName?: string;
   hideLifecycleWarnings?: boolean;
   configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
   start: () => void;
@@ -251,6 +252,7 @@ export interface UseSsoProviderCreateServiceReturn {
   ) => Promise<IdpKnownResponse | undefined>;
   isCreating: boolean;
   isOrganizationBlocked: boolean;
+  organizationDisplayName?: string;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {

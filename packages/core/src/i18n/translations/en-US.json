@@ -1252,9 +1252,9 @@
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
       "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider.",
       "lifecycle": {
-        "out_of_date": "Provider instructions may be outdated. Please contact ${companyName} support for assistance if needed.",
+        "out_of_date": "Provider instructions may be outdated. Please contact ${organizationDisplayName} support for assistance if needed.",
         "dismiss": "Dismiss",
-        "deprecated": "Guided setup isn't available for this provider."
+        "deprecated": "Guided setup is unavailable because the instructions for this provider are no longer supported. Please contact ${organizationDisplayName} support for assistance."
       },
       "test_connection": {
         "instructions": "Selecting **${testButton}** will open a new window and redirect you to log in with ${providerName}. You'll receive a ${protocol} response in return.",

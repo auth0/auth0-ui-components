@@ -191,6 +191,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
   const [isProvisioningGuidedSetup, setProvisioningGuidedSetup] = useState(false);
+  const organizationDisplayName = organization?.display_name || undefined;
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = useMemo(
@@ -218,6 +219,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             provisioningConfig={provisioningConfig}
             idpConfig={idpConfig}
             companyName={provisioning?.guidedSetup?.companyName}
+            organizationDisplayName={organizationDisplayName}
             hideLifecycleWarnings={provisioning?.guidedSetup?.hideLifecycleWarnings}
             onComplete={closeGuidedSetup}
             isScimTokensLoading={isScimTokensLoading}
@@ -388,6 +390,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   hideGuidedSetupLifecycleWarnings={
                     provisioning?.guidedSetup?.hideLifecycleWarnings
                   }
+                  organizationDisplayName={organizationDisplayName}
                   customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                   permissions={permissions}

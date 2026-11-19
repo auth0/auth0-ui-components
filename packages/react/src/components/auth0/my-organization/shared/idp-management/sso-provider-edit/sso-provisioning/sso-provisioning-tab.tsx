@@ -63,6 +63,7 @@ export function SsoProvisioningTab({
   readOnly = false,
   onStartGuidedSetup,
   hideGuidedSetupLifecycleWarnings = false,
+  organizationDisplayName,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t, currentLanguage } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -199,7 +200,9 @@ export function SsoProvisioningTab({
               {showGuidedSetup && (
                 <PermissionDeniedTooltip
                   enabled={isGuidedSetupDeprecated && !hideGuidedSetupLifecycleWarnings}
-                  customMessage={tGuided('lifecycle.deprecated')}
+                  customMessage={tGuided('lifecycle.deprecated', {
+                    organizationDisplayName: organizationDisplayName || tGuided('company_fallback'),
+                  })}
                 >
                   <Button
                     type="button"

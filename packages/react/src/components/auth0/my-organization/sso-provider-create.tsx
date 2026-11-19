@@ -232,7 +232,10 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
                       disabled: isGuidedSetupDeprecated,
                       tooltip:
                         isGuidedSetupDeprecated && !guidedSetup.hideLifecycleWarnings
-                          ? tGuided('lifecycle.deprecated')
+                          ? tGuided('lifecycle.deprecated', {
+                              organizationDisplayName:
+                                guidedSetup.organizationDisplayName || tGuided('company_fallback'),
+                            })
                           : undefined,
                     }
                   : undefined
@@ -368,6 +371,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               strategy={strategy}
               connectionName={guidedConnectionName}
               companyName={guidedSetup.companyName}
+              organizationDisplayName={guidedSetup.organizationDisplayName}
               hideLifecycleWarnings={guidedSetup.hideLifecycleWarnings}
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}

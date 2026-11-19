@@ -89,10 +89,11 @@ export function useSsoProviderCreate({
     [createAction],
   );
 
-  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
-    createAction: serviceCreateAction,
-    customMessages,
-  });
+  const { createProvider, isCreating, isOrganizationBlocked, organizationDisplayName } =
+    useSsoProviderCreateService({
+      createAction: serviceCreateAction,
+      customMessages,
+    });
 
   const [formData, setFormData] = useState<FormState>({});
   const { strategy, details } = formData;
@@ -175,6 +176,7 @@ export function useSsoProviderCreate({
       isActive: isGuidedSetup,
       provider: guidedProvider,
       companyName: guidedSetupOptions?.companyName,
+      organizationDisplayName,
       hideLifecycleWarnings: guidedSetupOptions?.hideLifecycleWarnings,
       configureRef: guidedConfigureRef,
       start: () => {
@@ -220,6 +222,7 @@ export function useSsoProviderCreate({
       isGuidedSetup,
       guidedProvider,
       guidedSetupOptions?.companyName,
+      organizationDisplayName,
       guidedSetupOptions?.hideLifecycleWarnings,
       saveGuidedConfigure,
       strategy,

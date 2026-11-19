@@ -1112,9 +1112,9 @@
       "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
       "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur.",
       "lifecycle": {
-        "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${companyName} si besoin.",
+        "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${organizationDisplayName} si besoin.",
         "dismiss": "Ignorer",
-        "deprecated": "La configuration guidée n’est pas disponible pour ce fournisseur."
+        "deprecated": "La configuration guidée n’est pas disponible, car les instructions de ce fournisseur ne sont plus prises en charge. Contactez l’assistance de ${organizationDisplayName} pour obtenir de l’aide."
       },
       "test_connection": {
         "instructions": "Sélectionnez **${testButton}** pour ouvrir une nouvelle fenêtre et vous connecter avec ${providerName}. Vous recevrez une réponse ${protocol} en retour.",

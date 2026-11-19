@@ -173,5 +173,6 @@ export function useSsoProviderCreateService({
     createProvider,
     isCreating: isMutationLoading(createProviderMutation),
     isOrganizationBlocked: organization?.third_party_client_access === 'block',
+    organizationDisplayName: organization?.display_name || undefined,
   };
 }

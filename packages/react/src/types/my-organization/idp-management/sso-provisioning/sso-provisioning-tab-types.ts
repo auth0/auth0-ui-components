@@ -80,6 +80,7 @@ export interface SsoProvisioningTabProps
   isSyncingAttributes?: boolean;
   onStartGuidedSetup?: () => void;
   hideGuidedSetupLifecycleWarnings?: boolean;
+  organizationDisplayName?: string;
 }
 
 export interface SsoProvisioningTabSchemas {}

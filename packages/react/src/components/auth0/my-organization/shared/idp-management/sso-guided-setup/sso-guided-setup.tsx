@@ -51,6 +51,7 @@ export interface SsoGuidedSetupProps
     | 'slots'
   > {
   strategy: IdpStrategy;
+  organizationDisplayName?: string;
   kind?: InstructionsKind;
   entryContext?: Partial<InstructionsEntryContext>;
   googleWorkspaceSetupComplete?: boolean;
@@ -86,6 +87,7 @@ export function SsoGuidedSetup({
   kind = 'creation',
   connectionName,
   companyName,
+  organizationDisplayName,
   provider = null,
   resolveSamlMetadata,
   configure,
@@ -257,7 +259,13 @@ export function SsoGuidedSetup({
       <Card className={className} data-slot="sso-guided-setup">
         <CardContent>
           <p className="text-sm text-muted-foreground" role="status">
-            {error ? t('load_error') : isDeprecated ? t('lifecycle.deprecated') : t('unavailable')}
+            {error
+              ? t('load_error')
+              : isDeprecated
+                ? t('lifecycle.deprecated', {
+                    organizationDisplayName: organizationDisplayName || t('company_fallback'),
+                  })
+                : t('unavailable')}
           </p>
         </CardContent>
       </Card>
@@ -285,7 +293,9 @@ export function SsoGuidedSetup({
             <Alert variant="warning" className="pr-10" data-slot="sso-guided-setup-out-of-date">
               <MessageSquareWarning aria-hidden="true" />
               <AlertDescription className="text-warning-foreground">
-                {t('lifecycle.out_of_date', { companyName: company })}
+                {t('lifecycle.out_of_date', {
+                  organizationDisplayName: organizationDisplayName || t('company_fallback'),
+                })}
               </AlertDescription>
               <AlertAction>
                 <Button
