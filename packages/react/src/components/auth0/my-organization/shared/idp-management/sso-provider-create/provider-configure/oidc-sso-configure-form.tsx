@@ -4,14 +4,13 @@
  * @internal
  */
 
-import type { OidcConfigureFormValues } from '@auth0/universal-components-core';
+import { STRATEGIES, type OidcConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
-import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoOidcConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields';
-import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
-import { Form, FormField } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import {
   useStrategyConfigureForm,
@@ -22,10 +21,7 @@ import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-m
 
 export type OidcConfigureFormHandle = StrategyConfigureFormHandle<OidcConfigureFormValues>;
 
-interface OidcConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-}
+type OidcConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcConfigureFormProps>(
   function OidcProviderForm(
@@ -38,9 +34,11 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
       idpConfig,
       mode = 'create',
       showThirdPartyAccess = false,
+      isThirdPartyAccessReadOnly = false,
+      isOrganizationBlocked = false,
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
-      isOrganizationBlocked = false,
+      crossAppAccessDefaultValue,
       styling,
     },
     ref,
@@ -59,12 +57,13 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
         client_secret: oidcData?.client_secret || '',
         show_as_button: oidcData?.show_as_button ?? false,
         assign_membership_on_login: oidcData?.assign_membership_on_login ?? false,
-        use_for_third_party_client_access:
-          (oidcData as { use_for_third_party_client_access?: boolean })
-            ?.use_for_third_party_client_access ?? false,
-        cross_app_access_resource_app:
-          (oidcData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-            ?.cross_app_access_resource_app ?? undefined,
+        ...getConnectionAccessDefaults(
+          oidcData,
+          crossAppAccessDefaultValue,
+          mode,
+          showCrossAppAccess,
+          showThirdPartyAccess,
+        ),
       },
     });
 
@@ -81,41 +80,14 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
             idpConfig={idpConfig}
             readOnly={readOnly}
             customMessages={customMessages}
+            strategy={STRATEGIES.OIDC}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            isOrganizationBlocked={isOrganizationBlocked}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            classes={styling?.classes}
           />
-
-          {showThirdPartyAccess && (
-            <FormField
-              control={form.control}
-              name="use_for_third_party_client_access"
-              render={({ field }) => (
-                <SsoThirdPartyAccessSection
-                  checked={field.value ?? false}
-                  onChange={field.onChange}
-                  readOnly={readOnly}
-                  isOrganizationBlocked={isOrganizationBlocked}
-                  className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
-                />
-              )}
-            />
-          )}
-
-          {showCrossAppAccess && (
-            <FormField
-              control={form.control}
-              name="cross_app_access_resource_app"
-              render={({ field }) => (
-                <SsoCrossAppAccessSection
-                  checked={field.value?.status === 'enabled'}
-                  onChange={(checked) =>
-                    field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
-                  }
-                  readOnly={readOnly || isCrossAppAccessReadOnly}
-                  strategy="oidc"
-                  className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
-                />
-              )}
-            />
-          )}
         </div>
       </Form>
     );

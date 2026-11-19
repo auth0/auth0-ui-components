@@ -56,6 +56,19 @@ describe('AuthUtils', () => {
         const config = AuthUtils.resolveAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
         expect(config).not.toHaveProperty('domain');
       });
+
+      it('passes disableTokenRequestQueue through when it is set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          authProxyUrl: 'https://proxy.example.com',
+          disableTokenRequestQueue: true,
+        });
+        expect(config).toMatchObject({ disableTokenRequestQueue: true });
+      });
+
+      it('omits disableTokenRequestQueue when it is not set', () => {
+        const config = AuthUtils.resolveAuthConfig({ authProxyUrl: 'https://proxy.example.com' });
+        expect(config).not.toHaveProperty('disableTokenRequestQueue');
+      });
     });
 
     describe('SPA mode', () => {
@@ -79,6 +92,23 @@ describe('AuthUtils', () => {
           contextInterface: context,
         });
         expect(config).toMatchObject({ mode: 'spa', domain: 'test.auth0.com' });
+      });
+
+      it('passes disableTokenRequestQueue through when it is set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          domain: 'test.auth0.com',
+          contextInterface: createMockContextInterface(),
+          disableTokenRequestQueue: true,
+        });
+        expect(config).toMatchObject({ disableTokenRequestQueue: true });
+      });
+
+      it('omits disableTokenRequestQueue when it is not set', () => {
+        const config = AuthUtils.resolveAuthConfig({
+          domain: 'test.auth0.com',
+          contextInterface: createMockContextInterface(),
+        });
+        expect(config).not.toHaveProperty('disableTokenRequestQueue');
       });
 
       it('falls back to domain from contextInterface.getConfiguration()', () => {
