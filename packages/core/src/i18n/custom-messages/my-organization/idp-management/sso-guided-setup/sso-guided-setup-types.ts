@@ -29,7 +29,6 @@ export interface SsoGuidedSetupCopyValueMessages {
 
 export interface SsoGuidedSetupMessages {
   stepper_label?: string;
-  back?: string;
   next?: string;
   create_provider?: string;
   done?: string;
