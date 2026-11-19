@@ -72,15 +72,24 @@ describe('SsoGuidedSetup', () => {
     expect(screen.queryByText(/helper_text/)).not.toBeInTheDocument();
   });
 
-  it('moves between pages with Next and Back', async () => {
+  it('moves forward with Next and back through the stepper', async () => {
     renderSetup();
     await screen.findByText('Okta');
 
     await userEvent.click(primary(/^next$/));
     expect(pageTitle()).toHaveTextContent('Configure Connection');
 
-    await userEvent.click(screen.getByRole('button', { name: /^back$/ }));
+    await userEvent.click(screen.getByRole('button', { name: /create application/i }));
     expect(pageTitle()).toHaveTextContent('Create Application');
+  });
+
+  it('has no step Back button or unsaved changes label', async () => {
+    renderSetup();
+    await screen.findByText('Okta');
+
+    await userEvent.click(primary(/^next$/));
+    expect(screen.queryByRole('button', { name: /^back$/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
   });
 
   it('reports the page being left before moving', async () => {
@@ -93,7 +102,7 @@ describe('SsoGuidedSetup', () => {
       expect.objectContaining({ key: 'okta-create-application' }),
     );
 
-    await userEvent.click(screen.getByRole('button', { name: /^back$/ }));
+    await userEvent.click(screen.getByRole('button', { name: /create application/i }));
     expect(onLeavePage).toHaveBeenLastCalledWith(
       expect.objectContaining({ key: 'okta-configure-connection' }),
     );

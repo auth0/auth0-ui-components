@@ -670,7 +670,7 @@ describe('SsoProviderCreate', () => {
       await user.click(screen.getByRole('button', { name: /^next$/ }));
 
       await user.type(domainInput(), 'acme.okta.com');
-      await user.click(screen.getByRole('button', { name: /^back$/ }));
+      await user.click(screen.getByRole('button', { name: /create application/i }));
       expect(pageTitle()).toHaveTextContent('Create Application');
       await user.click(screen.getByRole('button', { name: /^next$/ }));
 

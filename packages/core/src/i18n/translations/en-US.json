@@ -1202,7 +1202,6 @@
     },
     "sso_guided_setup": {
       "stepper_label": "Setup steps",
-      "back": "Back",
       "next": "Next",
       "create_provider": "Create Provider",
       "done": "Done",

@@ -309,14 +309,9 @@ export function SsoGuidedSetup({
 
           <FormActions
             align="right"
-            hasUnsavedChanges
             isLoading={isSubmitting}
-            showPrevious={!flow.isFirstPage}
-            previousAction={{
-              label: t('back'),
-              variant: 'outline',
-              onClick: () => leavePage(flow.goBack),
-            }}
+            showPrevious={false}
+            showUnsavedChanges={false}
             nextAction={{
               type: 'button',
               label: primaryLabel,
