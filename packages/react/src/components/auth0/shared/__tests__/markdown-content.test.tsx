@@ -31,6 +31,13 @@ describe('MarkdownContent', () => {
 
       expect(screen.getByText('To provision users to Acme, create an app.')).toBeInTheDocument();
     });
+
+    it('renders blank-line separated text as spaced paragraphs', () => {
+      render(<MarkdownContent text={'First step.\n\nSecond step.'} />);
+
+      expect(screen.getByText('First step.')).toHaveClass('mb-4', 'leading-5');
+      expect(screen.getByText('Second step.').tagName).toBe('P');
+    });
   });
 
   describe('images', () => {
