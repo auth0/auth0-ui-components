@@ -74,7 +74,7 @@ describe('useGuidedSetupFlow', () => {
     expect(result.current.currentPage?.key).toBe('create');
   });
 
-  it('moves forward and back', () => {
+  it('moves forward and back to an earlier page', () => {
     const { result } = renderHook(() =>
       useGuidedSetupFlow({ pages, entryContext: noMappings, exitState: notCreated }),
     );
@@ -84,7 +84,9 @@ describe('useGuidedSetupFlow', () => {
     });
     expect(result.current.currentPage?.key).toBe('configure');
 
-    act(() => result.current.goBack());
+    act(() => {
+      result.current.goToPage(0);
+    });
     expect(result.current.currentPage?.key).toBe('create');
   });
 

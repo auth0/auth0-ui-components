@@ -30,7 +30,6 @@ export interface UseGuidedSetupFlowResult<TPage extends InstructionsFlowPage> {
   canLeaveCurrentPage: boolean;
   currentExitPolicy: ExitConditionPolicy | undefined;
   goNext: () => boolean;
-  goBack: () => void;
   goToPage: (index: number) => boolean;
 }
 
@@ -81,10 +80,6 @@ export function useGuidedSetupFlow<TPage extends InstructionsFlowPage>({
     return goToPage(currentIndex + 1);
   }, [currentIndex, goToPage, visiblePages.length]);
 
-  const goBack = React.useCallback(() => {
-    if (currentIndex > 0) goToPage(currentIndex - 1);
-  }, [currentIndex, goToPage]);
-
   return {
     visiblePages,
     currentIndex,
@@ -94,7 +89,6 @@ export function useGuidedSetupFlow<TPage extends InstructionsFlowPage>({
     canLeaveCurrentPage,
     currentExitPolicy: currentPage ? getExitConditionPolicy(currentPage) : undefined,
     goNext,
-    goBack,
     goToPage,
   };
 }

@@ -1111,7 +1111,6 @@
     },
     "sso_guided_setup": {
       "stepper_label": "セットアップ手順",
-      "back": "戻る",
       "next": "次へ",
       "create_provider": "プロバイダーを作成",
       "done": "完了",
