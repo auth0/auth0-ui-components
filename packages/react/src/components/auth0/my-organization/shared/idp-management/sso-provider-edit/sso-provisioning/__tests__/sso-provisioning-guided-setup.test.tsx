@@ -27,8 +27,8 @@ const IDP_CONFIG = {
       user_attributes: {
         email: {
           label: 'Email',
-          profile_required: true,
-          provisioning_field_name: 'emails[primary eq true].value',
+          is_required: true,
+          provisioning_field: 'emails[primary eq true].value',
         },
       },
     },
