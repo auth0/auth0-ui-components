@@ -77,7 +77,7 @@ const instructionComponents: Components = {
     </h5>
   ),
   p: ({ node: _node, children, ...props }) => (
-    <p className="text-muted-foreground mb-3 text-sm leading-relaxed last:mb-0" {...props}>
+    <p className="text-muted-foreground mb-4 text-sm leading-5 last:mb-0" {...props}>
       {children}
     </p>
   ),
@@ -88,7 +88,7 @@ const instructionComponents: Components = {
   ),
   ul: ({ node: _node, ordered: _ordered, depth: _depth, children, ...props }) => (
     <ul
-      className="text-muted-foreground mb-3 list-outside list-disc space-y-1 pl-5 text-sm"
+      className="text-muted-foreground mb-4 list-outside list-disc space-y-1 pl-5 text-sm last:mb-0"
       {...props}
     >
       {children}
@@ -96,7 +96,7 @@ const instructionComponents: Components = {
   ),
   ol: ({ node: _node, ordered: _ordered, depth: _depth, children, ...props }) => (
     <ol
-      className="text-muted-foreground mb-3 list-outside list-decimal space-y-1 pl-5 text-sm"
+      className="text-muted-foreground mb-4 list-outside list-decimal space-y-1 pl-5 text-sm last:mb-0"
       {...props}
     >
       {children}
@@ -110,7 +110,7 @@ const instructionComponents: Components = {
     children,
     ...props
   }) => (
-    <li className="text-muted-foreground text-sm leading-relaxed" {...props}>
+    <li className="text-muted-foreground text-sm leading-5" {...props}>
       {children}
     </li>
   ),

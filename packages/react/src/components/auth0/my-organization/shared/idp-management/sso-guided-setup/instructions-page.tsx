@@ -40,7 +40,7 @@ export function InstructionsPage({ page, renderers, className }: InstructionsPag
   );
 
   return (
-    <div className={cn('space-y-4', className)} data-slot="instructions-page" data-page={page.key}>
+    <div className={cn('space-y-6', className)} data-slot="instructions-page" data-page={page.key}>
       <InstructionRenderersProvider renderers={registry}>
         <InstructionContents contents={page.contents} />
       </InstructionRenderersProvider>
