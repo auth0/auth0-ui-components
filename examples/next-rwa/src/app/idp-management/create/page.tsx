@@ -12,7 +12,7 @@ export default function SsoProviderCreatePage() {
   }, [router]);
 
   const handleBack = useCallback((): void => {
-    router.push('/idp-management/create');
+    router.push('/idp-management');
   }, [router]);
 
   const handleGuidedComplete = useCallback(
