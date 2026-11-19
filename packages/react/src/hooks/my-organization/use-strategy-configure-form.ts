@@ -14,6 +14,7 @@ import {
   type Resolver,
   type UseFormReturn,
 } from 'react-hook-form';
+import type { ZodTypeAny } from 'zod';
 
 import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 
@@ -58,8 +59,10 @@ export function useStrategyConfigureForm<TValues extends FieldValues>(
   const { strategy, defaultValues, onFormDirty, getData, reset } = options;
   const mode = 'mode' in options ? options.mode : FORM_VALIDATION_MODE;
 
+  const schema: ZodTypeAny = createProviderConfigureSchema(strategy);
+
   const form = useForm<TValues>({
-    resolver: zodResolver(createProviderConfigureSchema(strategy)) as unknown as Resolver<TValues>,
+    resolver: zodResolver(schema) as unknown as Resolver<TValues>,
     mode,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues,
