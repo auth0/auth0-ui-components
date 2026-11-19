@@ -263,6 +263,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
           connectionName: details?.name,
           connectionNamePrefix,
           connectionSourceSelector: 'tabs',
+          showServiceProviderFields: false,
           customMessages: { fields: customMessages?.provider_configure?.fields },
           showThirdPartyAccess: false,
           showCrossAppAccess: false,
