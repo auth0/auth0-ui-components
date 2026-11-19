@@ -133,7 +133,7 @@ const instructionComponents: Components = {
         src={src}
         alt={alt ?? ''}
         loading="lazy"
-        className="border-border my-3 block h-auto w-full rounded-xl border"
+        className="border-border my-6 block h-auto w-full rounded-xl border"
         {...props}
       />
     ) : null,
