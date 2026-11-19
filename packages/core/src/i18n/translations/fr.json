@@ -1062,7 +1062,6 @@
     },
     "sso_guided_setup": {
       "stepper_label": "Étapes de configuration",
-      "back": "Retour",
       "next": "Suivant",
       "create_provider": "Créer le fournisseur",
       "done": "Terminé",
