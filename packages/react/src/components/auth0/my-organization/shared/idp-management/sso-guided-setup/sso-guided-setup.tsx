@@ -63,6 +63,9 @@ export interface SsoGuidedSetupProps
   className?: string;
 }
 
+const PAGE_DESCRIPTION_CLASSES =
+  '[&>[data-slot=markdown]:first-child>p:first-child]:text-foreground [&>[data-slot=markdown]:first-child>p:first-child:not(:last-child)]:mb-6';
+
 /**
  * Guided setup for one strategy. Loads the instructions, shows the visible pages in a vertical
  * stepper and renders the current page. On the page whose exit condition is `connection_exists`
@@ -266,13 +269,19 @@ export function SsoGuidedSetup({
         </nav>
 
         <section className="min-w-0 space-y-6" aria-labelledby="sso-guided-setup-page-title">
-          <h3 id="sso-guided-setup-page-title" className="text-lg font-medium text-foreground">
-            {currentPage.title}
-          </h3>
+          <div className="space-y-2">
+            <h3 id="sso-guided-setup-page-title" className="text-lg font-medium text-foreground">
+              {currentPage.title}
+            </h3>
 
-          <SsoGuidedSetupProvider value={contextValue}>
-            <InstructionsPage page={currentPage} renderers={renderers} />
-          </SsoGuidedSetupProvider>
+            <SsoGuidedSetupProvider value={contextValue}>
+              <InstructionsPage
+                page={currentPage}
+                renderers={renderers}
+                className={PAGE_DESCRIPTION_CLASSES}
+              />
+            </SsoGuidedSetupProvider>
+          </div>
 
           <FormActions
             align="right"
