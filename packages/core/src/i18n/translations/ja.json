@@ -1131,16 +1131,13 @@
       },
       "copy_values": {
         "callback_url": {
-          "label": "コールバック URL",
-          "helper_text": "この URL を ID プロバイダーのリダイレクト URL またはコールバック URL として使用してください。"
+          "label": "コールバック URL"
         },
         "sso_url": {
-          "label": "シングルサインオン URL",
-          "helper_text": "シングルサインオンのためにユーザーがリダイレクトされるエンドポイントです。別名：Assertion Consumer Service URL、コールバック URL。"
+          "label": "シングルサインオン URL"
         },
         "service_provider_entity_id": {
-          "label": "サービスプロバイダーのエンティティ ID",
-          "helper_text": "サービスプロバイダーの一意の識別子です。別名：Audience URI。"
+          "label": "サービスプロバイダーのエンティティ ID"
         },
         "adfs_ws_federation_url": {
           "label": "証明書利用者 WS-Federation パッシブプロトコル URL"

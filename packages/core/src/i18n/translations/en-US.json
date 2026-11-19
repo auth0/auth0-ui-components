@@ -1195,16 +1195,13 @@
       },
       "copy_values": {
         "callback_url": {
-          "label": "Callback URL",
-          "helper_text": "Use this URL as the redirect or callback URL in your identity provider."
+          "label": "Callback URL"
         },
         "sso_url": {
-          "label": "Single Sign-On URL",
-          "helper_text": "Endpoint users are redirected to for single sign-on. Also known as: Assertion Consumer Service URL, Callback URL."
+          "label": "Single Sign-On URL"
         },
         "service_provider_entity_id": {
-          "label": "Service Provider Entity ID",
-          "helper_text": "Unique identifier for the service provider. Also known as: Audience URI."
+          "label": "Service Provider Entity ID"
         },
         "adfs_ws_federation_url": {
           "label": "Relying Party WS-Federation Passive Protocol URL"
