@@ -28,6 +28,7 @@ import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
+import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
@@ -94,7 +95,7 @@ export interface ProviderConfigureProps
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
@@ -133,7 +134,7 @@ export interface ProviderConfigureFieldsProps
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
@@ -144,6 +145,49 @@ export interface ProviderConfigureFieldsProps
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
+
+/** Cross App Access status of a connection. */
+export type CrossAppAccessStatus = 'enabled' | 'disabled';
+
+/** Existing provider values used to seed the connection-level access fields. */
+export interface ConnectionAccessInitialData {
+  use_for_third_party_client_access?: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Default form values for the connection-level access fields. */
+export interface ConnectionAccessDefaults {
+  use_for_third_party_client_access: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Form values read and written by the connection-level access fields. */
+export interface ConnectionAccessFormValues extends ConnectionAccessDefaults {
+  discovery_url?: string;
+}
+
+/** Props for ConnectionAccessFields component. */
+export interface ConnectionAccessFieldsProps
+  extends Pick<
+    ProviderConfigureFieldsProps,
+    | 'strategy'
+    | 'showThirdPartyAccess'
+    | 'isThirdPartyAccessReadOnly'
+    | 'showCrossAppAccess'
+    | 'isCrossAppAccessReadOnly'
+    | 'isOrganizationBlocked'
+  > {
+  readOnly?: boolean;
+  classes?: Pick<
+    SsoProviderCreateClasses,
+    'ProviderConfigure-ThirdPartyAccess' | 'ProviderConfigure-CrossAppAccess'
+  >;
+}
+
+export type SamlCrossAppAccessProps = Omit<
+  CrossAppAccessSectionProps,
+  'strategy' | 'discoveryUrl' | 'onDiscoveryUrlChange' | 'discoveryUrlError'
+>;
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
@@ -231,9 +275,9 @@ export interface UseSsoProviderCreateResult {
   thirdPartyAccessDefaultValue?: 'allow' | 'block';
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
-  getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
+  getCrossAppAccessDefaultValue: () => CrossAppAccessStatus | undefined;
   isOrganizationBlocked: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   guidedSetup?: SsoProviderCreateGuidedSetupState;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',

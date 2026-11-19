@@ -8,6 +8,7 @@ import {
   getIdpManagementPermissions,
   type CreateIdentityProviderRequestContentPrivate,
   type IdpKnownResponse,
+  type ProviderConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -17,6 +18,7 @@ import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-co
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import type {
+  ConnectionAccessFormValues,
   FormState,
   ProviderConfigureHandle,
   ProviderDetailsFormHandle,
@@ -26,6 +28,29 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export type { UseSsoProviderCreateResult };
+
+const CONNECTION_ACCESS_FIELDS = [
+  'use_for_third_party_client_access',
+  'cross_app_access_resource_app',
+] as const;
+
+/**
+ * Third-party and Cross App Access values the form holds, which it only does when they're shown.
+ * @param data - Configure form values.
+ * @returns The access values that are set.
+ */
+function pickConnectionAccess(
+  data: ProviderConfigureFormValues | null | undefined,
+): Partial<Pick<ConnectionAccessFormValues, (typeof CONNECTION_ACCESS_FIELDS)[number]>> {
+  if (!data) return {};
+  const values = data as Record<string, unknown>;
+  return Object.fromEntries(
+    CONNECTION_ACCESS_FIELDS.filter((field) => values[field] !== undefined).map((field) => [
+      field,
+      values[field],
+    ]),
+  );
+}
 
 /**
  * Hook for SSO provider creation. Manages form state, step navigation,
@@ -74,6 +99,7 @@ export function useSsoProviderCreate({
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
   const guidedConfigureRef = useRef<ProviderConfigureFormHandle>(null);
+  const advancedConnectionAccessRef = useRef<ReturnType<typeof pickConnectionAccess>>({});
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
@@ -153,6 +179,7 @@ export function useSsoProviderCreate({
       configureRef: guidedConfigureRef,
       start: () => {
         const data = configureRef.current?.getData();
+        advancedConnectionAccessRef.current = pickConnectionAccess(data);
         if (data) setFormData((prev) => ({ ...prev, configure: data }));
         isGuidedSetupRef.current = true;
         setGuidedSetup(true);
@@ -167,7 +194,12 @@ export function useSsoProviderCreate({
         if (!permissions.canCreateProvider || !strategy || !details) return false;
         const configureData = guidedConfigureRef.current?.getData() ?? formData.configure;
         try {
-          const created = await createProvider({ strategy, ...details, ...configureData });
+          const created = await createProvider({
+            strategy,
+            ...details,
+            ...advancedConnectionAccessRef.current,
+            ...configureData,
+          });
           if (!created) return false;
           setGuidedProvider(created);
           return true;

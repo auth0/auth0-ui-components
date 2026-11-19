@@ -4,15 +4,15 @@
  * @internal
  */
 
-import type { OktaConfigureFormValues } from '@auth0/universal-components-core';
+import { STRATEGIES, type OktaConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoCallbackUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field';
 import { SsoClientCredentialsFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields';
-import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
 import { SsoIdpDomainField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field';
-import { Form, FormField } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
 import {
@@ -31,10 +31,7 @@ const OKTA_HELP_LINKS = {
 
 export type OktaConfigureFormHandle = StrategyConfigureFormHandle<OktaConfigureFormValues>;
 
-interface OktaConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-}
+type OktaConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaConfigureFormProps>(
   function OktaProviderForm(
@@ -46,6 +43,9 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
       onFormDirty,
       idpConfig,
       mode = 'create',
+      showThirdPartyAccess = false,
+      isThirdPartyAccessReadOnly = false,
+      isOrganizationBlocked = false,
       showCrossAppAccess = false,
       isCrossAppAccessReadOnly = false,
       crossAppAccessDefaultValue,
@@ -70,12 +70,13 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
         callback_url: oktaData?.callback_url || callbackUrl,
         show_as_button: oktaData?.show_as_button ?? false,
         assign_membership_on_login: oktaData?.assign_membership_on_login ?? false,
-        cross_app_access_resource_app:
-          (oktaData as { cross_app_access_resource_app?: { status: 'enabled' | 'disabled' } })
-            ?.cross_app_access_resource_app ??
-          (crossAppAccessDefaultValue !== undefined
-            ? { status: crossAppAccessDefaultValue }
-            : undefined),
+        ...getConnectionAccessDefaults(
+          oktaData,
+          crossAppAccessDefaultValue,
+          mode,
+          showCrossAppAccess,
+          showThirdPartyAccess,
+        ),
       },
     });
 
@@ -107,25 +108,14 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
             idpConfig={idpConfig}
             readOnly={readOnly}
             customMessages={customMessages}
+            strategy={STRATEGIES.OKTA}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            isOrganizationBlocked={isOrganizationBlocked}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            classes={styling?.classes}
           />
-
-          {showCrossAppAccess && (
-            <FormField
-              control={form.control}
-              name="cross_app_access_resource_app"
-              render={({ field }) => (
-                <SsoCrossAppAccessSection
-                  checked={field.value?.status === 'enabled'}
-                  onChange={(checked) =>
-                    field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
-                  }
-                  readOnly={readOnly || isCrossAppAccessReadOnly}
-                  strategy="okta"
-                  className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
-                />
-              )}
-            />
-          )}
         </div>
       </Form>
     );
