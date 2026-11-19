@@ -17,15 +17,15 @@ const IDP_CONFIG = {
         given_name: {
           description: 'First name',
           label: 'Given Name',
-          profile_required: false,
-          sso_field_name: 'given_name',
-          provisioning_field_name: 'name.givenName',
+          is_required: false,
+          sso_field: ['given_name'],
+          provisioning_field: 'name.givenName',
         },
         preferred_username: {
           description: 'Preferred username',
           label: 'Preferred username',
-          profile_required: false,
-          provisioning_field_name: 'userName',
+          is_required: false,
+          provisioning_field: 'userName',
         },
       },
     },
@@ -36,8 +36,8 @@ const IDP_CONFIG = {
         given_name: {
           description: 'First name',
           label: 'Given Name',
-          profile_required: false,
-          sso_field_name: [
+          is_required: false,
+          sso_field: [
             'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
             'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
           ],
@@ -45,8 +45,8 @@ const IDP_CONFIG = {
         email: {
           description: 'Email',
           label: 'Email',
-          profile_required: true,
-          sso_field_name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+          is_required: true,
+          sso_field: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
         },
       },
     },
@@ -110,9 +110,9 @@ describe('sso-provider-user-attributes', () => {
     });
 
     it('falls back to the id when there is no label', () => {
-      expect(toSsoAttributeMappings({ nickname: { sso_field_name: 'nickname' } })[0]).toMatchObject(
-        { user_attribute: 'nickname', label: 'nickname', is_required: false },
-      );
+      expect(
+        toSsoAttributeMappings({ nickname: { is_required: false, sso_field: ['nickname'] } })[0],
+      ).toMatchObject({ user_attribute: 'nickname', label: 'nickname', is_required: false });
     });
 
     it('returns an empty list for no attributes', () => {
