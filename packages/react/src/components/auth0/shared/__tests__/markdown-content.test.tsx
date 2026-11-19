@@ -39,6 +39,7 @@ describe('MarkdownContent', () => {
 
       const img = screen.getByRole('img', { name: 'Okta apps' });
       expect(img).toHaveAttribute('src', `${BASE_URL}/img/okta/1.png`);
+      expect(img).toHaveClass('w-full');
       expect(img).toHaveAttribute('loading', 'lazy');
     });
 
