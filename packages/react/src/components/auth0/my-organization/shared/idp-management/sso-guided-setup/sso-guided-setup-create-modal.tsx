@@ -6,7 +6,15 @@
 
 import type { SsoGuidedSetupMessages } from '@auth0/universal-components-core';
 
-import { Modal } from '@/components/ui/modal';
+import { FormActions } from '@/components/auth0/shared/form-actions';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
 
 export interface SsoGuidedSetupCreateModalProps {
@@ -40,28 +48,35 @@ export function SsoGuidedSetupCreateModal({
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
   return (
-    <Modal
+    <Dialog
       open={open}
       onOpenChange={(next) => {
         if (!isCreating) onOpenChange(next);
       }}
-      title={t('create_modal.title')}
-      description={t('create_modal.description', { companyName })}
-      showCloseButton={!isCreating}
-      modalActions={{
-        isLoading: isCreating,
-        previousAction: {
-          label: t('create_modal.cancel'),
-          variant: 'outline',
-          onClick: () => onOpenChange(false),
-        },
-        nextAction: {
-          type: 'button',
-          label: t('create_modal.proceed'),
-          variant: 'primary',
-          onClick: onProceed,
-        },
-      }}
-    />
+    >
+      <DialogContent className="gap-6 p-10" showCloseButton={!isCreating}>
+        <DialogHeader className="gap-6">
+          <DialogTitle>{t('create_modal.title')}</DialogTitle>
+          <DialogDescription>{t('create_modal.description', { companyName })}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <FormActions
+            isLoading={isCreating}
+            showUnsavedChanges={false}
+            previousAction={{
+              label: t('create_modal.cancel'),
+              variant: 'outline',
+              onClick: () => onOpenChange(false),
+            }}
+            nextAction={{
+              type: 'button',
+              label: t('create_modal.proceed'),
+              variant: 'primary',
+              onClick: onProceed,
+            }}
+          />
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
