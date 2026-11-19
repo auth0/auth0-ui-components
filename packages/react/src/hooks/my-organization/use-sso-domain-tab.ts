@@ -10,7 +10,7 @@ import {
   type Domain,
   type IdpId,
 } from '@auth0/universal-components-core';
-import { useCallback, useState, useMemo, useRef } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useSsoDomainTabService } from '@/hooks/my-organization/shared/services/use-sso-domain-tab-service';
@@ -83,8 +83,6 @@ export function useSsoDomainTab(
   const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
   const canAssociate = permissions.canAssociateDomain && canManageProviderDomains;
   const canAssociateAfterVerify = canAssociate && !isAssociationUnavailable;
-  const canAssociateAfterVerifyRef = useRef(canAssociateAfterVerify);
-  canAssociateAfterVerifyRef.current = canAssociateAfterVerify;
   const isLastDomainLocked = isLastRequiredDomainLocked(domainVerificationMode, {
     is_enabled: provider?.is_enabled,
     domains: domainsList.map(({ domain }) => domain),
@@ -145,7 +143,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerifyRef.current) await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           setVerifyError(t('domain_verify.verification_failed', { domainName: domain.domain }));
         }
@@ -155,7 +153,7 @@ export function useSsoDomainTab(
         });
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleDeleteClick = useCallback(
@@ -208,7 +206,7 @@ export function useSsoDomainTab(
             }),
           });
 
-          if (canAssociateAfterVerifyRef.current) await associateToProvider(domain);
+          if (canAssociateAfterVerify) await associateToProvider(domain);
         } else {
           showToast({
             type: 'error',
@@ -226,7 +224,7 @@ export function useSsoDomainTab(
         setIsUpdatingId(null);
       }
     },
-    [verifyDomain, t, handleError, associateToProvider],
+    [verifyDomain, t, handleError, associateToProvider, canAssociateAfterVerify],
   );
 
   const handleToggleSwitch = useCallback(

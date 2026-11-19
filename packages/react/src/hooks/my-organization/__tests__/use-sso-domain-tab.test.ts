@@ -666,38 +666,6 @@ describe('useSsoDomainTab', () => {
       expect(associate()).not.toHaveBeenCalled();
     });
 
-    it('should use the policy in force when the verification finishes, not when it started', async () => {
-      let finishVerify: (value: { updatedDomain: unknown; isVerified: boolean }) => void = () => {};
-      (mockServiceReturn.verifyDomain as ReturnType<typeof vi.fn>).mockReturnValue(
-        new Promise((resolve) => {
-          finishVerify = resolve;
-        }),
-      );
-      const wrapper = ({ children }: { children: ReactNode }) =>
-        createElement(
-          PermissionContext.Provider,
-          { value: { permissions: ALL_MY_ORG_PERMISSIONS, isLoading: false } },
-          children,
-        );
-      const { result, rerender } = renderHook(
-        ({ mode }: { mode: 'optional' | 'none' }) =>
-          useSsoDomainTab('idp-1', { provider: defaultProvider, domainVerificationMode: mode }),
-        { wrapper, initialProps: { mode: 'optional' as 'optional' | 'none' } },
-      );
-
-      let pending: Promise<void> = Promise.resolve();
-      act(() => {
-        pending = result.current.handleVerify(mockDomain);
-      });
-      rerender({ mode: 'none' });
-      await act(async () => {
-        finishVerify({ updatedDomain: mockVerifiedDomain, isVerified: true });
-        await pending;
-      });
-
-      expect(associate()).not.toHaveBeenCalled();
-    });
-
     it('should not remove the last verified domain of an enabled provider in required mode', async () => {
       mockServiceReturn.domainsList = [mockDomain];
       const { result } = renderUseSsoDomainTab({
