@@ -737,14 +737,14 @@ describe('SsoProviderCreate', () => {
         email: {
           label: 'Email',
           description: 'Email',
-          profile_required: true,
-          sso_field_name: 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+          is_required: true,
+          sso_field: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
         },
         given_name: {
           label: 'Given Name',
           description: 'First name',
-          profile_required: false,
-          sso_field_name: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
+          is_required: false,
+          sso_field: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
         },
       };
 

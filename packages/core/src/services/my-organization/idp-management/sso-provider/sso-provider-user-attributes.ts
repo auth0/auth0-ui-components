@@ -3,45 +3,33 @@
  * @module sso-provider-user-attributes
  * @internal
  */
+import type { MyOrganization } from '@auth0/myorganization-js';
+
 import type { GetIdpConfigurationResponseContent } from '../../config/config-types';
 import type { IdpProvisioningUserAttributeMapItem } from '../sso-provisioning/sso-provisioning-types';
 
 import { STRATEGY_TO_CONFIG_KEY } from './sso-provider-constants';
 import type { IdpStrategy, IdpUserAttributeMapItem } from './sso-provider-types';
 
-/**
- * One entry of `strategies.<strategy>.user_attributes` in `GET /config/identity-providers`.
- */
-export interface IdpConfigUserAttribute {
-  label?: string;
-  description?: string;
-  profile_required?: boolean;
-  sso_field_name?: string | string[];
-  provisioning_field_name?: string;
-}
+/** One entry of `strategies.<strategy>.user_attributes` in `GET /config/identity-providers`. */
+export type IdpConfigUserAttribute = MyOrganization.IdentityProvidersConfigUserAttribute;
 
 /** `user_attributes` of a strategy, keyed by user attribute profile id. */
-export type IdpConfigUserAttributes = Record<string, IdpConfigUserAttribute>;
+export type IdpConfigUserAttributes = MyOrganization.IdentityProvidersConfigUserAttributes;
 
 /**
  * The attribute mappings the configuration advertises for a strategy.
  * @param idpConfig - Identity provider configuration.
  * @param strategy - Strategy.
- * @returns The strategy's `user_attributes`, or `undefined` when the response has none (older API).
+ * @returns The strategy's `user_attributes`, or `undefined` when the response has none (no user
+ * attribute profile, or an older API).
  */
 export function getStrategyUserAttributes(
   idpConfig: GetIdpConfigurationResponseContent | null | undefined,
   strategy: IdpStrategy | undefined,
 ): IdpConfigUserAttributes | undefined {
   if (!idpConfig?.strategies || !strategy) return undefined;
-  const strategyConfig = idpConfig.strategies[STRATEGY_TO_CONFIG_KEY[strategy]] as
-    | { user_attributes?: unknown }
-    | undefined;
-  const userAttributes = strategyConfig?.user_attributes;
-  if (!userAttributes || typeof userAttributes !== 'object' || Array.isArray(userAttributes)) {
-    return undefined;
-  }
-  return userAttributes as IdpConfigUserAttributes;
+  return idpConfig.strategies[STRATEGY_TO_CONFIG_KEY[strategy]]?.user_attributes;
 }
 
 /**
@@ -55,7 +43,7 @@ export function toSsoAttributeMappings(
 ): IdpUserAttributeMapItem[] {
   return sortAttributes(
     Object.entries(userAttributes).flatMap(([id, attribute]) => {
-      const ssoField = toFieldList(attribute.sso_field_name);
+      const ssoField = toFieldList(attribute.sso_field);
       if (ssoField.length === 0) return [];
       return [{ ...toBaseItem(id, attribute), sso_field: ssoField }];
     }),
@@ -73,10 +61,8 @@ export function toProvisioningAttributeMappings(
 ): IdpProvisioningUserAttributeMapItem[] {
   return sortAttributes(
     Object.entries(userAttributes).flatMap(([id, attribute]) => {
-      if (!attribute.provisioning_field_name) return [];
-      return [
-        { ...toBaseItem(id, attribute), provisioning_field: attribute.provisioning_field_name },
-      ];
+      if (!attribute.provisioning_field) return [];
+      return [{ ...toBaseItem(id, attribute), provisioning_field: attribute.provisioning_field }];
     }),
   );
 }
@@ -92,20 +78,19 @@ function toBaseItem(id: string, attribute: IdpConfigUserAttribute) {
     user_attribute: id,
     label: attribute.label || id,
     description: attribute.description,
-    is_required: Boolean(attribute.profile_required),
+    is_required: Boolean(attribute.is_required),
     is_extra: false,
     is_missing: false,
   };
 }
 
 /**
- * Normalises an SSO field to a list without empty names.
- * @param value - String, list or nothing.
+ * SSO field names without empty entries.
+ * @param value - Field names, or nothing.
  * @returns Field names.
  */
-function toFieldList(value: string | string[] | undefined): string[] {
-  const list = Array.isArray(value) ? value : value ? [value] : [];
-  return list.filter((name) => typeof name === 'string' && name.length > 0);
+function toFieldList(value: string[] | undefined): string[] {
+  return (value ?? []).filter((name) => typeof name === 'string' && name.length > 0);
 }
 
 /**
