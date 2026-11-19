@@ -109,6 +109,7 @@ const AttributeNameCell = ({
  * @param props.isProvisioning - Whether provisioning is enabled.
  * @param props.hideExternalNamespace - Leave out the External Namespace field.
  * @param props.customMessages - Custom i18n message overrides.
+ * @param props.hideHeader - Hides the section title and description.
  * @param props.className - Additional CSS class names.
  * @returns Attribute mappings component.
  * @internal
@@ -118,6 +119,7 @@ export function SsoProviderAttributeMappings({
   strategy,
   isProvisioning = false,
   hideExternalNamespace = false,
+  hideHeader = false,
   customMessages,
   className,
 }: SsoProviderAttributeMappingsProps) {
@@ -167,10 +169,12 @@ export function SsoProviderAttributeMappings({
   return (
     <div className={className}>
       <Mapping
-        title={t('mappings.title')}
-        description={t(
-          isProvisioning ? 'mappings.description' : 'mappings.description_provider_tab',
-        )}
+        title={hideHeader ? undefined : t('mappings.title')}
+        description={
+          hideHeader
+            ? undefined
+            : t(isProvisioning ? 'mappings.description' : 'mappings.description_provider_tab')
+        }
         expanded
         card={{
           title: t('mappings.required.title'),
