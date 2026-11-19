@@ -7,6 +7,7 @@ export default defineConfig({
     rwa: 'src/rwa.ts',
   },
   format: ['esm', 'cjs'],
+  platform: 'browser',
   dts: true,
   sourcemap: true,
   clean: true,
