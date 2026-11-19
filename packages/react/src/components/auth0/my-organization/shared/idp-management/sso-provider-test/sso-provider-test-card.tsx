@@ -71,7 +71,7 @@ export function SsoProviderTestCard({
     <div className={cn('w-full', styling?.classes?.['SsoProviderTest-root'])}>
       {variant === 'inline' ? (
         <div className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-6">
             <p className={cn('text-foreground text-left text-paragraph')}>{t('description')}</p>
             {details}
           </div>
