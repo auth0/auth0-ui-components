@@ -4,10 +4,11 @@
  * @internal
  */
 
-import type { GoogleAppsConfigureFormValues } from '@auth0/universal-components-core';
+import { STRATEGIES, type GoogleAppsConfigureFormValues } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoCallbackUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field';
 import { SsoClientCredentialsFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields';
 import { SsoIdpDomainField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field';
@@ -25,7 +26,7 @@ import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-m
 export type GoogleAppsConfigureFormHandle =
   StrategyConfigureFormHandle<GoogleAppsConfigureFormValues>;
 
-interface GoogleAppsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
+type GoogleAppsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const GoogleAppsProviderForm = React.forwardRef<
   GoogleAppsConfigureFormHandle,
@@ -39,6 +40,13 @@ export const GoogleAppsProviderForm = React.forwardRef<
     onFormDirty,
     idpConfig,
     mode = 'create',
+    showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
+    styling,
   },
   ref,
 ) {
@@ -58,6 +66,13 @@ export const GoogleAppsProviderForm = React.forwardRef<
       callback_url: callbackUrl || '',
       show_as_button: googleAppsData?.show_as_button ?? false,
       assign_membership_on_login: googleAppsData?.assign_membership_on_login ?? false,
+      ...getConnectionAccessDefaults(
+        googleAppsData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+        showThirdPartyAccess,
+      ),
     },
   });
 
@@ -84,6 +99,13 @@ export const GoogleAppsProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={readOnly}
           customMessages={customMessages}
+          strategy={STRATEGIES.GOOGLE_APPS}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
       </div>
     </Form>

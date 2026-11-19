@@ -4,19 +4,19 @@
  * @internal
  */
 
-import type {
-  SamlpConfigureFormInput,
-  SamlpConfigureFormValues,
+import {
+  STRATEGIES,
+  type SamlpConfigureFormInput,
+  type SamlpConfigureFormValues,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
-import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoSamlConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields';
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoSamlServiceProviderFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields';
-import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
-import { Form, FormField } from '@/components/ui/form';
+import { Form } from '@/components/ui/form';
 import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
 import {
   parseStrategyConfigureValues,
@@ -28,10 +28,7 @@ import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-m
 
 export type SamlpConfigureFormHandle = StrategyConfigureFormHandle<SamlpConfigureFormValues>;
 
-interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-}
+type SamlpConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
@@ -44,6 +41,7 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    mode = 'create',
     connectionName: connectionNameProp,
     connectionNamePrefix,
     resolveSamlMetadata,
@@ -93,14 +91,15 @@ export const SamlpProviderForm = React.forwardRef<
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
-      use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
-      cross_app_access_resource_app:
-        samlpData?.cross_app_access_resource_app ??
-        (crossAppAccessDefaultValue !== undefined
-          ? { status: crossAppAccessDefaultValue }
-          : undefined),
       discovery_url: samlpData?.discovery_url ?? '',
       ...spMetadataUrls,
+      ...getConnectionAccessDefaults(
+        samlpData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+        showThirdPartyAccess,
+      ),
     },
     getData: (samlpForm) => {
       const values = samlpForm.getValues();
@@ -119,8 +118,6 @@ export const SamlpProviderForm = React.forwardRef<
     form.setValue('acs_url', spMetadataUrls.acs_url);
     form.setValue('sp_metadata_url', spMetadataUrls.sp_metadata_url);
   }, [form, spMetadataUrls]);
-
-  const discoveryUrlValue = form.watch('discovery_url') ?? '';
 
   return (
     <Form {...form}>
@@ -147,46 +144,14 @@ export const SamlpProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={readOnly}
           customMessages={customMessages}
+          strategy={STRATEGIES.SAMLP}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
-
-        {showThirdPartyAccess && (
-          <FormField
-            control={form.control}
-            name="use_for_third_party_client_access"
-            render={({ field }) => (
-              <SsoThirdPartyAccessSection
-                checked={field.value ?? false}
-                onChange={field.onChange}
-                readOnly={readOnly || isThirdPartyAccessReadOnly}
-                isOrganizationBlocked={isOrganizationBlocked}
-                className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
-              />
-            )}
-          />
-        )}
-
-        {showCrossAppAccess && (
-          <FormField
-            control={form.control}
-            name="cross_app_access_resource_app"
-            render={({ field }) => (
-              <SsoCrossAppAccessSection
-                checked={field.value?.status === 'enabled'}
-                onChange={(checked) =>
-                  field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
-                }
-                readOnly={readOnly || isCrossAppAccessReadOnly}
-                strategy="samlp"
-                discoveryUrl={discoveryUrlValue}
-                onDiscoveryUrlChange={(url) =>
-                  form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
-                }
-                discoveryUrlError={form.formState.errors.discovery_url?.message}
-                className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
-              />
-            )}
-          />
-        )}
       </div>
     </Form>
   );
