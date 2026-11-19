@@ -24,7 +24,7 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
-  UseSsoProviderCreateOptions,
+  UseSsoProviderCreateServiceOptions,
   UseSsoProviderCreateServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
@@ -45,19 +45,31 @@ function extractDomainFromDiscoveryError(detail?: string): string | null {
  * @param options - Hook options.
  * @param options.createAction - Callback after successful creation.
  * @param options.customMessages - Custom translation messages.
+ * @param options.shouldDeferSuccessToast - Returns true to leave the success toast to the caller.
  * @returns Service state and methods.
  * @internal
  */
 export function useSsoProviderCreateService({
   createAction,
   customMessages = {},
-}: UseSsoProviderCreateOptions = {}): UseSsoProviderCreateServiceReturn {
+  shouldDeferSuccessToast,
+}: UseSsoProviderCreateServiceOptions = {}): UseSsoProviderCreateServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
   const { organization } = useOrganizationDetailsEditService({});
   const { idpConfig } = useIdpConfig();
+
+  const notifyCreated = useCallback(
+    (providerName?: string | null) => {
+      showToast({
+        type: 'success',
+        message: t('notifications.provider_create_success', { providerName }),
+      });
+    },
+    [t],
+  );
 
   const createProviderMutation = useMutation({
     mutationFn: async (
@@ -105,10 +117,9 @@ export function useSsoProviderCreateService({
       return result;
     },
     onSuccess: (result, data) => {
-      showToast({
-        type: 'success',
-        message: t('notifications.provider_create_success', { providerName: result.name }),
-      });
+      if (!shouldDeferSuccessToast?.()) {
+        notifyCreated(result.name);
+      }
 
       createAction?.onAfter?.(data, result);
 
@@ -174,5 +185,6 @@ export function useSsoProviderCreateService({
     isCreating: isMutationLoading(createProviderMutation),
     isOrganizationBlocked: organization?.third_party_client_access === 'block',
     organizationDisplayName: organization?.display_name || undefined,
+    notifyCreated,
   };
 }

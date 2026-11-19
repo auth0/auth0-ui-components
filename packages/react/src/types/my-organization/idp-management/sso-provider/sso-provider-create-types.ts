@@ -199,6 +199,7 @@ export interface SsoProviderCreateGuidedSetup {
   enabled?: boolean;
   companyName?: string;
   hideLifecycleWarnings?: boolean;
+  onComplete?: (provider: IdpKnownResponse) => void;
 }
 
 export interface SsoProviderCreateGuidedSetupState {
@@ -246,6 +247,10 @@ export interface UseSsoProviderCreateOptions {
   readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
+export interface UseSsoProviderCreateServiceOptions extends UseSsoProviderCreateOptions {
+  shouldDeferSuccessToast?: () => boolean;
+}
+
 export interface UseSsoProviderCreateServiceReturn {
   createProvider: (
     data: CreateIdentityProviderRequestContentPrivate,
@@ -253,6 +258,7 @@ export interface UseSsoProviderCreateServiceReturn {
   isCreating: boolean;
   isOrganizationBlocked: boolean;
   organizationDisplayName?: string;
+  notifyCreated: (providerName?: string | null) => void;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {

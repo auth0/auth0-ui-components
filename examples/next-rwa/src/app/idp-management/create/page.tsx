@@ -12,8 +12,20 @@ export default function SsoProviderCreatePage() {
   }, [router]);
 
   const handleBack = useCallback((): void => {
-    router.push('/idp-management/');
+    router.push('/idp-management/create');
   }, [router]);
+
+  const handleGuidedComplete = useCallback(
+    (provider: { id?: string }): void => {
+      router.push(provider.id ? `/idp-management/edit/${provider.id}` : '/idp-management/');
+    },
+    [router],
+  );
+
+  const guidedSetup = useMemo(
+    () => ({ enabled: true, onComplete: handleGuidedComplete }),
+    [handleGuidedComplete],
+  );
 
   const createAction = useMemo(
     () => ({
@@ -26,7 +38,7 @@ export default function SsoProviderCreatePage() {
     <div className="p-6 pt-8 space-y-6">
       <SsoProviderCreate
         createAction={createAction}
-        guidedSetup={{ enabled: true }}
+        guidedSetup={guidedSetup}
         backButton={{ onClick: handleBack }}
       />
     </div>

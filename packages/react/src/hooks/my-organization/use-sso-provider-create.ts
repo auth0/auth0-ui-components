@@ -89,11 +89,17 @@ export function useSsoProviderCreate({
     [createAction],
   );
 
-  const { createProvider, isCreating, isOrganizationBlocked, organizationDisplayName } =
-    useSsoProviderCreateService({
-      createAction: serviceCreateAction,
-      customMessages,
-    });
+  const {
+    createProvider,
+    isCreating,
+    isOrganizationBlocked,
+    organizationDisplayName,
+    notifyCreated,
+  } = useSsoProviderCreateService({
+    createAction: serviceCreateAction,
+    customMessages,
+    shouldDeferSuccessToast: () => isGuidedSetupRef.current,
+  });
 
   const [formData, setFormData] = useState<FormState>({});
   const { strategy, details } = formData;
@@ -213,6 +219,11 @@ export function useSsoProviderCreate({
         const pending = pendingOnAfterRef.current;
         if (!pending) return;
         pendingOnAfterRef.current = null;
+        notifyCreated(pending.result.name);
+        if (guidedSetupOptions?.onComplete) {
+          guidedSetupOptions.onComplete(pending.result);
+          return;
+        }
         createAction?.onAfter?.(pending.data, pending.result);
       },
     }),
@@ -230,6 +241,8 @@ export function useSsoProviderCreate({
       formData.configure,
       createProvider,
       createAction,
+      guidedSetupOptions?.onComplete,
+      notifyCreated,
     ],
   );
 
