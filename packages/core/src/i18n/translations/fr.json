@@ -1072,16 +1072,13 @@
       },
       "copy_values": {
         "callback_url": {
-          "label": "URL de rappel",
-          "helper_text": "Utilisez cette URL comme URL de redirection ou de rappel dans votre fournisseur d’identité."
+          "label": "URL de rappel"
         },
         "sso_url": {
-          "label": "URL d’authentification unique",
-          "helper_text": "Point de terminaison vers lequel les utilisateurs sont redirigés pour l’authentification unique. Également appelée : URL du service consommateur d’assertions, URL de rappel."
+          "label": "URL d’authentification unique"
         },
         "service_provider_entity_id": {
-          "label": "ID d’entité du fournisseur de services",
-          "helper_text": "Identifiant unique du fournisseur de services. Également appelé : URI d’audience."
+          "label": "ID d’entité du fournisseur de services"
         },
         "adfs_ws_federation_url": {
           "label": "URL du protocole passif WS-Federation de la partie de confiance"
