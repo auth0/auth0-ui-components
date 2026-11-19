@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 type AttributeItem = BaseUserAttributeMapItem & {
@@ -167,7 +168,7 @@ export function SsoProviderAttributeMappings({
   );
 
   return (
-    <div className={className}>
+    <div className={cn('space-y-6', className)}>
       <Mapping
         title={hideHeader ? undefined : t('mappings.title')}
         description={
