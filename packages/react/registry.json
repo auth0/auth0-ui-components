@@ -9,7 +9,7 @@
       "title": "Organization create component.",
       "description": "A block component for organization create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -362,7 +362,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -371,7 +371,7 @@
       "title": "OrganizationSwitcher container component.",
       "description": "A block component for organization switcher.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-slot@1.2.3",
@@ -601,7 +601,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -610,7 +610,7 @@
       "title": "OrganizationTable container component.",
       "description": "A block component for organization table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -959,7 +959,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -3396,7 +3396,8 @@
         "react-markdown@8.0.7",
         "remark-gfm@3.0.1",
         "sonner@2.0.5",
-        "tailwind-merge@3.3.0"
+        "tailwind-merge@3.3.0",
+        "zod@3.25.56"
       ],
       "files": [
         {
@@ -4238,7 +4239,8 @@
         "react-markdown@8.0.7",
         "remark-gfm@3.0.1",
         "sonner@2.0.5",
-        "tailwind-merge@3.3.0"
+        "tailwind-merge@3.3.0",
+        "zod@3.25.56"
       ],
       "files": [
         {
