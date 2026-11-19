@@ -65,6 +65,13 @@ describe('SsoGuidedSetup', () => {
     ).toBeInTheDocument();
   });
 
+  it('leaves the copy value descriptions to the instructions', async () => {
+    renderSetup();
+
+    await screen.findByDisplayValue('https://test-domain.auth0.com/login/callback');
+    expect(screen.queryByText(/helper_text/)).not.toBeInTheDocument();
+  });
+
   it('moves between pages with Next and Back', async () => {
     renderSetup();
     await screen.findByText('Okta');

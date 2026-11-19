@@ -6,7 +6,6 @@
 
 interface LabelMessages {
   label?: string;
-  helper_text?: string;
 }
 
 export interface SsoGuidedSetupCreateModalMessages {
