@@ -717,6 +717,9 @@ describe('SsoProviderCreate', () => {
 
       expect(pageTitle()).toHaveTextContent('Test SSO');
       expect(screen.getByRole('button', { name: 'test_button_label' })).toBeEnabled();
+      expect(screen.getByText('test_connection.instructions')).toBeInTheDocument();
+      expect(screen.getByText('test_connection.keep_open')).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'title' })).not.toBeInTheDocument();
     });
 
     describe('connection access set in the advanced form', () => {

@@ -3451,11 +3451,6 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx"
         },
         {
-          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection.tsx"
-        },
-        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup.tsx"
@@ -3614,6 +3609,11 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx",

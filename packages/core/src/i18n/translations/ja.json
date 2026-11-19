@@ -1173,6 +1173,10 @@
         "out_of_date": "プロバイダーの手順が古くなっている可能性があります。必要に応じて ${companyName} のサポートにお問い合わせください。",
         "dismiss": "閉じる",
         "deprecated": "このプロバイダーではガイド付きセットアップを利用できません。"
+      },
+      "test_connection": {
+        "instructions": "**${testButton}** を選択すると新しいウィンドウが開き、${providerName} でのログインにリダイレクトされます。${protocol} レスポンスが返されます。",
+        "keep_open": "テスト中はこのウィンドウを閉じないでください。"
       }
     }
   },

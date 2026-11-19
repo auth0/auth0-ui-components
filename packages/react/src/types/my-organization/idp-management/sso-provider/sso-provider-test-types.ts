@@ -107,4 +107,6 @@ export interface SsoProviderTestCardProps
   provider: IdpKnownResponse;
   permissionDenied?: boolean;
   notificationMessages?: Partial<SsoProviderNotificationMessages>;
+  variant?: 'card' | 'inline';
+  details?: React.ReactNode;
 }

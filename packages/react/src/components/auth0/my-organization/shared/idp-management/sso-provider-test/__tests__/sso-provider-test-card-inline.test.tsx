@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { SsoGuidedSetupTestConnection } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-test-connection';
+import { SsoProviderTestCard } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card';
 import { useSsoProviderTest } from '@/hooks/my-organization/use-sso-provider-test';
 import { createMockSsoProvider } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-domain.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
@@ -24,12 +24,7 @@ const createHookReturn = (
   ...overrides,
 });
 
-const provider = createMockSsoProvider();
-
-const renderTest = (canTest = true) =>
-  renderWithProviders(<SsoGuidedSetupTestConnection provider={provider} canTest={canTest} />);
-
-describe('SsoGuidedSetupTestConnection', () => {
+describe('SsoProviderTestCard inline variant', () => {
   let hookReturn: UseSsoProviderTestReturn;
 
   beforeEach(() => {
@@ -38,33 +33,37 @@ describe('SsoGuidedSetupTestConnection', () => {
     vi.mocked(useSsoProviderTest).mockImplementation(() => hookReturn);
   });
 
-  it('starts a test for the provider without the edit page card heading', async () => {
-    renderTest();
+  it('shows the description, details and test button without the card title', async () => {
+    renderWithProviders(
+      <SsoProviderTestCard
+        provider={createMockSsoProvider()}
+        variant="inline"
+        details={<p>extra guidance</p>}
+      />,
+    );
 
-    await userEvent.click(screen.getByRole('button', { name: 'test_button_label' }));
-
-    expect(useSsoProviderTest).toHaveBeenCalledWith(provider.id);
-    expect(hookReturn.start).toHaveBeenCalled();
     expect(screen.queryByRole('heading', { name: 'title' })).not.toBeInTheDocument();
-  });
-
-  it('disables the test without permission to test providers', () => {
-    renderTest(false);
-
-    expect(screen.getByRole('button', { name: 'test_button_label' })).toBeDisabled();
-  });
-
-  it('disables the test while it runs', () => {
-    hookReturn = createHookReturn({ state: 'polling' });
-    renderTest();
-
-    expect(screen.getByRole('button', { name: 'test_button_label', hidden: true })).toBeDisabled();
+    expect(screen.getByText('description')).toBeInTheDocument();
+    expect(screen.getByText('extra guidance')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'test_button_label' }));
+    expect(hookReturn.start).toHaveBeenCalled();
   });
 
   it('shows the result once the test finishes', () => {
     hookReturn = createHookReturn({ state: 'success', user: { email: 'bob@acme.corp' } });
-    renderTest();
+    renderWithProviders(
+      <SsoProviderTestCard provider={createMockSsoProvider()} variant="inline" />,
+    );
 
     expect(screen.getByText('success_title')).toBeInTheDocument();
+  });
+
+  it('keeps the card title in the default variant', () => {
+    renderWithProviders(
+      <SsoProviderTestCard provider={createMockSsoProvider()} details={<p>extra guidance</p>} />,
+    );
+
+    expect(screen.getByRole('heading', { name: 'title' })).toBeInTheDocument();
+    expect(screen.getByText('extra guidance')).toBeInTheDocument();
   });
 });

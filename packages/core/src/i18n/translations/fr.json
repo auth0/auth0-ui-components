@@ -1119,6 +1119,10 @@
         "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${companyName} si besoin.",
         "dismiss": "Ignorer",
         "deprecated": "La configuration guidée n’est pas disponible pour ce fournisseur."
+      },
+      "test_connection": {
+        "instructions": "Sélectionnez **${testButton}** pour ouvrir une nouvelle fenêtre et vous connecter avec ${providerName}. Vous recevrez une réponse ${protocol} en retour.",
+        "keep_open": "Ne fermez pas cette fenêtre pendant le test."
       }
     }
   },

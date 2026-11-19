@@ -36,6 +36,11 @@ export interface SsoGuidedSetupLifecycleMessages {
   deprecated?: string;
 }
 
+export interface SsoGuidedSetupTestConnectionMessages {
+  instructions?: string;
+  keep_open?: string;
+}
+
 export interface SsoGuidedSetupMessages {
   stepper_label?: string;
   back?: string;
@@ -50,6 +55,7 @@ export interface SsoGuidedSetupMessages {
   attribute_mapping_pending?: string;
   attribute_mapping_unavailable?: string;
   lifecycle?: SsoGuidedSetupLifecycleMessages;
+  test_connection?: SsoGuidedSetupTestConnectionMessages;
 }
 
 export interface SsoProvisioningSetupMessages {

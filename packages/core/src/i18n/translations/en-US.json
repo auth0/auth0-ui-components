@@ -1259,6 +1259,10 @@
         "out_of_date": "Provider instructions may be outdated. Please contact ${companyName} support for assistance if needed.",
         "dismiss": "Dismiss",
         "deprecated": "Guided setup isn't available for this provider."
+      },
+      "test_connection": {
+        "instructions": "Selecting **${testButton}** will open a new window and redirect you to log in with ${providerName}. You'll receive a ${protocol} response in return.",
+        "keep_open": "Please do not close out of this window while testing."
       }
     }
   },
