@@ -366,12 +366,8 @@ export function useDomainTable({
     [permissions, onVerifyDomain, announceVerified, fetchProviders, t, handleError],
   );
 
-  const handleToggleDiscovery = useCallback(
-    async (domain: Domain, checked: boolean) => {
-      const isVerified = domain.status === 'verified';
-      const canToggle = canChangeDiscovery && isVerified;
-      if (!canToggle) return;
-
+  const updateDiscovery = useCallback(
+    async (domain: Domain, checked: boolean, afterUpdate?: () => Promise<void> | void) => {
       const successKey = checked ? 'success_on' : 'success_off';
       setUpdatingDiscoveryId(domain.id);
       try {
@@ -382,6 +378,7 @@ export function useDomainTable({
             domainName: domain.domain,
           }),
         });
+        await afterUpdate?.();
       } catch (error) {
         handleError(error, {
           fallbackMessage: t('domain_table.notifications.domain_discovery_update.error'),
@@ -390,7 +387,18 @@ export function useDomainTable({
         setUpdatingDiscoveryId(null);
       }
     },
-    [canChangeDiscovery, onUpdateDomainDiscovery, t, handleError],
+    [onUpdateDomainDiscovery, t, handleError],
+  );
+
+  const handleToggleDiscovery = useCallback(
+    async (domain: Domain, checked: boolean) => {
+      const isVerified = domain.status === 'verified';
+      const canToggle = canChangeDiscovery && isVerified;
+      if (!canToggle) return;
+
+      await updateDiscovery(domain, checked);
+    },
+    [canChangeDiscovery, updateDiscovery],
   );
 
   /** Resumes the configure step that a row-level verify put on hold. */
@@ -421,26 +429,13 @@ export function useDomainTable({
   const handleEnableDiscovery = useCallback(
     async (domain: Domain) => {
       if (!canChangeDiscovery) return;
-      setUpdatingDiscoveryId(domain.id);
-      try {
-        await onUpdateDomainDiscovery(domain, true);
-        showToast({
-          type: 'success',
-          message: t('domain_table.notifications.domain_discovery_update.success_on', {
-            domainName: domain.domain,
-          }),
-        });
+
+      await updateDiscovery(domain, true, async () => {
         setShowDiscoveryModal(false);
         await continueAfterDiscoveryModal(domain);
-      } catch (error) {
-        handleError(error, {
-          fallbackMessage: t('domain_table.notifications.domain_discovery_update.error'),
-        });
-      } finally {
-        setUpdatingDiscoveryId(null);
-      }
+      });
     },
-    [canChangeDiscovery, onUpdateDomainDiscovery, continueAfterDiscoveryModal, t, handleError],
+    [canChangeDiscovery, updateDiscovery, continueAfterDiscoveryModal],
   );
 
   const handleDeleteClick = useCallback(
