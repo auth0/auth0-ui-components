@@ -9,6 +9,9 @@ import type { SharedMessages } from '../../shared/shared-types';
 export interface DomainConfigureMessages extends SharedMessages {
   title?: string;
   description?: string;
+  alerts?: {
+    domain_verification_none?: string;
+  };
   field?: {
     label?: string;
     placeholder?: string;
@@ -26,6 +29,8 @@ export interface DomainConfigureMessages extends SharedMessages {
       view_provider_button_text?: string;
       enable_provider_tooltip?: string;
       disable_provider_tooltip?: string;
+      domain_association_unavailable_tooltip?: string;
+      last_verified_domain_tooltip?: string;
     };
   };
   actions?: {
