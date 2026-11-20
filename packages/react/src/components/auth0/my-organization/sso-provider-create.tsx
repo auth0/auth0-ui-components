@@ -324,7 +324,6 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
             <SsoGuidedSetup
               strategy={strategy}
               connectionName={guidedConnectionName}
-              companyName={guidedSetup.companyName}
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}

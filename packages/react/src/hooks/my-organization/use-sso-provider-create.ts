@@ -174,7 +174,6 @@ export function useSsoProviderCreate({
       isAvailable: guidedSetupEnabled,
       isActive: isGuidedSetup,
       provider: guidedProvider,
-      companyName: guidedSetupOptions?.companyName,
       configureRef: guidedConfigureRef,
       start: () => {
         const data = configureRef.current?.getData();
@@ -218,7 +217,6 @@ export function useSsoProviderCreate({
       permissions.canCreateProvider,
       isGuidedSetup,
       guidedProvider,
-      guidedSetupOptions?.companyName,
       saveGuidedConfigure,
       strategy,
       details,
