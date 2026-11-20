@@ -14,8 +14,6 @@ import {
   FACTOR_TYPE_PHONE,
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_RECOVERY_CODE,
-  FACTOR_TYPE_WEBAUTHN_ROAMING,
-  FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_PUSH_NOTIFICATION,
 } from '../user-mfa-management-constants';
 import { MFAMappers } from '../user-mfa-management-mappers';
@@ -188,8 +186,6 @@ describe('MFAMappers', () => {
         expect(result[FACTOR_TYPE_EMAIL as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_PHONE as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_RECOVERY_CODE as MFAType]).toBeDefined();
-        expect(result[FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType]).toBeDefined();
-        expect(result[FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_PUSH_NOTIFICATION as MFAType]).toBeDefined();
       });
 
@@ -417,50 +413,6 @@ describe('MFAMappers', () => {
       });
     });
 
-    describe('WEBAUTHN_ROAMING factor type', () => {
-      it('should return correct params for WebAuthn roaming enrollment', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-
-      it('should ignore any provided options', () => {
-        const options: EnrollOptions = { email: 'ignored@example.com' };
-        const result = MFAMappers.buildEnrollParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-          options,
-        );
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-    });
-
-    describe('WEBAUTHN_PLATFORM factor type', () => {
-      it('should return correct params for WebAuthn platform enrollment', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-        });
-      });
-
-      it('should ignore any provided options', () => {
-        const options: EnrollOptions = { phone_number: '+1234567890' };
-        const result = MFAMappers.buildEnrollParams(
-          FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
-          options,
-        );
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-        });
-      });
-    });
-
     describe('RECOVERY_CODE factor type', () => {
       it('should return correct params for recovery code enrollment', () => {
         const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_RECOVERY_CODE as MFAType);
@@ -536,7 +488,7 @@ describe('MFAMappers', () => {
       });
 
       it('should not add extra properties for factors that do not require options', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType, {
+        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_RECOVERY_CODE as MFAType, {
           email: 'should-be-ignored@test.com',
         });
 
@@ -549,7 +501,7 @@ describe('MFAMappers', () => {
     describe('basic functionality', () => {
       it('should return base params with auth_session', () => {
         const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+          FACTOR_TYPE_RECOVERY_CODE as MFAType,
           mockAuthSession,
           mockConfirmEnrollmentNoOtpOptions,
         );
@@ -641,28 +593,6 @@ describe('MFAMappers', () => {
     });
 
     describe('factor type handling', () => {
-      it('should not include otp_code for WEBAUTHN_ROAMING even if userOtpCode is provided', () => {
-        const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-          mockAuthSession,
-          mockConfirmEnrollmentWithOtpOptions,
-        );
-
-        expect(result).toEqual(mockBaseVerifyRequest);
-        expect(result).not.toHaveProperty('otp_code');
-      });
-
-      it('should not include otp_code for WEBAUTHN_PLATFORM even if userOtpCode is provided', () => {
-        const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
-          mockAuthSession,
-          mockConfirmEnrollmentWithOtpOptions,
-        );
-
-        expect(result).toEqual(mockBaseVerifyRequest);
-        expect(result).not.toHaveProperty('otp_code');
-      });
-
       it('should not include otp_code for RECOVERY_CODE even if userOtpCode is provided', () => {
         const result = MFAMappers.buildConfirmEnrollmentParams(
           FACTOR_TYPE_RECOVERY_CODE as MFAType,
@@ -809,7 +739,7 @@ describe('MFAMappers', () => {
         expect(keysWithOtp.length).toBe(2);
 
         const resultWithoutOtp = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+          FACTOR_TYPE_RECOVERY_CODE as MFAType,
           mockAuthSession,
           mockConfirmEnrollmentNoOtpOptions,
         );
@@ -878,8 +808,6 @@ describe('MFAMappers', () => {
       ];
 
       const factorTypesNotRequiringOtp: MFAType[] = [
-        FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-        FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
         FACTOR_TYPE_RECOVERY_CODE as MFAType,
         FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
       ];
@@ -974,26 +902,6 @@ describe('MFAMappers', () => {
       expect(confirmParams).toEqual({
         auth_session: 'auth_session_xyz',
         otp_code: '654321',
-      });
-    });
-
-    it('should handle complete enrollment flow for WebAuthn', () => {
-      // Step 1: Build enroll params (no additional data needed)
-      const enrollParams = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
-
-      expect(enrollParams).toEqual({
-        type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-      });
-
-      // Step 2: Build confirm enrollment params (no OTP needed)
-      const confirmParams = MFAMappers.buildConfirmEnrollmentParams(
-        FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-        'auth_session_abc',
-        {},
-      );
-
-      expect(confirmParams).toEqual({
-        auth_session: 'auth_session_abc',
       });
     });
 

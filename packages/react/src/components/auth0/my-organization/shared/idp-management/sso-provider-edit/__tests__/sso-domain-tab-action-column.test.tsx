@@ -116,7 +116,7 @@ describe('SsoDomainTabActionsColumn', () => {
         />,
       );
 
-      expect(getRemoveButton()).toBeDisabled();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should be enabled with only the dissociate permission', () => {
@@ -177,6 +177,103 @@ describe('SsoDomainTabActionsColumn', () => {
 
       await user.keyboard('{Enter}');
       expect(props.onRemove).toHaveBeenCalledWith(props.domain);
+    });
+  });
+  describe('Why Remove is disabled', () => {
+    const reasonFor = () =>
+      document.getElementById(getRemoveButton().getAttribute('aria-describedby')!);
+
+    it('should keep the last verified domain of an enabled provider', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoDomainTabActionsColumn
+          {...createMockSsoDomainTabActionColumnProps({ lockLastDomain: true })}
+        />,
+      );
+
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
+      expect(reasonFor()).toHaveTextContent('table.actions.last_verified_domain_tooltip');
+
+      await user.hover(getRemoveButton());
+      await waitFor(() => {
+        expect(screen.getByRole('tooltip', { hidden: true })).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+      });
+    });
+
+    it('should be disabled below full access and say why', () => {
+      renderWithProviders(
+        <SsoDomainTabActionsColumn
+          {...createMockSsoDomainTabActionColumnProps({ canManageProviderDomains: false })}
+        />,
+      );
+
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
+      expect(reasonFor()).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
+    });
+
+    it('should report a missing permission before the access level or the lock', () => {
+      renderWithProviders(
+        <SsoDomainTabActionsColumn
+          {...createMockSsoDomainTabActionColumnProps({
+            permissions: createIdpPermissions(['create:my_org:identity_providers_domains']),
+            canManageProviderDomains: false,
+            lockLastDomain: true,
+          })}
+        />,
+      );
+
+      expect(reasonFor()).toHaveTextContent('error.forbidden');
+    });
+
+    it('should report the access level before the lock', () => {
+      renderWithProviders(
+        <SsoDomainTabActionsColumn
+          {...createMockSsoDomainTabActionColumnProps({
+            canManageProviderDomains: false,
+            lockLastDomain: true,
+          })}
+        />,
+      );
+
+      expect(reasonFor()).toHaveTextContent('table.actions.provider_access_restricted_tooltip');
+    });
+
+    it('should not call onRemove while blocked, even when activated', async () => {
+      const user = userEvent.setup();
+      const props = createMockSsoDomainTabActionColumnProps({ lockLastDomain: true });
+      renderWithProviders(<SsoDomainTabActionsColumn {...props} />);
+
+      await user.click(getRemoveButton());
+      getRemoveButton().focus();
+      await user.keyboard('{Enter}');
+
+      expect(props.onRemove).not.toHaveBeenCalled();
+    });
+
+    it('should have no description when it can be used', () => {
+      renderWithProviders(
+        <SsoDomainTabActionsColumn {...createMockSsoDomainTabActionColumnProps()} />,
+      );
+
+      expect(getRemoveButton()).toBeEnabled();
+      expect(getRemoveButton()).not.toHaveAttribute('aria-describedby');
+      expect(getRemoveButton().parentElement).not.toHaveAttribute('tabindex');
+    });
+
+    it('should let keyboard users reach the reason', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoDomainTabActionsColumn
+          {...createMockSsoDomainTabActionColumnProps({ lockLastDomain: true })}
+        />,
+      );
+
+      await user.tab();
+
+      expect(getRemoveButton()).toHaveFocus();
+      expect(getRemoveButton()).toHaveAttribute('aria-disabled', 'true');
     });
   });
 });
