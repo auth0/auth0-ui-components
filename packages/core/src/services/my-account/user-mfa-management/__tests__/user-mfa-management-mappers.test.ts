@@ -809,7 +809,6 @@ describe('MFAMappers', () => {
 
       const factorTypesNotRequiringOtp: MFAType[] = [
         FACTOR_TYPE_RECOVERY_CODE as MFAType,
-        FACTOR_TYPE_RECOVERY_CODE as MFAType,
         FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
       ];
 

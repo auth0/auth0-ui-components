@@ -22,15 +22,6 @@ import type {
 } from './user-mfa-management-types';
 
 /**
- * Factor types the API may still list but the UI no longer supports (not enrollable via My Account API).
- * Skipped when building the factor list.
- */
-const UNSUPPORTED_FACTOR_TYPES: ReadonlySet<string> = new Set([
-  'webauthn-roaming',
-  'webauthn-platform',
-]);
-
-/**
  * Builds enrollment parameters for a given MFA factor type.
  * @internal
  *
@@ -184,7 +175,9 @@ export function transformMyAccountFactors(
   for (const availableFactor of availableFactorsResponse.factors) {
     const mfaType = availableFactor.type as MFAType;
 
-    if (UNSUPPORTED_FACTOR_TYPES.has(mfaType)) {
+    // The API no longer supports enrolling these, but can still list them as available.
+    const skipFactors: MFAType[] = ['webauthn-platform', 'webauthn-roaming'];
+    if (skipFactors.includes(mfaType)) {
       continue;
     }
 

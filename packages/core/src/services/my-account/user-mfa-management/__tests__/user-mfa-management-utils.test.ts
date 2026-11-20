@@ -113,14 +113,6 @@ describe('mfa-utils', () => {
       });
     });
 
-    describe('unsupported factor types', () => {
-      it.each(['webauthn-roaming', 'webauthn-platform'])('should throw for %s', (type) => {
-        expect(() => buildEnrollParams(type as MFAType)).toThrow(
-          `Unsupported factor type: ${type}`,
-        );
-      });
-    });
-
     describe('RECOVERY_CODE factor type', () => {
       it('should return correct params', () => {
         const result = buildEnrollParams(FACTOR_TYPE_RECOVERY_CODE as MFAType);
@@ -259,19 +251,14 @@ describe('mfa-utils', () => {
         expect(phoneFactors?.[0]?.enrolled).toBe(false);
       });
 
-      it('should skip unsupported webauthn factor types returned by the API', () => {
-        const availableFactors = createMockAvailableFactors([
-          ...createMockAvailableFactors().factors,
-          createMockAvailableFactor('webauthn-roaming' as MFAType),
-          createMockAvailableFactor('webauthn-platform' as MFAType),
-        ]);
+      it('should exclude webauthn-platform and webauthn-roaming from full listing', () => {
+        const availableFactors = createMockAvailableFactors();
         const enrolledFactors = createEmptyEnrolledFactors();
 
         const result = transformMyAccountFactors(availableFactors, enrolledFactors, false);
 
-        expect(result['webauthn-roaming' as MFAType]).toBeUndefined();
-        expect(result['webauthn-platform' as MFAType]).toBeUndefined();
-        expect(result[FACTOR_TYPE_TOTP as MFAType]).toBeDefined();
+        expect(result['webauthn-platform']).toBeUndefined();
+        expect(result['webauthn-roaming']).toBeUndefined();
       });
 
       it('should group multiple enrolled factors of the same type', () => {

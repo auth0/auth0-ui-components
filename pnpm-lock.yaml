@@ -541,11 +541,11 @@ importers:
   packages/core:
     dependencies:
       '@auth0/myaccount-js':
-        specifier: file:../../auth0-myaccount-js-1.0.0-beta.4.tgz
-        version: file:auth0-myaccount-js-1.0.0-beta.4.tgz
+        specifier: file:../../vendor/sdk-preview/auth0-myaccount-js-1.0.0-beta.4.tgz
+        version: file:vendor/sdk-preview/auth0-myaccount-js-1.0.0-beta.4.tgz
       '@auth0/myorganization-js':
-        specifier: file:../../auth0-myorganization-js-2.2.0.tgz
-        version: file:auth0-myorganization-js-2.2.0.tgz
+        specifier: file:../../vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz
+        version: file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -725,13 +725,13 @@ packages:
   '@auth0/auth0-spa-js@2.17.1':
     resolution: {integrity: sha512-ae51cZUZro2sGmztY/EwGuQaSoXouTKYByKymHMeybYA6QneV/iurL5CRDZZVg9uqeLUdmnpxtIgakYfaSNY5Q==}
 
-  '@auth0/myaccount-js@file:auth0-myaccount-js-1.0.0-beta.4.tgz':
-    resolution: {integrity: sha512-xntZysm2mEZnp0rFs64GskgvYqvVHpiKyBMNJ6mvstnzf2i8nXU4oxlSQugaGKFCo6nPyxUii6OT2Yx4IylqMw==, tarball: file:auth0-myaccount-js-1.0.0-beta.4.tgz}
+  '@auth0/myaccount-js@file:vendor/sdk-preview/auth0-myaccount-js-1.0.0-beta.4.tgz':
+    resolution: {integrity: sha512-xntZysm2mEZnp0rFs64GskgvYqvVHpiKyBMNJ6mvstnzf2i8nXU4oxlSQugaGKFCo6nPyxUii6OT2Yx4IylqMw==, tarball: file:vendor/sdk-preview/auth0-myaccount-js-1.0.0-beta.4.tgz}
     version: 1.0.0-beta.4
     engines: {node: '>=20.0.0'}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-2.2.0.tgz':
-    resolution: {integrity: sha512-83e2SGZg9W/xl8lgEsW5wijRyuDQLI1OPMYtH9wANX9IQbXIR+m6yVHmJrZxDYRQFHkxqJFIuexJm/JcwMV4VA==, tarball: file:auth0-myorganization-js-2.2.0.tgz}
+  '@auth0/myorganization-js@file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz':
+    resolution: {integrity: sha512-83e2SGZg9W/xl8lgEsW5wijRyuDQLI1OPMYtH9wANX9IQbXIR+m6yVHmJrZxDYRQFHkxqJFIuexJm/JcwMV4VA==, tarball: file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz}
     version: 2.2.0
     engines: {node: '>=20.0.0'}
 
@@ -7323,9 +7323,9 @@ snapshots:
       dpop: 2.1.1
       es-cookie: 1.3.2
 
-  '@auth0/myaccount-js@file:auth0-myaccount-js-1.0.0-beta.4.tgz': {}
+  '@auth0/myaccount-js@file:vendor/sdk-preview/auth0-myaccount-js-1.0.0-beta.4.tgz': {}
 
-  '@auth0/myorganization-js@file:auth0-myorganization-js-2.2.0.tgz':
+  '@auth0/myorganization-js@file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz':
     dependencies:
       '@auth0/auth0-auth-js': 1.5.0
 

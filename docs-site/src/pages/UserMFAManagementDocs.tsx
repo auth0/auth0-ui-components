@@ -431,7 +431,7 @@ interface UserMFAManagementClasses {
   factorConfig={{
     sms: { visible: true, enabled: true },
     totp: { visible: true, enabled: true },
-    email: { visible: false, enabled: false },
+    email: { visible: false, enabled: false }
   }}
 />`}
               language="tsx"
@@ -756,8 +756,8 @@ function SecurityPage() {
         }}
         factorConfig={{
           phone: { visible: true, enabled: true },
-          totp: { visible: true, enabled: true },
-              }}
+          totp: { visible: true, enabled: true }
+        }}
         customMessages={{
           title: 'Multi-Factor Authentication',
           description: 'Add extra security to your account'
