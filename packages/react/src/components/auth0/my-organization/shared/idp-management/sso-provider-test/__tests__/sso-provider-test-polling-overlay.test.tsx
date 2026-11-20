@@ -24,6 +24,29 @@ describe('SsoProviderTestPollingOverlay', () => {
         expect(screen.getByRole('button', { name: 'retry_button_label' })).toBeInTheDocument();
       });
 
+      it('should cover the full page with a theme-aware backdrop', () => {
+        renderWithProviders(<SsoProviderTestPollingOverlay open onRetry={vi.fn()} />);
+
+        const backdrop = document.querySelector('[data-slot="dialog-overlay"]');
+        expect(backdrop).toHaveClass('fixed', 'inset-0', 'bg-background/50');
+        expect(backdrop).not.toHaveClass('bg-black/50');
+        expect(screen.getByRole('dialog')).toHaveClass('fixed', 'inset-0');
+      });
+
+      it('should use the theme foreground color so text stays readable in dark mode', () => {
+        renderWithProviders(<SsoProviderTestPollingOverlay open onRetry={vi.fn()} />);
+
+        expect(screen.getByRole('dialog')).toHaveClass('text-foreground');
+      });
+
+      it('should not render the content as a card', () => {
+        renderWithProviders(<SsoProviderTestPollingOverlay open onRetry={vi.fn()} />);
+
+        const dialog = screen.getByRole('dialog');
+        expect(dialog).not.toHaveClass('bg-background');
+        expect(dialog).not.toHaveClass('shadow-bevel-2xl');
+      });
+
       it('should not render a close button', () => {
         renderWithProviders(<SsoProviderTestPollingOverlay open onRetry={vi.fn()} />);
 

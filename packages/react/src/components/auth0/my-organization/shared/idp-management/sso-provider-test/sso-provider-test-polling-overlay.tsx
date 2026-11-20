@@ -1,11 +1,19 @@
 /**
- * Blocking overlay shown while an SSO provider test is running.
+ * Full-page blocking overlay shown while an SSO provider test is running.
  * @module sso-provider-test-polling-overlay
  * @internal
  */
 
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -14,7 +22,8 @@ import type { SsoProviderTestPollingOverlayProps } from '@/types/my-organization
 const preventDismiss = (event: Event) => event.preventDefault();
 
 /**
- * Non-dismissable overlay with a spinner and a Close and Retry action.
+ * Non-dismissable full-page overlay with a spinner and a Close and Retry action.
+ * Renders on a translucent theme backdrop instead of a dialog card.
  * @param props - Component props.
  * @param props.open - Whether the overlay is shown.
  * @param props.onRetry - Called when Close and Retry is clicked.
@@ -38,43 +47,46 @@ export function SsoProviderTestPollingOverlay({
 
   return (
     <Dialog open={open}>
-      <DialogContent
-        showCloseButton={false}
-        onEscapeKeyDown={preventDismiss}
-        onPointerDownOutside={preventDismiss}
-        onInteractOutside={preventDismiss}
-        onCloseAutoFocus={onCloseAutoFocus}
-        className={cn(
-          'flex flex-col items-center gap-6 text-center',
-          styling?.classes?.['SsoProviderTest-overlay'],
-        )}
-      >
-        <DialogTitle className="sr-only">{t('title')}</DialogTitle>
-        <DialogDescription className="sr-only">{t('description')}</DialogDescription>
+      <DialogPortal>
+        <DialogOverlay className="bg-background/50" />
+        <DialogPrimitive.Content
+          data-slot="dialog-content"
+          onEscapeKeyDown={preventDismiss}
+          onPointerDownOutside={preventDismiss}
+          onInteractOutside={preventDismiss}
+          onCloseAutoFocus={onCloseAutoFocus}
+          className={cn(
+            'text-foreground fixed inset-0 z-[999] flex flex-col items-center justify-center gap-6 p-6 text-center focus:outline-none',
+            styling?.classes?.['SsoProviderTest-overlay'],
+          )}
+        >
+          <DialogTitle className="sr-only">{t('title')}</DialogTitle>
+          <DialogDescription className="sr-only">{t('description')}</DialogDescription>
 
-        <Spinner size="lg" />
+          <Spinner size="lg" />
 
-        {blockedTestUrl && (
-          <p className="text-muted-foreground text-paragraph">
-            {t('popup_blocked_text')}{' '}
-            <a
-              href={blockedTestUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              {t('open_window_link_label')}
-            </a>
-          </p>
-        )}
+          {blockedTestUrl && (
+            <p className="text-muted-foreground text-paragraph">
+              {t('popup_blocked_text')}{' '}
+              <a
+                href={blockedTestUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                {t('open_window_link_label')}
+              </a>
+            </p>
+          )}
 
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-subtitle font-semibold">{t('trouble_text')}</p>
-          <Button type="button" variant="outline" onClick={onRetry} disabled={retryDisabled}>
-            {t('retry_button_label')}
-          </Button>
-        </div>
-      </DialogContent>
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-subtitle font-semibold">{t('trouble_text')}</p>
+            <Button type="button" variant="outline" onClick={onRetry} disabled={retryDisabled}>
+              {t('retry_button_label')}
+            </Button>
+          </div>
+        </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 }
