@@ -25,6 +25,7 @@ import type {
   GetIdpConfigurationResponseContent,
   IdpDomainVerificationMode,
   IdpManagementPermissions,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -154,8 +155,8 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
   domainVerificationMode: IdpDomainVerificationMode;
-  /** The provider is disabled and `required` mode still needs its first verified domain. */
   isEnableBlockedByDomains: boolean;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
