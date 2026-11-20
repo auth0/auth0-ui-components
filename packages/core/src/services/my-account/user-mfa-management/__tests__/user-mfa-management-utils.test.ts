@@ -7,8 +7,6 @@ import {
   createMockPhoneAuthMethod,
   createMockTotpAuthMethod,
   createMockRecoveryCodeAuthMethod,
-  createMockWebAuthnRoamingAuthMethod,
-  createMockWebAuthnPlatformAuthMethod,
   createMockPushNotificationAuthMethod,
   createEmptyEnrolledFactors,
   createEmptyAvailableFactors,
@@ -20,8 +18,6 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
   FACTOR_TYPE_TOTP,
-  FACTOR_TYPE_WEBAUTHN_PLATFORM,
-  FACTOR_TYPE_WEBAUTHN_ROAMING,
 } from '../user-mfa-management-constants';
 import type { MFAType, EnrollOptions } from '../user-mfa-management-types';
 import { buildEnrollParams, transformMyAccountFactors } from '../user-mfa-management-utils';
@@ -113,26 +109,6 @@ describe('mfa-utils', () => {
 
         expect(result).toEqual({
           type: FACTOR_TYPE_TOTP,
-        });
-      });
-    });
-
-    describe('WEBAUTHN_ROAMING factor type', () => {
-      it('should return correct params', () => {
-        const result = buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-    });
-
-    describe('WEBAUTHN_PLATFORM factor type', () => {
-      it('should return correct params', () => {
-        const result = buildEnrollParams(FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
         });
       });
     });
@@ -275,14 +251,14 @@ describe('mfa-utils', () => {
         expect(phoneFactors?.[0]?.enrolled).toBe(false);
       });
 
-      it('should exclude WEBAUTHN_PLATFORM and WEBAUTHN_ROAMING from full listing', () => {
+      it('should exclude webauthn-platform and webauthn-roaming from full listing', () => {
         const availableFactors = createMockAvailableFactors();
         const enrolledFactors = createEmptyEnrolledFactors();
 
         const result = transformMyAccountFactors(availableFactors, enrolledFactors, false);
 
-        expect(result[FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType]).toBeUndefined();
-        expect(result[FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType]).toBeUndefined();
+        expect(result['webauthn-platform']).toBeUndefined();
+        expect(result['webauthn-roaming']).toBeUndefined();
       });
 
       it('should group multiple enrolled factors of the same type', () => {
@@ -410,18 +386,6 @@ describe('mfa-utils', () => {
 
         const recoveryFactors = result[FACTOR_TYPE_RECOVERY_CODE as MFAType];
         expect(recoveryFactors?.[0]?.name).toBe('Recovery Codes');
-      });
-
-      it('should use factor name property when available for WebAuthn', () => {
-        const availableFactors = createMockAvailableFactors();
-        const enrolledFactors = createMockEnrolledFactors([
-          createMockWebAuthnRoamingAuthMethod('YubiKey 5'),
-        ]);
-
-        const result = transformMyAccountFactors(availableFactors, enrolledFactors, true);
-
-        const webauthnFactors = result[FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType];
-        expect(webauthnFactors?.[0]?.name).toBe('YubiKey 5');
       });
 
       it('should fallback to type when name is not available', () => {
@@ -565,19 +529,6 @@ describe('mfa-utils', () => {
         const emailFactors = result[FACTOR_TYPE_EMAIL as MFAType];
         expect(emailFactors).toHaveLength(1);
         expect(emailFactors?.[0]?.enrolled).toBe(false);
-      });
-
-      it('should preserve all enrolled WebAuthn factors in onlyActive mode', () => {
-        const availableFactors = createMockAvailableFactors();
-        const enrolledFactors = createMockEnrolledFactors([
-          createMockWebAuthnRoamingAuthMethod('YubiKey'),
-          createMockWebAuthnPlatformAuthMethod('TouchID'),
-        ]);
-
-        const result = transformMyAccountFactors(availableFactors, enrolledFactors, true);
-
-        expect(result[FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType]).toHaveLength(1);
-        expect(result[FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType]).toHaveLength(1);
       });
     });
 

@@ -8,7 +8,9 @@ import type {
   CreateOrganizationDomainRequestContent,
   Domain,
   DomainCreateSchemas,
+  IdpDomainVerificationMode,
   IdpKnownResponse,
+  OrganizationDiscoveryConfig,
   SharedComponentProps,
   SsoDomainAssignMessages,
   SsoDomainTabMessages,
@@ -75,6 +77,8 @@ export interface SsoDomainsTabProps
   idpId: string;
   provider: IdpKnownResponse | null;
   permissions: IdpManagementPermissions;
+  domainVerificationMode?: IdpDomainVerificationMode;
+  discoveryPolicy?: OrganizationDiscoveryConfig | null;
 }
 
 export interface SsoDomainTabActionColumn
@@ -90,6 +94,8 @@ export interface SsoDomainTabActionColumn
   isUpdating: boolean;
   isUpdatingId: string | null;
   onRemove: (domain: Domain) => Promise<void>;
+  lockLastDomain?: boolean;
+  canManageProviderDomains?: boolean;
   /** @deprecated The Domains tab no longer renders a toggle. */
   idpDomains?: string[];
   /** @deprecated The Domains tab no longer lists unverified domains. */
@@ -114,6 +120,7 @@ export interface SsoDomainAssignModalProps {
 export interface UseSsoDomainTabOptions extends SharedComponentProps {
   domains: SsoDomainsTabEditProps;
   provider: IdpKnownResponse | null;
+  domainVerificationMode?: IdpDomainVerificationMode;
 }
 
 export interface UseSsoDomainTabServiceOptions extends SharedComponentProps {

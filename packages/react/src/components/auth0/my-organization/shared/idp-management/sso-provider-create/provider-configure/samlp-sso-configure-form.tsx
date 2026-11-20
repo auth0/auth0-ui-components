@@ -84,6 +84,7 @@ export const SamlpProviderForm = React.forwardRef<
   {
     initialData,
     readOnly = false,
+    isLoginSettingsReadOnly = readOnly,
     customMessages = {},
     className,
     onFormDirty,
@@ -582,7 +583,7 @@ export const SamlpProviderForm = React.forwardRef<
 
         <CommonConfigureFields
           idpConfig={idpConfig}
-          readOnly={readOnly}
+          readOnly={isLoginSettingsReadOnly}
           customMessages={customMessages}
           strategy={STRATEGIES.SAMLP}
           showThirdPartyAccess={showThirdPartyAccess}
