@@ -242,7 +242,6 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             provider={provider}
             provisioningConfig={provisioningConfig}
             idpConfig={idpConfig}
-            companyName={provisioning?.guidedSetup?.companyName}
             onComplete={closeGuidedSetup}
             isScimTokensLoading={isScimTokensLoading}
             isScimTokenCreating={isScimTokenCreating}

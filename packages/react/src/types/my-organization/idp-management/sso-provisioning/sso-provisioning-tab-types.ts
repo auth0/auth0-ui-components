@@ -41,7 +41,6 @@ export interface SsoProvisioningTabEditProps {
 /** Guided provisioning setup options for `SsoProviderEdit`. */
 export interface SsoProvisioningGuidedSetup {
   enabled?: boolean;
-  companyName?: string;
 }
 
 /** CSS classes for SsoProvisioningTab. */
