@@ -157,7 +157,6 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isThirdPartyAccessReadOnly: boolean;
   discoveryPolicy: OrganizationDiscoveryConfig | null;
   domainVerificationMode: IdpDomainVerificationMode;
-  /** The provider is disabled and `required` mode still needs its first verified domain. */
   isEnableBlockedByDomains: boolean;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
