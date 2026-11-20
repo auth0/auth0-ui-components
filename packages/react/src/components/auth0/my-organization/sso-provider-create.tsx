@@ -370,7 +370,6 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
             <SsoGuidedSetup
               strategy={strategy}
               connectionName={guidedConnectionName}
-              companyName={guidedSetup.companyName}
               organizationDisplayName={guidedSetup.organizationDisplayName}
               hideLifecycleWarnings={guidedSetup.hideLifecycleWarnings}
               provider={guidedSetup.provider}

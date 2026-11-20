@@ -25,7 +25,6 @@ export interface SsoProvisioningGuidedSetupProps
   provider: IdpKnownResponse;
   provisioningConfig: IdpProvisioningConfig | null;
   idpConfig?: GetIdpConfigurationResponseContent | null;
-  companyName?: string;
   organizationDisplayName?: string;
   hideLifecycleWarnings?: boolean;
   onComplete: () => void;
@@ -44,7 +43,6 @@ export function SsoProvisioningGuidedSetup({
   provider,
   provisioningConfig,
   idpConfig,
-  companyName,
   organizationDisplayName,
   hideLifecycleWarnings,
   onComplete,
@@ -106,7 +104,6 @@ export function SsoProvisioningGuidedSetup({
       strategy={strategy}
       kind="provisioning"
       connectionName={provider.name ?? undefined}
-      companyName={companyName}
       organizationDisplayName={organizationDisplayName}
       hideLifecycleWarnings={hideLifecycleWarnings}
       provider={provider}

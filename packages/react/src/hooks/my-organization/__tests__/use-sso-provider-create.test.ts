@@ -187,12 +187,11 @@ describe('useSsoProviderCreate - logic behavior', () => {
   describe('guidedSetup', () => {
     it('exposes the organization display name from the organization details', () => {
       const { result } = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true, companyName: 'Staff0' } }),
+        () => useSsoProviderCreate({ guidedSetup: { enabled: true } }),
         grantAll,
       );
 
       expect(result.current.guidedSetup?.organizationDisplayName).toBe('Cyborg Inc');
-      expect(result.current.guidedSetup?.companyName).toBe('Staff0');
     });
   });
 

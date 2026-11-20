@@ -128,7 +128,7 @@ describe('SsoGuidedSetup', () => {
 
     it('creates on Proceed and moves on once the provider exists', async () => {
       const onCreateProvider = vi.fn().mockResolvedValue(true);
-      const { rerender } = renderSetup({ onCreateProvider, companyName: 'Acme' });
+      const { rerender } = renderSetup({ onCreateProvider });
       await goToConfigure();
 
       await userEvent.click(primary(/create_provider/));
@@ -143,7 +143,6 @@ describe('SsoGuidedSetup', () => {
         <SsoGuidedSetup
           strategy="okta"
           connectionName="my-okta"
-          companyName="Acme"
           onCreateProvider={onCreateProvider}
           provider={PROVIDER}
         />,
@@ -242,7 +241,7 @@ describe('SsoGuidedSetup', () => {
         }),
       );
       return renderWithProviders(
-        <SsoGuidedSetup strategy="okta" connectionName="my-okta" companyName="Acme" {...props} />,
+        <SsoGuidedSetup strategy="okta" connectionName="my-okta" {...props} />,
         { coreClient },
       );
     };
@@ -291,8 +290,14 @@ describe('SsoGuidedSetup', () => {
     expect(screen.getByRole('status')).toHaveTextContent('unavailable');
   });
 
+  it('fills {{companyName}} from the tenant in the instructions response', async () => {
+    renderSetup();
+
+    expect(await screen.findByText('Create Application for Okta and acme.')).toBeInTheDocument();
+  });
+
   it('shows the confirmation with the company name', async () => {
-    renderSetup({ companyName: 'Acme' });
+    renderSetup();
     await screen.findByText('Okta');
     await act(async () => {
       await userEvent.click(primary(/^next$/));

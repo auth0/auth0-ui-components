@@ -199,7 +199,6 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 
 export interface SsoProviderCreateGuidedSetup {
   enabled?: boolean;
-  companyName?: string;
   hideLifecycleWarnings?: boolean;
   onComplete?: (provider: IdpKnownResponse) => void;
 }
@@ -208,7 +207,6 @@ export interface SsoProviderCreateGuidedSetupState {
   isAvailable: boolean;
   isActive: boolean;
   provider: IdpKnownResponse | null;
-  companyName?: string;
   organizationDisplayName?: string;
   hideLifecycleWarnings?: boolean;
   configureRef: React.RefObject<ProviderConfigureFormHandle | null>;

@@ -6,6 +6,7 @@
  */
 
 import {
+  getInstructionsCompanyName,
   getInstructionsLocale,
   type IdpInstructionsPage,
   type IdpProvisioningInstructionsPage,
@@ -42,7 +43,6 @@ export interface SsoGuidedSetupProps
   extends Pick<
     SsoGuidedSetupContextValue,
     | 'connectionName'
-    | 'companyName'
     | 'provider'
     | 'resolveSamlMetadata'
     | 'configure'
@@ -86,7 +86,6 @@ export function SsoGuidedSetup({
   strategy,
   kind = 'creation',
   connectionName,
-  companyName,
   organizationDisplayName,
   provider = null,
   resolveSamlMetadata,
@@ -174,7 +173,7 @@ export function SsoGuidedSetup({
     }
   }, [advanceWhenCreated, provider, flow, leavePage]);
 
-  const company = companyName || t('company_fallback');
+  const company = getInstructionsCompanyName(instructions) || t('company_fallback');
   const isConnectionPage = currentPage?.exit_condition === 'connection_exists';
   const needsCreate = isConnectionPage && !provider;
   const isBlockedByMappings =

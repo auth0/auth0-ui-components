@@ -243,7 +243,6 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             provider={provider}
             provisioningConfig={provisioningConfig}
             idpConfig={idpConfig}
-            companyName={provisioning?.guidedSetup?.companyName}
             organizationDisplayName={organizationDisplayName}
             hideLifecycleWarnings={provisioning?.guidedSetup?.hideLifecycleWarnings}
             onComplete={closeGuidedSetup}
