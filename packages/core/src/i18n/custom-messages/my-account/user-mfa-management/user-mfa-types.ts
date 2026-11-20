@@ -41,6 +41,10 @@ export interface UserMfaManagementMessages {
     phone?: UserMfaFactorListItemMessages;
     email?: UserMfaFactorListItemMessages;
     totp?: UserMfaFactorListItemMessages;
+    /** @deprecated WebAuthn enrollment is no longer supported. This key has no effect. */
+    'webauthn-roaming'?: UserMfaFactorListItemMessages;
+    /** @deprecated WebAuthn enrollment is no longer supported. This key has no effect. */
+    'webauthn-platform'?: UserMfaFactorListItemMessages;
     'recovery-code'?: UserMfaFactorListItemMessages;
   };
 
