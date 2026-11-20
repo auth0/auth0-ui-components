@@ -87,6 +87,7 @@ export interface SsoProviderEditProps
   hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
+  hideTestProvider?: boolean;
   hideAttributeMappings?: boolean;
   providerId: IdpId;
   sso?: SsoProviderTabEditProps;
@@ -157,7 +158,6 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   isThirdPartyAccessReadOnly: boolean;
   discoveryPolicy: OrganizationDiscoveryConfig | null;
   domainVerificationMode: IdpDomainVerificationMode;
-  /** The provider is disabled and `required` mode still needs its first verified domain. */
   isEnableBlockedByDomains: boolean;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
@@ -199,6 +199,7 @@ export interface SsoProviderEditViewProps
       | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
+      | 'hideTestProvider'
       | 'hideAttributeMappings'
       | 'provisioning'
       | 'enableProviderAction'

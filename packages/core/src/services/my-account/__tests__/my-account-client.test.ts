@@ -146,6 +146,21 @@ describe('createMyAccountClient', () => {
       const [, requestInit] = mockFetch.mock.calls[0]!;
       expect((requestInit?.headers as Headers).get(AUTH0_SCOPE_HEADER)).toBeNull();
     });
+
+    it('sends requests right away when disableTokenRequestQueue is set', () => {
+      const mockFetch = stubFetch();
+      createMyAccountClient(
+        { ...mockProxyConfig, disableTokenRequestQueue: true },
+        defaultTelemetry,
+        mockGetComponent,
+      );
+      const fetcher = vi.mocked(MyAccountClient).mock.calls[0]![0].fetcher as FetcherSupplier;
+
+      void fetcher('https://example.com/a', undefined, { audience: 'api-a', scope: ['read:a'] });
+      void fetcher('https://example.com/b', undefined, { audience: 'api-b', scope: ['read:b'] });
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('SPA mode fetcher', () => {

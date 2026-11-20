@@ -59,5 +59,14 @@ export type SCIMTokenCreate = MyOrganization.CreateIdpProvisioningScimTokenReque
 
 export type SCIMToken = MyOrganization.IdpScimTokenCreate;
 
+export type IdpTestId = MyOrganization.IdpTestId;
+export type IdpTestStatus = MyOrganization.IdpTestStatusEnum;
+export type IdpTestUser = MyOrganization.IdpTestUser;
+export type IdpTestInProgress = MyOrganization.IdpTestInProgress;
+export type IdpTestSuccess = MyOrganization.IdpTestSuccess;
+export type IdpTestError = MyOrganization.IdpTestError;
+export type CreateIdpTestResponseContent = MyOrganization.CreateIdpTestResponseContent;
+export type GetIdpTestResponseContent = MyOrganization.GetIdpTestResponseContent;
+
 export type IdpUserAttributeMapItem = MyOrganization.IdpUserAttributeMapItem;
 export type BaseUserAttributeMapItem = MyOrganization.BaseUserAttributeMapItem;
