@@ -9,7 +9,7 @@
       "title": "Organization create component.",
       "description": "A block component for organization create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-label@2.1.7",
@@ -352,7 +352,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -361,7 +361,7 @@
       "title": "OrganizationSwitcher container component.",
       "description": "A block component for organization switcher.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
         "@radix-ui/react-slot@1.2.3",
@@ -586,7 +586,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -595,7 +595,7 @@
       "title": "OrganizationTable container component.",
       "description": "A block component for organization table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -929,7 +929,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -938,7 +938,7 @@
       "title": "Multi-factor authentication management component.",
       "description": "Complete MFA management interface for enrolling, viewing, and deleting authentication factors. Supports TOTP authenticators, SMS, Email, Push notifications, and recovery codes.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -1320,7 +1320,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -1329,7 +1329,7 @@
       "title": "Passkey management component.",
       "description": "A block component for user passkey management.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-dropdown-menu@2.1.1",
@@ -1591,7 +1591,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -1600,7 +1600,7 @@
       "title": "DomainTable container component.",
       "description": "A block component for domain table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-checkbox@1.1.1",
@@ -2073,7 +2073,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -2082,7 +2082,7 @@
       "title": "Organization details edit component.",
       "description": "A block component for organization details edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-dialog@1.1.14",
@@ -2491,7 +2491,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -2500,7 +2500,7 @@
       "title": "Organization member detail component.",
       "description": "A block component for header.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -2880,7 +2880,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -2889,7 +2889,7 @@
       "title": "Organization member management component.",
       "description": "A block component for organization member management view.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -3346,7 +3346,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -3355,7 +3355,7 @@
       "title": "SSO provider creation container component.",
       "description": "A block component for sso provider create.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -3388,6 +3388,16 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
@@ -3750,6 +3760,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-delete-types.ts"
@@ -3882,7 +3897,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -3891,7 +3906,7 @@
       "title": "SSO provider edit container component.",
       "description": "A block component for sso provider edit.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@hookform/resolvers@5.1.0",
         "@radix-ui/react-accordion@1.2.0",
@@ -3928,6 +3943,16 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults.ts"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-fields.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form.tsx",
@@ -4095,6 +4120,21 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section.tsx"
         },
         {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result.tsx"
+        },
+        {
           "path": "src/components/auth0/shared/copyable-text-field.tsx",
           "type": "registry:component",
           "target": "components/auth0/shared/copyable-text-field.tsx"
@@ -4193,6 +4233,11 @@
           "path": "src/components/ui/chip.tsx",
           "type": "registry:component",
           "target": "components/ui/chip.tsx"
+        },
+        {
+          "path": "src/components/ui/code-block.tsx",
+          "type": "registry:component",
+          "target": "components/ui/code-block.tsx"
         },
         {
           "path": "src/components/ui/combobox.tsx",
@@ -4315,6 +4360,11 @@
           "target": "hooks/my-organization/shared/services/use-sso-provider-edit-service.ts"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-sso-provider-test-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-sso-provider-test-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/use-google-workspace-provisioning.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-google-workspace-provisioning.ts"
@@ -4333,6 +4383,11 @@
           "path": "src/hooks/my-organization/use-sso-provider-edit.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-sso-provider-edit.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-sso-provider-test.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-sso-provider-test.ts"
         },
         {
           "path": "src/hooks/shared/use-core-client-initialization.ts",
@@ -4485,6 +4540,11 @@
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-tab-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-test-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types.ts"
@@ -4590,6 +4650,11 @@
           "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
+          "path": "src/lib/utils/my-organization/idp-management/sso-provider-test-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/sso-provider-test-utils.ts"
+        },
+        {
           "path": "src/lib/utils/shared/css-detection.ts",
           "type": "registry:component",
           "target": "lib/utils/shared/css-detection.ts"
@@ -4622,7 +4687,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     },
     {
@@ -4631,7 +4696,7 @@
       "title": "SSO provider table container component.",
       "description": "A block component for sso provider table.",
       "dependencies": [
-        "@auth0/universal-components-core@3.5.5",
+        "@auth0/universal-components-core@3.6.0",
         "@auth0/auth0-react@2.15.1",
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
@@ -5025,7 +5090,7 @@
       ],
       "meta": {
         "framework": "react",
-        "coreVersion": "3.5.5"
+        "coreVersion": "3.6.0"
       }
     }
   ]

@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type PingFederateConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +15,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import {
   Accordion,
   AccordionContent,
@@ -81,6 +83,14 @@ export const PingFederateProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    mode = 'create',
+    showThirdPartyAccess = false,
+    isThirdPartyAccessReadOnly = false,
+    isOrganizationBlocked = false,
+    showCrossAppAccess = false,
+    isCrossAppAccessReadOnly = false,
+    crossAppAccessDefaultValue,
+    styling,
   },
   ref,
 ) {
@@ -105,6 +115,13 @@ export const PingFederateProviderForm = React.forwardRef<
       digestAlgorithm: pingFederateData?.digestAlgorithm || 'sha256',
       show_as_button: pingFederateData?.show_as_button ?? false,
       assign_membership_on_login: pingFederateData?.assign_membership_on_login ?? false,
+      ...getConnectionAccessDefaults(
+        pingFederateData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+        showThirdPartyAccess,
+      ),
     },
   });
 
@@ -351,6 +368,13 @@ export const PingFederateProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={isLoginSettingsReadOnly}
           customMessages={customMessages}
+          strategy={STRATEGIES.PINGFEDERATE}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
       </div>
     </Form>

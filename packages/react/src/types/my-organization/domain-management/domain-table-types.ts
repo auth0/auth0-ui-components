@@ -68,11 +68,8 @@ export interface DomainTableSchema {
 }
 
 /** Props for DomainTable component. */
-export interface DomainTableProps extends SharedComponentProps<
-  DomainTableMainMessages,
-  DomainTableClasses,
-  DomainTableSchema
-> {
+export interface DomainTableProps
+  extends SharedComponentProps<DomainTableMainMessages, DomainTableClasses, DomainTableSchema> {
   hideHeader?: boolean;
   createAction?: ComponentAction<Domain>;
   verifyAction?: ComponentAction<Domain>;
@@ -177,6 +174,8 @@ export interface UseDomainTableReturn {
   pagination: DomainTablePaginationState;
 
   domainVerificationMode: IdpDomainVerificationMode;
+
+  // Discovery policy
   discoveryPolicy: OrganizationDiscoveryConfig | null;
   showDiscovery: boolean;
   isDiscoveryReadOnly: boolean;
