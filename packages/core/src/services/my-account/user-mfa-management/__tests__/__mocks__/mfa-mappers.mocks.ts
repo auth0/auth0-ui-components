@@ -5,8 +5,6 @@ import {
   createMockPhoneAuthMethod,
   createMockTotpAuthMethod,
   createMockRecoveryCodeAuthMethod,
-  createMockWebAuthnRoamingAuthMethod,
-  createMockWebAuthnPlatformAuthMethod,
   createMockPushNotificationAuthMethod,
 } from '../../../../../internals/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import type {
@@ -56,8 +54,6 @@ export const mockAllFactorTypesEnrolledResponse: ListAuthenticationMethodsRespon
     createMockEmailAuthMethod('test@example.com'),
     createMockPhoneAuthMethod('+9876543210'),
     createMockRecoveryCodeAuthMethod('backup'),
-    createMockWebAuthnRoamingAuthMethod('YubiKey 5'),
-    createMockWebAuthnPlatformAuthMethod('TouchID'),
     createMockPushNotificationAuthMethod(),
   ]);
 

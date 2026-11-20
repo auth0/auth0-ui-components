@@ -850,6 +850,9 @@
                 "token_item": {
                   "token_prefix": "トークン",
                   "never_expire": "このトークンに有効期限はありません。",
+                  "expires_on": "有効期限: ${date}",
+                  "scopes": "スコープ: ${scopes}",
+                  "created_at": "作成日: ${date}",
                   "last_used": "最終使用: なし",
                   "status_active": "有効",
                   "status_expired": "期限切れ",
@@ -858,6 +861,37 @@
                 "create_modal": {
                   "title": "ベアラートークン情報",
                   "copy_and_close_button_label": "コピーして閉じる",
+                  "next_button_label": "次へ",
+                  "steps": {
+                    "configure": "トークンを設定",
+                    "review": "確認してコピー"
+                  },
+                  "fields": {
+                    "no_expiration": {
+                      "label": "有効期限なし",
+                      "helper_text": "このトークンは期限切れになりません。"
+                    },
+                    "token_lifetime": {
+                      "label": "有効期間",
+                      "suffix": "秒",
+                      "helper_default": "デフォルト: 接続プロファイルに基づき ${seconds} 秒。",
+                      "helper_max": "許可される最大値: ${seconds} 秒。",
+                      "helper_min": "${seconds} 秒より大きい値にしてください。",
+                      "errors": {
+                        "required": "トークンの有効期間を入力してください。",
+                        "integer": "秒数を整数で入力してください。",
+                        "min": "${seconds} 秒より大きい値を入力してください。",
+                        "max": "${seconds} 秒以下を入力してください。"
+                      }
+                    },
+                    "scopes": {
+                      "label": "権限 (スコープ) を選択",
+                      "helper_text": "スコープはベアラートークンのアクセス範囲を定義します。",
+                      "errors": {
+                        "required": "スコープを1つ以上選択してください。"
+                      }
+                    }
+                  },
                   "content": {
                     "description": "ベアラートークンをコピーしてアイデンティティプロバイダーに提供してください。このダイアログを閉じると再表示されません。",
                     "field": {
@@ -1069,6 +1103,28 @@
       "unsaved_changes_text": "未保存の変更",
       "submit_button_label": "保存"
     },
+    "test_sso_provider": {
+      "title": "SSOのテスト",
+      "description": "プロバイダーをテストして、SSOの設定が正しく完了していることを確認します。",
+      "test_button_label": "プロバイダーをテスト",
+      "overlay": {
+        "title": "アイデンティティプロバイダーをテストしています",
+        "description": "新しいウィンドウでサインインを完了してください。テストが完了すると、このページは自動的に更新されます。",
+        "trouble_text": "アイデンティティプロバイダーで問題が発生していますか？",
+        "retry_button_label": "閉じて再試行",
+        "popup_blocked_text": "ブラウザーがテストウィンドウをブロックしました。",
+        "open_window_link_label": "テストウィンドウを開く"
+      },
+      "result": {
+        "success_title": "テストに成功しました",
+        "success_description": "以下のユーザー情報を確認し、正しい属性が渡されていることを確認してください。",
+        "copy_button_label": "JSONをコピー",
+        "try_again_text": "もう一度お試しください。",
+        "expired_error": "テストが完了する前に有効期限が切れました。もう一度お試しください。",
+        "timeout_error": "サインインが完了する前にテストがタイムアウトしました。もう一度お試しください。",
+        "provider_error": "${message}もう一度お試しください。"
+      }
+    },
     "notifications": {
       "delete_success": "${providerName}が削除されました。",
       "remove_success": "${providerName}が${organizationName}から削除されました",
@@ -1108,7 +1164,8 @@
         "connect_error": "Google の認可を完了できませんでした。もう一度お試しください。",
         "auto_sync_enabled_success": "自動同期が有効になりました。",
         "auto_sync_disabled_success": "自動同期が無効になりました。"
-      }
+      },
+      "test_provider_start_error": "プロバイダーのテストの開始中に問題が発生しました。"
     },
     "sso_guided_setup": {
       "stepper_label": "セットアップ手順",
@@ -1245,16 +1302,6 @@
       "duo": {
         "title": "Duoセキュリティ",
         "description": "多要素認証にDuoアカウントを使用します。"
-      },
-      "webauthn-roaming": {
-        "title": "FIDOセキュリティキーによるWebAuthn",
-        "description": "二要素認証としてWebAuthn対応のセキュリティキー（FIDO2など）を使用します。",
-        "button_text": "FIDO セキュリティキーでWebAuthnを追加"
-      },
-      "webauthn-platform": {
-        "title": "デバイス生体認証によるWebAuthn",
-        "description": "二要素認証としてWebAuthn対応のデバイス生体認証を使用します。",
-        "button_text": "FIDOデバイス生体認証でWebAuthnを追加"
       },
       "recovery-code": {
         "title": "リカバリーコード",

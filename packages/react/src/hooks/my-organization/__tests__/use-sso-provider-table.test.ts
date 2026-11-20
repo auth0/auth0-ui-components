@@ -178,6 +178,38 @@ describe('useSsoProviderTable', () => {
     expect(mockOnEnableProvider).not.toHaveBeenCalled();
   });
 
+  it('does not toggle a provider the organization has read-only access to', async () => {
+    const mockOnEnableProvider = vi.fn();
+    const { useSsoProviderTableService } = await import(
+      '@/hooks/my-organization/shared/services/use-sso-provider-table-service'
+    );
+    vi.mocked(useSsoProviderTableService).mockReturnValue(
+      createMockSsoProviderTableServiceReturn({ onEnableProvider: mockOnEnableProvider }),
+    );
+
+    const { result } = render();
+
+    await act(async () => {
+      await result.current.handleToggleEnabled({ ...idp, access_level: 'readonly' }, false);
+    });
+    expect(mockOnEnableProvider).not.toHaveBeenCalled();
+  });
+
+  it('lets limited access remove a provider but not delete it', () => {
+    const limitedIdp = { ...idp, access_level: 'limited' as const };
+    const { result } = render();
+
+    act(() => {
+      result.current.handleDelete(limitedIdp);
+    });
+    expect(result.current.showDeleteModal).toBe(false);
+
+    act(() => {
+      result.current.handleDeleteFromOrganization(limitedIdp);
+    });
+    expect(result.current.showRemoveModal).toBe(true);
+  });
+
   it('should call onDeleteConfirm and close modal on handleDeleteConfirm', async () => {
     const mockOnDeleteConfirm = vi.fn();
     const { useSsoProviderTableService } = await import(

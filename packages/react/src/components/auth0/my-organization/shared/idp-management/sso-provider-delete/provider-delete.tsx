@@ -23,6 +23,7 @@ import type { SsoProviderDeleteProps } from '@/types/my-organization/idp-managem
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.permissionDenied - Whether the action is unavailable for lack of a scope
+ * @param props.isAccessRestricted - Whether the organization's access level doesn't allow the action
  * @returns JSX element
  */
 export function SsoProviderDelete({
@@ -32,9 +33,13 @@ export function SsoProviderDelete({
   isLoading,
   readOnly,
   permissionDenied = false,
+  isAccessRestricted = false,
 }: SsoProviderDeleteProps) {
   const { t } = useTranslator('idp_management.delete_sso_provider', customMessages);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const accessRestrictedMessage = isAccessRestricted
+    ? t('access_restricted_tooltip_text')
+    : undefined;
 
   const openModal = React.useCallback(() => {
     setIsModalOpen(true);
@@ -60,7 +65,8 @@ export function SsoProviderDelete({
 
             <PermissionDeniedTooltip
               customMessages={customMessages}
-              enabled={permissionDenied}
+              enabled={permissionDenied || isAccessRestricted}
+              customMessage={accessRestrictedMessage}
               className="shrink-0"
             >
               <Button variant="destructive" onClick={openModal} disabled={readOnly}>
