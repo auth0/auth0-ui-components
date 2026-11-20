@@ -7,6 +7,7 @@ import type {
   GetIdpConfigurationResponseContent,
   IdentityProvidersConfigProvisioningMethod,
   IdpStrategy,
+  IdpScimTokenConfig,
 } from '@auth0/universal-components-core';
 
 /** useIdpConfig hook result. */
@@ -18,6 +19,7 @@ export interface UseConfigIdpResult {
     strategy: IdpStrategy | undefined,
     method: IdentityProvidersConfigProvisioningMethod,
   ) => boolean;
+  getScimTokenConfig: (strategy: IdpStrategy | undefined) => IdpScimTokenConfig | undefined;
   isIdpConfigValid: boolean;
   showCrossAppAccess: (strategy: IdpStrategy | undefined) => boolean;
   isCrossAppAccessReadOnly: (strategy: IdpStrategy | undefined) => boolean;

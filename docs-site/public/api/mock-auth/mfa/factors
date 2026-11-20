@@ -26,14 +26,6 @@
     "email": "user@example.com"
   },
   {
-    "id": "webauthn-platform|dev_456789012",
-    "authenticator_type": "webauthn",
-    "oob_channel": [],
-    "active": false,
-    "factorName": "webauthn-platform",
-    "name": "Platform Authenticator"
-  },
-  {
     "id": "recovery-code|dev_789012345",
     "authenticator_type": "otp",
     "oob_channel": [],

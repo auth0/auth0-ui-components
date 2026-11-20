@@ -18,6 +18,13 @@ export interface DomainTableMessages extends SharedMessages {
       columns?: {
         domain?: string;
         status?: string;
+        use_for_discovery?: string;
+      };
+      discovery?: {
+        switch_label?: string;
+        locked_tooltip?: string;
+        unverified_tooltip?: string;
+        permission_tooltip?: string;
       };
       actions?: {
         configure_button_text?: string;
@@ -40,6 +47,14 @@ export interface DomainTableMessages extends SharedMessages {
       domain_associate_provider_error?: string;
       domain_delete_provider_success?: string;
       domain_delete_provider_error?: string;
+      domain_verify?: {
+        success_discovery_on?: string;
+      };
+      domain_discovery_update?: {
+        success_on?: string;
+        success_off?: string;
+        error?: string;
+      };
     };
   };
   shared?: {

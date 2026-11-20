@@ -42,6 +42,8 @@ export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainRespo
 
 export type IdpStrategy = MyOrganization.IdpStrategyEnum;
 
+export type IdpAccessLevel = MyOrganization.OrganizationAccessLevelEnum;
+
 export type IdentityProviderCreate = Omit<IdpKnownResponse, 'id'>;
 
 export type IdentityProviderAssociatedWithDomain = IdpKnownResponse & {
@@ -58,6 +60,15 @@ export type Provisioning = MyOrganization.IdpProvisioningConfig & {
 export type SCIMTokenCreate = MyOrganization.CreateIdpProvisioningScimTokenRequestContent;
 
 export type SCIMToken = MyOrganization.IdpScimTokenCreate;
+
+export type IdpTestId = MyOrganization.IdpTestId;
+export type IdpTestStatus = MyOrganization.IdpTestStatusEnum;
+export type IdpTestUser = MyOrganization.IdpTestUser;
+export type IdpTestInProgress = MyOrganization.IdpTestInProgress;
+export type IdpTestSuccess = MyOrganization.IdpTestSuccess;
+export type IdpTestError = MyOrganization.IdpTestError;
+export type CreateIdpTestResponseContent = MyOrganization.CreateIdpTestResponseContent;
+export type GetIdpTestResponseContent = MyOrganization.GetIdpTestResponseContent;
 
 export type IdpUserAttributeMapItem = MyOrganization.IdpUserAttributeMapItem;
 export type BaseUserAttributeMapItem = MyOrganization.BaseUserAttributeMapItem;
