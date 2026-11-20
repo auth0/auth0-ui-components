@@ -39,7 +39,17 @@ const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
 ListItem.displayName = 'ListItem';
 
 const List = React.forwardRef<HTMLUListElement, ListProps>(
-  ({ className, children, variant = 'plain', spacing = 'default', iconPosition: _iconPosition = 'start', ...props }, ref) => {
+  (
+    {
+      className,
+      children,
+      variant = 'plain',
+      spacing = 'default',
+      iconPosition: _iconPosition = 'start',
+      ...props
+    },
+    ref,
+  ) => {
     return (
       <ul
         ref={ref}
