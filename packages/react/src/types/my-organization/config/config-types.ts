@@ -6,6 +6,7 @@
 import type {
   GetConfigurationResponseContent,
   IdpStrategy,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 
 /** useConfig hook result. */
@@ -22,4 +23,10 @@ export interface UseConfigResult {
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   thirdPartyAccessDefaultValue: 'allow' | 'block' | undefined;
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
+  showDiscovery: boolean;
+  /** The policy allows a single value, so the setting can't be changed. */
+  isDiscoveryReadOnly: boolean;
+  /** The only allowed value when locked, else the policy default. */
+  discoveryDefaultValue: boolean;
 }

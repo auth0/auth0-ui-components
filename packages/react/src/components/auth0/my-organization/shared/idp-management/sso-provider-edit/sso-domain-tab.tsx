@@ -5,8 +5,11 @@
  */
 
 import type { Domain } from '@auth0/universal-components-core';
-import { getComponentStyles } from '@auth0/universal-components-core';
-import { Plus } from 'lucide-react';
+import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
+  getComponentStyles,
+} from '@auth0/universal-components-core';
+import { Info, Plus } from 'lucide-react';
 import React from 'react';
 
 import { SsoDomainAssignModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-assign-modal';
@@ -14,12 +17,22 @@ import { SsoDomainTabActionsColumn } from '@/components/auth0/my-organization/sh
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { Header } from '@/components/auth0/shared/header';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useSsoDomainTab } from '@/hooks/my-organization/use-sso-domain-tab';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { getStatusBadgeVariant } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getAssociationBlockReason,
+  getAssociationBlockReasonMessages,
+  getStatusBadgeVariant,
+  isDomainAssociationUnavailable,
+  isDomainUsedForDiscovery,
+  isLastRequiredDomainLocked,
+  isRequiredDomainMissing,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -32,6 +45,8 @@ import type { SsoDomainsTabProps } from '@/types/my-organization/idp-management/
  * @param props.idpId - Identity provider ID
  * @param props.domains - Array of domains
  * @param props.provider - SSO provider object
+ * @param props.domainVerificationMode - How the provider uses verified domains: `none` disables Assign, `required` keeps the last domain
+ * @param props.discoveryPolicy - Organization discovery policy; the Use for discovery column is hidden without it
  * @returns JSX element
  */
 export function SsoDomainTab({
@@ -45,6 +60,8 @@ export function SsoDomainTab({
   idpId,
   domains,
   provider,
+  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
+  discoveryPolicy,
 }: SsoDomainsTabProps) {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.domains.content',
@@ -78,7 +95,55 @@ export function SsoDomainTab({
     domains,
     provider,
     readOnly,
+    domainVerificationMode,
   });
+
+  const canManageProviderDomains = getProviderAccess(provider).canManageDomains;
+  const lockLastDomain = isLastRequiredDomainLocked(domainVerificationMode, {
+    is_enabled: provider?.is_enabled,
+    domains: domainsList.map(({ domain }) => domain),
+  });
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
+  const isVerifiedDomainMissing = isRequiredDomainMissing(domainVerificationMode, provider);
+
+  const getAlertMessage = () => {
+    if (isAssociationUnavailable) return t('alerts.domain_verification_none');
+    if (isVerifiedDomainMissing) return t('alerts.domain_verification_required');
+    if (lockLastDomain) return t('table.actions.last_verified_domain_tooltip');
+    return null;
+  };
+  const alertMessage = getAlertMessage();
+
+  const assignBlockReason = getAssociationBlockReason({
+    hasPermission: permissions.canAssociateDomain,
+    isProviderAccessRestricted: !canManageProviderDomains,
+    isAssociationUnavailable,
+    isLastDomainLocked: false,
+  });
+  const assignDisabledReason = assignBlockReason
+    ? getAssociationBlockReasonMessages(t, tCommon)[assignBlockReason]
+    : null;
+
+  const discoveryColumns: Column<Domain>[] = React.useMemo(() => {
+    if (!discoveryPolicy) return [];
+
+    return [
+      {
+        type: 'custom',
+        accessorKey: 'use_for_organization_discovery',
+        title: t('table.columns.use_for_discovery'),
+        enableSorting: false,
+        render: (domain) => {
+          const isDiscoveryOn = isDomainUsedForDiscovery(domain, discoveryPolicy);
+          const discoveryLabel = isDiscoveryOn
+            ? t('table.discovery_values.yes')
+            : t('table.discovery_values.no');
+
+          return <span className="text-foreground">{discoveryLabel}</span>;
+        },
+      },
+    ];
+  }, [t, discoveryPolicy]);
 
   const columns: Column<Domain>[] = React.useMemo(
     () => [
@@ -100,6 +165,7 @@ export function SsoDomainTab({
           </Badge>
         ),
       },
+      ...discoveryColumns,
       {
         type: 'actions',
         title: '',
@@ -113,6 +179,8 @@ export function SsoDomainTab({
             customMessages={customMessages}
             idpName={provider?.display_name || provider?.name || undefined}
             onRemove={handleRemove}
+            lockLastDomain={lockLastDomain}
+            canManageProviderDomains={canManageProviderDomains}
             domain={domain}
           />
         ),
@@ -128,11 +196,20 @@ export function SsoDomainTab({
       isUpdatingId,
       customMessages,
       handleRemove,
+      lockLastDomain,
+      canManageProviderDomains,
+      discoveryColumns,
     ],
   );
 
   return (
     <div style={currentStyles.variables} className="space-y-8">
+      {alertMessage && (
+        <Alert variant="warning">
+          <Info />
+          <AlertDescription className="text-warning-foreground">{alertMessage}</AlertDescription>
+        </Alert>
+      )}
       <div className={currentStyles.classes?.['SsoDomainsTab-header']}>
         <Header
           title={t('title')}
@@ -144,11 +221,13 @@ export function SsoDomainTab({
               onClick: () => setShowAssignModal(true),
               icon: Plus,
               hidden: readOnly,
-              disabled:
-                domains?.associateToProviderAction?.disabled || !permissions.canAssociateDomain,
-              ...(permissions.canAssociateDomain
-                ? {}
-                : { tooltip: { content: tCommon('error.forbidden') } }),
+              disabled: domains?.associateToProviderAction?.disabled || !!assignBlockReason,
+              ...(assignDisabledReason
+                ? {
+                    description: assignDisabledReason,
+                    tooltip: { content: assignDisabledReason },
+                  }
+                : {}),
             },
           ]}
         />

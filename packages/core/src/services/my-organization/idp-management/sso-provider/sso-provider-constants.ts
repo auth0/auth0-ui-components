@@ -5,7 +5,7 @@
  */
 import type { GetIdpConfigurationResponseContent } from '../../config/config-types';
 
-import type { IdpStrategy } from './sso-provider-types';
+import type { IdpAccessLevel, IdpStrategy } from './sso-provider-types';
 
 export const STRATEGIES = {
   ADFS: 'adfs',
@@ -44,3 +44,12 @@ export const STRATEGY_TO_CONFIG_KEY: Record<IdpStrategy, IdpConfigStrategyKey> =
   [STRATEGIES.SAMLP]: 'samlp',
   [STRATEGIES.WAAD]: 'waad',
 };
+
+export const IDP_ACCESS_LEVELS = {
+  NONE: 'none',
+  READONLY: 'readonly',
+  LIMITED: 'limited',
+  FULL: 'full',
+} as const satisfies Record<string, IdpAccessLevel>;
+
+export const DEFAULT_IDP_ACCESS_LEVEL: IdpAccessLevel = IDP_ACCESS_LEVELS.FULL;
