@@ -32,6 +32,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
     {
       initialData,
       readOnly = false,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,
@@ -82,7 +83,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
 
           <CommonConfigureFields
             idpConfig={idpConfig}
-            readOnly={readOnly}
+            readOnly={isLoginSettingsReadOnly}
             customMessages={customMessages}
             strategy={STRATEGIES.ADFS}
             showThirdPartyAccess={showThirdPartyAccess}

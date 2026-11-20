@@ -7,27 +7,41 @@
 
 import {
   getStatusCode,
-  ssoProviderQueryKeys,
   type CreateIdpTestResponseContent,
   type GetIdpTestResponseContent,
   type IdpId,
   type IdpTestId,
 } from '@auth0/universal-components-core';
 import { useMutation } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
-import { useQueryPollUntil } from '@/hooks/shared/use-query-poll-until';
+import { usePollUntil } from '@/hooks/shared/use-poll-until';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  SSO_PROVIDER_TEST_FATAL_POLL_STATUSES,
+  SSO_PROVIDER_TEST_MAX_POLL_ATTEMPTS,
+  SSO_PROVIDER_TEST_MAX_POLL_DURATION_MS,
+  SSO_PROVIDER_TEST_POLL_INTERVAL_MS,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
+  SsoProviderTestPoll,
   UseSsoProviderTestServiceOptions,
   UseSsoProviderTestServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
-/** Poll errors that end the test: missing scope, or a test that expired or never existed. */
-const FATAL_POLL_STATUSES = new Set([403, 404]);
+type PollOutcome = Pick<SsoProviderTestPoll, 'data' | 'error' | 'timedOut'> & {
+  testId: IdpTestId | null;
+};
+
+const emptyOutcome = (testId: IdpTestId | null): PollOutcome => ({
+  testId,
+  data: undefined,
+  error: null,
+  timedOut: false,
+});
 
 /**
  * Starts identity provider tests and polls the current one.
@@ -47,7 +61,6 @@ export function useSsoProviderTestService(
   const handleError = useErrorHandler();
 
   const startTestMutation = useMutation({
-    // The API rejects any body field, so the request body must stay empty.
     mutationFn: async (): Promise<CreateIdpTestResponseContent> =>
       coreClient!
         .getMyOrganizationApiClient()
@@ -68,16 +81,46 @@ export function useSsoProviderTestService(
     }
   }, [coreClient, idpId, mutateAsync]);
 
-  const poll = useQueryPollUntil<GetIdpTestResponseContent>({
-    queryKey: ssoProviderQueryKeys.test(idpId, testId ?? ''),
-    queryFn: () =>
-      coreClient!
-        .getMyOrganizationApiClient()
-        .organization.identityProviders.tests.get(idpId, testId!),
-    isDone: (data) => data.status !== 'in_progress',
-    isFatalError: (error) => FATAL_POLL_STATUSES.has(getStatusCode(error) ?? 0),
-    enabled: !!coreClient && !!idpId && !!testId,
+  const [outcome, setOutcome] = useState<PollOutcome>(() => emptyOutcome(testId));
+  const current = outcome.testId === testId ? outcome : emptyOutcome(testId);
+
+  // Non-fatal errors (for example a token refresh) resolve to `null` so polling continues.
+  const { start, stop, isPolling } = usePollUntil<GetIdpTestResponseContent | null>({
+    request: async (signal) => {
+      try {
+        return await coreClient!
+          .getMyOrganizationApiClient()
+          .organization.identityProviders.tests.get(idpId, testId!, { abortSignal: signal });
+      } catch (error) {
+        if (SSO_PROVIDER_TEST_FATAL_POLL_STATUSES.has(getStatusCode(error) ?? 0)) throw error;
+        return null;
+      }
+    },
+    isDone: (data) => data !== null && data.status !== 'in_progress',
+    getInterval: ({ elapsedMs, attempts }) =>
+      attempts >= SSO_PROVIDER_TEST_MAX_POLL_ATTEMPTS ||
+      elapsedMs >= SSO_PROVIDER_TEST_MAX_POLL_DURATION_MS
+        ? false
+        : SSO_PROVIDER_TEST_POLL_INTERVAL_MS,
+    onDone: (data) => setOutcome({ ...emptyOutcome(testId), data: data ?? undefined }),
+    onError: (error) => setOutcome({ ...emptyOutcome(testId), error }),
+    onExhausted: () => setOutcome({ ...emptyOutcome(testId), timedOut: true }),
   });
+
+  const canPoll = !!coreClient && !!idpId && !!testId;
+
+  useEffect(() => {
+    if (canPoll) start();
+    else stop();
+  }, [canPoll, testId, start, stop]);
+
+  const poll: SsoProviderTestPoll = {
+    data: current.data,
+    error: current.error,
+    isPolling,
+    timedOut: current.timedOut,
+    stop,
+  };
 
   return {
     startTest,

@@ -9,12 +9,15 @@ import {
   type InternalDomainCreateFormValues,
 } from '@auth0/universal-components-core';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormMessage,
@@ -22,6 +25,7 @@ import {
 } from '@/components/ui/form';
 import { Modal } from '@/components/ui/modal';
 import { TextField } from '@/components/ui/text-field';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
@@ -36,6 +40,10 @@ import type { DomainCreateModalProps } from '@/types/my-organization/domain-mana
  * @param props.isOpen - Whether the modal/dialog is open
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.schema - Zod validation schema
+ * @param props.showDiscoveryOption - Whether to show the "Use for discovery" checkbox
+ * @param props.isDiscoveryReadOnly - Whether the checkbox is locked by the discovery policy
+ * @param props.canChangeDiscovery - Whether the user has permission to change the checkbox
+ * @param props.discoveryDefaultValue - Initial value of the checkbox
  * @param props.onClose - Callback fired when the component should close
  * @param props.onCreate - Callback fired when create action is triggered
  * @returns JSX element
@@ -47,10 +55,25 @@ export function DomainCreateModal({
   isOpen,
   isLoading,
   schema,
+  showDiscoveryOption = false,
+  isDiscoveryReadOnly = false,
+  canChangeDiscovery = true,
+  discoveryDefaultValue = false,
   onClose,
   onCreate,
 }: DomainCreateModalProps) {
   const { t } = useTranslator(translatorKey, customMessages);
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
+
+  const isDiscoveryDisabled = isDiscoveryReadOnly || !canChangeDiscovery;
+
+  const getDiscoveryHint = () => {
+    if (!canChangeDiscovery) return tCommon('error.forbidden');
+    if (isDiscoveryReadOnly) return t('use_for_discovery.locked_hint');
+    return null;
+  };
+  const discoveryHint = getDiscoveryHint();
+  const discoveryInfo = t('use_for_discovery.tooltip');
 
   const domainCreateSchema = React.useMemo(
     () => createDomainCreateSchema(schema, t('field.error')),
@@ -61,23 +84,44 @@ export function DomainCreateModal({
     resolver: zodResolver(domainCreateSchema),
     defaultValues: {
       domain_url: '',
+      use_for_discovery: discoveryDefaultValue,
     },
     mode: FORM_VALIDATION_MODE,
   });
 
+  const resetForm = React.useCallback(() => {
+    form.reset({ domain_url: '', use_for_discovery: discoveryDefaultValue });
+  }, [form, discoveryDefaultValue]);
+
+  const isDiscoveryEdited = !!form.formState.dirtyFields.use_for_discovery;
+
+  React.useEffect(() => {
+    if (isDiscoveryEdited) return;
+    form.reset(
+      { ...form.getValues(), use_for_discovery: discoveryDefaultValue },
+      { keepErrors: true, keepTouched: true },
+    );
+  }, [form, discoveryDefaultValue, isDiscoveryEdited]);
+
   const handleCreate = React.useCallback(
     async (values: InternalDomainCreateFormValues) => {
       if (!values.domain_url) return;
-      await onCreate(values.domain_url);
-      form.reset();
+      // Without permission the value isn't sent, so the API applies the policy default.
+      const shouldSendDiscovery = showDiscoveryOption && canChangeDiscovery;
+      if (shouldSendDiscovery) {
+        await onCreate(values.domain_url, values.use_for_discovery ?? false);
+      } else {
+        await onCreate(values.domain_url);
+      }
+      resetForm();
     },
-    [form, onCreate],
+    [onCreate, resetForm, showDiscoveryOption, canChangeDiscovery],
   );
 
   const handleClose = React.useCallback(() => {
-    form.reset();
+    resetForm();
     onClose();
-  }, [form, onClose]);
+  }, [resetForm, onClose]);
 
   const onSubmit = React.useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,6 +162,47 @@ export function DomainCreateModal({
                   </FormItem>
                 )}
               />
+              {showDiscoveryOption && (
+                <FormField
+                  control={form.control}
+                  name="use_for_discovery"
+                  render={({ field }) => (
+                    <FormItem className="mt-4 flex items-start gap-3">
+                      <FormControl>
+                        <Checkbox
+                          checked={!!field.value}
+                          onCheckedChange={(checked) => field.onChange(checked === true)}
+                          disabled={isDiscoveryDisabled}
+                        />
+                      </FormControl>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <FormLabel className="text-label font-medium text-foreground peer-disabled:opacity-100">
+                            {t('use_for_discovery.label')}
+                          </FormLabel>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                type="button"
+                                aria-label={discoveryInfo}
+                                className="text-muted-foreground inline-flex shrink-0 cursor-help rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring"
+                              >
+                                <Info className="h-4 w-4" aria-hidden="true" />
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-xs">
+                              {discoveryInfo}
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        {discoveryHint && (
+                          <FormDescription className="text-sm">{discoveryHint}</FormDescription>
+                        )}
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
             </form>
           </Form>
         </div>

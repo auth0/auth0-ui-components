@@ -4,6 +4,8 @@
  * @internal
  */
 
+import * as React from 'react';
+
 import { SsoProviderTestPollingOverlay } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-polling-overlay';
 import { SsoProviderTestResult } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-result';
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
@@ -11,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useSsoProviderTest } from '@/hooks/my-organization/use-sso-provider-test';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { SSO_PROVIDER_TEST_STATE } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { SsoProviderTestCardProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
@@ -42,7 +45,9 @@ export function SsoProviderTestCard({
   const { state, user, errorReason, errorMessage, blockedTestUrl, start, retry } =
     useSsoProviderTest(provider.id ?? '', { customMessages: notificationMessages });
 
-  const isRunning = state === 'starting' || state === 'polling';
+  const testButtonRef = React.useRef<HTMLButtonElement>(null);
+  const isStarting = state === SSO_PROVIDER_TEST_STATE.STARTING;
+  const isRunning = isStarting || state === SSO_PROVIDER_TEST_STATE.POLLING;
 
   const testButton = (
     <PermissionDeniedTooltip
@@ -50,13 +55,21 @@ export function SsoProviderTestCard({
       enabled={permissionDenied}
       className="shrink-0"
     >
-      <Button type="button" variant="outline" onClick={start} disabled={readOnly || isRunning}>
+      <Button
+        type="button"
+        variant="outline"
+        ref={testButtonRef}
+        onClick={start}
+        disabled={readOnly || isRunning}
+      >
         {t('test_button_label')}
       </Button>
     </PermissionDeniedTooltip>
   );
 
-  const result = (state === 'success' || state === 'error' || state === 'timeout') && (
+  const result = (state === SSO_PROVIDER_TEST_STATE.SUCCESS ||
+    state === SSO_PROVIDER_TEST_STATE.ERROR ||
+    state === SSO_PROVIDER_TEST_STATE.TIMEOUT) && (
     <SsoProviderTestResult
       state={state}
       user={user}
@@ -101,6 +114,11 @@ export function SsoProviderTestCard({
       <SsoProviderTestPollingOverlay
         open={isRunning}
         onRetry={retry}
+        retryDisabled={isStarting}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          testButtonRef.current?.focus();
+        }}
         blockedTestUrl={blockedTestUrl}
         customMessages={customMessages.overlay}
         styling={styling}

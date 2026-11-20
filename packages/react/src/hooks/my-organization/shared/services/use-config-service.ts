@@ -12,6 +12,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { getDiscoveryState } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 /**
@@ -67,6 +68,13 @@ export function useConfig(): UseConfigResult {
       config?.third_party_client_access?.default_value)
     : config?.third_party_client_access?.default_value;
 
+  const discoveryPolicy = config?.use_for_organization_discovery ?? null;
+  const {
+    isAvailable: showDiscovery,
+    isReadOnly: isDiscoveryReadOnly,
+    defaultValue: discoveryDefaultValue,
+  } = getDiscoveryState(discoveryPolicy);
+
   return {
     config: config ?? null,
     isLoadingConfig: configQuery.isLoading,
@@ -79,5 +87,9 @@ export function useConfig(): UseConfigResult {
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     thirdPartyAccessDefaultValue,
+    discoveryPolicy,
+    showDiscovery,
+    isDiscoveryReadOnly,
+    discoveryDefaultValue,
   };
 }

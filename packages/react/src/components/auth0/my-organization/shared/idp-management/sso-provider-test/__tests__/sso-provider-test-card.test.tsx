@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -80,6 +80,36 @@ describe('SsoProviderTestCard', () => {
     });
   });
 
+  describe('retry button', () => {
+    it('should be disabled while starting', () => {
+      hookReturn = createHookReturn({ state: 'starting' });
+      renderCard();
+
+      expect(screen.getByRole('button', { name: 'retry_button_label' })).toBeDisabled();
+    });
+
+    it('should be enabled while polling', () => {
+      hookReturn = createHookReturn({ state: 'polling' });
+      renderCard();
+
+      expect(screen.getByRole('button', { name: 'retry_button_label' })).toBeEnabled();
+    });
+  });
+
+  describe('when the overlay closes', () => {
+    it('should return focus to the test button', async () => {
+      hookReturn = createHookReturn({ state: 'polling' });
+      const { rerender } = renderCard();
+
+      hookReturn = createHookReturn({ state: 'success', user: { email: 'bob@acme.corp' } });
+      rerender(<SsoProviderTestCard provider={createMockSsoProvider()} />);
+
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'test_button_label' })).toHaveFocus(),
+      );
+    });
+  });
+
   describe('when retry is clicked in the overlay', () => {
     it('should retry the test', async () => {
       const user = userEvent.setup();
@@ -112,7 +142,7 @@ describe('SsoProviderTestCard', () => {
       });
       renderCard();
 
-      expect(screen.getByRole('alert')).toHaveTextContent('Invalid issuer');
+      expect(screen.getByRole('alert')).toHaveTextContent('provider_error');
     });
   });
 

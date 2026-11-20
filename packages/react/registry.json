@@ -295,11 +295,6 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
-        },
-        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -542,11 +537,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -880,11 +870,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -1278,11 +1263,6 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
-        },
-        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -1584,11 +1564,6 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
-        },
-        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -1622,6 +1597,11 @@
           "path": "src/lib/utils/shared/css-detection.ts",
           "type": "registry:component",
           "target": "lib/utils/shared/css-detection.ts"
+        },
+        {
+          "path": "src/lib/utils/use-id-compat.ts",
+          "type": "registry:component",
+          "target": "lib/utils/use-id-compat.ts"
         },
         {
           "path": "src/styles/globals.css",
@@ -1684,6 +1664,16 @@
           "path": "src/components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/domain-management/domain-delete/domain-delete-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-discovery/domain-discovery-modal.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-discovery/domain-discovery-modal.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/domain-management/domain-table/domain-discovery-switch.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/domain-management/domain-table/domain-discovery-switch.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/domain-management/domain-table/domain-table-actions-column.tsx",
@@ -1851,9 +1841,19 @@
           "target": "components/ui/tooltip.tsx"
         },
         {
+          "path": "src/hooks/my-organization/shared/services/use-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-config-service.ts"
+        },
+        {
           "path": "src/hooks/my-organization/shared/services/use-domain-table-service.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/shared/services/use-domain-table-service.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/shared/services/use-idp-config-service.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/shared/services/use-idp-config-service.ts"
         },
         {
           "path": "src/hooks/my-organization/use-domain-table.ts",
@@ -1966,6 +1966,16 @@
           "target": "types/i18n-types.ts"
         },
         {
+          "path": "src/types/my-organization/config/config-idp-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-idp-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/config/config-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/config/config-types.ts"
+        },
+        {
           "path": "src/types/my-organization/domain-management/domain-configure-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-configure-types.ts"
@@ -1981,6 +1991,11 @@
           "target": "types/my-organization/domain-management/domain-delete-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-discovery-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-discovery-types.ts"
+        },
+        {
           "path": "src/types/my-organization/domain-management/domain-table-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/domain-management/domain-table-types.ts"
@@ -1991,14 +2006,14 @@
           "target": "types/my-organization/domain-management/domain-verify-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -2031,6 +2046,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/shared/constants.ts",
           "type": "registry:component",
           "target": "lib/constants/shared/constants.ts"
@@ -2049,6 +2069,11 @@
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -2404,6 +2429,11 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/organization-management/organization-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/organization-management/organization-delete-types.ts"
@@ -2422,11 +2452,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -2454,6 +2479,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -2462,6 +2492,11 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -2811,11 +2846,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -3277,11 +3307,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -3776,11 +3801,6 @@
           "target": "components/ui/markdown.tsx"
         },
         {
-          "path": "src/components/ui/modal.tsx",
-          "type": "registry:component",
-          "target": "components/ui/modal.tsx"
-        },
-        {
           "path": "src/components/ui/radio-group.tsx",
           "type": "registry:component",
           "target": "components/ui/radio-group.tsx"
@@ -3931,14 +3951,14 @@
           "target": "hooks/shared/use-permissions.ts"
         },
         {
+          "path": "src/hooks/shared/use-poll-until.ts",
+          "type": "registry:component",
+          "target": "hooks/shared/use-poll-until.ts"
+        },
+        {
           "path": "src/hooks/shared/use-query-error-toast.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-query-error-toast.ts"
-        },
-        {
-          "path": "src/hooks/shared/use-query-poll-until.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-query-poll-until.ts"
         },
         {
           "path": "src/hooks/shared/use-telemetry.ts",
@@ -4026,6 +4046,11 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-domain/sso-domain-tab-types.ts"
@@ -4034,6 +4059,11 @@
           "path": "src/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
         },
         {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
@@ -4096,11 +4126,6 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
-        },
-        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -4126,6 +4151,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
@@ -4141,9 +4171,14 @@
           "target": "lib/utils.ts"
         },
         {
-          "path": "src/lib/utils/json-tokens.ts",
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
           "type": "registry:component",
-          "target": "lib/utils/json-tokens.ts"
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/sso-provider-test-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/sso-provider-test-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -4417,6 +4452,11 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/provisioning-manage-token.tsx"
+        },
+        {
+          "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-form.tsx",
+          "type": "registry:component",
+          "target": "components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-form.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-create-token/provisioning-create-token-modal-content.tsx",
@@ -4924,11 +4964,6 @@
           "target": "hooks/shared/use-query-error-toast.ts"
         },
         {
-          "path": "src/hooks/shared/use-query-poll-until.ts",
-          "type": "registry:component",
-          "target": "hooks/shared/use-query-poll-until.ts"
-        },
-        {
           "path": "src/hooks/shared/use-telemetry.ts",
           "type": "registry:component",
           "target": "hooks/shared/use-telemetry.ts"
@@ -5029,6 +5064,11 @@
           "target": "types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types.ts"
         },
         {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-create-types.ts"
@@ -5094,11 +5134,6 @@
           "target": "types/permissions/permissions-types.ts"
         },
         {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
-        },
-        {
           "path": "src/types/retry-types.ts",
           "type": "registry:component",
           "target": "types/retry-types.ts"
@@ -5129,6 +5164,11 @@
           "target": "lib/constants/form-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/my-organization/idp-management/idp-management-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/my-organization/idp-management/idp-management-constants.ts"
@@ -5144,9 +5184,9 @@
           "target": "lib/utils.ts"
         },
         {
-          "path": "src/lib/utils/json-tokens.ts",
+          "path": "src/lib/utils/date.ts",
           "type": "registry:component",
-          "target": "lib/utils/json-tokens.ts"
+          "target": "lib/utils/date.ts"
         },
         {
           "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
@@ -5157,6 +5197,16 @@
           "path": "src/lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts",
           "type": "registry:component",
           "target": "lib/utils/my-organization/idp-management/google-workspace-provisioning-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/sso-provider-test-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/sso-provider-test-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",
@@ -5522,6 +5572,16 @@
           "target": "types/my-organization/config/config-types.ts"
         },
         {
+          "path": "src/types/my-organization/domain-management/domain-table-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/domain-management/domain-table-types.ts"
+        },
+        {
+          "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts",
+          "type": "registry:component",
+          "target": "types/my-organization/idp-management/sso-provider/sso-provider-access-types.ts"
+        },
+        {
           "path": "src/types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts",
           "type": "registry:component",
           "target": "types/my-organization/idp-management/sso-provider/sso-provider-delete-types.ts"
@@ -5535,11 +5595,6 @@
           "path": "src/types/permissions/permissions-types.ts",
           "type": "registry:component",
           "target": "types/permissions/permissions-types.ts"
-        },
-        {
-          "path": "src/types/poll-types.ts",
-          "type": "registry:component",
-          "target": "types/poll-types.ts"
         },
         {
           "path": "src/types/retry-types.ts",
@@ -5567,6 +5622,11 @@
           "target": "lib/constants/common-constants.ts"
         },
         {
+          "path": "src/lib/constants/my-organization/domain-management/domain-management-constants.ts",
+          "type": "registry:component",
+          "target": "lib/constants/my-organization/domain-management/domain-management-constants.ts"
+        },
+        {
           "path": "src/lib/constants/telemetry-constants.ts",
           "type": "registry:component",
           "target": "lib/constants/telemetry-constants.ts"
@@ -5575,6 +5635,16 @@
           "path": "src/lib/utils.ts",
           "type": "registry:component",
           "target": "lib/utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/domain-management/domain-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/domain-management/domain-management-utils.ts"
+        },
+        {
+          "path": "src/lib/utils/my-organization/idp-management/idp-management-utils.ts",
+          "type": "registry:component",
+          "target": "lib/utils/my-organization/idp-management/idp-management-utils.ts"
         },
         {
           "path": "src/lib/utils/shared/css-detection.ts",

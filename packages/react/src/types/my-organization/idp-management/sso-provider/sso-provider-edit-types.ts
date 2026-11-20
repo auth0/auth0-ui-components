@@ -21,9 +21,12 @@ import type {
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
   IdpStrategy,
+  IdpScimTokenConfig,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
+  IdpDomainVerificationMode,
   IdpManagementPermissions,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -33,6 +36,7 @@ import type {
   SsoDomainTabClasses,
   SsoProviderEditDomainsTabSchema,
 } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+import type { ProviderAccess } from '@/types/my-organization/idp-management/sso-provider/sso-provider-access-types';
 import type {
   SsoProviderTabClasses,
   SsoProviderTabEditProps,
@@ -155,8 +159,13 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
+  domainVerificationMode: IdpDomainVerificationMode;
+  isEnableBlockedByDomains: boolean;
+  providerAccess: ProviderAccess;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
+  scimTokenConfig?: IdpScimTokenConfig;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
@@ -179,6 +188,8 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
   canSync?: boolean;
   permissionDenied?: boolean;
+  /** The organization's access level doesn't allow this action. */
+  isAccessRestricted?: boolean;
 }
 
 export interface SsoProviderEditViewProps

@@ -10,6 +10,10 @@ import * as React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CodeBlock } from '@/components/ui/code-block';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import {
+  SSO_PROVIDER_TEST_ERROR_REASON,
+  SSO_PROVIDER_TEST_STATE,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { SsoProviderTestResultProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
@@ -41,16 +45,16 @@ export function SsoProviderTestResult({
   const profileJson = React.useMemo(() => JSON.stringify(user ?? {}, null, 2), [user]);
 
   const renderError = () => {
-    if (state === 'timeout') return `${t('timeout_error')} ${t('try_again_text')}`;
-    if (errorReason === 'forbidden') return tCommon('error.forbidden');
-    if (errorReason === 'expired') return `${t('expired_error')} ${t('try_again_text')}`;
-    return `${errorMessage ?? ''} ${t('try_again_text')}`.trim();
+    if (state === SSO_PROVIDER_TEST_STATE.TIMEOUT) return t('timeout_error');
+    if (errorReason === SSO_PROVIDER_TEST_ERROR_REASON.FORBIDDEN) return tCommon('error.forbidden');
+    if (errorReason === SSO_PROVIDER_TEST_ERROR_REASON.EXPIRED) return t('expired_error');
+    return errorMessage ? t('provider_error', { message: errorMessage }) : t('try_again_text');
   };
 
   return (
     <div className={cn('space-y-4', styling?.classes?.['SsoProviderTest-result'])}>
-      {state === 'success' ? (
-        <div className="space-y-4">
+      {state === SSO_PROVIDER_TEST_STATE.SUCCESS ? (
+        <div role="status" className="space-y-4">
           <div className="space-y-1">
             <h4 className="text-subtitle text-left font-semibold">{t('success_title')}</h4>
             <p className="text-muted-foreground text-paragraph text-left">

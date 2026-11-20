@@ -35,6 +35,7 @@ const createMockSsoProviderEditReturn = (overrides = {}) => ({
   listScimTokens: mockOnListScimTokens,
   createScimToken: mockOnCreateScimToken,
   deleteScimToken: mockOnDeleteScimToken,
+  scimTokenConfig: undefined,
   ...overrides,
 });
 

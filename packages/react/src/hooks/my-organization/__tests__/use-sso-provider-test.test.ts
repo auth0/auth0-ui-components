@@ -1,10 +1,9 @@
-import type { GetIdpTestResponseContent } from '@auth0/universal-components-core';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useSsoProviderTestService } from '@/hooks/my-organization/shared/services/use-sso-provider-test-service';
 import { useSsoProviderTest } from '@/hooks/my-organization/use-sso-provider-test';
-import type { UsePollUntilReturn } from '@/types/poll-types';
+import type { SsoProviderTestPoll } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-test-service');
 
@@ -20,12 +19,9 @@ const created = {
   expires_at: '2026-11-03T05:00:00.000Z',
 };
 
-const createPoll = (
-  overrides: Partial<UsePollUntilReturn<GetIdpTestResponseContent>> = {},
-): UsePollUntilReturn<GetIdpTestResponseContent> => ({
+const createPoll = (overrides: Partial<SsoProviderTestPoll> = {}): SsoProviderTestPoll => ({
   data: undefined,
   error: null,
-  attempts: 0,
   isPolling: true,
   timedOut: false,
   stop: vi.fn(),
@@ -127,6 +123,89 @@ describe('useSsoProviderTest', () => {
       });
     });
 
+    describe('when the test URL is not https', () => {
+      it.each(['javascript:alert(1)', 'http://example.com', 'not a url'])(
+        'should not navigate to %s',
+        async (badUrl) => {
+          startTest.mockResolvedValue({ ...created, test_url: badUrl });
+
+          const { result } = await startTestRun();
+
+          expect(tab.location.href).toBe('');
+          expect(tab.close).toHaveBeenCalled();
+          expect(result.current.state).toBe('idle');
+          expect(result.current.blockedTestUrl).toBeNull();
+        },
+      );
+
+      it('should not expose a blocked URL when the window is blocked', async () => {
+        openSpy.mockReturnValue(null);
+        startTest.mockResolvedValue({ ...created, test_url: 'javascript:alert(1)' });
+
+        const { result } = await startTestRun();
+
+        expect(result.current.state).toBe('idle');
+        expect(result.current.blockedTestUrl).toBeNull();
+      });
+    });
+
+    describe('when cancelled while the request is pending', () => {
+      it('should stay idle after the response arrives', async () => {
+        let resolveStart!: (value: typeof created) => void;
+        startTest.mockReturnValue(new Promise((resolve) => (resolveStart = resolve)));
+        const { result } = renderHook(() => useSsoProviderTest(idpId));
+
+        let startPromise!: Promise<void>;
+        act(() => {
+          startPromise = result.current.start();
+        });
+        act(() => result.current.cancel());
+        await act(async () => {
+          resolveStart(created);
+          await startPromise;
+        });
+
+        expect(result.current.state).toBe('idle');
+        expect(tab.location.href).toBe('');
+        expect(useSsoProviderTestService).toHaveBeenLastCalledWith(idpId, null, {
+          customMessages: {},
+        });
+      });
+    });
+
+    describe('when started again while the first request is pending', () => {
+      it('should close the first window and ignore the first response', async () => {
+        const secondTab = createTab();
+        const secondCreated = { ...created, id: 'cnt_2222222222222222222222' };
+        let resolveFirst!: (value: typeof created | null) => void;
+        startTest
+          .mockReturnValueOnce(new Promise((resolve) => (resolveFirst = resolve)))
+          .mockResolvedValueOnce(secondCreated);
+        openSpy.mockReturnValueOnce(tab).mockReturnValueOnce(secondTab);
+        const { result } = renderHook(() => useSsoProviderTest(idpId));
+
+        let firstPromise!: Promise<void>;
+        act(() => {
+          firstPromise = result.current.start();
+        });
+        await act(async () => {
+          await result.current.start();
+        });
+        await act(async () => {
+          resolveFirst(null);
+          await firstPromise;
+        });
+
+        expect(tab.close).toHaveBeenCalled();
+        expect(secondTab.close).not.toHaveBeenCalled();
+        expect(secondTab.location.href).toBe(testUrl);
+        expect(result.current.state).toBe('polling');
+        expect(useSsoProviderTestService).toHaveBeenLastCalledWith(idpId, secondCreated.id, {
+          customMessages: {},
+        });
+      });
+    });
+
     describe('when the request fails', () => {
       it('should close the window and return to idle', async () => {
         startTest.mockResolvedValue(null);
@@ -187,6 +266,19 @@ describe('useSsoProviderTest', () => {
       });
     });
 
+    describe('when polling stops with an unmapped status', () => {
+      it('should report a provider error instead of expired', async () => {
+        const { result, rerender } = await startTestRun();
+
+        poll = createPoll({ isPolling: false, error: { status: 500 } });
+        mockService();
+        rerender();
+
+        expect(result.current.state).toBe('error');
+        expect(result.current.errorReason).toBe('provider');
+      });
+    });
+
     describe('when polling times out', () => {
       it('should report a timeout', async () => {
         const { result, rerender } = await startTestRun();
@@ -226,6 +318,24 @@ describe('useSsoProviderTest', () => {
       expect(startTest).toHaveBeenCalledTimes(2);
       expect(nextTab.location.href).toBe(testUrl);
       expect(result.current.state).toBe('polling');
+    });
+  });
+
+  describe('retry while starting', () => {
+    it('should ignore the retry', async () => {
+      startTest.mockReturnValue(new Promise(() => {}));
+      const { result } = renderHook(() => useSsoProviderTest(idpId));
+      act(() => {
+        void result.current.start();
+      });
+      expect(result.current.state).toBe('starting');
+
+      await act(async () => {
+        await result.current.retry();
+      });
+
+      expect(startTest).toHaveBeenCalledTimes(1);
+      expect(openSpy).toHaveBeenCalledTimes(1);
     });
   });
 
