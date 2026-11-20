@@ -15,6 +15,22 @@ export const ALLOWED_CERT_EXTENSIONS = ['.pem', '.cer', '.crt'] as const;
 export const CONFIGURE_ORG_DOMAINS_DOCS_URL =
   'https://auth0.com/docs/get-started/universal-components/web/components/configure-org-domains';
 
+/** Lifecycle states of an identity provider test. */
+export const SSO_PROVIDER_TEST_STATE = {
+  IDLE: 'idle',
+  STARTING: 'starting',
+  POLLING: 'polling',
+  SUCCESS: 'success',
+  ERROR: 'error',
+  TIMEOUT: 'timeout',
+} as const;
+
+export const SSO_PROVIDER_TEST_ERROR_REASON = {
+  PROVIDER: 'provider',
+  EXPIRED: 'expired',
+  FORBIDDEN: 'forbidden',
+} as const;
+
 /** Size of the popup window that runs an identity provider test. */
 export const SSO_PROVIDER_TEST_POPUP_WIDTH = 500;
 export const SSO_PROVIDER_TEST_POPUP_HEIGHT = 700;

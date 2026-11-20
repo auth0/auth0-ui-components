@@ -10,6 +10,10 @@ import { useCallback, useRef, useState } from 'react';
 
 import { useSsoProviderTestService } from '@/hooks/my-organization/shared/services/use-sso-provider-test-service';
 import {
+  SSO_PROVIDER_TEST_ERROR_REASON,
+  SSO_PROVIDER_TEST_STATE,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
+import {
   errorReasonForStatus,
   getPopupFeatures,
   isHttpsUrl,
@@ -36,7 +40,7 @@ export function useSsoProviderTest(
   idpId: IdpId,
   { customMessages = {} }: UseSsoProviderTestOptions = {},
 ): UseSsoProviderTestReturn {
-  const [phase, setPhase] = useState<SsoProviderTestPhase>('idle');
+  const [phase, setPhase] = useState<SsoProviderTestPhase>(SSO_PROVIDER_TEST_STATE.IDLE);
   const [testId, setTestId] = useState<IdpTestId | null>(null);
   const [blockedTestUrl, setBlockedTestUrl] = useState<string | null>(null);
   const testWindowRef = useRef<Window | null>(null);
@@ -44,7 +48,7 @@ export function useSsoProviderTest(
 
   const { startTest, poll } = useSsoProviderTestService(
     idpId,
-    phase === 'polling' ? testId : null,
+    phase === SSO_PROVIDER_TEST_STATE.POLLING ? testId : null,
     { customMessages },
   );
 
@@ -59,7 +63,7 @@ export function useSsoProviderTest(
     closeTestWindow();
     const testWindow = window.open('', '_blank', getPopupFeatures());
     testWindowRef.current = testWindow;
-    setPhase('starting');
+    setPhase(SSO_PROVIDER_TEST_STATE.STARTING);
     setTestId(null);
     setBlockedTestUrl(null);
 
@@ -68,7 +72,7 @@ export function useSsoProviderTest(
 
     if (!created || !isHttpsUrl(created.test_url)) {
       closeTestWindow();
-      setPhase('idle');
+      setPhase(SSO_PROVIDER_TEST_STATE.IDLE);
       return;
     }
 
@@ -79,18 +83,19 @@ export function useSsoProviderTest(
       setBlockedTestUrl(created.test_url);
     }
     setTestId(created.id);
-    setPhase('polling');
+    setPhase(SSO_PROVIDER_TEST_STATE.POLLING);
   }, [startTest, closeTestWindow]);
 
   const retry = useCallback(async () => {
+    if (phase === SSO_PROVIDER_TEST_STATE.STARTING) return;
     closeTestWindow();
     await start();
-  }, [closeTestWindow, start]);
+  }, [closeTestWindow, phase, start]);
 
   const cancel = useCallback(() => {
     runIdRef.current++;
     closeTestWindow();
-    setPhase('idle');
+    setPhase(SSO_PROVIDER_TEST_STATE.IDLE);
     setTestId(null);
     setBlockedTestUrl(null);
   }, [closeTestWindow]);
@@ -100,18 +105,18 @@ export function useSsoProviderTest(
   let errorMessage: string | null = null;
   let user: UseSsoProviderTestReturn['user'] = null;
 
-  if (phase === 'polling') {
+  if (phase === SSO_PROVIDER_TEST_STATE.POLLING) {
     if (poll.data?.status === 'success') {
-      state = 'success';
+      state = SSO_PROVIDER_TEST_STATE.SUCCESS;
       user = poll.data.user;
     } else if (poll.data?.status === 'error') {
-      state = 'error';
-      errorReason = 'provider';
+      state = SSO_PROVIDER_TEST_STATE.ERROR;
+      errorReason = SSO_PROVIDER_TEST_ERROR_REASON.PROVIDER;
       errorMessage = poll.data.error.message;
     } else if (poll.timedOut) {
-      state = 'timeout';
+      state = SSO_PROVIDER_TEST_STATE.TIMEOUT;
     } else if (!poll.isPolling && poll.error) {
-      state = 'error';
+      state = SSO_PROVIDER_TEST_STATE.ERROR;
       errorReason = errorReasonForStatus(getStatusCode(poll.error));
     }
   }
@@ -121,7 +126,7 @@ export function useSsoProviderTest(
     user,
     errorReason,
     errorMessage,
-    blockedTestUrl: state === 'polling' ? blockedTestUrl : null,
+    blockedTestUrl: state === SSO_PROVIDER_TEST_STATE.POLLING ? blockedTestUrl : null,
     start,
     retry,
     cancel,
