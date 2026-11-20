@@ -210,6 +210,43 @@ describe('useConfig', () => {
     });
   });
 
+  describe('discovery', () => {
+    it('is unavailable when the configuration has no discovery policy', async () => {
+      mockGet.mockResolvedValue(createMockConfig());
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.discoveryPolicy).toBeNull();
+      expect(result.current.showDiscovery).toBe(false);
+    });
+
+    it('exposes the policy and treats several allowed values as editable', async () => {
+      const policy = { default_value: true, allowed_values: [true, false] };
+      mockGet.mockResolvedValue(createMockConfig({ use_for_organization_discovery: policy }));
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.discoveryPolicy).toEqual(policy);
+      expect(result.current.showDiscovery).toBe(true);
+      expect(result.current.isDiscoveryReadOnly).toBe(false);
+      expect(result.current.discoveryDefaultValue).toBe(true);
+    });
+
+    it('is read-only and uses the only allowed value when the policy locks it', async () => {
+      mockGet.mockResolvedValue(
+        createMockConfig({
+          use_for_organization_discovery: { default_value: false, allowed_values: [true] },
+        }),
+      );
+
+      const { result } = await renderUseConfig();
+
+      expect(result.current.showDiscovery).toBe(true);
+      expect(result.current.isDiscoveryReadOnly).toBe(true);
+      expect(result.current.discoveryDefaultValue).toBe(true);
+    });
+  });
+
   describe('thirdPartyAccess', () => {
     it('showThirdPartyAccess is false when third_party_client_access is undefined', async () => {
       mockGet.mockResolvedValue(createMockConfig());

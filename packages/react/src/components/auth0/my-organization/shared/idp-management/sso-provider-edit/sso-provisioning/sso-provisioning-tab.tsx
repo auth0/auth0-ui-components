@@ -82,6 +82,7 @@ export function SsoProvisioningTab({
     listScimTokens,
     createScimToken,
     deleteScimToken,
+    scimTokenConfig,
   } = useSsoProviderEdit(provider?.id || '');
 
   const { isDarkMode } = useTheme();
@@ -242,6 +243,7 @@ export function SsoProvisioningTab({
               onListScimTokens={listScimTokens}
               onCreateScimToken={createScimToken}
               onDeleteScimToken={deleteScimToken}
+              scimTokenConfig={scimTokenConfig}
               customMessages={customMessages.details}
               styling={styling}
               permissions={permissions}

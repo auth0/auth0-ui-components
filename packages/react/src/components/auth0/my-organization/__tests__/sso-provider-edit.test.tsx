@@ -9,6 +9,7 @@ import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   createMockBackButton,
   createMockEnableProviderAction,
@@ -537,6 +538,110 @@ describe('SsoProviderEdit', () => {
       expect(screen.queryByText('taken.com')).not.toBeInTheDocument();
       expect(screen.queryByText('pending.com')).not.toBeInTheDocument();
       expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+    });
+
+    describe('use for discovery column', () => {
+      const withPolicy = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.get).mockResolvedValue({
+          allowed_strategies: ['okta'],
+          connection_deletion_behavior: 'allow',
+          ...(policy ? { use_for_organization_discovery: policy } : {}),
+        });
+        Object.assign(organizationApi.domains, {
+          list: vi.fn().mockResolvedValue({
+            response: {
+              organization_domains: [{ ...orgDomains[0], use_for_organization_discovery: true }],
+            },
+          }),
+        });
+      };
+
+      it('should show the discovery value of each assigned domain when the organization has a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy({ default_value: false, allowed_values: [true, false] });
+        await openDomainsTab(user);
+
+        expect(await screen.findByText('table.columns.use_for_discovery')).toBeInTheDocument();
+        const row = screen.getByRole('row', { name: /assigned\.com/i });
+        expect(within(row).getByText('table.discovery_values.yes')).toBeInTheDocument();
+        expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+      });
+
+      it('should not show the column without a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy();
+        await openDomainsTab(user);
+
+        await screen.findByText('assigned.com');
+        expect(screen.queryByText('table.columns.use_for_discovery')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('domain_aliases_config', () => {
+      const withMode = (
+        mode: 'none' | 'optional' | 'required',
+        provider: Partial<IdpKnownResponse>,
+      ) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.identityProviders.get).mockResolvedValue(
+          createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+        );
+        vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(
+          createMockIdentityProvider(provider),
+        );
+      };
+      const removeButtons = () =>
+        screen.findAllByRole('button', { name: 'table.actions.remove_domain_aria_label' });
+      const removeButton = async () => (await removeButtons())[0]!;
+
+      it('should keep the only domain of an enabled provider in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+        expect(within(screen.getByRole('tabpanel')).getByRole('alert')).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeEnabled();
+      });
+
+      it('should let an enabled provider with two domains drop one in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'taken.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(2);
+        expect(within(screen.getByRole('tabpanel')).queryByRole('alert')).not.toBeInTheDocument();
+        (await removeButtons()).forEach((button) => expect(button).toBeEnabled());
+      });
+
+      it('should count only the verified domains it lists when locking the last one', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'pending.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(1);
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+      });
+
+      it('should let a disabled provider drop its only domain in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: false, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+      });
+
+      it('should disable Assign but keep Remove in none mode', async () => {
+        const user = userEvent.setup();
+        withMode('none', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeDisabled();
+      });
     });
 
     it('should remove a domain from the provider with the existing dissociate call', async () => {
@@ -1274,6 +1379,90 @@ describe('SsoProviderEdit', () => {
           ).toHaveBeenCalled();
         });
       });
+    });
+  });
+
+  describe('domain verification', () => {
+    const arrange = (
+      domainVerification: 'none' | 'optional' | 'required',
+      provider: Partial<IdpKnownResponse>,
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({
+          strategies: {
+            samlp: { enabled_features: ['provisioning'], provisioning_methods: ['scim'] },
+          },
+          domain_aliases_config: { domain_verification: domainVerification },
+        }),
+      );
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        ...provider,
+      } as IdpKnownResponse);
+    };
+
+    it('blocks enabling the provider while it has no verified domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('names the enable switch and describes why it is blocked', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      const toggle = screen.getAllByRole('switch')[0]!;
+      expect(toggle).toHaveAccessibleName('header.enable_provider_tooltip_text');
+      expect(toggle).toHaveAccessibleDescription(
+        'header.enable_provider_blocked_domains_tooltip_text',
+      );
+    });
+
+    it('lets the provider be enabled once it has a domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: ['example.com'] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+
+    it('does not block enabling in optional mode', async () => {
+      arrange('optional', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+  });
+
+  describe('provider access level', () => {
+    const arrange = (access_level: 'readonly' | 'limited') => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        is_enabled: true,
+        access_level,
+      } as IdpKnownResponse);
+    };
+
+    it('disables the enable switch with read-only access', async () => {
+      arrange('readonly');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('keeps the enable switch available with limited access', async () => {
+      arrange('limited');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
 });

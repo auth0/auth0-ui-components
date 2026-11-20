@@ -4,10 +4,15 @@
  * @internal
  */
 
-import type { IdentityProviderAssociatedWithDomain } from '@auth0/universal-components-core';
+import {
+  DEFAULT_DOMAIN_VERIFICATION_MODE,
+  type IdentityProviderAssociatedWithDomain,
+} from '@auth0/universal-components-core';
+import { Info } from 'lucide-react';
 import React from 'react';
 
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Modal } from '@/components/ui/modal';
@@ -19,8 +24,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Spinner } from '@/components/ui/spinner';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ASSOCIATION_BLOCK_REASONS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
 import { cn } from '@/lib/utils';
+import {
+  getAssociationBlockReason,
+  getAssociationBlockReasonMessages,
+  isDomainAssociationUnavailable,
+  isLastRequiredDomainLocked,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { DomainConfigureProvidersModalProps } from '@/types/my-organization/domain-management/domain-configure-types';
 
 const PROVIDER_FIELD_ID = 'domain-configure-provider';
@@ -45,6 +60,7 @@ function getProviderLabel(provider: IdentityProviderAssociatedWithDomain): strin
  * @param props.isLoading - Whether the component is in a loading state
  * @param props.isSaving - Whether an assign or remove request is in progress
  * @param props.permissions - What the current user is allowed to do
+ * @param props.domainVerificationMode - How providers use verified domains: `none` disables Assign, `required` keeps a provider's last domain
  * @param props.onClose - Callback fired when the component should close
  * @param props.onAssign - Callback fired on Save with the selected provider
  * @param props.onRemove - Callback fired when an assigned provider is removed
@@ -61,6 +77,7 @@ export function DomainConfigureProvidersModal({
   isLoading,
   isSaving = false,
   permissions,
+  domainVerificationMode = DEFAULT_DOMAIN_VERIFICATION_MODE,
   onClose,
   onAssign,
   onRemove,
@@ -69,7 +86,13 @@ export function DomainConfigureProvidersModal({
 }: DomainConfigureProvidersModalProps) {
   const { t } = useTranslator('domain_management.domain_configure_providers.modal', customMessages);
 
+  const { t: tCommon } = useTranslator('common', customMessages?.common);
+  const idPrefix = useId();
+  const noneAlertId = `${idPrefix}-none`;
+
   const [selectedProviderId, setSelectedProviderId] = React.useState('');
+
+  const isAssociationUnavailable = isDomainAssociationUnavailable(domainVerificationMode);
 
   const assignedProviders = React.useMemo(
     () => providers.filter((provider) => provider.is_associated),
@@ -82,8 +105,12 @@ export function DomainConfigureProvidersModal({
   const selectedProvider = selectableProviders.find(
     (provider) => provider.id === selectedProviderId,
   );
+  const hasLockedLastDomain = assignedProviders.some((provider) =>
+    isLastRequiredDomainLocked(domainVerificationMode, provider),
+  );
   const showProviderField = assignedProviders.length === 0 && providers.length > 0;
   const showAssignedDescription = !isLoading && assignedProviders.length > 0;
+  const showDescription = !isAssociationUnavailable && !hasLockedLastDomain;
 
   React.useEffect(() => {
     if (!isOpen || assignedProviders.length > 0) setSelectedProviderId('');
@@ -91,7 +118,74 @@ export function DomainConfigureProvidersModal({
 
   const handleSave = () => {
     if (!domain || !selectedProvider || !permissions.canAssociateProvider) return;
+    if (isAssociationUnavailable || !getProviderAccess(selectedProvider).canManageDomains) return;
     onAssign(domain, selectedProvider);
+  };
+
+  const blockReasonMessages = getAssociationBlockReasonMessages(t, tCommon);
+
+  const renderRemoveButton = (provider: IdentityProviderAssociatedWithDomain) => {
+    const blockReason = getAssociationBlockReason({
+      hasPermission: permissions.canDissociateProvider,
+      isProviderAccessRestricted: !getProviderAccess(provider).canManageDomains,
+      isAssociationUnavailable: false,
+      isLastDomainLocked: isLastRequiredDomainLocked(domainVerificationMode, provider),
+    });
+    const reasonId = `${idPrefix}-${provider.id ?? provider.name}-reason`;
+    const reason = blockReason ? blockReasonMessages[blockReason] : null;
+    const button = (
+      <Button
+        type="button"
+        variant="link"
+        size="sm"
+        className={cn(
+          'text-destructive-foreground px-0',
+          blockReason && 'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+        )}
+        disabled={isSaving}
+        aria-disabled={blockReason ? true : undefined}
+        onClick={() => {
+          if (domain && !blockReason) onRemove(domain, provider);
+        }}
+        aria-label={t('actions.remove_button_aria_label', {
+          provider: getProviderLabel(provider),
+        })}
+        aria-describedby={reason ? reasonId : undefined}
+      >
+        {t('actions.remove_button_text')}
+      </Button>
+    );
+
+    if (!blockReason || !reason) return button;
+
+    const reasonText = (
+      <span id={reasonId} className="sr-only">
+        {reason}
+      </span>
+    );
+
+    if (blockReason === ASSOCIATION_BLOCK_REASONS.FORBIDDEN) {
+      return (
+        <>
+          <PermissionDeniedTooltip customMessages={customMessages} enabled>
+            {button}
+          </PermissionDeniedTooltip>
+          {reasonText}
+        </>
+      );
+    }
+
+    return (
+      <Tooltip disableHoverableContent>
+        <TooltipTrigger asChild>
+          <span>
+            {button}
+            {reasonText}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{reason}</TooltipContent>
+      </Tooltip>
+    );
   };
 
   const renderAssignedProviders = () => (
@@ -116,24 +210,7 @@ export function DomainConfigureProvidersModal({
                   {t('table.actions.view_provider_button_text')}
                 </Button>
               )}
-              <PermissionDeniedTooltip
-                customMessages={customMessages}
-                enabled={!permissions.canDissociateProvider}
-              >
-                <Button
-                  type="button"
-                  variant="link"
-                  size="sm"
-                  className="text-destructive-foreground px-0"
-                  disabled={isSaving || !permissions.canDissociateProvider}
-                  onClick={() => domain && onRemove(domain, provider)}
-                  aria-label={t('actions.remove_button_aria_label', {
-                    provider: getProviderLabel(provider),
-                  })}
-                >
-                  {t('actions.remove_button_text')}
-                </Button>
-              </PermissionDeniedTooltip>
+              {renderRemoveButton(provider)}
             </div>
           </li>
         ))}
@@ -154,14 +231,22 @@ export function DomainConfigureProvidersModal({
         <Select
           value={selectedProviderId}
           onValueChange={setSelectedProviderId}
-          disabled={isSaving || !permissions.canAssociateProvider}
+          disabled={isSaving || !permissions.canAssociateProvider || isAssociationUnavailable}
         >
-          <SelectTrigger id={PROVIDER_FIELD_ID} autoFocus>
+          <SelectTrigger
+            id={PROVIDER_FIELD_ID}
+            autoFocus
+            aria-describedby={isAssociationUnavailable ? noneAlertId : undefined}
+          >
             <SelectValue placeholder={t('field.placeholder')} />
           </SelectTrigger>
           <SelectContent>
             {selectableProviders.map((provider) => (
-              <SelectItem key={provider.id} value={provider.id!}>
+              <SelectItem
+                key={provider.id}
+                value={provider.id!}
+                disabled={!getProviderAccess(provider).canManageDomains}
+              >
                 {getProviderLabel(provider)}
               </SelectItem>
             ))}
@@ -205,13 +290,33 @@ export function DomainConfigureProvidersModal({
       content={
         domain && (
           <div className={cn('space-y-6', styling?.classes?.['DomainTable-configureModal'])}>
-            <p className="text-muted-foreground text-paragraph">
-              {showAssignedDescription
-                ? t('assigned_description')
-                : t('description', { domain: domain?.domain ?? '' })}
-            </p>
+            {isAssociationUnavailable && (
+              <Alert variant="warning" id={noneAlertId}>
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  {t('alerts.domain_verification_none')}
+                </AlertDescription>
+              </Alert>
+            )}
+            {hasLockedLastDomain && (
+              <Alert variant="warning">
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  {t('table.actions.last_verified_domain_tooltip')}
+                </AlertDescription>
+              </Alert>
+            )}
+            {showDescription && (
+              <p className="text-muted-foreground text-paragraph">
+                {showAssignedDescription
+                  ? t('assigned_description')
+                  : t('description', { domain: domain?.domain ?? '' })}
+              </p>
+            )}
             <p role="status" className="sr-only">
-              {showProviderField ? t('no_connection_status', { domain: domain.domain }) : ''}
+              {showProviderField && !isAssociationUnavailable
+                ? t('no_connection_status', { domain: domain.domain })
+                : ''}
             </p>
             {renderContent()}
           </div>
@@ -227,7 +332,12 @@ export function DomainConfigureProvidersModal({
         nextAction: {
           type: 'button',
           label: t('actions.save_button_text'),
-          disabled: isSaving || !selectedProvider || !permissions.canAssociateProvider,
+          disabled:
+            isSaving ||
+            !selectedProvider ||
+            !permissions.canAssociateProvider ||
+            isAssociationUnavailable ||
+            !getProviderAccess(selectedProvider).canManageDomains,
           onClick: handleSave,
         },
       }}

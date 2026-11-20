@@ -17,6 +17,7 @@ import type {
   CreateIdPProvisioningConfigResponseContent,
   DirectoryProvisioningConfig,
   IdpManagementPermissions,
+  IdpScimTokenConfig,
 } from '@auth0/universal-components-core';
 
 import type { SsoProvisioningGoogleSyncPanelClasses } from '@/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
@@ -115,4 +116,5 @@ export interface SsoProvisioningDetailsProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  scimTokenConfig?: IdpScimTokenConfig;
 }
