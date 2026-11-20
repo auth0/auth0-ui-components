@@ -37,6 +37,7 @@ import type {
  * @param props.hideDomainsTab - Whether to hide the domains tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
+ * @param props.hideTestProvider - Whether to hide the test provider action
  * @param props.hideAttributeMappings - Whether to hide the attribute mappings section
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.customMessages - Custom translation messages to override defaults
@@ -60,6 +61,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     hideDomainsTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
+    hideTestProvider = false,
     hideAttributeMappings = false,
     customMessages = {},
     styling = {
@@ -105,6 +107,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideDomainsTab={hideDomainsTab}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
+        hideTestProvider={hideTestProvider}
         hideAttributeMappings={hideAttributeMappings}
         provisioning={provisioning}
         enableProviderAction={enableProviderAction}
@@ -134,6 +137,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hideProvisioningTab,
     hideDeleteProvider,
     hideRemoveFromOrganization,
+    hideTestProvider,
     hideAttributeMappings,
     provider,
     provisioning,
@@ -144,6 +148,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isDeleting,
     isRemoving,
     idpConfig,
+    discoveryPolicy,
+    domainVerificationMode,
+    isEnableBlockedByDomains,
+    providerAccess,
     customMessages,
     backButton,
     shouldAllowDeletion,
@@ -191,6 +199,27 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     [styling, isDarkMode],
   );
 
+  const isProviderSwitchDisabled =
+    isUpdating ||
+    isEnabling ||
+    enableProviderAction?.disabled ||
+    !permissions.canUpdateProvider ||
+    !providerAccess.canToggle ||
+    isEnableBlockedByDomains;
+
+  const providerSwitchLabel = provider?.is_enabled
+    ? t('header.disable_provider_tooltip_text')
+    : t('header.enable_provider_tooltip_text');
+
+  const getProviderSwitchBlockedReason = () => {
+    if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
+    if (!providerAccess.canToggle)
+      return t('header.enable_provider_access_restricted_tooltip_text');
+    if (isEnableBlockedByDomains) return t('header.enable_provider_blocked_domains_tooltip_text');
+    return undefined;
+  };
+  const providerSwitchBlockedReason = getProviderSwitchBlockedReason();
+
   return (
     <StyledScope style={currentStyles.variables}>
       <div className="w-full overflow-y-auto">
@@ -210,18 +239,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 checked: provider?.is_enabled ?? false,
                 onCheckedChange: handleToggleProvider,
                 hidden: readOnly,
-                disabled:
-                  isUpdating ||
-                  isEnabling ||
-                  enableProviderAction?.disabled ||
-                  !permissions.canUpdateProvider,
-                tooltip: {
-                  content: !permissions.canUpdateProvider
-                    ? tCommon('error.forbidden')
-                    : provider?.is_enabled
-                      ? t('header.disable_provider_tooltip_text')
-                      : t('header.enable_provider_tooltip_text'),
-                },
+                disabled: isProviderSwitchDisabled,
+                'aria-label': providerSwitchLabel,
+                description: providerSwitchBlockedReason,
+                tooltip: { content: providerSwitchBlockedReason ?? providerSwitchLabel },
               },
             ]}
             className={currentStyles?.classes?.['SsoProviderEdit-header']}
@@ -268,6 +289,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               shouldAllowDeletion={shouldAllowDeletion}
               hideDeleteProvider={hideDeleteProvider}
               hideRemoveFromOrganization={hideRemoveFromOrganization}
+              hideTestProvider={hideTestProvider}
               hideAttributeMappings={hideAttributeMappings}
               hasSsoAttributeSyncWarning={hasSsoAttributeSyncWarning}
               onAttributeSync={syncSsoAttributes}
@@ -287,6 +309,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 },
               }}
               permissions={permissions}
+              providerAccess={providerAccess}
               readOnly={readOnly}
               showThirdPartyAccess={showThirdPartyAccess}
               isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
@@ -349,6 +372,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 provider={provider}
                 permissions={permissions}
                 readOnly={readOnly}
+                domainVerificationMode={domainVerificationMode}
+                discoveryPolicy={discoveryPolicy}
               />
             </TabsContent>
           )}

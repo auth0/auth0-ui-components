@@ -189,7 +189,10 @@ describe('DomainConfigureProvidersModal', () => {
         permissions: createDomainPermissions(['create:my_org:identity_providers_domains']),
       });
 
-      expect(getRemoveButton('Google Workspace (google-apps)')).toBeDisabled();
+      expect(getRemoveButton('Google Workspace (google-apps)')).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     });
 
     it('should open the assigned provider from View', async () => {
@@ -373,6 +376,208 @@ describe('DomainConfigureProvidersModal', () => {
       await user.keyboard('{Escape}');
 
       expect(props.onClose).toHaveBeenCalled();
+    });
+  });
+  describe('domain verification mode and access level', () => {
+    const enabledGoogle = {
+      ...googleProvider,
+      is_enabled: true,
+      domains: ['example.com'],
+    } as typeof googleProvider;
+    const reasonOf = (button: HTMLElement) =>
+      document.getElementById(button.getAttribute('aria-describedby')!);
+
+    it.each([undefined, 'optional'] as const)(
+      'should show no alert and allow both in %s mode',
+      (mode) => {
+        renderModal({ domainVerificationMode: mode, providers: [enabledGoogle, oktaProvider] });
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(getRemoveButton('Google Workspace (google-apps)')).toBeEnabled();
+      },
+    );
+
+    describe('none mode', () => {
+      it('should replace the description with the alert', () => {
+        renderModal({ domainVerificationMode: 'none', providers: unassignedProviders });
+
+        expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_none');
+        expect(screen.queryByText('description')).not.toBeInTheDocument();
+        expect(screen.getByRole('status')).toBeEmptyDOMElement();
+      });
+
+      it('should explain it and disable assigning', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({
+          domainVerificationMode: 'none',
+          providers: unassignedProviders,
+        });
+
+        expect(screen.getByRole('alert')).toHaveTextContent('alerts.domain_verification_none');
+        expect(screen.getByRole('combobox')).toBeDisabled();
+        expect(screen.getByRole('combobox')).toHaveAttribute(
+          'aria-describedby',
+          screen.getByRole('alert').id,
+        );
+        expect(getFooterButton('actions.save_button_text')).toBeDisabled();
+        await user.click(getFooterButton('actions.save_button_text'));
+        expect(props.onAssign).not.toHaveBeenCalled();
+      });
+
+      it('should still let an assigned provider be removed', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({
+          domainVerificationMode: 'none',
+          providers: [googleProvider, oktaProvider],
+        });
+
+        await user.click(getRemoveButton('Google Workspace (google-apps)'));
+
+        expect(props.onRemove).toHaveBeenCalledWith(props.domain, googleProvider);
+      });
+    });
+
+    describe('required mode', () => {
+      it('should replace the assigned description with the alert while the last domain is locked', () => {
+        renderModal({
+          domainVerificationMode: 'required',
+          providers: [enabledGoogle, oktaProvider],
+        });
+
+        expect(screen.getByRole('alert')).toBeInTheDocument();
+        expect(screen.queryByText('assigned_description')).not.toBeInTheDocument();
+      });
+
+      it('should keep the assigned description when nothing is locked', () => {
+        renderModal({
+          domainVerificationMode: 'required',
+          providers: [{ ...enabledGoogle, is_enabled: false } as typeof googleProvider],
+        });
+
+        expect(screen.getByText('assigned_description')).toBeInTheDocument();
+      });
+
+      it('should keep the last verified domain of an enabled provider', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({
+          domainVerificationMode: 'required',
+          providers: [enabledGoogle, oktaProvider],
+        });
+        const button = getRemoveButton('Google Workspace (google-apps)');
+
+        expect(button).toHaveAttribute('aria-disabled', 'true');
+        expect(reasonOf(button)).toHaveTextContent('table.actions.last_verified_domain_tooltip');
+        expect(screen.getByRole('alert')).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+        await user.click(button);
+        expect(props.onRemove).not.toHaveBeenCalled();
+      });
+
+      it('should let an enabled provider with another domain be removed', () => {
+        renderModal({
+          domainVerificationMode: 'required',
+          providers: [
+            { ...enabledGoogle, domains: ['example.com', 'other.com'] } as typeof googleProvider,
+            oktaProvider,
+          ],
+        });
+
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(getRemoveButton('Google Workspace (google-apps)')).toBeEnabled();
+      });
+
+      it('should let a disabled provider be removed', () => {
+        renderModal({
+          domainVerificationMode: 'required',
+          providers: [{ ...enabledGoogle, is_enabled: false } as typeof googleProvider],
+        });
+
+        expect(getRemoveButton('Google Workspace (google-apps)')).toBeEnabled();
+      });
+
+      it('should let the field assign', () => {
+        renderModal({ domainVerificationMode: 'required', providers: unassignedProviders });
+
+        expect(screen.getByRole('combobox')).toBeEnabled();
+      });
+    });
+
+    describe('provider access level', () => {
+      it.each(['limited', 'readonly'] as const)(
+        'should disable Remove with %s access and say why',
+        (access_level) => {
+          renderModal({
+            providers: [{ ...googleProvider, access_level } as typeof googleProvider],
+          });
+          const button = getRemoveButton('Google Workspace (google-apps)');
+
+          expect(button).toHaveAttribute('aria-disabled', 'true');
+          expect(reasonOf(button)).toHaveTextContent(
+            'table.actions.provider_access_restricted_tooltip',
+          );
+        },
+      );
+
+      it('should point aria-describedby at a real description for a missing permission', () => {
+        renderModal({ permissions: createDomainPermissions([]) });
+        const button = getRemoveButton('Google Workspace (google-apps)');
+
+        expect(button).toHaveAttribute('aria-disabled', 'true');
+        expect(document.getElementById(button.getAttribute('aria-describedby')!)).toHaveTextContent(
+          'error.forbidden',
+        );
+      });
+
+      it('should not remove while blocked, even when activated', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({
+          providers: [{ ...googleProvider, access_level: 'limited' } as typeof googleProvider],
+        });
+
+        await user.click(getRemoveButton('Google Workspace (google-apps)'));
+
+        expect(props.onRemove).not.toHaveBeenCalled();
+      });
+
+      it('should report a missing permission before the access level', () => {
+        renderModal({
+          permissions: createDomainPermissions([]),
+          providers: [{ ...googleProvider, access_level: 'limited' } as typeof googleProvider],
+        });
+
+        expect(getRemoveButton('Google Workspace (google-apps)')).toHaveAttribute(
+          'aria-disabled',
+          'true',
+        );
+        expect(
+          screen.queryByText('table.actions.provider_access_restricted_tooltip'),
+        ).not.toBeInTheDocument();
+      });
+
+      it('should not offer a provider the organization cannot fully manage', async () => {
+        const user = userEvent.setup();
+        const limitedOkta = { ...oktaProvider, access_level: 'limited' } as typeof oktaProvider;
+        const { props } = renderModal({
+          providers: [{ ...googleProvider, is_associated: false }, limitedOkta],
+        });
+
+        await user.click(screen.getByRole('combobox'));
+        const option = await screen.findByRole('option', { name: /Okta Enterprise/ });
+
+        expect(option).toHaveAttribute('aria-disabled', 'true');
+        expect(props.onAssign).not.toHaveBeenCalled();
+      });
+
+      it('should let a fully managed provider be assigned', async () => {
+        const user = userEvent.setup();
+        const { props } = renderModal({ providers: unassignedProviders });
+
+        await selectProvider(user, 'Okta Enterprise (okta)');
+        await user.click(getFooterButton('actions.save_button_text'));
+
+        expect(props.onAssign).toHaveBeenCalledWith(props.domain, oktaProvider);
+      });
     });
   });
 });
