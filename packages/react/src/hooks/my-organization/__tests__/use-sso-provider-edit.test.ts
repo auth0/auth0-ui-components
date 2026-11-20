@@ -29,6 +29,11 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
     showCrossAppAccess: vi.fn(() => false),
     isCrossAppAccessReadOnly: vi.fn(() => true),
     getCrossAppAccessDefaultValue: vi.fn(() => undefined),
+    getScimTokenConfig: vi.fn(() => ({
+      scopes: ['get:users'],
+      default_expiry: 3600,
+      max_allowed_expiry: 86400,
+    })),
   }),
 }));
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-edit-service', async () => {
@@ -89,6 +94,16 @@ describe('useSsoProviderEdit - logic behavior', () => {
     expect(result.current.isLoadingIdpConfig).toBe(false);
     expect(result.current.provisioningMethod).toBe('scim');
     expect(typeof result.current.handleToggleProvider).toBe('function');
+  });
+
+  it('should return scimTokenConfig for the provider strategy', () => {
+    const { result } = render();
+
+    expect(result.current.scimTokenConfig).toEqual({
+      scopes: ['get:users'],
+      default_expiry: 3600,
+      max_allowed_expiry: 86400,
+    });
   });
 
   it('should use Google Workspace provisioning when the strategy supports it', () => {

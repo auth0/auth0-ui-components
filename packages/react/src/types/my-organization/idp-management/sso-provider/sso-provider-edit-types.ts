@@ -21,6 +21,7 @@ import type {
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
   IdpStrategy,
+  IdpScimTokenConfig,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
   IdpDomainVerificationMode,
@@ -163,6 +164,7 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   providerAccess: ProviderAccess;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
+  scimTokenConfig?: IdpScimTokenConfig;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 

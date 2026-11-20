@@ -92,6 +92,7 @@ export function useSsoProviderEdit(
     isProvisioningEnabled,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
+    getScimTokenConfig,
   } = useIdpConfig();
 
   const provisioningMethod = Object.values(PROVISIONING_METHODS).find((method) =>
@@ -197,5 +198,6 @@ export function useSsoProviderEdit(
     providerAccess,
     showCrossAppAccess: showCrossAppAccess(service.provider?.strategy),
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(service.provider?.strategy),
+    scimTokenConfig: getScimTokenConfig(service.provider?.strategy),
   };
 }

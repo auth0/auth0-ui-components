@@ -1,0 +1,108 @@
+import { SsoProvisioningMappers } from '@core/services/my-organization/idp-management/sso-provisioning/sso-provisioning-mappers';
+import { describe, it, expect } from 'vitest';
+
+import {
+  createProvisioningCreateTokenSchema,
+  type ProvisioningCreateTokenFormValues,
+} from '../sso-provisioning-token-create-schema';
+import type { ProvisioningCreateTokenFormRules } from '../sso-provisioning-token-create-schema-types';
+
+const messages = {
+  required: 'required',
+  integer: 'integer',
+  min: 'min',
+  max: 'max',
+  scopesRequired: 'scopesRequired',
+};
+
+const bounded = SsoProvisioningMappers.getCreateTokenFormRules({
+  scopes: ['get:users', 'post:users'],
+  default_expiry: 500000,
+  max_allowed_expiry: 864000,
+});
+const open = SsoProvisioningMappers.getCreateTokenFormRules(undefined);
+
+const firstError = (
+  rules: ProvisioningCreateTokenFormRules,
+  values: Partial<ProvisioningCreateTokenFormValues>,
+) => {
+  const result = createProvisioningCreateTokenSchema(rules, messages).safeParse({
+    noExpiration: false,
+    tokenLifetime: '',
+    scopes: ['get:users'],
+    ...values,
+  });
+  return result.success ? undefined : result.error.issues[0]?.message;
+};
+
+describe('createProvisioningCreateTokenSchema', () => {
+  it('should accept no expiration with a blank lifetime', () => {
+    expect(firstError(open, { noExpiration: true })).toBeUndefined();
+  });
+
+  it('should ignore an invalid lifetime when no expiration is checked', () => {
+    expect(firstError(open, { noExpiration: true, tokenLifetime: '5' })).toBeUndefined();
+  });
+
+  it('should reject no expiration when the profile sets a max expiry', () => {
+    expect(firstError(bounded, { noExpiration: true })).toBe('max');
+  });
+
+  it('should reject scopes not allowed by the profile', () => {
+    expect(firstError(bounded, { scopes: ['get:users', 'delete:users'] })).toBeDefined();
+    expect(
+      firstError(bounded, { tokenLifetime: '500000', scopes: ['post:users'] }),
+    ).toBeUndefined();
+  });
+
+  it('should reject a lifetime that is not a safe integer', () => {
+    expect(firstError(open, { tokenLifetime: '9'.repeat(309) })).toBe('integer');
+    expect(firstError(open, { tokenLifetime: '9007199254740993' })).toBe('integer');
+  });
+
+  it('should require a lifetime when the profile has no default and no max', () => {
+    expect(firstError(open, { tokenLifetime: '' })).toBe('required');
+    expect(firstError(open, { tokenLifetime: '   ' })).toBe('required');
+  });
+
+  it('should accept a blank lifetime when the profile has a default or max', () => {
+    expect(firstError(bounded, { tokenLifetime: '' })).toBeUndefined();
+    const maxOnly = SsoProvisioningMappers.getCreateTokenFormRules({ max_allowed_expiry: 864000 });
+    expect(firstError(maxOnly, { tokenLifetime: '' })).toBeUndefined();
+  });
+
+  it('should reject a lifetime that is not a whole number', () => {
+    expect(firstError(open, { tokenLifetime: '12.5' })).toBe('integer');
+    expect(firstError(open, { tokenLifetime: 'abc' })).toBe('integer');
+  });
+
+  it('should reject a lifetime below 901 seconds', () => {
+    expect(firstError(open, { tokenLifetime: '900' })).toBe('min');
+    expect(firstError(open, { tokenLifetime: '899' })).toBe('min');
+  });
+
+  it('should accept 901 seconds', () => {
+    expect(firstError(open, { tokenLifetime: '901' })).toBeUndefined();
+  });
+
+  it('should reject a lifetime above max_allowed_expiry', () => {
+    expect(firstError(bounded, { tokenLifetime: '864001' })).toBe('max');
+  });
+
+  it('should accept max_allowed_expiry', () => {
+    expect(firstError(bounded, { tokenLifetime: '864000' })).toBeUndefined();
+  });
+
+  it('should accept any lifetime of 901 or more when max is not set', () => {
+    expect(firstError(open, { tokenLifetime: '99999999' })).toBeUndefined();
+  });
+
+  it('should require at least one scope', () => {
+    expect(firstError(open, { noExpiration: true, scopes: [] })).toBe('scopesRequired');
+  });
+
+  it('should reject more scopes than the known scope count', () => {
+    const scopes = Array(100).fill('get:users');
+    expect(firstError(open, { noExpiration: true, scopes })).toBeDefined();
+  });
+});
