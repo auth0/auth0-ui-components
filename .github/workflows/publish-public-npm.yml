@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: true
+      skip_functional_tests:
+        description: "Skip functional tests before publishing"
+        required: false
+        type: boolean
+        default: false
       skip_slack_notification:
         description: "Skip Slack notification"
         required: false
@@ -38,14 +43,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  functional-tests:
+    name: Functional Tests
+    if: ${{ !inputs.skip_functional_tests }}
+    uses: ./.github/workflows/functional-tests.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: write
+
   publish:
     name: Build & Publish to Public NPM
+    needs: functional-tests
+    if: >-
+      !cancelled() &&
+      (needs.functional-tests.result == 'success' ||
+      needs.functional-tests.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
 
     steps:
+      - name: Warn when functional tests are skipped
+        if: ${{ inputs.skip_functional_tests }}
+        run: echo "::warning::Functional tests were skipped for this publish."
+
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
