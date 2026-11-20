@@ -42,6 +42,8 @@ export type CreateIdpDomainResponseContent = MyOrganization.CreateIdpDomainRespo
 
 export type IdpStrategy = MyOrganization.IdpStrategyEnum;
 
+export type IdpAccessLevel = MyOrganization.OrganizationAccessLevelEnum;
+
 export type IdentityProviderCreate = Omit<IdpKnownResponse, 'id'>;
 
 export type IdentityProviderAssociatedWithDomain = IdpKnownResponse & {

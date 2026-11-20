@@ -149,6 +149,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isRemoving,
     idpConfig,
     isEnableBlockedByDomains,
+    providerAccess,
     customMessages,
     backButton,
     shouldAllowDeletion,
@@ -201,6 +202,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isEnabling ||
     enableProviderAction?.disabled ||
     !permissions.canUpdateProvider ||
+    !providerAccess.canToggle ||
     isEnableBlockedByDomains;
 
   const providerSwitchLabel = provider?.is_enabled
@@ -209,6 +211,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
   const getProviderSwitchBlockedReason = () => {
     if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
+    if (!providerAccess.canToggle)
+      return t('header.enable_provider_access_restricted_tooltip_text');
     if (isEnableBlockedByDomains) return t('header.enable_provider_blocked_domains_tooltip_text');
     return undefined;
   };
@@ -303,6 +307,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 },
               }}
               permissions={permissions}
+              providerAccess={providerAccess}
               readOnly={readOnly}
               showThirdPartyAccess={showThirdPartyAccess}
               isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}

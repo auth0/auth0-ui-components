@@ -53,6 +53,7 @@ export interface SsoDomainTabMessages extends SharedMessages {
       disable_domain_tooltip?: string;
       domain_association_unavailable_tooltip?: string;
       last_verified_domain_tooltip?: string;
+      provider_access_restricted_tooltip?: string;
       remove_domain_tooltip?: string;
       remove_domain_aria_label?: string;
     };

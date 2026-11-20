@@ -25,6 +25,7 @@ export interface SsoProviderEditMessages extends SharedMessages {
     enable_provider_tooltip_text?: string;
     disable_provider_tooltip_text?: string;
     enable_provider_blocked_domains_tooltip_text?: string;
+    enable_provider_access_restricted_tooltip_text?: string;
   };
   tabs?: {
     sso?: {
@@ -43,6 +44,10 @@ export interface SsoProviderEditMessages extends SharedMessages {
 }
 
 export interface SsoProviderTabMessages {
+  access_alerts?: {
+    limited?: string;
+    readonly?: string;
+  };
   attribute_sync_alert?: AttributeSyncAlertMessages;
   delete?: SsoProvideDeleteMessages;
   remove?: SsoProvideRemoveMessages;
@@ -55,6 +60,7 @@ export interface AttributeSyncAlertMessages extends SharedMessages {
   title?: string;
   description?: string;
   sync_button_label?: string;
+  access_restricted_tooltip_text?: string;
   sync_modal?: {
     title?: string;
     description?: string;
