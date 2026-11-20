@@ -769,7 +769,7 @@
         "back_button_text": "Back to Single Sign-On",
         "enable_provider_tooltip_text": "Toggle to enable the provider.",
         "disable_provider_tooltip_text": "Toggle to disable the provider.",
-        "enable_provider_blocked_domains_tooltip_text": "Turn on a verified domain in the Domains tab to enable this identity provider.",
+        "enable_provider_blocked_domains_tooltip_text": "Verify at least one domain to enable this identity provider.",
         "enable_provider_access_restricted_tooltip_text": "Your organization has read-only access to this identity provider."
       },
       "mappings": {
@@ -1009,7 +1009,7 @@
             "title": "Domains",
             "alerts": {
               "domain_verification_none": "Domain association isn't available for this identity provider. Your admin has disabled domain verification for this identity provider.",
-              "domain_verification_required": "Turn on at least one verified domain below to enable this identity provider. If none is verified yet, verify a domain first."
+              "domain_verification_required": "Verify at least one domain to enable this identity provider."
             },
             "description": "Enhance security and streamline login by directing users to your identity provider based on their email domain.",
             "create_button_text": "Assign Domain",
@@ -1180,6 +1180,28 @@
         }
       }
     },
+    "test_sso_provider": {
+      "title": "Test SSO",
+      "description": "Test the provider to ensure SSO setup is successful.",
+      "test_button_label": "Test Provider",
+      "overlay": {
+        "title": "Testing your identity provider",
+        "description": "Complete sign-in in the new window. This page will update automatically once the test completes.",
+        "trouble_text": "Having trouble with your identity provider?",
+        "retry_button_label": "Close and Retry",
+        "popup_blocked_text": "Your browser blocked the test window.",
+        "open_window_link_label": "Open test window"
+      },
+      "result": {
+        "success_title": "Test Successful",
+        "success_description": "Please review the user information below and confirm that the correct attributes are being passed.",
+        "copy_button_label": "Copy JSON",
+        "try_again_text": "Please try again.",
+        "expired_error": "The test expired before it completed. Please try again.",
+        "timeout_error": "The test timed out before sign-in completed. Please try again.",
+        "provider_error": "${message} Please try again."
+      }
+    },
     "notifications": {
       "delete_success": "${providerName} has been deleted.",
       "remove_success": "${providerName} has been removed from ${organizationName}",
@@ -1223,7 +1245,8 @@
         "connect_error": "Google authorization could not be completed. Please try again.",
         "auto_sync_enabled_success": "Automatic sync has been enabled.",
         "auto_sync_disabled_success": "Automatic sync has been disabled."
-      }
+      },
+      "test_provider_start_error": "There was an issue starting the provider test."
     }
   },
   "user_mfa_management": {

@@ -16,6 +16,7 @@ import { SsoProviderDelete } from '@/components/auth0/my-organization/shared/idp
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
 import { SsoProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-details';
 import { SsoProviderRemoveFromOrganization } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-remove/provider-remove';
+import { SsoProviderTestCard } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -39,6 +40,7 @@ import type { SsoProviderTabProps } from '@/types/my-organization/idp-management
  * @param props.isRemoving - Whether removal is in progress.
  * @param props.idpConfig - Identity provider configuration.
  * @param props.shouldAllowDeletion - Whether deletion is allowed.
+ * @param props.hideTestProvider - Whether to hide the test provider section.
  * @param props.formActions - Form action handlers.
  * @param props.hasSsoAttributeSyncWarning - Whether to show attribute sync warning.
  * @param props.onAttributeSync - Callback for attribute sync.
@@ -65,12 +67,14 @@ export function SsoProviderTab({
   shouldAllowDeletion,
   hideDeleteProvider = false,
   hideRemoveFromOrganization = false,
+  hideTestProvider = false,
   hideAttributeMappings = false,
   formActions,
   hasSsoAttributeSyncWarning,
   onAttributeSync,
   isSyncingAttributes = false,
   showThirdPartyAccess = false,
+  isThirdPartyAccessReadOnly = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
@@ -150,6 +154,7 @@ export function SsoProviderTab({
               styling={styling}
               idpConfig={idpConfig}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
@@ -162,6 +167,16 @@ export function SsoProviderTab({
       </Card>
 
       <div className="space-y-4">
+        {provider && !hideTestProvider && (
+          <SsoProviderTestCard
+            provider={provider}
+            readOnly={!permissions.canTestProvider}
+            permissionDenied={!readOnly && !permissions.canTestProvider}
+            customMessages={customMessages.test_provider}
+            styling={currentStyles}
+          />
+        )}
+
         {provider && organization?.name && !hideRemoveFromOrganization && (
           <SsoProviderRemoveFromOrganization
             provider={provider}

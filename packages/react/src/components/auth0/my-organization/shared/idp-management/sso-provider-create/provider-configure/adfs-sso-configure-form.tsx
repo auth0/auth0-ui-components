@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type AdfsConfigureFormValues,
   type AdfsConfigureFormInput,
 } from '@auth0/universal-components-core';
@@ -15,6 +16,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { FileUpload } from '@/components/ui/file-upload';
 import {
@@ -53,6 +55,14 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
       className,
       onFormDirty,
       idpConfig,
+      mode = 'create',
+      showThirdPartyAccess = false,
+      isThirdPartyAccessReadOnly = false,
+      isOrganizationBlocked = false,
+      showCrossAppAccess = false,
+      isCrossAppAccessReadOnly = false,
+      crossAppAccessDefaultValue,
+      styling,
     },
     ref,
   ) {
@@ -76,6 +86,13 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
         fedMetadataXml: adfsData?.fedMetadataXml || '',
         show_as_button: adfsData?.show_as_button ?? false,
         assign_membership_on_login: adfsData?.assign_membership_on_login ?? false,
+        ...getConnectionAccessDefaults(
+          adfsData,
+          crossAppAccessDefaultValue,
+          mode,
+          showCrossAppAccess,
+          showThirdPartyAccess,
+        ),
       },
     });
 
@@ -255,6 +272,13 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
             idpConfig={idpConfig}
             readOnly={isLoginSettingsReadOnly}
             customMessages={customMessages}
+            strategy={STRATEGIES.ADFS}
+            showThirdPartyAccess={showThirdPartyAccess}
+            isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+            isOrganizationBlocked={isOrganizationBlocked}
+            showCrossAppAccess={showCrossAppAccess}
+            isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+            classes={styling?.classes}
           />
         </div>
       </Form>
