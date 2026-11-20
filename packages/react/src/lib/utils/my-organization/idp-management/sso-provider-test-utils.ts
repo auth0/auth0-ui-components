@@ -5,6 +5,7 @@
  */
 
 import {
+  SSO_PROVIDER_TEST_ERROR_REASON,
   SSO_PROVIDER_TEST_FORBIDDEN_STATUS,
   SSO_PROVIDER_TEST_NOT_FOUND_STATUS,
   SSO_PROVIDER_TEST_POPUP_HEIGHT,
@@ -35,9 +36,10 @@ export const getPopupFeatures = (): string => {
  * @returns `forbidden` for 403, `expired` for 404, `provider` for anything else.
  */
 export const errorReasonForStatus = (status: number | undefined): SsoProviderTestErrorReason => {
-  if (status === SSO_PROVIDER_TEST_FORBIDDEN_STATUS) return 'forbidden';
-  if (status === SSO_PROVIDER_TEST_NOT_FOUND_STATUS) return 'expired';
-  return 'provider';
+  if (status === SSO_PROVIDER_TEST_FORBIDDEN_STATUS)
+    return SSO_PROVIDER_TEST_ERROR_REASON.FORBIDDEN;
+  if (status === SSO_PROVIDER_TEST_NOT_FOUND_STATUS) return SSO_PROVIDER_TEST_ERROR_REASON.EXPIRED;
+  return SSO_PROVIDER_TEST_ERROR_REASON.PROVIDER;
 };
 
 /**

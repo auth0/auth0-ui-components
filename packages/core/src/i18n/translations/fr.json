@@ -1028,8 +1028,9 @@
         "success_description": "Vérifiez les informations utilisateur ci-dessous et confirmez que les bons attributs sont transmis.",
         "copy_button_label": "Copier le JSON",
         "try_again_text": "Veuillez réessayer.",
-        "expired_error": "Le test a expiré avant d'être terminé.",
-        "timeout_error": "Le délai du test a expiré avant la fin de la connexion."
+        "expired_error": "Le test a expiré avant d'être terminé. Veuillez réessayer.",
+        "timeout_error": "Le délai du test a expiré avant la fin de la connexion. Veuillez réessayer.",
+        "provider_error": "${message} Veuillez réessayer."
       }
     },
     "notifications": {

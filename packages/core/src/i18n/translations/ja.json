@@ -1081,8 +1081,9 @@
         "success_description": "以下のユーザー情報を確認し、正しい属性が渡されていることを確認してください。",
         "copy_button_label": "JSONをコピー",
         "try_again_text": "もう一度お試しください。",
-        "expired_error": "テストが完了する前に有効期限が切れました。",
-        "timeout_error": "サインインが完了する前にテストがタイムアウトしました。"
+        "expired_error": "テストが完了する前に有効期限が切れました。もう一度お試しください。",
+        "timeout_error": "サインインが完了する前にテストがタイムアウトしました。もう一度お試しください。",
+        "provider_error": "${message}もう一度お試しください。"
       }
     },
     "notifications": {
