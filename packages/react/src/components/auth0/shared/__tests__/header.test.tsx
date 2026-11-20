@@ -42,6 +42,9 @@ describe('Header switch action', () => {
     await user.tab();
 
     expect(screen.getByRole('switch').parentElement?.parentElement).toHaveFocus();
+    expect(screen.getByRole('switch').parentElement?.parentElement).toHaveClass(
+      'focus-visible:ring-4',
+    );
     expect(await screen.findAllByText('Turn on a verified domain first.')).not.toHaveLength(0);
   });
 

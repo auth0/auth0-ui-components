@@ -66,7 +66,14 @@ const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip, focusable =
   <>
     <Tooltip>
       <TooltipTrigger asChild>
-        <div tabIndex={focusable ? 0 : undefined}>{trigger}</div>
+        <div
+          tabIndex={focusable ? 0 : undefined}
+          className={cn(
+            focusable && 'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring',
+          )}
+        >
+          {trigger}
+        </div>
       </TooltipTrigger>
       <TooltipContent>{tooltip.content}</TooltipContent>
     </Tooltip>
