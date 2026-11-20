@@ -28,6 +28,7 @@ import type { SsoProviderDetailsProps } from '@/types/my-organization/idp-manage
  * @param props - Component props.
  * @param props.provider - The SSO provider being edited.
  * @param props.readOnly - Render in read-only mode.
+ * @param props.isLoginSettingsReadOnly - Lock the login button and auto-membership fields; defaults to `readOnly`.
  * @param props.idpConfig - Identity provider configuration.
  * @param props.formActions - Form action handlers.
  * @param props.customMessages - Custom i18n message overrides.
@@ -38,6 +39,7 @@ import type { SsoProviderDetailsProps } from '@/types/my-organization/idp-manage
 export function SsoProviderDetails({
   provider,
   readOnly = false,
+  isLoginSettingsReadOnly = readOnly,
   hideAttributeMappings = false,
   idpConfig,
   formActions,
@@ -82,6 +84,7 @@ export function SsoProviderDetails({
   }, [provider]);
 
   const hasUnsavedChanges = isDetailsDirty || isConfigureDirty;
+  const isFormReadOnly = readOnly && isLoginSettingsReadOnly;
   const handleSave = async () => {
     if (!formActions?.nextAction?.onClick || !provider?.strategy) return;
 
@@ -137,6 +140,7 @@ export function SsoProviderDetails({
           connectionName={provider.name ?? undefined}
           connectionNamePrefix={connectionNamePrefix}
           readOnly={readOnly}
+          isLoginSettingsReadOnly={isLoginSettingsReadOnly}
           idpConfig={idpConfig}
           mode="edit"
           customMessages={customMessages.configure_fields}
@@ -178,7 +182,7 @@ export function SsoProviderDetails({
               !hasUnsavedChanges ||
               formActions?.nextAction?.disabled ||
               formActions.isLoading ||
-              readOnly,
+              isFormReadOnly,
             type: 'button',
             onClick: handleSave,
           }}

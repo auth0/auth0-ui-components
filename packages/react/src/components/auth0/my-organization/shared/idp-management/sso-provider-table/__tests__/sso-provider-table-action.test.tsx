@@ -725,4 +725,55 @@ describe('SsoProviderTableActionsColumn', () => {
       expect(container).toBeEmptyDOMElement();
     });
   });
+
+  describe('provider access level', () => {
+    const renderWithAccess = (access_level: 'readonly' | 'limited') =>
+      renderWithProviders(
+        <SsoProviderTableActionsColumn
+          {...createMockSsoProviderTableActionsColumnProps({
+            provider: createMockProvider({ access_level }),
+          })}
+        />,
+      );
+
+    const openMenu = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole('button', { name: 'table.actions.menu_label' }));
+    };
+
+    it('lets limited access toggle and remove the provider, but not delete it', async () => {
+      const user = userEvent.setup();
+      renderWithAccess('limited');
+
+      expect(screen.getByRole('switch')).toBeEnabled();
+      await openMenu(user);
+      expect(
+        screen.getByRole('menuitem', { name: 'table.actions.remove_button_text' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('menuitem', { name: 'table.actions.delete_button_text' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('disables the switch with read-only access and explains why', async () => {
+      const user = userEvent.setup();
+      renderWithAccess('readonly');
+
+      const toggle = screen.getByRole('switch');
+      expect(toggle).toBeDisabled();
+      await user.hover(toggle.parentElement!);
+      expect(
+        await screen.findAllByText('table.actions.access_restricted_tooltip'),
+      ).not.toHaveLength(0);
+    });
+
+    it('hides remove and delete with read-only access', async () => {
+      const user = userEvent.setup();
+      renderWithAccess('readonly');
+
+      await openMenu(user);
+      expect(
+        screen.queryByRole('menuitem', { name: /remove_button_text|delete_button_text/ }),
+      ).toBeNull();
+    });
+  });
 });

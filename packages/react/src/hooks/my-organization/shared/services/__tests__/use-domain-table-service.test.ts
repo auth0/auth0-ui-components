@@ -1,8 +1,15 @@
 import type {
   CreateOrganizationDomainRequestContent,
+  Domain,
   EnhancedTranslationFunction,
 } from '@auth0/universal-components-core';
-import { BusinessError, ssoProviderQueryKeys } from '@auth0/universal-components-core';
+import {
+  BusinessError,
+  domainQueryKeys,
+  ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
+} from '@auth0/universal-components-core';
+import type { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -575,6 +582,103 @@ describe('useDomainTableService', () => {
     });
   });
 
+  describe('onUpdateDomainDiscovery', () => {
+    it('should send use_for_organization_discovery for the domain', async () => {
+      const mockDomain = createMockDomain({ status: 'verified' });
+      const update = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.update,
+      );
+      update.mockResolvedValue({ ...mockDomain, use_for_organization_discovery: true });
+      const { result } = renderUseDomainTable(mockOptions);
+
+      const updated = await result.current.onUpdateDomainDiscovery(mockDomain, true);
+
+      await waitFor(() => {
+        expect(result.current.isUpdatingDiscovery).toBe(false);
+      });
+      expect(update).toHaveBeenCalledWith(mockDomain.id, {
+        use_for_organization_discovery: true,
+      });
+      expect(updated.use_for_organization_discovery).toBe(true);
+    });
+
+    it('should patch the cached domain list so the row updates straight away', async () => {
+      const mockDomain = createMockDomain({
+        status: 'verified',
+        use_for_organization_discovery: false,
+      });
+      const other = createMockDomain({ id: 'domain_other', status: 'verified' });
+      const update = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.update,
+      );
+      update.mockResolvedValue({ ...mockDomain, use_for_organization_discovery: true });
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      const invalidate = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue();
+      const listKey = domainQueryKeys.list({
+        pageSize: mockOptions.paginationParams?.pageSize,
+        fromToken: mockOptions.paginationParams?.fromToken,
+      });
+      queryClient.setQueryData(listKey, { domains: [mockDomain, other], next: null });
+
+      await result.current.onUpdateDomainDiscovery(mockDomain, true);
+
+      const cached = queryClient.getQueryData<{ domains: Domain[] }>(listKey);
+      expect(
+        cached?.domains.find((d) => d.id === mockDomain.id)?.use_for_organization_discovery,
+      ).toBe(true);
+      expect(cached?.domains.find((d) => d.id === 'domain_other')).toEqual(other);
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: domainQueryKeys.lists() });
+    });
+
+    it("should also patch and refresh the SSO provider tab's cached domain list", async () => {
+      const mockDomain = createMockDomain({
+        status: 'verified',
+        use_for_organization_discovery: false,
+      });
+      const update = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.update,
+      );
+      update.mockResolvedValue({ ...mockDomain, use_for_organization_discovery: true });
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      const invalidate = vi.spyOn(queryClient, 'invalidateQueries').mockResolvedValue();
+      const ssoListKey = ssoDomainQueryKeys.list('con_abc', { pageSize: 10 });
+      queryClient.setQueryData(ssoListKey, { domains: [mockDomain], next: null });
+
+      await result.current.onUpdateDomainDiscovery(mockDomain, true);
+
+      const cached = queryClient.getQueryData<{ domains: Domain[] }>(ssoListKey);
+      expect(cached?.domains[0]?.use_for_organization_discovery).toBe(true);
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ssoDomainQueryKeys.lists() });
+    });
+
+    it('should reject and leave the list untouched when the update fails', async () => {
+      const mockDomain = createMockDomain({
+        status: 'verified',
+        use_for_organization_discovery: false,
+      });
+      const update = vi.mocked(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.update,
+      );
+      update.mockRejectedValue(new Error('update failed'));
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await waitFor(() => expect(result.current.isFetching).toBe(false));
+      const listKey = domainQueryKeys.list({
+        pageSize: mockOptions.paginationParams?.pageSize,
+        fromToken: mockOptions.paginationParams?.fromToken,
+      });
+      queryClient.setQueryData(listKey, { domains: [mockDomain], next: null });
+
+      await expect(result.current.onUpdateDomainDiscovery(mockDomain, true)).rejects.toThrow(
+        'update failed',
+      );
+
+      const cached = queryClient.getQueryData<{ domains: Domain[] }>(listKey);
+      expect(cached?.domains[0]?.use_for_organization_discovery).toBe(false);
+    });
+  });
+
   describe('onDeleteDomain', () => {
     it('should delete domain successfully with callbacks', async () => {
       const mockDomain = createMockDomain();
@@ -863,6 +967,57 @@ describe('useDomainTableService', () => {
         take: undefined,
         from: undefined,
       });
+    });
+  });
+
+  describe('provider lists of other domains', () => {
+    const domainA = createMockDomain({ id: 'domain_a', domain: 'a.com' });
+    const domainB = createMockDomain({ id: 'domain_b', domain: 'b.com' });
+    const providerWith = (domains: string[]) =>
+      createMockIdentityProvider({ id: 'con_shared', display_name: 'Shared', domains });
+    const mockList = (domains: string[]) =>
+      (mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockResolvedValue({ identity_providers: [providerWith(domains)] }));
+    const cachedDomainsFor = (queryClient: QueryClient, domainId: string) =>
+      queryClient.getQueryData<Array<{ domains?: string[] }>>(
+        domainQueryKeys.providers(domainId),
+      )?.[0]?.domains;
+
+    it('should open another domain with fresh providers after one is removed from a domain', async () => {
+      mockList(['a.com', 'b.com']);
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainB);
+
+      await result.current.onDeleteFromProvider(domainA, providerWith(['a.com', 'b.com']));
+      mockList(['b.com']);
+      await result.current.fetchProviders(domainB);
+
+      expect(cachedDomainsFor(queryClient, 'domain_b')).toEqual(['b.com']);
+    });
+
+    it('should open another domain with fresh providers after one is assigned to a domain', async () => {
+      mockList(['a.com']);
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainB);
+
+      await result.current.onAssociateToProvider(domainA, providerWith(['a.com']));
+      mockList(['a.com', 'b.com']);
+      await result.current.fetchProviders(domainB);
+
+      expect(cachedDomainsFor(queryClient, 'domain_b')).toEqual(['a.com', 'b.com']);
+    });
+
+    it('should keep using the cached list while nothing changed', async () => {
+      const list = mockList(['a.com', 'b.com']);
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainA);
+
+      expect(list).toHaveBeenCalledTimes(1);
     });
   });
 
