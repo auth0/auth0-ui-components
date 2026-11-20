@@ -1218,16 +1218,6 @@
         "title": "Duoセキュリティ",
         "description": "多要素認証にDuoアカウントを使用します。"
       },
-      "webauthn-roaming": {
-        "title": "FIDOセキュリティキーによるWebAuthn",
-        "description": "二要素認証としてWebAuthn対応のセキュリティキー（FIDO2など）を使用します。",
-        "button_text": "FIDO セキュリティキーでWebAuthnを追加"
-      },
-      "webauthn-platform": {
-        "title": "デバイス生体認証によるWebAuthn",
-        "description": "二要素認証としてWebAuthn対応のデバイス生体認証を使用します。",
-        "button_text": "FIDOデバイス生体認証でWebAuthnを追加"
-      },
       "recovery-code": {
         "title": "リカバリーコード",
         "name": "リカバリーコード ${index}",

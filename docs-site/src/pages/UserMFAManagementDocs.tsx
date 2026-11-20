@@ -297,8 +297,7 @@ export function SecurityPage() {
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">-</td>
                 <td className="px-4 py-2 text-sm text-gray-500">
                   Per-factor visibility and enabled configuration. Keys are MFA factor types (totp,
-                  phone, email, push-notification, webauthn-roaming, webauthn-platform,
-                  recovery-code).
+                  phone, email, push-notification, recovery-code).
                 </td>
               </tr>
               <tr>
@@ -433,7 +432,6 @@ interface UserMFAManagementClasses {
     sms: { visible: true, enabled: true },
     totp: { visible: true, enabled: true },
     email: { visible: false, enabled: false },
-    'webauthn-platform': { visible: true, enabled: true }
   }}
 />`}
               language="tsx"
@@ -544,12 +542,6 @@ interface UserMFAManagementClasses {
                     </li>
                     <li>
                       <code>push-notification</code> - Push notification messages
-                    </li>
-                    <li>
-                      <code>webauthn-platform</code> - Platform authenticator messages
-                    </li>
-                    <li>
-                      <code>webauthn-roaming</code> - Security key messages
                     </li>
                     <li>
                       <code>recovery-code</code> - Recovery code messages
@@ -765,8 +757,7 @@ function SecurityPage() {
         factorConfig={{
           phone: { visible: true, enabled: true },
           totp: { visible: true, enabled: true },
-          'webauthn-platform': { visible: true, enabled: true }
-        }}
+              }}
         customMessages={{
           title: 'Multi-Factor Authentication',
           description: 'Add extra security to your account'

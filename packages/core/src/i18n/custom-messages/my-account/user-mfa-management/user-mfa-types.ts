@@ -41,8 +41,6 @@ export interface UserMfaManagementMessages {
     phone?: UserMfaFactorListItemMessages;
     email?: UserMfaFactorListItemMessages;
     totp?: UserMfaFactorListItemMessages;
-    'webauthn-roaming'?: UserMfaFactorListItemMessages;
-    'webauthn-platform'?: UserMfaFactorListItemMessages;
     'recovery-code'?: UserMfaFactorListItemMessages;
   };
 

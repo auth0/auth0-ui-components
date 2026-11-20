@@ -10,8 +10,6 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
   FACTOR_TYPE_TOTP,
-  FACTOR_TYPE_WEBAUTHN_PLATFORM,
-  FACTOR_TYPE_WEBAUTHN_ROAMING,
 } from './user-mfa-management-constants';
 import type {
   MFAType,
@@ -22,6 +20,15 @@ import type {
   CreateAuthenticationMethodRequestContent,
   EnrolledFactor,
 } from './user-mfa-management-types';
+
+/**
+ * Factor types the API may still list but the UI no longer supports (not enrollable via My Account API).
+ * Skipped when building the factor list.
+ */
+const UNSUPPORTED_FACTOR_TYPES: ReadonlySet<string> = new Set([
+  'webauthn-roaming',
+  'webauthn-platform',
+]);
 
 /**
  * Builds enrollment parameters for a given MFA factor type.
@@ -54,10 +61,6 @@ export function buildEnrollParams(
       };
     case FACTOR_TYPE_TOTP:
       return { type: FACTOR_TYPE_TOTP };
-    case FACTOR_TYPE_WEBAUTHN_ROAMING:
-      return { type: FACTOR_TYPE_WEBAUTHN_ROAMING };
-    case FACTOR_TYPE_WEBAUTHN_PLATFORM:
-      return { type: FACTOR_TYPE_WEBAUTHN_PLATFORM };
     case FACTOR_TYPE_RECOVERY_CODE:
       return { type: FACTOR_TYPE_RECOVERY_CODE };
     case FACTOR_TYPE_PUSH_NOTIFICATION:
@@ -181,8 +184,7 @@ export function transformMyAccountFactors(
   for (const availableFactor of availableFactorsResponse.factors) {
     const mfaType = availableFactor.type as MFAType;
 
-    const skipFactors = [FACTOR_TYPE_WEBAUTHN_PLATFORM, FACTOR_TYPE_WEBAUTHN_ROAMING];
-    if (skipFactors.includes(mfaType)) {
+    if (UNSUPPORTED_FACTOR_TYPES.has(mfaType)) {
       continue;
     }
 

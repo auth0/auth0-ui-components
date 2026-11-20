@@ -4,8 +4,6 @@ import {
   FACTOR_TYPE_PUSH_NOTIFICATION,
   FACTOR_TYPE_RECOVERY_CODE,
   FACTOR_TYPE_TOTP,
-  FACTOR_TYPE_WEBAUTHN_PLATFORM,
-  FACTOR_TYPE_WEBAUTHN_ROAMING,
 } from '../../../../services/my-account/user-mfa-management/user-mfa-management-constants';
 import type {
   Authenticator,
@@ -17,7 +15,6 @@ import type {
 
 type MockEmailAuthMethod = EnrolledFactor & { email: string };
 type MockPhoneAuthMethod = EnrolledFactor & { phone_number: string };
-type MockWebAuthnAuthMethod = EnrolledFactor & { name: string };
 
 /**
  * Default usage for MFA authentication methods.
@@ -104,36 +101,6 @@ export const createMockRecoveryCodeAuthMethod = (
   }) as unknown as EnrolledFactor;
 
 /**
- * Creates a mock WebAuthn roaming authentication method
- */
-export const createMockWebAuthnRoamingAuthMethod = (
-  name = 'YubiKey',
-  overrides?: Partial<MockWebAuthnAuthMethod>,
-): MockWebAuthnAuthMethod =>
-  ({
-    ...createBaseAuthMethod(),
-    id: `webauthn-roaming|${name}`,
-    type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-    name,
-    ...overrides,
-  }) as unknown as MockWebAuthnAuthMethod;
-
-/**
- * Creates a mock WebAuthn platform authentication method
- */
-export const createMockWebAuthnPlatformAuthMethod = (
-  name = 'TouchID',
-  overrides?: Partial<MockWebAuthnAuthMethod>,
-): MockWebAuthnAuthMethod =>
-  ({
-    ...createBaseAuthMethod(),
-    id: `webauthn-platform|${name}`,
-    type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-    name,
-    ...overrides,
-  }) as unknown as MockWebAuthnAuthMethod;
-
-/**
  * Creates a mock push notification authentication method
  */
 export const createMockPushNotificationAuthMethod = (
@@ -180,8 +147,6 @@ export const createMockAvailableFactors = (
     createMockAvailableFactor(FACTOR_TYPE_EMAIL as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_PHONE as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_TOTP as MFAType),
-    createMockAvailableFactor(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType),
-    createMockAvailableFactor(FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_RECOVERY_CODE as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_PUSH_NOTIFICATION as MFAType),
   ],
