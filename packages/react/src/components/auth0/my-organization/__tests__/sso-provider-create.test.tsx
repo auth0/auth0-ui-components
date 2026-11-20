@@ -648,7 +648,7 @@ describe('SsoProviderCreate', () => {
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockResolvedValueOnce(CREATED_PROVIDER);
-      renderCreate({ createAction, guidedSetup: { enabled: true, companyName: 'Acme' } });
+      renderCreate({ createAction, guidedSetup: { enabled: true } });
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));

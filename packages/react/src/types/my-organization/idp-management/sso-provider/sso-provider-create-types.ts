@@ -194,14 +194,12 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 
 export interface SsoProviderCreateGuidedSetup {
   enabled?: boolean;
-  companyName?: string;
 }
 
 export interface SsoProviderCreateGuidedSetupState {
   isAvailable: boolean;
   isActive: boolean;
   provider: IdpKnownResponse | null;
-  companyName?: string;
   configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
   start: () => void;
   saveConfigure: () => void;
