@@ -59,14 +59,6 @@ export const createMockEmailAuthenticator = (): Authenticator =>
     enrolled: true,
   });
 
-export const createMockWebAuthnAuthenticator = (): Authenticator =>
-  createMockAuthenticator({
-    id: 'auth_webauthn_123',
-    type: 'webauthn-roaming',
-    name: 'YubiKey 5',
-    enrolled: true,
-  });
-
 export const createMockAuthenticationMethodsResponse = (
   authenticators: Authenticator[] = [createMockAuthenticator()],
 ) => ({
