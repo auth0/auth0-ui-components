@@ -17,6 +17,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type { SsoProviderTableActionsColumnProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-table-types';
 
 /**
@@ -80,14 +81,27 @@ export function SsoProviderTableActionsColumn({
     onRemoveFromOrganization(provider);
   }, [provider, onRemoveFromOrganization]);
 
+  const providerAccess = getProviderAccess(provider);
   const isToggleDisabled =
     !permissions.canUpdateProvider ||
+    !providerAccess.canToggle ||
     !!enableProviderAction?.disabled ||
     (isUpdating && isUpdatingId === provider.id);
 
   const showDeleteItem =
-    shouldAllowDeletion && !hideDeleteProvider && permissions.canDeleteProvider;
-  const showRemoveItem = !hideRemoveFromOrganization && permissions.canDetachProvider;
+    shouldAllowDeletion &&
+    !hideDeleteProvider &&
+    permissions.canDeleteProvider &&
+    providerAccess.canDelete;
+  const showRemoveItem =
+    !hideRemoveFromOrganization && permissions.canDetachProvider && providerAccess.canDetach;
+
+  const getToggleTooltip = () => {
+    if (!permissions.canUpdateProvider) return tCommon('error.forbidden');
+    if (!providerAccess.canToggle) return t('table.actions.access_restricted_tooltip');
+    if (provider.is_enabled) return t('table.actions.enabled_tooltip');
+    return t('table.actions.disabled_tooltip');
+  };
   const hasMenuAction = canOpenDetail || showDeleteItem || showRemoveItem;
 
   if (readOnly) {
@@ -106,13 +120,7 @@ export function SsoProviderTableActionsColumn({
             />
           </span>
         </TooltipTrigger>
-        <TooltipContent>
-          {!permissions.canUpdateProvider
-            ? tCommon('error.forbidden')
-            : provider.is_enabled
-              ? t('table.actions.enabled_tooltip')
-              : t('table.actions.disabled_tooltip')}
-        </TooltipContent>
+        <TooltipContent>{getToggleTooltip()}</TooltipContent>
       </Tooltip>
 
       {hasMenuAction && (
