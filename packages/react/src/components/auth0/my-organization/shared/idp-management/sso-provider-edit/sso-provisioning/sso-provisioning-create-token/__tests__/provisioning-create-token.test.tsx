@@ -219,13 +219,13 @@ describe('ProvisioningCreateTokenModal — configure step', () => {
     expect(onCreate).not.toHaveBeenCalled();
   });
 
-  it('blocks a lifetime of exactly 432000 seconds', async () => {
+  it('blocks a lifetime of 900 seconds', async () => {
     const user = userEvent.setup();
     render(<ProvisioningCreateTokenModal {...baseProps} scimTokenConfig={bounded} />);
 
     const field = screen.getByRole('textbox', { name: 'token_lifetime.label' });
     await user.clear(field);
-    await user.type(field, '432000');
+    await user.type(field, '900');
     await user.click(nextButton());
 
     expect(

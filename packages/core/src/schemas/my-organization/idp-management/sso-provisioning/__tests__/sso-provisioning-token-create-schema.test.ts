@@ -76,13 +76,13 @@ describe('createProvisioningCreateTokenSchema', () => {
     expect(firstError(open, { tokenLifetime: 'abc' })).toBe('integer');
   });
 
-  it('should reject a lifetime of 432000 seconds or less', () => {
-    expect(firstError(open, { tokenLifetime: '431999' })).toBe('min');
-    expect(firstError(open, { tokenLifetime: '432000' })).toBe('min');
+  it('should reject a lifetime below 901 seconds', () => {
+    expect(firstError(open, { tokenLifetime: '900' })).toBe('min');
+    expect(firstError(open, { tokenLifetime: '899' })).toBe('min');
   });
 
-  it('should accept 432001 seconds', () => {
-    expect(firstError(open, { tokenLifetime: '432001' })).toBeUndefined();
+  it('should accept 901 seconds', () => {
+    expect(firstError(open, { tokenLifetime: '901' })).toBeUndefined();
   });
 
   it('should reject a lifetime above max_allowed_expiry', () => {
@@ -93,7 +93,7 @@ describe('createProvisioningCreateTokenSchema', () => {
     expect(firstError(bounded, { tokenLifetime: '864000' })).toBeUndefined();
   });
 
-  it('should accept any lifetime above 432000 when max is not set', () => {
+  it('should accept any lifetime of 901 or more when max is not set', () => {
     expect(firstError(open, { tokenLifetime: '99999999' })).toBeUndefined();
   });
 

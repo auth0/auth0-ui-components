@@ -104,7 +104,7 @@ export function ProvisioningCreateTokenForm({
                 )}
                 <span className="block">
                   {t('token_lifetime.helper_min', {
-                    seconds: String(SCIM_TOKEN_MIN_LIFETIME_SECONDS),
+                    seconds: String(SCIM_TOKEN_MIN_LIFETIME_SECONDS - 1),
                   })}
                 </span>
               </FormDescription>

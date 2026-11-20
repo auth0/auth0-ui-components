@@ -5,8 +5,8 @@
  */
 import type { IdpScimTokenScope } from './sso-provisioning-types';
 
-/** Minimum token lifetime the API accepts, in seconds. */
-export const SCIM_TOKEN_MIN_LIFETIME_SECONDS = 432000;
+/** Minimum token lifetime the API accepts, in seconds (API requires > 900). */
+export const SCIM_TOKEN_MIN_LIFETIME_SECONDS = 901;
 
 /** All SCIM token scopes. Used when the Connection Profile sets no scope list. */
 export const ALL_SCIM_TOKEN_SCOPES: IdpScimTokenScope[] = [

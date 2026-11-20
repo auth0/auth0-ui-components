@@ -60,7 +60,7 @@ export function ProvisioningCreateTokenModal({
         required: t('create_modal.fields.token_lifetime.errors.required'),
         integer: t('create_modal.fields.token_lifetime.errors.integer'),
         min: t('create_modal.fields.token_lifetime.errors.min', {
-          seconds: String(SCIM_TOKEN_MIN_LIFETIME_SECONDS),
+          seconds: String(SCIM_TOKEN_MIN_LIFETIME_SECONDS - 1),
         }),
         max: t('create_modal.fields.token_lifetime.errors.max', {
           seconds: String(rules.maxAllowedExpiry ?? ''),

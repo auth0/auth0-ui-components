@@ -66,7 +66,7 @@ export const createProvisioningCreateTokenSchema = (
         addError(messages.integer);
         return;
       }
-      if (lifetime <= SCIM_TOKEN_MIN_LIFETIME_SECONDS) {
+      if (lifetime < SCIM_TOKEN_MIN_LIFETIME_SECONDS) {
         addError(messages.min);
         return;
       }
