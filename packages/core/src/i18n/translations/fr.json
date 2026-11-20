@@ -1141,16 +1141,6 @@
         "title": "Duo Security",
         "description": "Utilisez votre compte DUO pour l'authentification à facteurs multiples."
       },
-      "webauthn-roaming": {
-        "title": "WebAuthn avec clés de sécurité FIDO",
-        "description": "Utilisez des clés de sécurité compatibles WebAuthn (par exemple, FIDO2) comme second facteur.",
-        "button_text": "Ajouter WebAuthn avec clés de sécurité FIDO"
-      },
-      "webauthn-platform": {
-        "title": "WebAuthn avec biométrie de l'appareil FIDO",
-        "description": "Utilisez la biométrie de l'appareil compatible WebAuthn comme second facteur.",
-        "button_text": "Ajouter WebAuthn avec biométrie de l'appareil FIDO"
-      },
       "recovery-code": {
         "title": "Code de récupération",
         "name": "Code de récupération ${index}",
