@@ -540,6 +540,110 @@ describe('SsoProviderEdit', () => {
       expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
     });
 
+    describe('use for discovery column', () => {
+      const withPolicy = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.get).mockResolvedValue({
+          allowed_strategies: ['okta'],
+          connection_deletion_behavior: 'allow',
+          ...(policy ? { use_for_organization_discovery: policy } : {}),
+        });
+        Object.assign(organizationApi.domains, {
+          list: vi.fn().mockResolvedValue({
+            response: {
+              organization_domains: [{ ...orgDomains[0], use_for_organization_discovery: true }],
+            },
+          }),
+        });
+      };
+
+      it('should show the discovery value of each assigned domain when the organization has a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy({ default_value: false, allowed_values: [true, false] });
+        await openDomainsTab(user);
+
+        expect(await screen.findByText('table.columns.use_for_discovery')).toBeInTheDocument();
+        const row = screen.getByRole('row', { name: /assigned\.com/i });
+        expect(within(row).getByText('table.discovery_values.yes')).toBeInTheDocument();
+        expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+      });
+
+      it('should not show the column without a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy();
+        await openDomainsTab(user);
+
+        await screen.findByText('assigned.com');
+        expect(screen.queryByText('table.columns.use_for_discovery')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('domain_aliases_config', () => {
+      const withMode = (
+        mode: 'none' | 'optional' | 'required',
+        provider: Partial<IdpKnownResponse>,
+      ) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.identityProviders.get).mockResolvedValue(
+          createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+        );
+        vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(
+          createMockIdentityProvider(provider),
+        );
+      };
+      const removeButtons = () =>
+        screen.findAllByRole('button', { name: 'table.actions.remove_domain_aria_label' });
+      const removeButton = async () => (await removeButtons())[0]!;
+
+      it('should keep the only domain of an enabled provider in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+        expect(within(screen.getByRole('tabpanel')).getByRole('alert')).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeEnabled();
+      });
+
+      it('should let an enabled provider with two domains drop one in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'taken.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(2);
+        expect(within(screen.getByRole('tabpanel')).queryByRole('alert')).not.toBeInTheDocument();
+        (await removeButtons()).forEach((button) => expect(button).toBeEnabled());
+      });
+
+      it('should count only the verified domains it lists when locking the last one', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'pending.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(1);
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+      });
+
+      it('should let a disabled provider drop its only domain in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: false, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+      });
+
+      it('should disable Assign but keep Remove in none mode', async () => {
+        const user = userEvent.setup();
+        withMode('none', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeDisabled();
+      });
+    });
+
     it('should remove a domain from the provider with the existing dissociate call', async () => {
       const user = userEvent.setup();
       await openDomainsTab(user);

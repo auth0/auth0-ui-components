@@ -6,6 +6,7 @@ import { describe, it, expect } from 'vitest';
 
 import {
   getAssociationBlockReason,
+  getAssociationBlockReasonMessages,
   getDiscoveryState,
   getDomainVerificationMode,
   getStatusBadgeVariant,
@@ -53,6 +54,25 @@ describe('domain-management-utils', () => {
 
     it('defaults to optional when domain_aliases_config is not reported', () => {
       expect(getDomainVerificationMode({} as GetIdpConfigurationResponseContent)).toBe('optional');
+    });
+  });
+
+  describe('getAssociationBlockReasonMessages', () => {
+    it('gives a distinct message for every reason', () => {
+      const messages = getAssociationBlockReasonMessages(
+        (key) => `t:${key}`,
+        (key) => `common:${key}`,
+      );
+
+      expect(messages).toEqual({
+        [ASSOCIATION_BLOCK_REASONS.FORBIDDEN]: 'common:error.forbidden',
+        [ASSOCIATION_BLOCK_REASONS.ACCESS_RESTRICTED]:
+          't:table.actions.provider_access_restricted_tooltip',
+        [ASSOCIATION_BLOCK_REASONS.ASSOCIATION_UNAVAILABLE]:
+          't:table.actions.domain_association_unavailable_tooltip',
+        [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: 't:table.actions.last_verified_domain_tooltip',
+      });
+      expect(new Set(Object.values(messages)).size).toBe(4);
     });
   });
 

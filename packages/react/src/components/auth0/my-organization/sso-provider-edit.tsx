@@ -148,6 +148,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isDeleting,
     isRemoving,
     idpConfig,
+    discoveryPolicy,
+    domainVerificationMode,
     isEnableBlockedByDomains,
     providerAccess,
     customMessages,
@@ -370,6 +372,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                 provider={provider}
                 permissions={permissions}
                 readOnly={readOnly}
+                domainVerificationMode={domainVerificationMode}
+                discoveryPolicy={discoveryPolicy}
               />
             </TabsContent>
           )}

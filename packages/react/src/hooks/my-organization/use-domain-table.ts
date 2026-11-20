@@ -14,12 +14,19 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { showToast } from '@/components/auth0/shared/toast';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
-import { isDomainUsedForDiscovery } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getDomainVerificationMode,
+  isDomainAssociationUnavailable,
+  isDomainUsedForDiscovery,
+  isLastRequiredDomainLocked,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { getProviderAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   UseDomainTableOptions,
   UseDomainTableReturn,
@@ -51,6 +58,8 @@ export function useDomainTable({
 
   const { discoveryPolicy, showDiscovery, isDiscoveryReadOnly, discoveryDefaultValue } =
     useConfig();
+  const { idpConfig, isLoadingIdpConfig } = useIdpConfig();
+  const domainVerificationMode = getDomainVerificationMode(idpConfig);
 
   const {
     pageSize,
@@ -208,11 +217,24 @@ export function useDomainTable({
     [permissions, onDeleteDomain, t, handleError],
   );
 
+  const canAssociateWith = useCallback(
+    (provider: IdpKnownResponse) =>
+      permissions.canAssociateProvider &&
+      getProviderAccess(provider).canManageDomains &&
+      !isDomainAssociationUnavailable(domainVerificationMode),
+    [permissions, domainVerificationMode],
+  );
+  const canRemoveFrom = useCallback(
+    (provider: IdpKnownResponse) =>
+      permissions.canDissociateProvider &&
+      getProviderAccess(provider).canManageDomains &&
+      !isLastRequiredDomainLocked(domainVerificationMode, provider),
+    [permissions, domainVerificationMode],
+  );
+
   const handleToggleSwitch = useCallback(
     async (domain: Domain, provider: IdpKnownResponse, newCheckedValue: boolean) => {
-      if (
-        newCheckedValue ? !permissions.canAssociateProvider : !permissions.canDissociateProvider
-      ) {
+      if (newCheckedValue ? !canAssociateWith(provider) : !canRemoveFrom(provider)) {
         return;
       }
 
@@ -248,12 +270,12 @@ export function useDomainTable({
         }
       }
     },
-    [permissions, onAssociateToProvider, onDeleteFromProvider, t, handleError],
+    [canAssociateWith, canRemoveFrom, onAssociateToProvider, onDeleteFromProvider, t, handleError],
   );
 
   const handleAssignProvider = useCallback(
     async (domain: Domain, provider: IdpKnownResponse) => {
-      if (!permissions.canAssociateProvider) return;
+      if (!canAssociateWith(provider)) return;
       const isOnAnotherProvider = providers.some(
         (current) => current.is_associated && current.id !== provider.id,
       );
@@ -278,12 +300,12 @@ export function useDomainTable({
         setIsSavingProvider(false);
       }
     },
-    [permissions, providers, onAssociateToProvider, t, handleError],
+    [canAssociateWith, providers, onAssociateToProvider, t, handleError],
   );
 
   const handleRemoveProvider = useCallback(
     async (domain: Domain, provider: IdpKnownResponse) => {
-      if (!permissions.canDissociateProvider) return;
+      if (!canRemoveFrom(provider)) return;
 
       setIsSavingProvider(true);
       try {
@@ -303,7 +325,7 @@ export function useDomainTable({
         setIsSavingProvider(false);
       }
     },
-    [permissions, onDeleteFromProvider, t, handleError],
+    [canRemoveFrom, onDeleteFromProvider, t, handleError],
   );
 
   const handleCloseVerifyModal = useCallback(() => {
@@ -480,7 +502,7 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
-    isLoadingProviders,
+    isLoadingProviders: isLoadingProviders || isLoadingIdpConfig,
     isSavingProvider,
     isUpdatingDiscovery,
     updatingDiscoveryId,
@@ -491,6 +513,9 @@ export function useDomainTable({
       hasNextPage: !!nextToken,
       hasPreviousPage,
     },
+
+    // Domain verification
+    domainVerificationMode,
 
     // Discovery policy
     discoveryPolicy,

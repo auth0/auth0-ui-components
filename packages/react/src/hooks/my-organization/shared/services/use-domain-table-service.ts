@@ -185,7 +185,7 @@ export function useDomainTableService({
     onSuccess: (_, { domain, provider }) => {
       associateToProviderAction?.onAfter?.(domain, provider);
       return Promise.all([
-        queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) }),
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.allProviders() }),
         provider.id &&
           queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
       ]);
@@ -207,7 +207,7 @@ export function useDomainTableService({
     onSuccess: (_, { domain, provider }) => {
       deleteFromProviderAction?.onAfter?.(domain, provider);
       return Promise.all([
-        queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) }),
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.allProviders() }),
         provider.id &&
           queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
       ]);
@@ -251,9 +251,10 @@ export function useDomainTableService({
     async (domain: Domain) => {
       setSelectedDomainId(domain.id);
       setSelectedDomainName(domain.domain);
-      await queryClient.ensureQueryData({
+      await queryClient.fetchQuery({
         queryKey: domainQueryKeys.providers(domain.id),
         queryFn: () => fetchProvidersForDomain(domain.domain),
+        staleTime: Infinity,
       });
     },
     [queryClient, coreClient],

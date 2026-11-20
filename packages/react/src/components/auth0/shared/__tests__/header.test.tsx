@@ -58,3 +58,62 @@ describe('Header switch action', () => {
     expect(toggle).toHaveFocus();
   });
 });
+
+const renderButton = (disabled: boolean, description?: string) =>
+  render(
+    <Header
+      title="Provider"
+      actions={[
+        {
+          type: 'button',
+          label: 'Assign Domain',
+          onClick: vi.fn(),
+          disabled,
+          description,
+          ...(description ? { tooltip: { content: description } } : {}),
+        },
+      ]}
+    />,
+  );
+
+describe('Header button action', () => {
+  it('describes why a disabled button is disabled', () => {
+    renderButton(true, 'Association is not available.');
+
+    const button = screen.getByRole('button', { name: 'Assign Domain' });
+    expect(button).toBeDisabled();
+    expect(document.getElementById(button.getAttribute('aria-describedby')!)).toHaveTextContent(
+      'Association is not available.',
+    );
+  });
+
+  it('lets keyboard users reach the tooltip of a disabled button that has a reason', async () => {
+    const user = userEvent.setup();
+    renderButton(true, 'Association is not available.');
+
+    await user.tab();
+
+    const trigger = screen.getByRole('button', { name: 'Assign Domain' }).parentElement;
+    expect(trigger).toHaveFocus();
+    expect(trigger).toHaveClass('focus-visible:ring-4');
+  });
+
+  it('adds no description or tab stop to a usable button', async () => {
+    const user = userEvent.setup();
+    renderButton(false);
+
+    const button = screen.getByRole('button', { name: 'Assign Domain' });
+    expect(button).not.toHaveAttribute('aria-describedby');
+    await user.tab();
+    expect(button).toHaveFocus();
+  });
+
+  it('keeps a disabled button without a reason out of the tab order', async () => {
+    const user = userEvent.setup();
+    renderButton(true);
+
+    await user.tab();
+
+    expect(screen.getByRole('button', { name: 'Assign Domain' })).not.toHaveFocus();
+  });
+});

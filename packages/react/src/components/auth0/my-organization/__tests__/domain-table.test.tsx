@@ -1,3 +1,4 @@
+import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -13,6 +14,7 @@ import {
   createMockVerifyAction,
   createMockDeleteAction,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
@@ -1148,6 +1150,84 @@ describe('DomainTable', () => {
           use_for_organization_discovery: true,
         });
       });
+    });
+  });
+  describe('domain verification mode', () => {
+    const arrange = (
+      mode: 'none' | 'optional' | 'required',
+      provider: Partial<Pick<IdpKnownResponse, 'is_enabled' | 'domains'>> = {},
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+      );
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: { organization_domains: [createMockVerifiedDomain()] },
+      });
+      (organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        identity_providers: [
+          createMockIdentityProvider({
+            id: 'con_okta',
+            display_name: 'Okta',
+            is_enabled: true,
+            domains: [createMockVerifiedDomain().domain],
+            ...provider,
+          }),
+        ],
+      });
+    };
+
+    const openConfigureModal = async (user: ReturnType<typeof userEvent.setup>) => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await user.click(await screen.findByText(createMockVerifiedDomain().domain));
+      return await screen.findByRole('dialog');
+    };
+    const removeButton = (dialog: HTMLElement) =>
+      within(dialog).findByRole('button', { name: 'actions.remove_button_aria_label' });
+
+    it('lets the provider be removed in optional mode', async () => {
+      const user = userEvent.setup();
+      arrange('optional');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('explains that association is unavailable in none mode', async () => {
+      const user = userEvent.setup();
+      arrange('none', { domains: [] });
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await within(dialog).findByRole('combobox')).toBeDisabled();
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        'alerts.domain_verification_none',
+      );
+    });
+
+    it('keeps the last domain of an enabled provider in required mode', async () => {
+      const user = userEvent.setup();
+      arrange('required');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toHaveAttribute('aria-disabled', 'true');
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+    });
+
+    it('lets a disabled provider be removed in required mode', async () => {
+      const user = userEvent.setup();
+      arrange('required', { is_enabled: false });
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 });

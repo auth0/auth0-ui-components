@@ -36,6 +36,7 @@ export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClic
 export interface ButtonActionProps extends BaseActionProps {
   type: 'button';
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  description?: string;
 }
 
 export interface SwitchActionProps extends Omit<BaseActionProps, 'type' | 'label'> {
@@ -88,19 +89,32 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
   disabled,
   variant,
   size,
-}) => (
-  <Button
-    onClick={onClick}
-    disabled={disabled}
-    variant={variant}
-    size={size}
-    className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
-    aria-label={label}
-  >
-    {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
-    <span className="truncate">{label}</span>
-  </Button>
-);
+  description,
+}) => {
+  const descriptionId = useId();
+
+  return (
+    <>
+      <Button
+        onClick={onClick}
+        disabled={disabled}
+        variant={variant}
+        size={size}
+        className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
+        aria-label={label}
+        aria-describedby={description ? descriptionId : undefined}
+      >
+        {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
+        <span className="truncate">{label}</span>
+      </Button>
+      {description && (
+        <span id={descriptionId} className="sr-only">
+          {description}
+        </span>
+      )}
+    </>
+  );
+};
 
 const SwitchAction: React.FC<SwitchActionProps> = ({
   className,
@@ -156,7 +170,10 @@ export const Header = React.forwardRef<
           key={`tooltip-${key}`}
           trigger={actionElement}
           tooltip={action.tooltip}
-          focusable={action.type === 'switch' && !!action.disabled}
+          focusable={
+            (action.type === 'switch' || (action.type === 'button' && !!action.description)) &&
+            !!action.disabled
+          }
         />
       );
     }

@@ -9,6 +9,7 @@ import type {
   IdpKnownResponse,
   DomainCreateMessages,
   DomainCreateSchemas,
+  IdpDomainVerificationMode,
   ComponentAction,
   Domain,
   DomainDeleteMessages,
@@ -171,6 +172,8 @@ export interface UseDomainTableReturn {
   updatingDiscoveryId: string | null;
   // Pagination
   pagination: DomainTablePaginationState;
+
+  domainVerificationMode: IdpDomainVerificationMode;
 
   // Discovery policy
   discoveryPolicy: OrganizationDiscoveryConfig | null;

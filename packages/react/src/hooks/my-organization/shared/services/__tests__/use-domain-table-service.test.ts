@@ -9,6 +9,7 @@ import {
   ssoDomainQueryKeys,
   ssoProviderQueryKeys,
 } from '@auth0/universal-components-core';
+import type { QueryClient } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
@@ -966,6 +967,57 @@ describe('useDomainTableService', () => {
         take: undefined,
         from: undefined,
       });
+    });
+  });
+
+  describe('provider lists of other domains', () => {
+    const domainA = createMockDomain({ id: 'domain_a', domain: 'a.com' });
+    const domainB = createMockDomain({ id: 'domain_b', domain: 'b.com' });
+    const providerWith = (domains: string[]) =>
+      createMockIdentityProvider({ id: 'con_shared', display_name: 'Shared', domains });
+    const mockList = (domains: string[]) =>
+      (mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.list = vi
+        .fn()
+        .mockResolvedValue({ identity_providers: [providerWith(domains)] }));
+    const cachedDomainsFor = (queryClient: QueryClient, domainId: string) =>
+      queryClient.getQueryData<Array<{ domains?: string[] }>>(
+        domainQueryKeys.providers(domainId),
+      )?.[0]?.domains;
+
+    it('should open another domain with fresh providers after one is removed from a domain', async () => {
+      mockList(['a.com', 'b.com']);
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainB);
+
+      await result.current.onDeleteFromProvider(domainA, providerWith(['a.com', 'b.com']));
+      mockList(['b.com']);
+      await result.current.fetchProviders(domainB);
+
+      expect(cachedDomainsFor(queryClient, 'domain_b')).toEqual(['b.com']);
+    });
+
+    it('should open another domain with fresh providers after one is assigned to a domain', async () => {
+      mockList(['a.com']);
+      const { result, queryClient } = renderUseDomainTable(mockOptions);
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainB);
+
+      await result.current.onAssociateToProvider(domainA, providerWith(['a.com']));
+      mockList(['a.com', 'b.com']);
+      await result.current.fetchProviders(domainB);
+
+      expect(cachedDomainsFor(queryClient, 'domain_b')).toEqual(['a.com', 'b.com']);
+    });
+
+    it('should keep using the cached list while nothing changed', async () => {
+      const list = mockList(['a.com', 'b.com']);
+      const { result } = renderUseDomainTable(mockOptions);
+
+      await result.current.fetchProviders(domainA);
+      await result.current.fetchProviders(domainA);
+
+      expect(list).toHaveBeenCalledTimes(1);
     });
   });
 
