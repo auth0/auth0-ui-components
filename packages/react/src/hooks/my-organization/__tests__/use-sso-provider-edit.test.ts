@@ -16,11 +16,12 @@ vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
     isLoadingConfig: false,
   }),
 }));
+const mockIdpConfig = vi.hoisted(() => ({ current: {} as Record<string, unknown> }));
 const idpConfigMock = vi.hoisted(() => ({ methods: ['scim'] as string[] }));
 
 vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
   useIdpConfig: () => ({
-    idpConfig: {},
+    idpConfig: mockIdpConfig.current,
     isLoadingIdpConfig: false,
     isProvisioningEnabled: vi.fn((_strategy: unknown, method: string) =>
       idpConfigMock.methods.includes(method),
@@ -52,6 +53,7 @@ let mockServiceReturn = createMockSsoProviderEditServiceReturn({
 describe('useSsoProviderEdit - logic behavior', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockIdpConfig.current = {};
     idpConfigMock.methods = ['scim'];
     mockServiceReturn = createMockSsoProviderEditServiceReturn({
       updateProvider: mockUpdateProvider,
@@ -125,6 +127,70 @@ describe('useSsoProviderEdit - logic behavior', () => {
       await result.current.handleToggleProvider(true);
     });
     expect(mockEnableProvider).not.toHaveBeenCalled();
+  });
+
+  describe('domain verification mode', () => {
+    const useProvider = (provider: { is_enabled: boolean; domains?: string[] }) => {
+      mockServiceReturn = createMockSsoProviderEditServiceReturn({
+        provider: {
+          id: 'test-provider-id',
+          name: 'Test Provider',
+          strategy: 'waad',
+          options: {},
+          ...provider,
+        },
+        enableProvider: mockEnableProvider,
+      });
+      vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+        mockServiceReturn,
+      );
+    };
+    const setMode = (mode: 'none' | 'optional' | 'required') => {
+      mockIdpConfig.current = { domain_aliases_config: { domain_verification: mode } };
+    };
+
+    it('defaults to optional and does not block enabling', () => {
+      useProvider({ is_enabled: false, domains: [] });
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe('optional');
+      expect(result.current.isEnableBlockedByDomains).toBe(false);
+    });
+
+    it('blocks enabling a provider without domains in required mode', async () => {
+      setMode('required');
+      useProvider({ is_enabled: false, domains: [] });
+      const { result } = render();
+
+      expect(result.current.isEnableBlockedByDomains).toBe(true);
+      await act(async () => {
+        await result.current.handleToggleProvider(true);
+      });
+      expect(mockEnableProvider).not.toHaveBeenCalled();
+    });
+
+    it('enables a provider in required mode once it has a domain', async () => {
+      setMode('required');
+      useProvider({ is_enabled: false, domains: ['example.com'] });
+      const { result } = render();
+
+      expect(result.current.isEnableBlockedByDomains).toBe(false);
+      await act(async () => {
+        await result.current.handleToggleProvider(true);
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(true);
+    });
+
+    it('still lets an enabled provider be disabled in required mode', async () => {
+      setMode('required');
+      useProvider({ is_enabled: true, domains: [] });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleProvider(false);
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(false);
+    });
   });
 
   it('should pass skipProvisioningFetch option to useSsoProviderEditService', () => {
@@ -236,6 +302,95 @@ describe('useSsoProviderEdit - logic behavior', () => {
       });
 
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('provider access level', () => {
+    const mockProviderAccess = (access_level?: 'readonly' | 'limited' | 'full') => {
+      mockServiceReturn = createMockSsoProviderEditServiceReturn({
+        provider: {
+          id: 'test-provider-id',
+          name: 'Test Provider',
+          strategy: 'okta',
+          options: {},
+          is_enabled: true,
+          access_level,
+        },
+        updateProvider: mockUpdateProvider,
+        enableProvider: mockEnableProvider,
+      });
+      vi.mocked(useSsoProviderEditServiceModule.useSsoProviderEditService).mockReturnValue(
+        mockServiceReturn,
+      );
+    };
+
+    const fullUpdate = {
+      strategy: 'okta' as const,
+      display_name: 'Renamed',
+      show_as_button: true,
+      assign_membership_on_login: true,
+      client_id: 'new-client-id',
+    };
+
+    it('treats a provider without an access level as full', async () => {
+      mockProviderAccess(undefined);
+      const { result } = render();
+
+      expect(result.current.providerAccess.accessLevel).toBe('full');
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+      });
+      expect(mockUpdateProvider).toHaveBeenCalledWith(fullUpdate);
+    });
+
+    it('sends only the login settings with limited access', async () => {
+      mockProviderAccess('limited');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+      });
+      expect(mockUpdateProvider).toHaveBeenCalledTimes(1);
+      const [sent] = mockUpdateProvider.mock.calls[0]!;
+      expect(sent).toEqual({
+        strategy: 'okta',
+        show_as_button: true,
+        assign_membership_on_login: true,
+      });
+      // toEqual ignores undefined-valued keys, so check the key itself is absent
+      expect(Object.keys(sent)).not.toContain('is_enabled');
+    });
+
+    it('lets limited access toggle the provider and remove it, but not delete it', async () => {
+      mockProviderAccess('limited');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleProvider(false);
+        await result.current.onRemoveConfirm();
+        await result.current.onDeleteConfirm();
+      });
+      expect(mockEnableProvider).toHaveBeenCalledWith(false);
+      expect(mockServiceReturn.onRemoveConfirm).toHaveBeenCalled();
+      expect(mockServiceReturn.onDeleteConfirm).not.toHaveBeenCalled();
+    });
+
+    it('blocks every change with read-only access', async () => {
+      mockProviderAccess('readonly');
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.updateProvider(fullUpdate);
+        await result.current.handleToggleProvider(false);
+        await result.current.syncSsoAttributes();
+        await result.current.onRemoveConfirm();
+        await result.current.onDeleteConfirm();
+      });
+      expect(mockUpdateProvider).not.toHaveBeenCalled();
+      expect(mockEnableProvider).not.toHaveBeenCalled();
+      expect(mockServiceReturn.syncSsoAttributes).not.toHaveBeenCalled();
+      expect(mockServiceReturn.onRemoveConfirm).not.toHaveBeenCalled();
+      expect(mockServiceReturn.onDeleteConfirm).not.toHaveBeenCalled();
     });
   });
 });

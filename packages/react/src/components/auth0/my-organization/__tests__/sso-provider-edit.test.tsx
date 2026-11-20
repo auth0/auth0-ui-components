@@ -9,6 +9,7 @@ import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   createMockBackButton,
   createMockEnableProviderAction,
@@ -1180,6 +1181,90 @@ describe('SsoProviderEdit', () => {
           ).toHaveBeenCalled();
         });
       });
+    });
+  });
+
+  describe('domain verification', () => {
+    const arrange = (
+      domainVerification: 'none' | 'optional' | 'required',
+      provider: Partial<IdpKnownResponse>,
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({
+          strategies: {
+            samlp: { enabled_features: ['provisioning'], provisioning_methods: ['scim'] },
+          },
+          domain_aliases_config: { domain_verification: domainVerification },
+        }),
+      );
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        ...provider,
+      } as IdpKnownResponse);
+    };
+
+    it('blocks enabling the provider while it has no verified domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('names the enable switch and describes why it is blocked', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      const toggle = screen.getAllByRole('switch')[0]!;
+      expect(toggle).toHaveAccessibleName('header.enable_provider_tooltip_text');
+      expect(toggle).toHaveAccessibleDescription(
+        'header.enable_provider_blocked_domains_tooltip_text',
+      );
+    });
+
+    it('lets the provider be enabled once it has a domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: ['example.com'] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+
+    it('does not block enabling in optional mode', async () => {
+      arrange('optional', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+  });
+
+  describe('provider access level', () => {
+    const arrange = (access_level: 'readonly' | 'limited') => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        is_enabled: true,
+        access_level,
+      } as IdpKnownResponse);
+    };
+
+    it('disables the enable switch with read-only access', async () => {
+      arrange('readonly');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('keeps the enable switch available with limited access', async () => {
+      arrange('limited');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
 });

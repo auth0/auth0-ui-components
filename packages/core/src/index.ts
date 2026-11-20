@@ -45,6 +45,7 @@ export * from './i18n/custom-messages/my-organization/idp-management/sso-provide
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-table-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-test-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 // i18n custom messages - my-organization organization-management
@@ -57,6 +58,7 @@ export * from './i18n/custom-messages/my-organization/domain-management/domain-c
 export * from './i18n/custom-messages/my-organization/domain-management/domain-delete-types';
 export * from './i18n/custom-messages/my-organization/domain-management/domain-configure-types';
 export * from './i18n/custom-messages/my-organization/domain-management/domain-verify-types';
+export * from './i18n/custom-messages/my-organization/domain-management/domain-discovery-types';
 export * from './i18n/custom-messages/my-organization/domain-management/domain-table-types';
 
 // i18n custom messages - my-organization member-management
@@ -134,6 +136,7 @@ export * from './services/my-organization/idp-management/sso-provider/sso-provid
 export * from './services/my-organization/idp-management/idp-management-permissions';
 
 export * from './services/my-organization/domain-management/domain-types';
+export * from './services/my-organization/domain-management/domain-management-constants';
 export * from './services/my-organization/domain-management/domain-query-keys';
 export * from './services/my-organization/domain-management/domain-management-permissions';
 

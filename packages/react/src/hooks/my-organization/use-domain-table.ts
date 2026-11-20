@@ -9,15 +9,17 @@ import {
   type Domain,
   type IdpKnownResponse,
 } from '@auth0/universal-components-core';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { usePermissions } from '@/hooks/shared/use-permissions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
+import { isDomainUsedForDiscovery } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import type {
   UseDomainTableOptions,
   UseDomainTableReturn,
@@ -47,6 +49,9 @@ export function useDomainTable({
     [createPermissionResolver, readOnly],
   );
 
+  const { discoveryPolicy, showDiscovery, isDiscoveryReadOnly, discoveryDefaultValue } =
+    useConfig();
+
   const {
     pageSize,
     currentPage,
@@ -70,11 +75,13 @@ export function useDomainTable({
     isCreating,
     isDeleting,
     isVerifying,
+    isUpdatingDiscovery,
     isLoadingProviders,
     refetchDomains,
     fetchProviders,
     onCreateDomain,
     onVerifyDomain,
+    onUpdateDomainDiscovery,
     onDeleteDomain,
     onAssociateToProvider,
     onDeleteFromProvider,
@@ -98,12 +105,26 @@ export function useDomainTable({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [isSavingProvider, setIsSavingProvider] = useState(false);
+  const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
+  const isConfigureOnHoldRef = useRef(false);
+  const [updatingDiscoveryId, setUpdatingDiscoveryId] = useState<string | null>(null);
+
+  const canChangeDiscovery =
+    showDiscovery && !isDiscoveryReadOnly && permissions.canUpdateDomainDiscovery;
 
   const handleCreate = useCallback(
-    async (domainUrl: string) => {
+    async (domainUrl: string, useForDiscovery?: boolean) => {
       if (!permissions.canCreateDomain) return;
+      const canSetDiscovery = showDiscovery && permissions.canUpdateDomainDiscovery;
+      const isAllowedByPolicy =
+        useForDiscovery !== undefined &&
+        (discoveryPolicy?.allowed_values?.includes(useForDiscovery) ?? true);
+      const discoveryPayload =
+        canSetDiscovery && isAllowedByPolicy
+          ? { use_for_organization_discovery: useForDiscovery }
+          : {};
       try {
-        const newDomain = await onCreateDomain({ domain: domainUrl });
+        const newDomain = await onCreateDomain({ domain: domainUrl, ...discoveryPayload });
         showToast({
           type: 'success',
           message: t('domain_table.notifications.domain_create.success', {
@@ -119,7 +140,28 @@ export function useDomainTable({
         });
       }
     },
-    [permissions, onCreateDomain, t, handleError],
+    [permissions, onCreateDomain, showDiscovery, discoveryPolicy, t, handleError],
+  );
+
+  /** Toasts the verification and offers discovery if it's still off. Returns true if the modal opened. */
+  const announceVerified = useCallback(
+    (domain: Domain): boolean => {
+      const isDiscoveryOn = showDiscovery && isDomainUsedForDiscovery(domain, discoveryPolicy);
+      const toastValues = { domainName: domain.domain };
+      const message = isDiscoveryOn
+        ? t('domain_table.notifications.domain_verify.success_discovery_on', toastValues)
+        : t('domain_table.notifications.domain_verify.success', toastValues);
+
+      showToast({ type: 'success', message });
+
+      const shouldOfferDiscovery = !isDiscoveryOn && canChangeDiscovery;
+      if (shouldOfferDiscovery) {
+        setSelectedDomain(domain);
+        setShowDiscoveryModal(true);
+      }
+      return shouldOfferDiscovery;
+    },
+    [showDiscovery, discoveryPolicy, canChangeDiscovery, t],
   );
 
   const handleVerify = useCallback(
@@ -129,12 +171,7 @@ export function useDomainTable({
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
           setShowVerifyModal(false);
-          showToast({
-            type: 'success',
-            message: t('domain_table.notifications.domain_verify.success', {
-              domainName: domain.domain,
-            }),
-          });
+          announceVerified(domain);
         } else {
           setVerifyError(
             t('domain_verify.modal.errors.verification_failed', { domainName: domain.domain }),
@@ -146,7 +183,7 @@ export function useDomainTable({
         });
       }
     },
-    [permissions, onVerifyDomain, t, handleError],
+    [permissions, onVerifyDomain, announceVerified, t, handleError],
   );
 
   const handleDelete = useCallback(
@@ -306,14 +343,12 @@ export function useDomainTable({
       try {
         const isVerified = await onVerifyDomain(domain);
         if (isVerified) {
-          await fetchProviders(domain);
-          setShowConfigureModal(true);
-          showToast({
-            type: 'success',
-            message: t('domain_table.notifications.domain_verify.success', {
-              domainName: domain.domain,
-            }),
-          });
+          if (announceVerified(domain)) {
+            isConfigureOnHoldRef.current = true;
+          } else {
+            await fetchProviders(domain);
+            setShowConfigureModal(true);
+          }
         } else {
           showToast({
             type: 'error',
@@ -328,7 +363,79 @@ export function useDomainTable({
         });
       }
     },
-    [permissions, onVerifyDomain, fetchProviders, t, handleError],
+    [permissions, onVerifyDomain, announceVerified, fetchProviders, t, handleError],
+  );
+
+  const updateDiscovery = useCallback(
+    async (domain: Domain, checked: boolean, afterUpdate?: () => Promise<void> | void) => {
+      const successKey = checked ? 'success_on' : 'success_off';
+      setUpdatingDiscoveryId(domain.id);
+      try {
+        await onUpdateDomainDiscovery(domain, checked);
+        showToast({
+          type: 'success',
+          message: t(`domain_table.notifications.domain_discovery_update.${successKey}`, {
+            domainName: domain.domain,
+          }),
+        });
+        await afterUpdate?.();
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.domain_discovery_update.error'),
+        });
+      } finally {
+        setUpdatingDiscoveryId(null);
+      }
+    },
+    [onUpdateDomainDiscovery, t, handleError],
+  );
+
+  const handleToggleDiscovery = useCallback(
+    async (domain: Domain, checked: boolean) => {
+      const isVerified = domain.status === 'verified';
+      const canToggle = canChangeDiscovery && isVerified;
+      if (!canToggle) return;
+
+      await updateDiscovery(domain, checked);
+    },
+    [canChangeDiscovery, updateDiscovery],
+  );
+
+  /** Resumes the configure step that a row-level verify put on hold. */
+  const continueAfterDiscoveryModal = useCallback(
+    async (domain: Domain) => {
+      if (!isConfigureOnHoldRef.current) return;
+      isConfigureOnHoldRef.current = false;
+      try {
+        await fetchProviders(domain);
+        setShowConfigureModal(true);
+      } catch (error) {
+        handleError(error, {
+          fallbackMessage: t('domain_table.notifications.fetch_providers_error'),
+        });
+      }
+    },
+    [fetchProviders, t, handleError],
+  );
+
+  const handleCloseDiscoveryModal = useCallback(() => {
+    if (isUpdatingDiscovery) return;
+    setShowDiscoveryModal(false);
+    if (selectedDomain) {
+      void continueAfterDiscoveryModal(selectedDomain);
+    }
+  }, [isUpdatingDiscovery, selectedDomain, continueAfterDiscoveryModal]);
+
+  const handleEnableDiscovery = useCallback(
+    async (domain: Domain) => {
+      if (!canChangeDiscovery) return;
+
+      await updateDiscovery(domain, true, async () => {
+        setShowDiscoveryModal(false);
+        await continueAfterDiscoveryModal(domain);
+      });
+    },
+    [canChangeDiscovery, updateDiscovery, continueAfterDiscoveryModal],
   );
 
   const handleDeleteClick = useCallback(
@@ -375,6 +482,8 @@ export function useDomainTable({
     isVerifying,
     isLoadingProviders,
     isSavingProvider,
+    isUpdatingDiscovery,
+    updatingDiscoveryId,
     // Pagination
     pagination: {
       pageSize,
@@ -383,11 +492,18 @@ export function useDomainTable({
       hasPreviousPage,
     },
 
+    // Discovery policy
+    discoveryPolicy,
+    showDiscovery,
+    isDiscoveryReadOnly,
+    discoveryDefaultValue,
+
     // Modal state
     showCreateModal,
     showConfigureModal,
     showVerifyModal,
     showDeleteModal,
+    showDiscoveryModal,
     verifyError,
     selectedDomain,
 
@@ -401,6 +517,9 @@ export function useDomainTable({
     refetchDomains,
     handleCreate,
     handleVerify,
+    handleToggleDiscovery,
+    handleEnableDiscovery,
+    handleCloseDiscoveryModal,
     handleDelete,
     handleToggleSwitch,
     handleAssignProvider,
