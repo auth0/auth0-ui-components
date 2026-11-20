@@ -10,6 +10,12 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
+import {
+  getAssociationBlockReason,
+  getAssociationBlockReasonMessages,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 /**
@@ -25,6 +31,8 @@ import type { SsoDomainTabActionColumn } from '@/types/my-organization/idp-manag
  * @param props.isUpdating - Whether an update operation is in progress
  * @param props.isUpdatingId - ID of the item currently being updated
  * @param props.onRemove - Callback fired when the domain is removed
+ * @param props.lockLastDomain - Whether the provider's last verified domain must stay associated
+ * @param props.canManageProviderDomains - Whether the organization's access level allows changing the provider's domains
  * @param props.readOnly - Whether the component is in read-only mode
  * @returns JSX element
  */
@@ -37,10 +45,13 @@ export function SsoDomainTabActionsColumn({
   isUpdating,
   isUpdatingId,
   onRemove,
+  lockLastDomain = false,
+  canManageProviderDomains = true,
   readOnly = false,
 }: SsoDomainTabActionColumn) {
   const { t } = useTranslator(translatorKey, customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
+  const disabledReasonId = useId();
 
   if (readOnly) return null;
 
@@ -52,13 +63,19 @@ export function SsoDomainTabActionsColumn({
     );
   }
 
-  const canRemove = permissions.canDissociateDomain;
+  const blockReason = getAssociationBlockReason({
+    hasPermission: permissions.canDissociateDomain,
+    isProviderAccessRestricted: !canManageProviderDomains,
+    isAssociationUnavailable: false,
+    isLastDomainLocked: lockLastDomain,
+  });
+  const disabledReason = blockReason
+    ? getAssociationBlockReasonMessages(t, tCommon)[blockReason]
+    : null;
   const removeLabel = t('table.actions.remove_domain_aria_label', { domain: domain.domain });
-  const tooltip = canRemove
-    ? idpName
-      ? t('table.actions.remove_domain_tooltip', { idp: idpName })
-      : removeLabel
-    : tCommon('error.forbidden');
+  const tooltip =
+    disabledReason ??
+    (idpName ? t('table.actions.remove_domain_tooltip', { idp: idpName }) : removeLabel);
 
   return (
     <div className="flex items-center justify-end gap-4 min-w-0">
@@ -69,13 +86,25 @@ export function SsoDomainTabActionsColumn({
               type="button"
               variant="outline"
               size="icon"
-              className="border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20"
-              disabled={!canRemove || isUpdating}
-              onClick={() => onRemove(domain)}
+              className={cn(
+                'border-destructive-foreground/30 bg-destructive/10 text-destructive-foreground hover:bg-destructive/20',
+                blockReason && 'aria-disabled:pointer-events-none aria-disabled:opacity-50',
+              )}
+              disabled={isUpdating}
+              aria-disabled={blockReason ? true : undefined}
+              onClick={() => {
+                if (!blockReason) onRemove(domain);
+              }}
               aria-label={removeLabel}
+              aria-describedby={disabledReason ? disabledReasonId : undefined}
             >
               <CircleMinus aria-hidden="true" />
             </Button>
+            {disabledReason && (
+              <span id={disabledReasonId} className="sr-only">
+                {disabledReason}
+              </span>
+            )}
           </span>
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>

@@ -54,6 +54,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
     {
       initialData,
       readOnly = false,
+      isLoginSettingsReadOnly = readOnly,
       customMessages = {},
       className,
       onFormDirty,
@@ -279,7 +280,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
 
           <CommonConfigureFields
             idpConfig={idpConfig}
-            readOnly={readOnly}
+            readOnly={isLoginSettingsReadOnly}
             customMessages={customMessages}
             strategy={STRATEGIES.OKTA}
             showThirdPartyAccess={showThirdPartyAccess}

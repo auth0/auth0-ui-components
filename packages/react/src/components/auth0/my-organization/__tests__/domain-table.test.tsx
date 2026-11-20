@@ -1,3 +1,4 @@
+import type { IdpKnownResponse } from '@auth0/universal-components-core';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -13,6 +14,7 @@ import {
   createMockVerifyAction,
   createMockDeleteAction,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { DomainTableProps } from '@/types/my-organization/domain-management/domain-table-types';
@@ -972,6 +974,260 @@ describe('DomainTable', () => {
 
         expect(screen.getByRole('button', { name: /create/i })).toBeDisabled();
       });
+    });
+  });
+
+  describe('domain discovery', () => {
+    const columnTitle = 'domain_table.table.columns.use_for_discovery';
+    const discoveredDomain = createMockVerifiedDomain();
+    const pendingDomain = createMockDomain({ id: 'domain_pending', domain: 'pending.com' });
+
+    const mockConfiguration = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.get).mockResolvedValue({
+        allowed_strategies: ['okta'],
+        connection_deletion_behavior: 'allow',
+        ...(policy ? { use_for_organization_discovery: policy } : {}),
+      });
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: {
+          organization_domains: [
+            pendingDomain,
+            { ...discoveredDomain, use_for_organization_discovery: true },
+          ],
+        },
+      });
+      return organization;
+    };
+
+    const rowFor = (name: string) =>
+      screen.getAllByRole('row').find((row) => within(row).queryByText(name)) as HTMLElement;
+
+    it('hides the column when the organization has no discovery policy', async () => {
+      mockConfiguration();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.queryByText(columnTitle)).not.toBeInTheDocument();
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+    });
+
+    it('does not offer sorting on the discovery column, whose cells show a resolved value', async () => {
+      const user = userEvent.setup();
+      mockConfiguration({ default_value: true, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      const header = (await screen.findByText(columnTitle)).closest('th')!;
+      const rowOrder = () =>
+        screen
+          .getAllByRole('row')
+          .slice(1)
+          .map((row) => row.textContent);
+      const before = rowOrder();
+
+      await user.click(header);
+
+      expect(header).not.toHaveClass('cursor-pointer');
+      expect(rowOrder()).toEqual(before);
+    });
+
+    it('shows a switch per domain, on for discovered domains and disabled until verified', async () => {
+      mockConfiguration({ default_value: false, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      expect(await screen.findByText(columnTitle)).toBeInTheDocument();
+      const verifiedSwitch = within(rowFor(discoveredDomain.domain)).getByRole('switch');
+      expect(verifiedSwitch).toBeChecked();
+      expect(verifiedSwitch).toBeEnabled();
+      expect(within(rowFor('pending.com')).getByRole('switch')).toBeDisabled();
+    });
+
+    it('turns discovery off for a verified domain', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(within(rowFor(discoveredDomain.domain)).getByRole('switch'));
+
+      await waitFor(() => {
+        expect(organization.domains.update).toHaveBeenCalledWith(discoveredDomain.id, {
+          use_for_organization_discovery: false,
+        });
+      });
+    });
+
+    it('keeps the switches disabled when the policy allows a single value', async () => {
+      const organization = mockConfiguration({ default_value: true, allowed_values: [true] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      expect(within(rowFor(discoveredDomain.domain)).getByRole('switch')).toBeDisabled();
+      expect(organization.domains.update).not.toHaveBeenCalled();
+    });
+
+    it('offers the discovery option when adding a domain', async () => {
+      const user = userEvent.setup();
+      mockConfiguration({ default_value: false, allowed_values: [true, false] });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).getByRole('checkbox')).not.toBeChecked();
+    });
+
+    it('locks the option for a user who can create domains but not update them, and omits it on create', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      vi.mocked(organization.domains.create).mockResolvedValue(createMockDomain());
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />, {
+        permissions: ['read:my_org:domains', 'create:my_org:domains'],
+      });
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+      const dialog = await screen.findByRole('dialog');
+      const checkbox = within(dialog).getByRole('checkbox');
+      expect(checkbox).toBeDisabled();
+      expect(checkbox).toHaveAccessibleDescription('error.forbidden');
+
+      await user.type(within(dialog).getByRole('textbox'), 'no-scope.com');
+      await user.click(within(dialog).getByRole('button', { name: /create/i }));
+
+      await waitFor(() => {
+        expect(organization.domains.create).toHaveBeenCalledWith({ domain: 'no-scope.com' });
+      });
+    });
+
+    it('does not offer the discovery option when adding a domain without a policy', async () => {
+      const user = userEvent.setup();
+      mockConfiguration();
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByRole('button', { name: /create/i }));
+
+      const dialog = await screen.findByRole('dialog');
+      expect(within(dialog).queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('asks whether to use a newly verified domain for discovery, and turns it on', async () => {
+      const user = userEvent.setup();
+      const organization = mockConfiguration({
+        default_value: false,
+        allowed_values: [true, false],
+      });
+      vi.mocked(organization.domains.verify.create).mockResolvedValue({
+        ...pendingDomain,
+        status: 'verified',
+      });
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await screen.findByText(columnTitle);
+
+      await user.click(within(rowFor('pending.com')).getByRole('button'));
+      await user.click(await screen.findByRole('menuitem', { name: /verify/i }));
+
+      const prompt = await screen.findByRole('dialog');
+      expect(within(prompt).getByText('title')).toBeInTheDocument();
+      await user.click(within(prompt).getByRole('button', { name: 'actions.use_button_text' }));
+
+      await waitFor(() => {
+        expect(organization.domains.update).toHaveBeenCalledWith(pendingDomain.id, {
+          use_for_organization_discovery: true,
+        });
+      });
+    });
+  });
+  describe('domain verification mode', () => {
+    const arrange = (
+      mode: 'none' | 'optional' | 'required',
+      provider: Partial<Pick<IdpKnownResponse, 'is_enabled' | 'domains'>> = {},
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+      );
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: { organization_domains: [createMockVerifiedDomain()] },
+      });
+      (organization.identityProviders.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        identity_providers: [
+          createMockIdentityProvider({
+            id: 'con_okta',
+            display_name: 'Okta',
+            is_enabled: true,
+            domains: [createMockVerifiedDomain().domain],
+            ...provider,
+          }),
+        ],
+      });
+    };
+
+    const openConfigureModal = async (user: ReturnType<typeof userEvent.setup>) => {
+      renderWithProviders(<DomainTable {...createMockDomainTableProps()} />);
+      await waitForComponentToLoad();
+      await user.click(await screen.findByText(createMockVerifiedDomain().domain));
+      return await screen.findByRole('dialog');
+    };
+    const removeButton = (dialog: HTMLElement) =>
+      within(dialog).findByRole('button', { name: 'actions.remove_button_aria_label' });
+
+    it('lets the provider be removed in optional mode', async () => {
+      const user = userEvent.setup();
+      arrange('optional');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
+    });
+
+    it('explains that association is unavailable in none mode', async () => {
+      const user = userEvent.setup();
+      arrange('none', { domains: [] });
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await within(dialog).findByRole('combobox')).toBeDisabled();
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        'alerts.domain_verification_none',
+      );
+    });
+
+    it('keeps the last domain of an enabled provider in required mode', async () => {
+      const user = userEvent.setup();
+      arrange('required');
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toHaveAttribute('aria-disabled', 'true');
+      expect(within(dialog).getByRole('alert')).toHaveTextContent(
+        'table.actions.last_verified_domain_tooltip',
+      );
+    });
+
+    it('lets a disabled provider be removed in required mode', async () => {
+      const user = userEvent.setup();
+      arrange('required', { is_enabled: false });
+
+      const dialog = await openConfigureModal(user);
+
+      expect(await removeButton(dialog)).toBeEnabled();
+      expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 });

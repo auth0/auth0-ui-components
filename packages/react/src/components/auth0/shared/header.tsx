@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 
 export interface TooltipProps {
   content: React.ReactNode | string;
@@ -22,6 +23,7 @@ export interface TooltipProps {
 export interface WithTooltipProps {
   trigger: React.ReactNode | string;
   tooltip: TooltipProps;
+  focusable?: boolean;
 }
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
@@ -34,6 +36,7 @@ export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClic
 export interface ButtonActionProps extends BaseActionProps {
   type: 'button';
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  description?: string;
 }
 
 export interface SwitchActionProps extends Omit<BaseActionProps, 'type' | 'label'> {
@@ -41,6 +44,8 @@ export interface SwitchActionProps extends Omit<BaseActionProps, 'type' | 'label
   checked?: boolean;
   onCheckedChange: (checked: boolean) => void;
   'aria-label'?: string;
+  /** Announced with the switch, e.g. why it is disabled. */
+  description?: string;
 }
 
 export type ActionProps = ButtonActionProps | SwitchActionProps;
@@ -58,11 +63,18 @@ export interface HeaderProps {
   className?: string;
 }
 
-const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip }) => (
+const WithTooltip: React.FC<WithTooltipProps> = ({ trigger, tooltip, focusable = false }) => (
   <>
     <Tooltip>
       <TooltipTrigger asChild>
-        <div>{trigger}</div>
+        <div
+          tabIndex={focusable ? 0 : undefined}
+          className={cn(
+            focusable && 'rounded-full outline-none focus-visible:ring-4 focus-visible:ring-ring',
+          )}
+        >
+          {trigger}
+        </div>
       </TooltipTrigger>
       <TooltipContent>{tooltip.content}</TooltipContent>
     </Tooltip>
@@ -77,36 +89,60 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
   disabled,
   variant,
   size,
-}) => (
-  <Button
-    onClick={onClick}
-    disabled={disabled}
-    variant={variant}
-    size={size}
-    className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
-    aria-label={label}
-  >
-    {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
-    <span className="truncate">{label}</span>
-  </Button>
-);
+  description,
+}) => {
+  const descriptionId = useId();
+
+  return (
+    <>
+      <Button
+        onClick={onClick}
+        disabled={disabled}
+        variant={variant}
+        size={size}
+        className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
+        aria-label={label}
+        aria-describedby={description ? descriptionId : undefined}
+      >
+        {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
+        <span className="truncate">{label}</span>
+      </Button>
+      {description && (
+        <span id={descriptionId} className="sr-only">
+          {description}
+        </span>
+      )}
+    </>
+  );
+};
 
 const SwitchAction: React.FC<SwitchActionProps> = ({
   className,
   'aria-label': ariaLabel,
+  description,
   checked,
   onCheckedChange,
   disabled,
-}) => (
-  <div className={cn('flex items-center gap-2', className)}>
-    <Switch
-      checked={checked}
-      onCheckedChange={onCheckedChange}
-      disabled={disabled}
-      aria-label={ariaLabel}
-    />
-  </div>
-);
+}) => {
+  const descriptionId = useId();
+
+  return (
+    <div className={cn('flex items-center gap-2', className)}>
+      <Switch
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        aria-describedby={description ? descriptionId : undefined}
+      />
+      {description && (
+        <span id={descriptionId} className="sr-only">
+          {description}
+        </span>
+      )}
+    </div>
+  );
+};
 
 export const Header = React.forwardRef<
   HTMLDivElement,
@@ -130,7 +166,15 @@ export const Header = React.forwardRef<
       );
     if (action.tooltip) {
       return (
-        <WithTooltip key={`tooltip-${key}`} trigger={actionElement} tooltip={action.tooltip} />
+        <WithTooltip
+          key={`tooltip-${key}`}
+          trigger={actionElement}
+          tooltip={action.tooltip}
+          focusable={
+            (action.type === 'switch' || (action.type === 'button' && !!action.description)) &&
+            !!action.disabled
+          }
+        />
       );
     }
     return actionElement;
