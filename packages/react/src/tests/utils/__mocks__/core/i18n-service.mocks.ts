@@ -12,7 +12,11 @@ const createMockTranslator = (_namespace: string, customMessages?: Record<string
     return key;
   };
 
-  translationFn.trans = (key: string) => {
+  translationFn.trans = (key: string, options?: { components?: Record<string, unknown> }) => {
+    const link = options?.components?.link;
+    if (typeof link === 'function') {
+      return [(link as (children: string) => unknown)(translationFn(key))];
+    }
     return [translationFn(key)];
   };
 

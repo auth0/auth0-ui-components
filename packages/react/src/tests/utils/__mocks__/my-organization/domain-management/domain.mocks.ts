@@ -28,11 +28,13 @@ export const createMockDomain = (overrides?: Partial<Domain>): Domain => ({
 
 export const createMockVerifiedDomain = (): Domain =>
   createMockDomain({
+    id: 'domain_verified123',
     status: 'verified',
   });
 
 export const createMockFailedDomain = (): Domain =>
   createMockDomain({
+    id: 'domain_failed123',
     status: 'failed',
   });
 
@@ -146,6 +148,7 @@ export const createMockDomainTableReturn = (
   isDomainsStale: false,
   domainsUpdatedAt: 0,
   isLoadingProviders: false,
+  isSavingProvider: false,
   isDeleting: false,
   pagination: {
     pageSize: 10,
@@ -168,6 +171,8 @@ export const createMockDomainTableReturn = (
   handleVerify: vi.fn(),
   handleDelete: vi.fn(),
   handleToggleSwitch: vi.fn(),
+  handleAssignProvider: vi.fn(),
+  handleRemoveProvider: vi.fn(),
   handleCloseVerifyModal: vi.fn(),
   handleCreateClick: vi.fn(),
   handleConfigureClick: vi.fn(),

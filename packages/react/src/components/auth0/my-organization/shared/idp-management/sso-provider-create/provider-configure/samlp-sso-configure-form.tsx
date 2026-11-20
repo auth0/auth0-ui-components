@@ -6,6 +6,7 @@
 
 import {
   createProviderConfigureSchema,
+  STRATEGIES,
   type SamlpConfigureFormValues,
   type SamlpConfigureFormInput,
 } from '@auth0/universal-components-core';
@@ -15,8 +16,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
-import { SsoCrossAppAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-cross-app-access-section';
-import { SsoThirdPartyAccessSection } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-third-party-access-section';
+import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import {
   Accordion,
@@ -53,10 +53,6 @@ import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-man
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-const SAMLP_HELP_LINKS = {
-  sign_request: 'domain/pem?cert=connection',
-} as const;
-
 const SIGNATURE_ALGORITHMS = [
   { value: 'rsa-sha1', label: 'RSA-SHA1' },
   { value: 'rsa-sha256', label: 'RSA-SHA256' },
@@ -79,10 +75,7 @@ export interface SamlpConfigureFormHandle {
   reset: (data?: SamlpConfigureFormValues) => void;
 }
 
-interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {
-  showCrossAppAccess?: boolean;
-  isCrossAppAccessReadOnly?: boolean;
-}
+interface SamlpConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
 
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
@@ -95,9 +88,11 @@ export const SamlpProviderForm = React.forwardRef<
     className,
     onFormDirty,
     idpConfig,
+    mode = 'create',
     connectionName: connectionNameProp,
     connectionNamePrefix,
     resolveSamlMetadata,
+    showSignRequest = true,
     showThirdPartyAccess = false,
     isThirdPartyAccessReadOnly = false,
     showCrossAppAccess = false,
@@ -130,6 +125,11 @@ export const SamlpProviderForm = React.forwardRef<
     };
   }, [coreClient, connectionName]);
 
+  const signRequestCertUrl = React.useMemo(() => {
+    const domain = coreClient?.getDomain();
+    return `https://${domain}/pem?cert=connection`;
+  }, [coreClient]);
+
   const spIssuerUrn = React.useMemo(() => {
     if (!connectionName) return '';
     if (resolveSamlMetadata) return resolveSamlMetadata({ connectionName }).entityId;
@@ -159,20 +159,19 @@ export const SamlpProviderForm = React.forwardRef<
       bindingMethod: samlpData?.bindingMethod || 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
       show_as_button: samlpData?.show_as_button ?? false,
       assign_membership_on_login: samlpData?.assign_membership_on_login ?? false,
-      use_for_third_party_client_access: samlpData?.use_for_third_party_client_access ?? false,
-      cross_app_access_resource_app:
-        samlpData?.cross_app_access_resource_app ??
-        (crossAppAccessDefaultValue !== undefined
-          ? { status: crossAppAccessDefaultValue }
-          : undefined),
       discovery_url: samlpData?.discovery_url ?? '',
       callback_url: spMetadataUrls.callback_url,
       acs_url: spMetadataUrls.acs_url,
       sp_metadata_url: spMetadataUrls.sp_metadata_url,
+      ...getConnectionAccessDefaults(
+        samlpData,
+        crossAppAccessDefaultValue,
+        mode,
+        showCrossAppAccess,
+        showThirdPartyAccess,
+      ),
     },
   });
-
-  const discoveryUrlValue = form.watch('discovery_url') ?? '';
 
   const { isDirty } = form.formState;
 
@@ -358,51 +357,53 @@ export const SamlpProviderForm = React.forwardRef<
               {t('fields.samlp.advanced_settings.title')}
             </AccordionTrigger>
             <AccordionContent className="space-y-6">
-              <FormField
-                control={form.control}
-                name="signSAMLRequest"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-2 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value || false}
-                        onCheckedChange={field.onChange}
-                        disabled={readOnly}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel className="text-sm font-medium cursor-pointer">
-                        {t('fields.samlp.advanced_settings.sign_request.label')}
-                      </FormLabel>
-                      <FormDescription className="text-paragraph font-normal text-left">
-                        <>
-                          {t.trans(
-                            typeValue === 'meta_data_url'
-                              ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
-                              : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
-                            {
-                              components: {
-                                link: (children: string) => (
-                                  <Link
-                                    key="samlp-sign-request-link"
-                                    href={SAMLP_HELP_LINKS.sign_request}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {children}
-                                  </Link>
-                                ),
+              {showSignRequest && (
+                <FormField
+                  control={form.control}
+                  name="signSAMLRequest"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value || false}
+                          onCheckedChange={field.onChange}
+                          disabled={readOnly}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-medium cursor-pointer">
+                          {t('fields.samlp.advanced_settings.sign_request.label')}
+                        </FormLabel>
+                        <FormDescription className="text-paragraph font-normal text-left">
+                          <>
+                            {t.trans(
+                              typeValue === 'meta_data_url'
+                                ? 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url'
+                                : 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_file',
+                              {
+                                components: {
+                                  link: (children: string) => (
+                                    <Link
+                                      key="samlp-sign-request-link"
+                                      href={signRequestCertUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {children}
+                                    </Link>
+                                  ),
+                                },
                               },
-                            },
-                          )}
-                        </>
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
+                            )}
+                          </>
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              {signRequestEnabled && (
+              {showSignRequest && signRequestEnabled && (
                 <>
                   <FormField
                     control={form.control}
@@ -583,46 +584,14 @@ export const SamlpProviderForm = React.forwardRef<
           idpConfig={idpConfig}
           readOnly={readOnly}
           customMessages={customMessages}
+          strategy={STRATEGIES.SAMLP}
+          showThirdPartyAccess={showThirdPartyAccess}
+          isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
+          isOrganizationBlocked={isOrganizationBlocked}
+          showCrossAppAccess={showCrossAppAccess}
+          isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
+          classes={styling?.classes}
         />
-
-        {showThirdPartyAccess && (
-          <FormField
-            control={form.control}
-            name="use_for_third_party_client_access"
-            render={({ field }) => (
-              <SsoThirdPartyAccessSection
-                checked={field.value ?? false}
-                onChange={field.onChange}
-                readOnly={readOnly || isThirdPartyAccessReadOnly}
-                isOrganizationBlocked={isOrganizationBlocked}
-                className={styling?.classes?.['ProviderConfigure-ThirdPartyAccess']}
-              />
-            )}
-          />
-        )}
-
-        {showCrossAppAccess && (
-          <FormField
-            control={form.control}
-            name="cross_app_access_resource_app"
-            render={({ field }) => (
-              <SsoCrossAppAccessSection
-                checked={field.value?.status === 'enabled'}
-                onChange={(checked) =>
-                  field.onChange(checked ? { status: 'enabled' } : { status: 'disabled' })
-                }
-                readOnly={readOnly || isCrossAppAccessReadOnly}
-                strategy="samlp"
-                discoveryUrl={discoveryUrlValue}
-                onDiscoveryUrlChange={(url) =>
-                  form.setValue('discovery_url', url, { shouldDirty: true, shouldValidate: true })
-                }
-                discoveryUrlError={form.formState.errors.discovery_url?.message}
-                className={styling?.classes?.['ProviderConfigure-CrossAppAccess']}
-              />
-            )}
-          />
-        )}
       </div>
     </Form>
   );

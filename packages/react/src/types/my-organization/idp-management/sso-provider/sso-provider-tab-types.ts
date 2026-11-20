@@ -16,6 +16,7 @@ import type {
   GetIdpConfigurationResponseContent,
   ThirdPartyAccessMessages,
   CrossAppAccessMessages,
+  IdpStrategy,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
@@ -81,6 +82,8 @@ export interface SsoProviderTabProps
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
@@ -118,6 +121,8 @@ export interface SsoProviderDetailsProps
   isCrossAppAccessReadOnly?: boolean;
   isOrganizationBlocked?: boolean;
   connectionNamePrefix?: string;
+  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
+  showSignRequest?: boolean;
   /**
    * Optional resolver for SAML Service Provider metadata.
    *
@@ -146,7 +151,7 @@ interface CrossAppAccessSectionBaseProps {
 }
 
 type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
-  strategy?: 'oidc' | 'okta';
+  strategy?: Exclude<IdpStrategy, 'samlp'>;
 };
 
 type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {

@@ -111,6 +111,7 @@ function DomainTableView({
     isDomainsStale,
     domainsUpdatedAt,
     isLoadingProviders,
+    isSavingProvider,
     isDeleting,
     pagination,
     showCreateModal,
@@ -126,7 +127,8 @@ function DomainTableView({
     handleCreate,
     handleVerify,
     handleDelete,
-    handleToggleSwitch,
+    handleAssignProvider,
+    handleRemoveProvider,
     handleCloseVerifyModal,
     handleCreateClick,
     handleConfigureClick,
@@ -227,6 +229,7 @@ function DomainTableView({
       <DataTable
         columns={columns}
         data={domains}
+        getRowId={(domain) => domain.id ?? domain.domain}
         loading={isFetching}
         emptyState={{ title: t('domain_table.table.empty_message') }}
         className={currentStyles.classes?.['DomainTable-table']}
@@ -269,10 +272,11 @@ function DomainTableView({
         providers={providers}
         isOpen={showConfigureModal}
         isLoading={isLoadingProviders}
-        isLoadingSwitch={false}
+        isSaving={isSavingProvider}
         permissions={permissions}
         onClose={() => setShowConfigureModal(false)}
-        onToggleSwitch={handleToggleSwitch}
+        onAssign={handleAssignProvider}
+        onRemove={handleRemoveProvider}
         onOpenProvider={onOpenProvider}
         onCreateProvider={onCreateProvider}
         customMessages={customMessages?.configure}

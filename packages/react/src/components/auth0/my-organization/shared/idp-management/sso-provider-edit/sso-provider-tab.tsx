@@ -62,11 +62,13 @@ export function SsoProviderTab({
   onAttributeSync,
   isSyncingAttributes = false,
   showThirdPartyAccess = false,
+  isThirdPartyAccessReadOnly = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
   connectionNamePrefix,
   resolveSamlMetadata,
+  showSignRequest,
 }: SsoProviderTabProps) {
   const { t } = useTranslator('idp_management.edit_sso_provider.tabs.sso', customMessages);
 
@@ -110,21 +112,23 @@ export function SsoProviderTab({
               styling={styling}
               idpConfig={idpConfig}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
               connectionNamePrefix={connectionNamePrefix}
               resolveSamlMetadata={resolveSamlMetadata}
+              showSignRequest={showSignRequest}
             />
           )}
         </CardContent>
       </Card>
 
       <div className="space-y-4">
-        {provider && organization && !hideRemoveFromOrganization && (
+        {provider && organization?.name && !hideRemoveFromOrganization && (
           <SsoProviderRemoveFromOrganization
             provider={provider}
-            organizationName={organization?.name}
+            organizationName={organization.name}
             onRemove={onRemove}
             isLoading={isRemoving}
             readOnly={!permissions.canDetachProvider}

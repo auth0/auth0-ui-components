@@ -1,4 +1,4 @@
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -30,13 +30,16 @@ describe('SamlpProviderForm', () => {
 
       it('should preserve initial binding method value with full URN format', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -60,13 +63,16 @@ describe('SamlpProviderForm', () => {
 
       it('should mirror an initial HTTP-Redirect bindingMethod into protocolBinding', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -78,13 +84,16 @@ describe('SamlpProviderForm', () => {
 
       it('should mirror an initial HTTP-POST bindingMethod into protocolBinding', async () => {
         const formRef = React.createRef<SamlpConfigureFormHandle>();
-        const initialData = {
-          bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-          metadataUrl: 'https://example.com/metadata',
-        };
 
         renderWithProviders(
-          <SamlpProviderForm ref={formRef} idpConfig={null} initialData={initialData} />,
+          <SamlpProviderForm
+            ref={formRef}
+            idpConfig={null}
+            initialData={{
+              bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+              metadataUrl: 'https://example.com/metadata',
+            }}
+          />,
         );
 
         await waitFor(() => {
@@ -140,6 +149,129 @@ describe('SamlpProviderForm', () => {
     });
   });
 
+  describe('sign request certificate link', () => {
+    it('should render the download-certificate link as an absolute URL built from the tenant domain', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://test-domain.auth0.com/pem?cert=connection');
+    });
+
+    it('should use the configured tenant domain for the certificate link', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} />, {
+        authDetails: { domain: 'example.auth0.com' },
+      });
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      const link = screen.getByRole('link', {
+        name: 'fields.samlp.advanced_settings.sign_request.helper_text_metadata_url',
+      });
+      expect(link).toHaveAttribute('href', 'https://example.auth0.com/pem?cert=connection');
+    });
+  });
+
+  describe('showSignRequest', () => {
+    const signedInitialData = {
+      signSAMLRequest: true,
+      signatureAlgorithm: 'rsa-sha1',
+      digestAlgorithm: 'sha1',
+    } as const;
+
+    it('should show the sign request checkbox and algorithm fields by default', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SamlpProviderForm idpConfig={null} initialData={signedInitialData} />);
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      expect(screen.getByRole('checkbox')).toBeChecked();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.sign_request_algorithm.label'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.sign_request_algorithm_digest.label'),
+      ).toBeInTheDocument();
+    });
+
+    it('should hide the sign request checkbox and algorithm fields but keep request binding when false', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SamlpProviderForm
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      await user.click(
+        screen.getByRole('button', { name: 'fields.samlp.advanced_settings.title' }),
+      );
+
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request_algorithm.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText('fields.samlp.advanced_settings.sign_request_algorithm_digest.label'),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText('fields.samlp.advanced_settings.request_protocol_binding.label'),
+      ).toBeInTheDocument();
+    });
+
+    it('should preserve signSAMLRequest and algorithms in getData when hidden', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+      renderWithProviders(
+        <SamlpProviderForm
+          ref={formRef}
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      await waitFor(() => {
+        const data = formRef.current?.getData();
+        expect(data?.signSAMLRequest).toBe(true);
+        expect(data?.signatureAlgorithm).toBe('rsa-sha1');
+        expect(data?.digestAlgorithm).toBe('sha1');
+      });
+    });
+
+    it('should preserve signSAMLRequest after reset when hidden', async () => {
+      const formRef = React.createRef<SamlpConfigureFormHandle>();
+      renderWithProviders(
+        <SamlpProviderForm
+          ref={formRef}
+          idpConfig={null}
+          initialData={signedInitialData}
+          showSignRequest={false}
+        />,
+      );
+
+      act(() => formRef.current?.reset());
+
+      await waitFor(() => {
+        expect(formRef.current?.getData().signSAMLRequest).toBe(true);
+      });
+    });
+  });
+
   describe('form dirty state', () => {
     it('should call onFormDirty when form becomes dirty', async () => {
       const user = userEvent.setup();
@@ -154,79 +286,6 @@ describe('SamlpProviderForm', () => {
       await waitFor(() => {
         expect(onFormDirty).toHaveBeenLastCalledWith(true);
       });
-    });
-  });
-
-  describe('third party access section', () => {
-    it('should not render ThirdPartyAccessSection when showThirdPartyAccess is false', () => {
-      renderWithProviders(<SamlpProviderForm idpConfig={null} showThirdPartyAccess={false} />);
-
-      expect(screen.queryByText('title')).not.toBeInTheDocument();
-    });
-
-    it('should not render ThirdPartyAccessSection when showThirdPartyAccess is undefined', () => {
-      renderWithProviders(<SamlpProviderForm idpConfig={null} />);
-
-      expect(screen.queryByRole('heading', { name: 'title' })).not.toBeInTheDocument();
-    });
-
-    it('should render ThirdPartyAccessSection when showThirdPartyAccess is true', () => {
-      renderWithProviders(<SamlpProviderForm idpConfig={null} showThirdPartyAccess={true} />);
-
-      expect(screen.getByText('title')).toBeInTheDocument();
-      expect(screen.getByText('label')).toBeInTheDocument();
-      expect(screen.getByText('helper_text')).toBeInTheDocument();
-    });
-
-    it('should include use_for_third_party_client_access in form data when toggled', async () => {
-      const user = userEvent.setup();
-      const formRef = React.createRef<SamlpConfigureFormHandle>();
-
-      renderWithProviders(
-        <SamlpProviderForm ref={formRef} idpConfig={null} showThirdPartyAccess={true} />,
-      );
-
-      const checkbox = screen.getByRole('checkbox', { name: 'label' });
-      await user.click(checkbox);
-
-      await waitFor(() => {
-        const data = formRef.current?.getData();
-        expect(data?.use_for_third_party_client_access).toBe(true);
-      });
-    });
-
-    it('should initialize use_for_third_party_client_access from initialData', async () => {
-      const formRef = React.createRef<SamlpConfigureFormHandle>();
-      const initialData = {
-        metadataUrl: 'https://example.com/metadata',
-        use_for_third_party_client_access: true,
-      };
-
-      renderWithProviders(
-        <SamlpProviderForm
-          ref={formRef}
-          idpConfig={null}
-          showThirdPartyAccess={true}
-          initialData={initialData}
-        />,
-      );
-
-      await waitFor(() => {
-        const data = formRef.current?.getData();
-        expect(data?.use_for_third_party_client_access).toBe(true);
-      });
-
-      const checkbox = screen.getByRole('checkbox', { name: 'label' });
-      expect(checkbox).toBeChecked();
-    });
-
-    it('should disable ThirdPartyAccessSection checkbox when readOnly is true', () => {
-      renderWithProviders(
-        <SamlpProviderForm idpConfig={null} showThirdPartyAccess={true} readOnly={true} />,
-      );
-
-      const checkbox = screen.getByRole('checkbox', { name: 'label' });
-      expect(checkbox).toBeDisabled();
     });
   });
 
@@ -305,15 +364,13 @@ describe('SamlpProviderForm', () => {
     });
 
     it('should derive URLs from connectionName in the edit flow (initialData present)', () => {
-      const initialData = {
-        metadataUrl: 'https://idp.example.com/metadata',
-        bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-      };
-
       renderWithProviders(
         <SamlpProviderForm
           idpConfig={null}
-          initialData={initialData}
+          initialData={{
+            metadataUrl: 'https://idp.example.com/metadata',
+            bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+          }}
           connectionName="existing-conn"
         />,
       );

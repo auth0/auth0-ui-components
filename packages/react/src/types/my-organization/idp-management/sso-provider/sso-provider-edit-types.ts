@@ -81,6 +81,7 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
+  hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
   hideAttributeMappings?: boolean;
@@ -91,6 +92,7 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
+  showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
@@ -187,12 +189,14 @@ export interface SsoProviderEditViewProps
       | 'domains'
       | 'hideHeader'
       | 'hideProvisioningTab'
+      | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
       | 'hideAttributeMappings'
       | 'enableProviderAction'
       | 'connectionNamePrefix'
       | 'resolveSamlMetadata'
+      | 'showSignRequest'
     > {
   showProvisioningTab: boolean;
 }
