@@ -65,6 +65,7 @@ export function SsoProviderTab({
   onAttributeSync,
   isSyncingAttributes = false,
   showThirdPartyAccess = false,
+  isThirdPartyAccessReadOnly = false,
   showCrossAppAccess = false,
   isCrossAppAccessReadOnly = false,
   isOrganizationBlocked = false,
@@ -114,6 +115,7 @@ export function SsoProviderTab({
               styling={styling}
               idpConfig={idpConfig}
               showThirdPartyAccess={showThirdPartyAccess}
+              isThirdPartyAccessReadOnly={isThirdPartyAccessReadOnly}
               showCrossAppAccess={showCrossAppAccess}
               isCrossAppAccessReadOnly={isCrossAppAccessReadOnly}
               isOrganizationBlocked={isOrganizationBlocked}
