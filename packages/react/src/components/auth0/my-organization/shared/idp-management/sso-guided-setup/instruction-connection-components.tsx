@@ -69,6 +69,7 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
       userAttributeMap={mappings}
       strategy={strategy}
       isProvisioning={kind === 'provisioning'}
+      hideExternalNamespace={kind === 'provisioning' && strategy === 'okta'}
     />
   );
 }

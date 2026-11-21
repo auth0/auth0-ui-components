@@ -1007,6 +1007,100 @@ describe('SsoProviderEdit', () => {
     });
   });
 
+  describe('provisioning guided setup', () => {
+    const turnProvisioningOn = () => {
+      const { provisioning } = mockCoreClient.getMyOrganizationApiClient().organization
+        .identityProviders as unknown as { provisioning: { get: ReturnType<typeof vi.fn> } };
+      provisioning.get = vi.fn().mockResolvedValue({
+        strategy: 'samlp',
+        user_id_attribute: 'externalId',
+        attributes: [],
+      });
+    };
+
+    const openGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
+      await waitForComponentToLoad();
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+      await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+      await waitFor(() =>
+        expect(document.getElementById('sso-guided-setup-page-title')).toHaveTextContent(
+          'Configure Provisioning',
+        ),
+      );
+    };
+
+    it('is not offered unless enabled', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+      await waitFor(() =>
+        expect(screen.getByRole('switch', { checked: true })).toBeInTheDocument(),
+      );
+      expect(
+        screen.queryByRole('button', { name: /guided_setup_button_label/ }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('replaces the tabs with the provisioning instructions', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit
+          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
+        />,
+      );
+
+      await openGuidedSetup(user);
+
+      expect(screen.getByRole('heading', { name: 'provisioning_setup.title' })).toBeInTheDocument();
+      expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(/\/scim\/v2\/connections\/con_abc123xyz456\/$/),
+      ).toBeInTheDocument();
+    });
+
+    it('returns to the Provisioning tab on Done', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit
+          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
+        />,
+      );
+      await openGuidedSetup(user);
+
+      await user.click(screen.getByRole('button', { name: /^done$/ }));
+
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+
+    it('returns to the Provisioning tab with the back button', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit
+          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
+        />,
+      );
+      await openGuidedSetup(user);
+
+      await user.click(screen.getByRole('button', { name: /provisioning_setup.back_button_text/ }));
+
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      expect(document.getElementById('sso-guided-setup-page-title')).toBeNull();
+    });
+  });
+
   describe('provisioning action props', () => {
     describe('when provisioning.createAction is provided', () => {
       it('should render with custom create provisioning action', async () => {

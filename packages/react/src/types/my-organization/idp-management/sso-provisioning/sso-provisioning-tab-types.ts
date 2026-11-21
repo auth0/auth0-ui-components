@@ -35,11 +35,20 @@ export interface SsoProvisioningTabEditProps {
     CreateIdpProvisioningScimTokenResponseContent
   >;
   deleteScimTokenAction?: ComponentAction<IdpKnownResponse, void>;
+  guidedSetup?: SsoProvisioningGuidedSetup;
+}
+
+/** Guided provisioning setup options for `SsoProviderEdit`. */
+export interface SsoProvisioningGuidedSetup {
+  enabled?: boolean;
 }
 
 /** CSS classes for SsoProvisioningTab. */
-export interface SsoProvisioningTabClasses extends SsoProvisioningGoogleSyncPanelClasses {
+export interface SsoProvisioningTabClasses
+  extends ProvisioningManageTokenClasses,
+    SsoProvisioningGoogleSyncPanelClasses {
   'SsoProvisioningTab-root'?: string;
+  'SsoProvisioningTab-guidedSetupButton'?: string;
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioning-attributeMapping'?: string;
   'SsoProvisioningDetails-formActions'?: string;
@@ -68,6 +77,7 @@ export interface SsoProvisioningTabProps
   hasProvisioningAttributeSyncWarning?: boolean;
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
+  onStartGuidedSetup?: () => void;
 }
 
 export interface SsoProvisioningTabSchemas {}

@@ -6,6 +6,7 @@
 
 import type { SharedMessages } from '../../../shared/shared-types';
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
+import type { SsoProvisioningSetupMessages } from '../sso-guided-setup/sso-guided-setup-types';
 import type { GoogleWorkspaceProvisioningNotificationMessages } from '../sso-provisioning/google-workspace-provisioning-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
@@ -41,6 +42,7 @@ export interface SsoProviderEditMessages extends SharedMessages {
       content?: SsoDomainTabMessages;
     };
   };
+  provisioning_setup?: SsoProvisioningSetupMessages;
 }
 
 export interface SsoProviderTabMessages {
