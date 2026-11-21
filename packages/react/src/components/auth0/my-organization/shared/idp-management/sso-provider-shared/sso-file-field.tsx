@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useFileContentField } from '@/hooks/my-organization/use-file-content-field';
+import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 
 export interface SsoFileFieldProps {

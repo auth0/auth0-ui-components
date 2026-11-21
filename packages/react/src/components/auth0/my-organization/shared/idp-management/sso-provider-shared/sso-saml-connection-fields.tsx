@@ -4,22 +4,14 @@
  * @internal
  */
 
+import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
-import {
-  SsoConnectionSourceSelector,
-  type ConnectionSourceSelectorVariant,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
+import { SsoConnectionSourceSelector } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
 import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
 import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
-
-export interface SsoSamlConnectionFieldsProps {
-  readOnly?: boolean;
-  /** How the source is chosen: a radio group (advanced flow) or tabs (guided setup). */
-  sourceSelector?: ConnectionSourceSelectorVariant;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoSamlConnectionFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Lets the administrator connect the SAML identity provider either by metadata URL or manually
@@ -36,7 +28,7 @@ export function SsoSamlConnectionFields({
   sourceSelector = 'radio',
   customMessages = {},
 }: SsoSamlConnectionFieldsProps) {
-  const { watch } = useFormContext();
+  const { watch } = useFormContext<SamlpConfigureFormValues>();
   const isManual = watch('meta_data_source') === 'meta_data_file';
 
   return (
