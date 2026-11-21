@@ -6,7 +6,7 @@
 
 import {
   hasApiErrorBody,
-  idpConfigQueryKeys,
+  idpInstructionsQueryKeys,
   type IdpInstructionsLocale,
   type IdpInstructionsResponse,
   type IdpProvisioningInstructionsResponse,
@@ -60,8 +60,8 @@ export function useIdpInstructionsService<TKind extends InstructionsKind>({
   const query = useQuery<InstructionsResponseFor<TKind> | null>({
     queryKey:
       kind === 'creation'
-        ? idpConfigQueryKeys.instructions(strategy!, locale)
-        : idpConfigQueryKeys.provisioningInstructions(strategy!, locale),
+        ? idpInstructionsQueryKeys.creation(strategy!, locale)
+        : idpInstructionsQueryKeys.provisioning(strategy!, locale),
     queryFn: async () => {
       const configuration = coreClient!.getMyOrganizationApiClient().organization.configuration;
       try {
