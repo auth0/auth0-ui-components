@@ -23,6 +23,8 @@ import type {
   CreateIdentityProviderRequestContentPrivate,
   GetIdpConfigurationResponseContent,
   SamlpConfigureFormValues,
+  AdfsConfigureFormValues,
+  PingFederateConfigureFormValues,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -88,7 +90,6 @@ export interface ProviderConfigureProps
   idpConfig: GetIdpConfigurationResponseContent | null;
   connectionName?: string;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
@@ -96,13 +97,6 @@ export interface ProviderConfigureProps
   isCrossAppAccessReadOnly?: boolean;
   crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
@@ -120,25 +114,30 @@ export interface ProviderConfigureFieldsProps
   isLoginSettingsReadOnly?: boolean;
   /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
+  /** Connection source selector for SAML and ADFS forms: radio group (default) or tabs. */
+  connectionSourceSelector?: 'radio' | 'tabs';
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
   crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
+  /** Optional resolver for SAML Service Provider metadata. */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 
 export type SamlpConfigureFormHandle = StrategyConfigureFormHandle<SamlpConfigureFormValues>;
 
 export type SamlpConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type AdfsConfigureFormHandle = StrategyConfigureFormHandle<AdfsConfigureFormValues>;
+
+export type AdfsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type PingFederateConfigureFormHandle =
+  StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
+
+export type PingFederateConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 /** Cross App Access status of a connection. */
 export type CrossAppAccessStatus = 'enabled' | 'disabled';
@@ -198,15 +197,7 @@ export interface SsoProviderCreateProps
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
 

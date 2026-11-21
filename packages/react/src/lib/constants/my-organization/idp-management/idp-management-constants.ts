@@ -37,22 +37,19 @@ const SAML_BINDING_METHOD_OPTIONS = PROTOCOL_BINDINGS.map((value) => ({
 
 export const SAML_SIGNATURE_ALGORITHM_FIELD = {
   name: 'signatureAlgorithm',
-  labelKey: 'fields.samlp.advanced_settings.sign_request_algorithm.label',
-  placeholderKey: 'fields.samlp.advanced_settings.sign_request_algorithm.placeholder',
+  messageKey: 'sign_request_algorithm',
   options: SAML_SIGNATURE_ALGORITHM_OPTIONS,
 } satisfies SamlSelectFieldConfig;
 
 export const SAML_DIGEST_ALGORITHM_FIELD = {
   name: 'digestAlgorithm',
-  labelKey: 'fields.samlp.advanced_settings.sign_request_algorithm_digest.label',
-  placeholderKey: 'fields.samlp.advanced_settings.sign_request_algorithm_digest.placeholder',
+  messageKey: 'sign_request_algorithm_digest',
   options: SAML_DIGEST_ALGORITHM_OPTIONS,
 } satisfies SamlSelectFieldConfig;
 
 export const SAML_BINDING_METHOD_FIELD = {
   name: 'bindingMethod',
-  labelKey: 'fields.samlp.advanced_settings.request_protocol_binding.label',
-  placeholderKey: 'fields.samlp.advanced_settings.request_protocol_binding.placeholder',
+  messageKey: 'request_protocol_binding',
   options: SAML_BINDING_METHOD_OPTIONS,
 } satisfies SamlSelectFieldConfig;
 
@@ -61,6 +58,10 @@ export const SAML_CONNECTION_SOURCES = ['meta_data_url', 'meta_data_file'] as co
 export const SAML_CONNECTION_SOURCE_TAB_LABEL_KEYS = {
   meta_data_url: 'fields.common.connection_method.automatic',
   meta_data_file: 'fields.common.connection_method.manual',
+} as const;
+
+export const PING_FEDERATE_HELP_LINKS = {
+  sign_request: 'domain/pem?cert=connection',
 } as const;
 
 export const CONFIGURE_ORG_DOMAINS_DOCS_URL =
