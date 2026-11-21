@@ -1114,6 +1114,50 @@
       "test_provider_start_error": "Un problème est survenu lors du démarrage du test du fournisseur."
     },
     "sso_guided_setup": {
+      "stepper_label": "Étapes de configuration",
+      "next": "Suivant",
+      "create_provider": "Créer le fournisseur",
+      "done": "Terminé",
+      "unavailable": "La configuration guidée n'est pas disponible pour ce fournisseur. Utilisez plutôt le formulaire.",
+      "load_error": "Impossible de charger les instructions de configuration. Réessayez plus tard ou utilisez plutôt le formulaire.",
+      "loading": "Chargement des instructions de configuration",
+      "company_fallback": "votre organisation",
+      "create_modal": {
+        "title": "Avant de créer le fournisseur, veuillez noter :",
+        "description": "La création de ce fournisseur activera l'accès SSO à ${companyName}. Pour des raisons de sécurité, attribuez les accès et testez le fournisseur dès qu'il est actif.",
+        "cancel": "Annuler",
+        "proceed": "Continuer"
+      },
+      "copy_values": {
+        "callback_url": {
+          "label": "URL de rappel"
+        },
+        "sso_url": {
+          "label": "URL d’authentification unique"
+        },
+        "service_provider_entity_id": {
+          "label": "ID d’entité du fournisseur de services"
+        },
+        "adfs_ws_federation_url": {
+          "label": "URL du protocole passif WS-Federation de la partie de confiance"
+        },
+        "adfs_relying_party_identifier": {
+          "label": "Identifiant d’approbation de la partie de confiance"
+        },
+        "google_javascript_origin": {
+          "label": "URI des origines JavaScript autorisées"
+        },
+        "google_redirect_uri": {
+          "label": "URI de redirection autorisé"
+        },
+        "pingfederate_partner_entity_id": {
+          "label": "ID d’entité du partenaire"
+        },
+        "pingfederate_endpoint_url": {
+          "label": "URL du point de terminaison"
+        }
+      },
+      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
       "instruction_tabs_label": "Options de configuration"
     }
   },

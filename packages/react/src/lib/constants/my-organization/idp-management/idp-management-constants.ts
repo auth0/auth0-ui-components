@@ -10,6 +10,10 @@ import {
   SIGNATURE_ALGORITHMS,
 } from '@auth0/universal-components-core';
 
+import type {
+  CopyValueDefinition,
+  InstructionsPageItem,
+} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 import type { SamlSelectFieldConfig } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 export const SSO_PROVIDER_EDIT_TAB_GRID_COLUMNS: Record<number, string> = {
@@ -71,6 +75,51 @@ export const OKTA_HELP_LINKS = {
 } as const;
 
 export const OIDC_CHANNELS = ['back_channel', 'front_channel'] as const;
+
+export const COPY_VALUE_CONTENT_TYPES: Record<string, CopyValueDefinition> = {
+  callback_url_component: { value: 'callbackUrl', messageKey: 'callback_url' },
+  sso_url_component: { value: 'samlSsoUrl', messageKey: 'sso_url' },
+  service_provider_entity_id_component: {
+    value: 'serviceProviderEntityId',
+    messageKey: 'service_provider_entity_id',
+  },
+  adfs_relying_party_ws_federation_passive_protocol_url_component: {
+    value: 'adfsWsFederationUrl',
+    messageKey: 'adfs_ws_federation_url',
+  },
+  adfs_relying_party_trust_identifier_component: {
+    value: 'adfsRelyingPartyIdentifier',
+    messageKey: 'adfs_relying_party_identifier',
+  },
+  google_apps_authorized_javascript_origins_component: {
+    value: 'googleJavascriptOrigin',
+    messageKey: 'google_javascript_origin',
+  },
+  google_apps_authorized_redirect_uri_component: {
+    value: 'googleRedirectUri',
+    messageKey: 'google_redirect_uri',
+  },
+  pingfederate_partners_entity_id_component: {
+    value: 'pingFederatePartnerEntityId',
+    messageKey: 'pingfederate_partner_entity_id',
+  },
+  pingfederate_endpoint_url_component: {
+    value: 'pingFederateEndpointUrl',
+    messageKey: 'pingfederate_endpoint_url',
+  },
+};
+
+export const CONFIGURE_CONNECTION_CONTENT_TYPES = [
+  'okta_configure_connection_component',
+  'oidc_configure_connection_component',
+  'samlp_configure_connection_component',
+  'adfs_configure_connection_component',
+  'waad_configure_connection_component',
+  'google_apps_configure_connection_component',
+  'pingfederate_configure_connection_component',
+] as const;
+
+export const EMPTY_INSTRUCTION_PAGES: InstructionsPageItem[] = [];
 
 export const CONFIGURE_ORG_DOMAINS_DOCS_URL =
   'https://auth0.com/docs/get-started/universal-components/web/components/configure-org-domains';

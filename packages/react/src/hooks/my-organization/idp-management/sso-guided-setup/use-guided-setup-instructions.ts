@@ -21,14 +21,14 @@ import type { UseGuidedSetupInstructionsResult } from '@/types/my-organization/i
  * @param kind - `creation` or `provisioning`.
  * @param strategy - IdP strategy.
  * @param enabled - Extra gate.
- * @returns The query result plus the `base_url` and the name for `{{companyName}}`.
+ * @returns The query result plus the `base_url` and the name for `{{companyName}}` (with fallback).
  */
 export function useGuidedSetupInstructions<TKind extends InstructionsKind>(
   kind: TKind,
   strategy: IdpStrategy | undefined,
   enabled = true,
 ): UseGuidedSetupInstructionsResult<TKind> {
-  const { currentLanguage } = useTranslator('idp_management.sso_guided_setup');
+  const { t, currentLanguage } = useTranslator('idp_management.sso_guided_setup');
   const result = useIdpInstructionsService({
     kind,
     strategy,
@@ -39,6 +39,6 @@ export function useGuidedSetupInstructions<TKind extends InstructionsKind>(
   return {
     ...result,
     baseUrl: result.instructions?.base_url,
-    companyName: getInstructionsCompanyName(result.instructions),
+    companyName: getInstructionsCompanyName(result.instructions) || t('company_fallback'),
   };
 }

@@ -82,3 +82,13 @@ export function warnUnknownInstructionType(type: string): void {
   warnedInstructionTypes.add(type);
   console.warn(`[SsoGuidedSetup] No renderer for instruction content type "${type}"; skipped.`);
 }
+
+/**
+ * Attribute mappings of a provider, for strategies whose response carries them.
+ * @param provider - Provider, if any.
+ * @returns The mappings, or an empty list.
+ */
+export function getProviderAttributes(provider: IdpKnownResponse | null): unknown[] {
+  if (!provider || !('attributes' in provider)) return [];
+  return Array.isArray(provider.attributes) ? provider.attributes : [];
+}

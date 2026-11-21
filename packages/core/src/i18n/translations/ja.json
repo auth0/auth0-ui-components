@@ -1168,6 +1168,50 @@
       "test_provider_start_error": "プロバイダーのテストの開始中に問題が発生しました。"
     },
     "sso_guided_setup": {
+      "stepper_label": "セットアップ手順",
+      "next": "次へ",
+      "create_provider": "プロバイダーを作成",
+      "done": "完了",
+      "unavailable": "このプロバイダーではガイド付きセットアップを利用できません。フォームを使用してください。",
+      "load_error": "セットアップ手順を読み込めませんでした。後でもう一度お試しいただくか、フォームを使用してください。",
+      "loading": "セットアップ手順を読み込み中",
+      "company_fallback": "組織",
+      "create_modal": {
+        "title": "プロバイダーを作成する前にご確認ください：",
+        "description": "このプロバイダーを作成すると、${companyName} への SSO アクセスが有効になります。セキュリティのため、プロバイダーが有効になったらできるだけ早くアクセスを割り当ててテストしてください。",
+        "cancel": "キャンセル",
+        "proceed": "続行"
+      },
+      "copy_values": {
+        "callback_url": {
+          "label": "コールバック URL"
+        },
+        "sso_url": {
+          "label": "シングルサインオン URL"
+        },
+        "service_provider_entity_id": {
+          "label": "サービスプロバイダーのエンティティ ID"
+        },
+        "adfs_ws_federation_url": {
+          "label": "証明書利用者 WS-Federation パッシブプロトコル URL"
+        },
+        "adfs_relying_party_identifier": {
+          "label": "証明書利用者信頼の識別子"
+        },
+        "google_javascript_origin": {
+          "label": "承認済みの JavaScript 生成元 URI"
+        },
+        "google_redirect_uri": {
+          "label": "承認済みのリダイレクト URI"
+        },
+        "pingfederate_partner_entity_id": {
+          "label": "パートナーのエンティティ ID"
+        },
+        "pingfederate_endpoint_url": {
+          "label": "エンドポイント URL"
+        }
+      },
+      "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",
       "instruction_tabs_label": "セットアップオプション"
     }
   },

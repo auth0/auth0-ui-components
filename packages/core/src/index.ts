@@ -42,6 +42,7 @@ export * from './i18n/custom-messages/my-organization/idp-management/sso-provisi
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-create-types';
+export * from './i18n/custom-messages/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-delete-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 export * from './i18n/custom-messages/my-organization/idp-management/sso-provider/sso-provider-table-types';
