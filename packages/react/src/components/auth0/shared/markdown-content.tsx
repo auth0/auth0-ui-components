@@ -23,13 +23,9 @@ import { cn } from '@/lib/utils';
 export type MarkdownContentVariant = 'default' | 'notice';
 
 export interface MarkdownContentProps {
-  /** Markdown text from the API. */
   text: string;
-  /** Payload `base_url`; relative image paths are resolved against it. */
   baseUrl?: string;
-  /** Placeholder values, e.g. `{ companyName }` for `{{companyName}}`. */
   values?: Record<string, string | undefined>;
-  /** `notice` renders the text inside an info callout. */
   variant?: MarkdownContentVariant;
   className?: string;
 }
@@ -89,7 +85,6 @@ const instructionComponents: Components = {
 
 /**
  * Renders instruction markdown with the guided-setup typography.
- * Raw HTML is dropped; image URLs must resolve to https under `baseUrl` or they are not rendered.
  * @param props - Component props.
  * @param props.text - Markdown text.
  * @param props.baseUrl - Base for relative image paths.
