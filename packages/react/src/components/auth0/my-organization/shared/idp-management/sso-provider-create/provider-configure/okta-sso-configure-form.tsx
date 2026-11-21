@@ -20,22 +20,14 @@ import { Form } from '@/components/ui/form';
 import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { OKTA_HELP_LINKS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
-
-const OKTA_HELP_LINKS = {
-  domain: 'https://developer.okta.com/docs/guides/find-your-domain/main/',
-  client_id: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
-  client_secret: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
-} as const;
+import type {
+  OktaConfigureFormHandle,
+  OktaConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('okta');
-
-export type OktaConfigureFormHandle = StrategyConfigureFormHandle<OktaConfigureFormValues>;
-
-type OktaConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaConfigureFormProps>(
   function OktaProviderForm(
@@ -65,7 +57,7 @@ export const OktaProviderForm = React.forwardRef<OktaConfigureFormHandle, OktaCo
 
     const form = useStrategyConfigureForm(ref, {
       schema,
-      mode: readOnly ? undefined : FORM_VALIDATION_MODE,
+      readOnly,
       onFormDirty,
       defaultValues: {
         domain: oktaData?.domain || '',

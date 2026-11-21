@@ -17,14 +17,7 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoIdpDomainFieldProps {
-  name: string;
-  messageKey: string;
-  helpUrl?: string;
-  readOnly?: boolean;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoIdpDomainFieldProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Domain of the administrator's identity provider tenant.

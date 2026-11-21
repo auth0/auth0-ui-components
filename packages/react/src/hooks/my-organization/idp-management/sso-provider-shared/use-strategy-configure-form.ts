@@ -15,28 +15,31 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
- * Creates a strategy configure form: validation by the strategy's zod schema, validation modes, dirty
- * reporting, and the imperative handle (`validate`, `getData`, `isDirty`, `reset`).
- * @param ref - Ref forwarded to the form component.
+ * Creates a strategy configure form with an imperative handle.
+ * @param ref - Forwarded ref.
  * @param options - Form options.
- * @param options.schema - Strategy configure schema that validates the form and types its values.
+ * @param options.schema - Validation schema.
  * @param options.defaultValues - Initial values.
- * @param options.mode - Validation mode. Pass `undefined` for react-hook-form's default.
- * @param options.onFormDirty - Called when the dirty state changes.
+ * @param options.readOnly - Validate on submit only.
+ * @param options.onFormDirty - Dirty state callback.
  * @param options.getData - Custom `getData`.
  * @param options.reset - Custom `reset`.
- * @returns The react-hook-form instance.
+ * @returns The form.
  */
 export function useStrategyConfigureForm<TSchema extends z.ZodTypeAny>(
   ref: React.ForwardedRef<StrategyConfigureFormHandle<z.infer<TSchema>>>,
-  options: UseStrategyConfigureFormOptions<TSchema>,
+  {
+    schema,
+    defaultValues,
+    readOnly = false,
+    onFormDirty,
+    getData,
+    reset,
+  }: UseStrategyConfigureFormOptions<TSchema>,
 ): UseFormReturn<z.infer<TSchema>> {
-  const { schema, defaultValues, onFormDirty, getData, reset } = options;
-  const mode = 'mode' in options ? options.mode : FORM_VALIDATION_MODE;
-
   const form = useForm<z.infer<TSchema>>({
     resolver: zodResolver(schema),
-    mode,
+    mode: readOnly ? 'onSubmit' : FORM_VALIDATION_MODE,
     reValidateMode: FORM_REVALIDATE_MODE,
     defaultValues,
   });
@@ -66,10 +69,10 @@ export function useStrategyConfigureForm<TSchema extends z.ZodTypeAny>(
 }
 
 /**
- * Parses values with the strategy schema, falling back to the raw values when parsing fails.
- * @param schema - Strategy configure schema.
+ * Parses values with the schema, or returns them unchanged when invalid.
+ * @param schema - Validation schema.
  * @param values - Values to parse.
- * @returns Parsed values, or the input when invalid.
+ * @returns The parsed or original values.
  */
 export function parseStrategyConfigureValues<TSchema extends z.ZodTypeAny>(
   schema: TSchema,

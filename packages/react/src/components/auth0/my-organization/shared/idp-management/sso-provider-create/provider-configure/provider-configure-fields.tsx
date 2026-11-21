@@ -8,27 +8,19 @@ import { STRATEGIES } from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { AdfsProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form';
-import {
-  GoogleAppsProviderForm,
-  type GoogleAppsConfigureFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form';
-import {
-  OidcProviderForm,
-  type OidcConfigureFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form';
-import {
-  OktaProviderForm,
-  type OktaConfigureFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form';
+import { GoogleAppsProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/google-apps-sso-configure-form';
+import { OidcProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form';
+import { OktaProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/okta-sso-configure-form';
 import { PingFederateProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form';
 import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
-import {
-  WaadProviderForm,
-  type WaadConfigureFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form';
+import { WaadProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form';
 import { cn } from '@/lib/utils';
 import type {
   AdfsConfigureFormHandle,
+  GoogleAppsConfigureFormHandle,
+  OidcConfigureFormHandle,
+  OktaConfigureFormHandle,
+  WaadConfigureFormHandle,
   PingFederateConfigureFormHandle,
   ProviderConfigureFieldsProps,
   SamlpConfigureFormHandle,
