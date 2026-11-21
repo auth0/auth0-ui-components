@@ -61,59 +61,6 @@ function CodeBlock({ children, ...props }: React.ComponentProps<'pre'>) {
 }
 
 const instructionComponents: Components = {
-  h1: ({ node: _node, children, ...props }) => (
-    <h3 className="text-foreground mb-2 text-base font-semibold" {...props}>
-      {children}
-    </h3>
-  ),
-  h2: ({ node: _node, children, ...props }) => (
-    <h4 className="text-foreground mb-2 text-sm font-semibold" {...props}>
-      {children}
-    </h4>
-  ),
-  h3: ({ node: _node, children, ...props }) => (
-    <h5 className="text-foreground mb-2 text-sm font-medium" {...props}>
-      {children}
-    </h5>
-  ),
-  p: ({ node: _node, children, ...props }) => (
-    <p className="text-muted-foreground mb-4 text-sm leading-5 last:mb-0" {...props}>
-      {children}
-    </p>
-  ),
-  strong: ({ node: _node, children, ...props }) => (
-    <strong className="text-foreground font-medium" {...props}>
-      {children}
-    </strong>
-  ),
-  ul: ({ node: _node, ordered: _ordered, depth: _depth, children, ...props }) => (
-    <ul
-      className="text-muted-foreground mb-4 list-outside list-disc space-y-1 pl-5 text-sm last:mb-0"
-      {...props}
-    >
-      {children}
-    </ul>
-  ),
-  ol: ({ node: _node, ordered: _ordered, depth: _depth, children, ...props }) => (
-    <ol
-      className="text-muted-foreground mb-4 list-outside list-decimal space-y-1 pl-5 text-sm last:mb-0"
-      {...props}
-    >
-      {children}
-    </ol>
-  ),
-  li: ({
-    node: _node,
-    ordered: _ordered,
-    index: _index,
-    checked: _checked,
-    children,
-    ...props
-  }) => (
-    <li className="text-muted-foreground text-sm leading-5" {...props}>
-      {children}
-    </li>
-  ),
   a: ({ node: _node, href, children, ...props }) => {
     const external = isExternalUrl(href);
     return (
@@ -169,6 +116,7 @@ function MarkdownContent({
 
   const markdown = (
     <Markdown
+      variant="instruction"
       components={instructionComponents}
       transformImageUri={transformImageUri}
       skipHtml

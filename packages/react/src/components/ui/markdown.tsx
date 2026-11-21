@@ -20,9 +20,12 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
+export type MarkdownVariant = 'default' | 'instruction';
+
 export interface MarkdownProps {
   children: string;
   className?: string;
+  variant?: MarkdownVariant;
   components?: Components;
   transformImageUri?: Options['transformImageUri'];
   transformLinkUri?: Options['transformLinkUri'];
@@ -152,17 +155,71 @@ const defaultComponents: Components = {
   ),
 };
 
+type StyledTag = 'h3' | 'h4' | 'h5' | 'p' | 'strong' | 'ul' | 'ol' | 'li';
+type StyledComponent = React.FC<Record<string, unknown> & { children?: React.ReactNode }>;
+
+/**
+ * Builds an element override that renders `Tag` with fixed classes and drops the props
+ * react-markdown adds (`node`, `ordered`, ...) so they don't reach the DOM.
+ * @param Tag - Element to render.
+ * @param className - Classes for the element.
+ * @returns A react-markdown component override.
+ */
+function styled(Tag: StyledTag, className: string): StyledComponent {
+  function Styled({
+    node: _node,
+    ordered: _ordered,
+    depth: _depth,
+    index: _index,
+    checked: _checked,
+    children,
+    ...props
+  }: Record<string, unknown> & { children?: React.ReactNode }) {
+    return (
+      <Tag className={className} {...props}>
+        {children}
+      </Tag>
+    );
+  }
+  return Styled;
+}
+
+/** Compact, muted typography for setup instructions. Headings step down one level. */
+const instructionComponents = {
+  h1: styled('h3', 'text-foreground mb-2 text-base font-semibold'),
+  h2: styled('h4', 'text-foreground mb-2 text-sm font-semibold'),
+  h3: styled('h5', 'text-foreground mb-2 text-sm font-medium'),
+  p: styled('p', 'text-muted-foreground mb-4 text-sm leading-5 last:mb-0'),
+  strong: styled('strong', 'text-foreground font-medium'),
+  ul: styled(
+    'ul',
+    'text-muted-foreground mb-4 list-outside list-disc space-y-1 pl-5 text-sm last:mb-0',
+  ),
+  ol: styled(
+    'ol',
+    'text-muted-foreground mb-4 list-outside list-decimal space-y-1 pl-5 text-sm last:mb-0',
+  ),
+  li: styled('li', 'text-muted-foreground text-sm leading-5'),
+} as unknown as Components;
+
+const variantComponents: Record<MarkdownVariant, Components> = {
+  default: defaultComponents,
+  instruction: { ...defaultComponents, ...instructionComponents },
+};
+
 function Markdown({
   children,
   className,
+  variant = 'default',
   components,
   transformImageUri = uriTransformer,
   transformLinkUri,
   skipHtml,
 }: MarkdownProps) {
   const mergedComponents = React.useMemo(
-    () => (components ? { ...defaultComponents, ...components } : defaultComponents),
-    [components],
+    () =>
+      components ? { ...variantComponents[variant], ...components } : variantComponents[variant],
+    [variant, components],
   );
 
   return (
