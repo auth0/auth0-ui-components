@@ -7,12 +7,6 @@ import type {
   IdpStrategy,
 } from '@auth0/universal-components-core';
 
-/**
- * Instruction fixtures modelled on the page order in the RFC "Identity Provider
- * Creation Instructions" (697780235) and "Provisioning Instructions" (697781233).
- * Text is shortened; structure (page order, conditions, content types) matches.
- */
-
 const BASE_URL = 'https://acme.auth0.com/my-org/public/instructions';
 const TENANT = 'acme';
 const VERSION_INFO = { version: '1', lifecycle_status: 'latest' } as const;
