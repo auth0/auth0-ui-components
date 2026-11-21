@@ -9,8 +9,7 @@ import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-manageme
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Renders instruction markdown with `base_url` images and `{{companyName}}`; the `notice`
- * variant renders as a callout.
+ * Renders instruction markdown with `base_url` images and `{{companyName}}`
  * @param props - Component props.
  * @param props.content - Instruction content item.
  * @param props.setup - Guided setup state; picks the instructions to read.
