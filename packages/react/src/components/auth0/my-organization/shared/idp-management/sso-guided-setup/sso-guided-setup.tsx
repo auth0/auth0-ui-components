@@ -6,8 +6,6 @@
  */
 
 import {
-  getInstructionsCompanyName,
-  getInstructionsLocale,
   type IdpInstructionsPage,
   type IdpProvisioningInstructionsPage,
   STRATEGY_DISPLAY_NAMES,
@@ -21,7 +19,6 @@ import { MessageSquareWarning, X } from 'lucide-react';
 import * as React from 'react';
 
 import { InstructionsPage } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page';
-import { SsoGuidedSetupProvider } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
 import { SsoGuidedSetupCreateModal } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal';
 import { SsoStrategyIcon } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon';
 import { FormActions } from '@/components/auth0/shared/form-actions';
@@ -30,18 +27,18 @@ import { Alert, AlertAction, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
 import { useGuidedSetupFlow } from '@/hooks/my-organization/use-guided-setup-flow';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type {
   InstructionRenderers,
-  SsoGuidedSetupContextValue,
+  InstructionSetup,
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 export interface SsoGuidedSetupProps
   extends Pick<
-    SsoGuidedSetupContextValue,
+    InstructionSetup,
     | 'connectionName'
     | 'provider'
     | 'resolveSamlMetadata'
@@ -107,14 +104,14 @@ export function SsoGuidedSetup({
   customMessages = {},
   className,
 }: SsoGuidedSetupProps) {
-  const { t, currentLanguage } = useTranslator('idp_management.sso_guided_setup', customMessages);
+  const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
-  const { instructions, isLoading, error } = useIdpInstructionsService({
-    kind,
-    strategy,
-    locale: getInstructionsLocale(currentLanguage),
-    enabled,
-  });
+  const {
+    instructions,
+    isLoading,
+    error,
+    companyName: company,
+  } = useGuidedSetupInstructions(kind, strategy, enabled);
 
   const lifecycleStatus = instructions?.version_info?.lifecycle_status;
   const isDeprecated = lifecycleStatus === 'deprecated';
@@ -173,7 +170,6 @@ export function SsoGuidedSetup({
     }
   }, [advanceWhenCreated, provider, flow, leavePage]);
 
-  const company = getInstructionsCompanyName(instructions) || t('company_fallback');
   const isConnectionPage = currentPage?.exit_condition === 'connection_exists';
   const needsCreate = isConnectionPage && !provider;
   const isBlockedByMappings =
@@ -210,14 +206,11 @@ export function SsoGuidedSetup({
   if (needsCreate) primaryLabel = t('create_provider');
   else if (flow.isLastPage) primaryLabel = t('done');
 
-  const contextValue = React.useMemo<SsoGuidedSetupContextValue>(
+  const setup = React.useMemo<InstructionSetup>(
     () => ({
       kind,
       strategy,
-      baseUrl: instructions?.base_url,
-      tenant: instructions?.tenant,
       connectionName,
-      companyName: company,
       provider,
       resolveSamlMetadata,
       configure,
@@ -229,10 +222,7 @@ export function SsoGuidedSetup({
     [
       kind,
       strategy,
-      instructions?.base_url,
-      instructions?.tenant,
       connectionName,
-      company,
       provider,
       resolveSamlMetadata,
       configure,
@@ -316,13 +306,12 @@ export function SsoGuidedSetup({
               {currentPage.title}
             </h3>
 
-            <SsoGuidedSetupProvider value={contextValue}>
-              <InstructionsPage
-                page={currentPage}
-                renderers={renderers}
-                className={PAGE_DESCRIPTION_CLASSES}
-              />
-            </SsoGuidedSetupProvider>
+            <InstructionsPage
+              page={currentPage}
+              setup={setup}
+              renderers={renderers}
+              className={PAGE_DESCRIPTION_CLASSES}
+            />
           </div>
 
           <FormActions

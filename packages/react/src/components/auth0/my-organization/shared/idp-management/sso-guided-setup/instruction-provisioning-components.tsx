@@ -7,7 +7,6 @@
 
 import { buildScimEndpointUrl } from '@auth0/universal-components-core';
 
-import { useSsoGuidedSetupContext } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
 import { SCIM_NAMESPACE } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -21,10 +20,11 @@ import type {
  * The SCIM endpoint of the provider, to copy into the identity provider.
  * @param props - Component props.
  * @param props.content - Instruction content item.
+ * @param props.setup - Guided setup state; carries the provider.
  * @returns JSX element, or `null` without a provider.
  */
-export function InstructionScimEndpoint({ content }: InstructionContentProps) {
-  const { provider, customMessages } = useSsoGuidedSetupContext();
+export function InstructionScimEndpoint({ content, setup }: InstructionContentProps) {
+  const { provider, customMessages } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
   const { coreClient } = useCoreClient();
 
@@ -41,21 +41,23 @@ export function InstructionScimEndpoint({ content }: InstructionContentProps) {
 
 /**
  * Shows the bearer token manager the hosting page provides.
+ * @param props - Component props.
+ * @param props.setup - Guided setup state; carries the slots.
  * @returns The slot content, or `null`.
  */
-export function InstructionBearerToken() {
-  const { slots } = useSsoGuidedSetupContext();
-  return <>{slots?.bearerToken ?? null}</>;
+export function InstructionBearerToken({ setup }: InstructionContentProps) {
+  return <>{setup.slots?.bearerToken ?? null}</>;
 }
 
 /**
  * The SCIM schema namespace Okta asks for as the External namespace.
  * @param props - Component props.
  * @param props.content - Instruction content item.
+ * @param props.setup - Guided setup state.
  * @returns JSX element
  */
-export function InstructionOktaSchemaUrn({ content }: InstructionContentProps) {
-  const { customMessages } = useSsoGuidedSetupContext();
+export function InstructionOktaSchemaUrn({ content, setup }: InstructionContentProps) {
+  const { customMessages } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
   return (
