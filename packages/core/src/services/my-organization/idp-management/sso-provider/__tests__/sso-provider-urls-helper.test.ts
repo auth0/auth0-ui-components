@@ -11,11 +11,11 @@ import {
   buildServiceProviderValues,
   buildSignRequestCertUrl,
   getTenantFromDomain,
-} from '../sso-provider-urls';
+} from '../sso-provider-urls-helper';
 
 const DOMAIN = 'acme.us.auth0.com';
 
-describe('sso-provider-urls', () => {
+describe('sso-provider-urls-helper', () => {
   it('derives the tenant from the first domain label', () => {
     expect(getTenantFromDomain(DOMAIN)).toBe('acme');
     expect(getTenantFromDomain('')).toBe('');
@@ -67,6 +67,29 @@ describe('sso-provider-urls', () => {
     expect(buildScimEndpointUrl(DOMAIN, 'con_123')).toBe(
       'https://acme.us.auth0.com/scim/v2/connections/con_123/',
     );
+  });
+
+  describe('URL encoding', () => {
+    it('encodes the connection name in the SAML SSO and metadata queries', () => {
+      expect(buildSamlSsoUrl('acme.auth0.com', 'a b&c=d')).toBe(
+        'https://acme.auth0.com/login/callback?connection=a%20b%26c%3Dd',
+      );
+      expect(buildSamlMetadataUrl('acme.auth0.com', 'a b&c=d')).toBe(
+        'https://acme.auth0.com/samlp/metadata?connection=a%20b%26c%3Dd',
+      );
+    });
+
+    it('encodes the connection ID in the SCIM endpoint path', () => {
+      expect(buildScimEndpointUrl('acme.auth0.com', 'con/../x')).toBe(
+        'https://acme.auth0.com/scim/v2/connections/con%2F..%2Fx/',
+      );
+    });
+
+    it('leaves the entity ID URN unencoded', () => {
+      expect(buildServiceProviderEntityId('acme.auth0.com', 'my-saml')).toBe(
+        'urn:auth0:acme:my-saml',
+      );
+    });
   });
 
   describe('buildServiceProviderValues', () => {

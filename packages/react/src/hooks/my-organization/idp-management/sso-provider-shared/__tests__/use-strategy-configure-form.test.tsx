@@ -1,28 +1,38 @@
+import {
+  createProviderConfigureSchema,
+  type OidcConfigureFormValues,
+} from '@auth0/universal-components-core';
 import { act, renderHook } from '@testing-library/react';
 import * as React from 'react';
+import type { DefaultValues } from 'react-hook-form';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
   parseStrategyConfigureValues,
   useStrategyConfigureForm,
-  type StrategyConfigureFormHandle,
 } from '../use-strategy-configure-form';
 
-type Values = { discovery_url: string; type: string; client_id: string; client_secret: string };
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
-const defaults: Values = {
+const schema = createProviderConfigureSchema('oidc');
+
+const defaults: OidcConfigureFormValues = {
   discovery_url: '',
   type: 'back_channel',
   client_id: '',
   client_secret: '',
 };
 
-function setup(options: Partial<Parameters<typeof useStrategyConfigureForm<Values>>[1]> = {}) {
-  const ref = React.createRef<StrategyConfigureFormHandle<Values>>();
+function setup(
+  options: Partial<
+    Omit<Parameters<typeof useStrategyConfigureForm<typeof schema>>[1], 'schema'>
+  > = {},
+) {
+  const ref = React.createRef<StrategyConfigureFormHandle<OidcConfigureFormValues>>();
   const hook = renderHook(() =>
-    useStrategyConfigureForm<Values>(ref, {
-      strategy: 'oidc',
-      defaultValues: defaults,
+    useStrategyConfigureForm(ref, {
+      schema,
+      defaultValues: defaults as DefaultValues<OidcConfigureFormValues>,
       ...options,
     }),
   );
@@ -93,25 +103,15 @@ describe('useStrategyConfigureForm', () => {
 
 describe('useStrategyConfigureForm validation mode', () => {
   it('validates on touch by default', () => {
-    const ref = React.createRef<StrategyConfigureFormHandle<Values>>();
-    const { result } = renderHook(() =>
-      useStrategyConfigureForm<Values>(ref, { strategy: 'oidc', defaultValues: defaults }),
-    );
+    const { hook } = setup();
 
-    expect(result.current.control._options.mode).toBe('onTouched');
+    expect(hook.result.current.control._options.mode).toBe('onTouched');
   });
 
   it('keeps an explicit undefined mode (react-hook-form default)', () => {
-    const ref = React.createRef<StrategyConfigureFormHandle<Values>>();
-    const { result } = renderHook(() =>
-      useStrategyConfigureForm<Values>(ref, {
-        strategy: 'oidc',
-        defaultValues: defaults,
-        mode: undefined,
-      }),
-    );
+    const { hook } = setup({ mode: undefined });
 
-    expect(result.current.control._options.mode).toBeUndefined();
+    expect(hook.result.current.control._options.mode).toBeUndefined();
   });
 });
 
@@ -119,6 +119,6 @@ describe('parseStrategyConfigureValues', () => {
   it('returns the raw values when they do not pass the schema', () => {
     const raw = { ...defaults };
 
-    expect(parseStrategyConfigureValues('oidc', raw)).toBe(raw);
+    expect(parseStrategyConfigureValues(schema, raw)).toBe(raw);
   });
 });

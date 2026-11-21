@@ -5,6 +5,7 @@
  */
 
 import {
+  createProviderConfigureSchema,
   STRATEGIES,
   type AdfsConfigureFormInput,
   type AdfsConfigureFormValues,
@@ -18,10 +19,12 @@ import { Form } from '@/components/ui/form';
 import {
   parseStrategyConfigureValues,
   useStrategyConfigureForm,
-  type StrategyConfigureFormHandle,
-} from '@/hooks/my-organization/use-strategy-configure-form';
+} from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+
+const schema = createProviderConfigureSchema('adfs');
 
 export type AdfsConfigureFormHandle = StrategyConfigureFormHandle<AdfsConfigureFormValues>;
 
@@ -51,8 +54,8 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
   ) {
     const adfsData = initialData as AdfsConfigureFormInput | undefined;
 
-    const form = useStrategyConfigureForm<AdfsConfigureFormValues>(ref, {
-      strategy: 'adfs',
+    const form = useStrategyConfigureForm(ref, {
+      schema,
       onFormDirty,
       defaultValues: {
         meta_data_source: adfsData?.meta_data_source || 'meta_data_url',
@@ -69,7 +72,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
           showThirdPartyAccess,
         ),
       },
-      getData: (adfsForm) => parseStrategyConfigureValues('adfs', adfsForm.getValues()),
+      getData: (adfsForm) => parseStrategyConfigureValues(schema, adfsForm.getValues()),
     });
 
     return (

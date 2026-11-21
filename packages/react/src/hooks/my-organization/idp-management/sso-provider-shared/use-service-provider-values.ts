@@ -12,31 +12,25 @@ import {
 import { useMemo } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-
-export interface UseServiceProviderValuesOptions {
-  /** Connection name; required for the SAML SSO URL query and entity IDs. */
-  connectionName?: string;
-  /** Supplies the entity ID when it can't be derived from the domain (custom domains). */
-  resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
-  /** Domain shown in URLs when the core client has none. Entity IDs are left empty instead. */
-  fallbackDomain?: string;
-}
+import { useTranslator } from '@/hooks/shared/use-translator';
+import type { UseServiceProviderValuesOptions } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
- * Builds the service provider values (callback URL, SAML SSO URL, entity IDs, ...) an
- * administrator copies into their identity provider, for the current tenant domain.
+ * Builds the service provider values (callback URL, SAML SSO URL, entity IDs, ...)
  * @param options - Hook options.
  * @param options.connectionName - Connection name.
  * @param options.resolveSamlMetadata - Entity ID resolver for custom domains.
- * @param options.fallbackDomain - Placeholder domain for URLs when none is configured.
+ * @param options.fallbackDomain - Domain for URLs when none is configured; defaults to a translated placeholder.
  * @returns The values, keyed by name.
  */
 export function useServiceProviderValues({
   connectionName,
   resolveSamlMetadata,
-  fallbackDomain = 'YOUR_DOMAIN',
+  fallbackDomain,
 }: UseServiceProviderValuesOptions = {}): ServiceProviderValues {
+  const { t } = useTranslator('common');
   const { coreClient } = useCoreClient();
+  const placeholderDomain = fallbackDomain ?? t('your_domain_placeholder');
   const domain = coreClient?.getDomain();
 
   return useMemo(() => {
@@ -46,8 +40,8 @@ export function useServiceProviderValues({
         : buildServiceProviderEntityId(domain ?? '', connectionName);
 
     return {
-      ...buildServiceProviderValues(domain || fallbackDomain, { connectionName, entityId }),
+      ...buildServiceProviderValues(domain || placeholderDomain, { connectionName, entityId }),
       adfsRelyingPartyIdentifier: buildAdfsRelyingPartyIdentifier(domain ?? ''),
     };
-  }, [domain, fallbackDomain, connectionName, resolveSamlMetadata]);
+  }, [domain, placeholderDomain, connectionName, resolveSamlMetadata]);
 }
