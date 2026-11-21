@@ -20,14 +20,11 @@ export type InstructionContent =
   | IdpProvisioningInstructionsPageContent
   | IdpInstructionsTabContent;
 
-/** Values every instruction content component can read. */
-export interface SsoGuidedSetupContextValue {
+/** UI state the guided setup passes to every instruction content component. */
+export interface InstructionSetup {
   kind: InstructionsKind;
   strategy: IdpStrategy;
-  baseUrl?: string;
-  tenant?: string;
   connectionName?: string;
-  companyName?: string;
   provider?: IdpKnownResponse | null;
   customMessages?: Partial<Record<string, unknown>>;
 }
@@ -35,6 +32,8 @@ export interface SsoGuidedSetupContextValue {
 /** Props every instruction content component receives. */
 export interface InstructionContentProps {
   content: InstructionContent;
+  setup: InstructionSetup;
+  renderers: InstructionRenderers;
 }
 
 /** Content type → component that renders it. */

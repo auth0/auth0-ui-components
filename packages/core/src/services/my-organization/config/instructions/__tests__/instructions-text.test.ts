@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   dedentText,
+  getInstructionsCompanyName,
   isExternalUrl,
   resolveAssetUrl,
   substitutePlaceholders,
@@ -115,5 +116,23 @@ describe('isExternalUrl', () => {
     [undefined, false],
   ])('%s -> %s', (href, expected) => {
     expect(isExternalUrl(href)).toBe(expected);
+  });
+});
+
+describe('getInstructionsCompanyName', () => {
+  it('prefers the tenant friendly name', () => {
+    expect(getInstructionsCompanyName({ tenant: 'acme', tenant_friendly_name: 'Acme Inc' })).toBe(
+      'Acme Inc',
+    );
+  });
+
+  it('falls back to the tenant name', () => {
+    expect(getInstructionsCompanyName({ tenant: 'acme' })).toBe('acme');
+    expect(getInstructionsCompanyName({ tenant: 'acme', tenant_friendly_name: '  ' })).toBe('acme');
+  });
+
+  it('returns undefined without either', () => {
+    expect(getInstructionsCompanyName({})).toBeUndefined();
+    expect(getInstructionsCompanyName(undefined)).toBeUndefined();
   });
 });
