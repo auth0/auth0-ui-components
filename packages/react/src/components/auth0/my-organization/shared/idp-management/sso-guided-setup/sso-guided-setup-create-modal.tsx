@@ -4,8 +4,6 @@
  * @internal
  */
 
-import type { SsoGuidedSetupMessages } from '@auth0/universal-components-core';
-
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import {
   Dialog,
@@ -16,15 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoGuidedSetupCreateModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onProceed: () => void;
-  isCreating?: boolean;
-  companyName: string;
-  customMessages?: Partial<SsoGuidedSetupMessages>;
-}
+import type { SsoGuidedSetupCreateModalProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Warns that creating the provider enables SSO access
@@ -47,13 +37,12 @@ export function SsoGuidedSetupCreateModal({
 }: SsoGuidedSetupCreateModalProps) {
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
+  const handleOpenChange = (next: boolean) => {
+    if (!isCreating) onOpenChange(next);
+  };
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!isCreating) onOpenChange(next);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="gap-6 p-10" showCloseButton={!isCreating}>
         <DialogHeader className="gap-6">
           <DialogTitle>{t('create_modal.title')}</DialogTitle>

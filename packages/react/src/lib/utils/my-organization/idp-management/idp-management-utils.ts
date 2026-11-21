@@ -9,10 +9,13 @@ import {
   IDP_ACCESS_LEVELS,
   type IdpAccessLevel,
   type IdpKnownResponse,
+  type ProviderConfigureFormValues,
   type UpdateIdentityProviderRequestContentPrivate,
 } from '@auth0/universal-components-core';
 
+import { CONNECTION_ACCESS_FIELDS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type { ProviderAccess } from '@/types/my-organization/idp-management/sso-provider/sso-provider-access-types';
+import type { ConnectionAccessFormValues } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 /**
  * Reads the organization's access level for a provider.
@@ -69,4 +72,44 @@ export function pickLimitedUpdateFields(
     ...(assign_membership_on_login !== undefined && { assign_membership_on_login }),
     ...(is_enabled !== undefined && { is_enabled }),
   };
+}
+
+const warnedInstructionTypes = new Set<string>();
+
+/**
+ * Warns once per unknown instruction content type; the API tells clients to ignore types they don't know.
+ * @param type - Content type without a renderer.
+ */
+export function warnUnknownInstructionType(type: string): void {
+  if (warnedInstructionTypes.has(type)) return;
+  warnedInstructionTypes.add(type);
+  console.warn(`[SsoGuidedSetup] No renderer for instruction content type "${type}"; skipped.`);
+}
+
+/**
+ * Attribute mappings of a provider, for strategies whose response carries them.
+ * @param provider - Provider, if any.
+ * @returns The mappings, or an empty list.
+ */
+export function getProviderAttributes(provider: IdpKnownResponse | null): unknown[] {
+  if (!provider || !('attributes' in provider)) return [];
+  return Array.isArray(provider.attributes) ? provider.attributes : [];
+}
+
+/**
+ * Third-party and Cross App Access values the form holds, which it only does when they're shown.
+ * @param data - Configure form values.
+ * @returns The access values that are set.
+ */
+export function pickConnectionAccess(
+  data: ProviderConfigureFormValues | null | undefined,
+): Partial<Pick<ConnectionAccessFormValues, (typeof CONNECTION_ACCESS_FIELDS)[number]>> {
+  if (!data) return {};
+  const values = data as Record<string, unknown>;
+  return Object.fromEntries(
+    CONNECTION_ACCESS_FIELDS.filter((field) => values[field] !== undefined).map((field) => [
+      field,
+      values[field],
+    ]),
+  );
 }

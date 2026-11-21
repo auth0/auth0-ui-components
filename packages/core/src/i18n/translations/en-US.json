@@ -1299,6 +1299,7 @@
       "done": "Done",
       "unavailable": "Guided setup isn't available for this provider. Use the form instead.",
       "load_error": "We couldn't load the setup instructions. Try again later or use the form instead.",
+      "loading": "Loading setup instructions",
       "company_fallback": "your organization",
       "create_modal": {
         "title": "Before Creating the Provider, Please Note:",
@@ -1342,7 +1343,8 @@
         }
       },
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
-      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider."
+      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider.",
+      "instruction_tabs_label": "Setup options"
     }
   },
   "user_mfa_management": {

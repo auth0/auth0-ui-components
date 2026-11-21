@@ -4,7 +4,6 @@
  */
 
 import {
-  hasApiErrorBody,
   idpConfigQueryKeys,
   STRATEGY_TO_CONFIG_KEY,
   type GetIdpConfigurationResponseContent,
@@ -18,6 +17,7 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { createRetryUnlessNotFound, nullOnNotFound } from '@/lib/utils/shared/query-utils';
 import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
 
 /**
@@ -30,26 +30,12 @@ export function useIdpConfig(): UseConfigIdpResult {
 
   const idpConfigQuery = useQuery<GetIdpConfigurationResponseContent | null>({
     queryKey: idpConfigQueryKeys.config(),
-    queryFn: async () => {
-      try {
-        const response = await coreClient!
-          .getMyOrganizationApiClient()
-          .organization.configuration.identityProviders.get();
-        return response;
-      } catch (error) {
-        if (hasApiErrorBody(error) && error.body?.status === 404) {
-          return null;
-        }
-        throw error;
-      }
-    },
+    queryFn: () =>
+      nullOnNotFound(
+        coreClient!.getMyOrganizationApiClient().organization.configuration.identityProviders.get(),
+      ),
     enabled: !!coreClient,
-    retry: (failureCount, error) => {
-      if (hasApiErrorBody(error) && error.body?.status === 404) return false;
-      // Defer the retry count to the provider-level retryConfig baked into the client.
-      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
-      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
-    },
+    retry: createRetryUnlessNotFound(queryClient),
   });
 
   const idpConfig = idpConfigQuery.data ?? null;

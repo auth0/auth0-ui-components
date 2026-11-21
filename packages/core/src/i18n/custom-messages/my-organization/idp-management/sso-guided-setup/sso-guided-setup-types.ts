@@ -36,11 +36,13 @@ export interface SsoGuidedSetupMessages {
   done?: string;
   unavailable?: string;
   load_error?: string;
+  loading?: string;
   company_fallback?: string;
   create_modal?: SsoGuidedSetupCreateModalMessages;
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
   attribute_mapping_unavailable?: string;
+  instruction_tabs_label?: string;
 }
 
 export interface SsoProvisioningSetupMessages {
