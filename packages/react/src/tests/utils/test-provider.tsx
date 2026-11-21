@@ -1,8 +1,8 @@
 import type { CoreClientInterface, AuthDetails } from '@auth0/universal-components-core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, type RenderResult } from '@testing-library/react';
+import { render, renderHook, type RenderResult } from '@testing-library/react';
 import React from 'react';
-import type { FieldValues, UseFormReturn } from 'react-hook-form';
+import { useForm, type DefaultValues, type FieldValues, type UseFormReturn } from 'react-hook-form';
 
 import { Form } from '@/components/ui/form';
 import { CoreClientContext } from '@/hooks/shared/use-core-client';
@@ -137,6 +137,20 @@ export function renderWithFormProvider<T extends FieldValues>(
   form: UseFormReturn<T>,
 ) {
   return renderWithProviders(<Form {...form}>{component}</Form>);
+}
+
+/**
+ * Renders a component inside a form created from the given default values
+ * @param component - React component to render
+ * @param defaultValues - Initial form values
+ * @returns The render result and the form instance
+ */
+export function renderWithForm<T extends FieldValues>(
+  component: React.ReactElement,
+  defaultValues?: DefaultValues<T>,
+): RenderResult & { form: UseFormReturn<T> } {
+  const { result } = renderHook(() => useForm<T>({ defaultValues }));
+  return { ...renderWithFormProvider(component, result.current), form: result.current };
 }
 
 export const createQueryClientWrapper = createTestQueryClientWrapper;

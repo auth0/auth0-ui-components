@@ -53,6 +53,7 @@ export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsCo
 
     const form = useStrategyConfigureForm(ref, {
       schema,
+      readOnly,
       onFormDirty,
       defaultValues: {
         meta_data_source: adfsData?.meta_data_source || 'meta_data_url',

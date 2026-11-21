@@ -20,16 +20,13 @@ import { Form } from '@/components/ui/form';
 import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type {
+  WaadConfigureFormHandle,
+  WaadConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('waad');
-
-export type WaadConfigureFormHandle = StrategyConfigureFormHandle<WaadConfigureFormValues>;
-
-type WaadConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadConfigureFormProps>(
   function WaadProviderForm(
@@ -59,7 +56,7 @@ export const WaadProviderForm = React.forwardRef<WaadConfigureFormHandle, WaadCo
 
     const form = useStrategyConfigureForm(ref, {
       schema,
-      mode: readOnly ? undefined : FORM_VALIDATION_MODE,
+      readOnly,
       onFormDirty,
       defaultValues: {
         tenant_domain: waadData?.tenant_domain || '',

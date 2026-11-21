@@ -17,16 +17,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoClientCredentialsFieldsProps {
-  messageKey: string;
-  readOnly?: boolean;
-  showCopyButton?: boolean;
-  required?: boolean;
-  showClientSecret?: boolean;
-  helpUrls?: { clientId?: string; clientSecret?: string };
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoClientCredentialsFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Client ID and client secret inputs bound to `client_id` and `client_secret`.
@@ -71,9 +62,7 @@ export function SsoClientCredentialsFields({
               error={Boolean(fieldState.error)}
               readOnly={readOnly}
               showCopyButton={showCopyButton}
-              {...(required
-                ? { 'aria-required': true, 'aria-invalid': Boolean(fieldState.error) }
-                : {})}
+              {...(required ? { 'aria-required': true } : {})}
               {...field}
             />
           </FormControl>

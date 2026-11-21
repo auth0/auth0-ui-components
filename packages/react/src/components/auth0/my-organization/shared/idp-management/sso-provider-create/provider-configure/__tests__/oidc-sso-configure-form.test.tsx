@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
-import type { OidcConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form';
 import { OidcProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/oidc-sso-configure-form';
 import { createMockI18nService } from '@/tests/utils/__mocks__/core/i18n-service.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
+import type { OidcConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 describe('OidcProviderForm', () => {
   beforeEach(() => {
