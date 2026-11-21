@@ -4,7 +4,11 @@
  * @internal
  */
 
-import { STRATEGIES, type PingFederateConfigureFormValues } from '@auth0/universal-components-core';
+import {
+  createProviderConfigureSchema,
+  STRATEGIES,
+  type PingFederateConfigureFormValues,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
@@ -13,17 +17,17 @@ import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-mana
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
 import { Form } from '@/components/ui/form';
-import {
-  useStrategyConfigureForm,
-  type StrategyConfigureFormHandle,
-} from '@/hooks/my-organization/use-strategy-configure-form';
+import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 const PING_FEDERATE_HELP_LINKS = {
   sign_request: 'domain/pem?cert=connection',
 } as const;
+
+const schema = createProviderConfigureSchema('pingfederate');
 
 export type PingFederateConfigureFormHandle =
   StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
@@ -55,8 +59,8 @@ export const PingFederateProviderForm = React.forwardRef<
 ) {
   const pingFederateData = initialData as PingFederateConfigureFormValues | undefined;
 
-  const form = useStrategyConfigureForm<PingFederateConfigureFormValues>(ref, {
-    strategy: 'pingfederate',
+  const form = useStrategyConfigureForm(ref, {
+    schema,
     onFormDirty,
     defaultValues: {
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',
