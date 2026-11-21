@@ -4,49 +4,32 @@
  * @internal
  */
 
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, type FieldValues } from 'react-hook-form';
 
 import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-
-interface SsoServiceProviderFieldBaseProps {
-  label: string;
-  helperText?: string;
-}
-
-interface SsoServiceProviderFormFieldProps extends SsoServiceProviderFieldBaseProps {
-  /** Form field holding the value. Requires a form context. */
-  name: string;
-  value?: never;
-  id?: never;
-}
-
-interface SsoServiceProviderValueFieldProps extends SsoServiceProviderFieldBaseProps {
-  name?: never;
-  /** Value to show; no form needed. */
-  value: string;
-  id: string;
-}
-
-export type SsoServiceProviderFieldProps =
-  | SsoServiceProviderFormFieldProps
-  | SsoServiceProviderValueFieldProps;
+import type {
+  SsoServiceProviderFieldProps,
+  SsoServiceProviderFormFieldProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
- * Shows a value the administrator copies into their identity provider. Bound to a form field
- * (`name`) or given a plain `value`, so it works inside the strategy forms and on guided setup
- * pages.
+ * Shows a value the user copies into their identity provider.
  * @param props - Component props.
  * @returns JSX element
  */
-export function SsoServiceProviderField(props: SsoServiceProviderFieldProps) {
-  if (props.name !== undefined) {
-    return <SsoServiceProviderFormField {...props} />;
+export function SsoServiceProviderField<TValues extends FieldValues = FieldValues>(
+  props: SsoServiceProviderFieldProps<TValues>,
+) {
+  const { id, name, label, helperText, value } = props;
+
+  if (name !== undefined) {
+    return (
+      <SsoServiceProviderFormField<TValues> name={name} label={label} helperText={helperText} />
+    );
   }
 
-  const { id, label, helperText, value } = props;
   return (
     <div className="grid gap-2">
       <Label htmlFor={id} className="text-label font-medium">
@@ -54,9 +37,7 @@ export function SsoServiceProviderField(props: SsoServiceProviderFieldProps) {
       </Label>
       <CopyableTextField id={id} type="text" readOnly={true} value={value} />
       {helperText && (
-        <p className={cn('text-muted-foreground text-sm', 'text-paragraph font-normal text-left')}>
-          {helperText}
-        </p>
+        <p className="text-muted-foreground text-paragraph font-normal text-left">{helperText}</p>
       )}
     </div>
   );
@@ -67,12 +48,12 @@ export function SsoServiceProviderField(props: SsoServiceProviderFieldProps) {
  * @param props - Component props.
  * @returns JSX element
  */
-function SsoServiceProviderFormField({
+function SsoServiceProviderFormField<TValues extends FieldValues>({
   name,
   label,
   helperText,
-}: SsoServiceProviderFormFieldProps) {
-  const { control } = useFormContext();
+}: SsoServiceProviderFormFieldProps<TValues>) {
+  const { control } = useFormContext<TValues>();
 
   return (
     <FormField

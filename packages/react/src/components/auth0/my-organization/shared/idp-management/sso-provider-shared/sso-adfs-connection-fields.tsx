@@ -6,12 +6,10 @@
 
 import { useFormContext } from 'react-hook-form';
 
-import {
-  SsoConnectionSourceSelector,
-  type ConnectionSourceSelectorVariant,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
+import { SsoConnectionSourceSelector } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
 import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
+import type { ConnectionSourceSelectorVariant } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 export interface SsoAdfsConnectionFieldsProps {
   readOnly?: boolean;
