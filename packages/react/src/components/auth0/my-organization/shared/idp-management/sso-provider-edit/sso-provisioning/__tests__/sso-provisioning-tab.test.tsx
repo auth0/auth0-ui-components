@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
+import { createMockIdpProvisioningInstructions } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
 import {
   mockProvider,
   SsoProvisioningProps,
@@ -337,6 +339,32 @@ describe('SsoProvisioningTab', () => {
 
       await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
       expect(guidedSetupButton()).not.toBeInTheDocument();
+    });
+
+    it('disables guided setup for deprecated instructions', async () => {
+      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
+      const coreClient = createMockCoreClient();
+      const { identityProviderProvisioningInstructions } =
+        coreClient.getMyOrganizationApiClient().organization.configuration;
+      vi.mocked(identityProviderProvisioningInstructions.get).mockResolvedValue(
+        createMockIdpProvisioningInstructions('waad', {
+          version_info: { version: '1', lifecycle_status: 'deprecated' },
+        }),
+      );
+      const onStartGuidedSetup = vi.fn();
+      renderWithProviders(
+        <SsoProvisioningTab
+          permissions={ALL_IDP_PERMISSIONS}
+          {...SsoProvisioningProps}
+          onStartGuidedSetup={onStartGuidedSetup}
+        />,
+        { coreClient },
+      );
+
+      const button = await screen.findByRole('button', { name: /guided_setup_button_label/ });
+      expect(button).toBeDisabled();
+      await userEvent.hover(button.parentElement!);
+      expect((await screen.findAllByText('lifecycle.deprecated')).length).toBeGreaterThan(0);
     });
 
     describe('while provisioning is off', () => {

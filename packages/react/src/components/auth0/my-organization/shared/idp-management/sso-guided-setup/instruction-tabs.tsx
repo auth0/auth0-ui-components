@@ -4,10 +4,9 @@
  * @internal
  */
 
-import type { IdpInstructionsTabsComponent } from '@auth0/universal-components-core';
-
 import { InstructionContents } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
@@ -19,27 +18,28 @@ import type { InstructionContentProps } from '@/types/my-organization/idp-manage
  * @returns JSX element, or `null` without tabs.
  */
 export function InstructionTabs({ content, setup, renderers }: InstructionContentProps) {
-  const tabs = (content as { tabs_component?: IdpInstructionsTabsComponent }).tabs_component;
+  const { t } = useTranslator('idp_management.sso_guided_setup', setup.customMessages);
+  const tabs = 'tabs_component' in content ? content.tabs_component : undefined;
 
   if (!tabs?.tabs?.length) {
     return null;
   }
 
-  const defaultIndex =
-    tabs.default_tab !== undefined && tabs.default_tab < tabs.tabs.length ? tabs.default_tab : 0;
+  const items = tabs.tabs.map((tab, index) => ({ ...tab, value: `${index}-${tab.title}` }));
+  const defaultItem = items[tabs.default_tab ?? 0] ?? items[0];
 
   return (
-    <Tabs defaultValue={String(defaultIndex)} data-slot="instruction-tabs">
-      <TabsList>
-        {tabs.tabs.map((tab, index) => (
-          <TabsTrigger key={index} value={String(index)}>
-            {tab.title}
+    <Tabs defaultValue={defaultItem?.value} data-slot="instruction-tabs">
+      <TabsList aria-label={t('instruction_tabs_label')}>
+        {items.map((item) => (
+          <TabsTrigger key={item.value} value={item.value}>
+            {item.title}
           </TabsTrigger>
         ))}
       </TabsList>
-      {tabs.tabs.map((tab, index) => (
-        <TabsContent key={index} value={String(index)} className="pt-3">
-          <InstructionContents contents={tab.contents} setup={setup} renderers={renderers} />
+      {items.map((item) => (
+        <TabsContent key={item.value} value={item.value} className="pt-3">
+          <InstructionContents contents={item.contents} setup={setup} renderers={renderers} />
         </TabsContent>
       ))}
     </Tabs>

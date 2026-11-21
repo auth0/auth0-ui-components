@@ -11,25 +11,16 @@ import {
   type InstructionsKind,
 } from '@auth0/universal-components-core';
 
-import {
-  useIdpInstructionsService,
-  type UseIdpInstructionsServiceResult,
-} from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
+import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface UseGuidedSetupInstructionsResult<TKind extends InstructionsKind>
-  extends UseIdpInstructionsServiceResult<TKind> {
-  baseUrl: string | undefined;
-  companyName: string;
-}
+import type { UseGuidedSetupInstructionsResult } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Reads the instructions from the query cache (fetching them once) so every part of the guided
- * setup shares one request.
+ * Instructions for a strategy, shared through the query cache.
  * @param kind - `creation` or `provisioning`.
  * @param strategy - IdP strategy.
  * @param enabled - Extra gate.
- * @returns The query result plus the `base_url` and the name for `{{companyName}}` (with fallback).
+ * @returns The query result, `baseUrl`, and the `{{companyName}}` value.
  */
 export function useGuidedSetupInstructions<TKind extends InstructionsKind>(
   kind: TKind,

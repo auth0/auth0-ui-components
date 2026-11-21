@@ -1,20 +1,11 @@
 /**
- * Guided setup card: strategy, vertical stepper of instruction pages, the current page and its
- * actions.
+ * Guided setup card.
  * @module sso-guided-setup
  * @internal
  */
 
-import {
-  type IdpInstructionsPage,
-  type IdpProvisioningInstructionsPage,
-  STRATEGY_DISPLAY_NAMES,
-  type IdpKnownResponse,
-  type IdpStrategy,
-  type InstructionsEntryContext,
-  type InstructionsKind,
-  type SsoGuidedSetupMessages,
-} from '@auth0/universal-components-core';
+import { STRATEGY_DISPLAY_NAMES } from '@auth0/universal-components-core';
+import { MessageSquareWarning, X } from 'lucide-react';
 import * as React from 'react';
 
 import { InstructionsPage } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page';
@@ -22,55 +13,23 @@ import { SsoGuidedSetupCreateModal } from '@/components/auth0/my-organization/sh
 import { SsoStrategyIcon } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { WizardStepper } from '@/components/auth0/shared/wizard-stepper';
+import { Alert, AlertAction, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
-import { useGuidedSetupFlow } from '@/hooks/my-organization/use-guided-setup-flow';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupCreation } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-creation';
+import { useGuidedSetupPages } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-pages';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ATTRIBUTE_MAPPING_CONTENT_TYPE } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
+import { useId } from '@/lib/utils/use-id-compat';
 import type {
-  InstructionRenderers,
   InstructionSetup,
+  SsoGuidedSetupProps,
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
-export interface SsoGuidedSetupProps
-  extends Pick<
-    InstructionSetup,
-    | 'connectionName'
-    | 'provider'
-    | 'resolveSamlMetadata'
-    | 'configure'
-    | 'attributeMappings'
-    | 'attributeMappingsError'
-    | 'slots'
-  > {
-  strategy: IdpStrategy;
-  kind?: InstructionsKind;
-  entryContext?: Partial<InstructionsEntryContext>;
-  googleWorkspaceSetupComplete?: boolean;
-  initialPageKey?: string;
-  renderers?: InstructionRenderers;
-  enabled?: boolean;
-  isSubmitting?: boolean;
-  onBeforeCreate?: () => Promise<boolean> | boolean;
-  onCreateProvider?: () => Promise<boolean>;
-  onComplete?: () => void;
-  onLeavePage?: (page: InstructionsPageItem) => void;
-  customMessages?: Partial<SsoGuidedSetupMessages>;
-  className?: string;
-}
-
-const PAGE_DESCRIPTION_CLASSES =
-  '[&>[data-slot=markdown]:first-child>p:first-child]:text-foreground [&>[data-slot=markdown]:first-child>p:first-child:not(:last-child)]:mb-6';
-
 /**
- * Guided setup for one strategy. Loads the instructions, shows the visible pages in a vertical
- * stepper and renders the current page. On the page whose exit condition is `connection_exists`
- * the primary action creates the provider after confirmation; once it exists, Next moves on.
- *
- * Entry condition defaults: `if_mapping_present` is true when the provider has attribute
- * mappings, and before the provider exists (mapping data before creation is not available yet).
- * `if_group_provisioning_enabled` defaults to false.
+ * Guided setup for one strategy: a stepper of instruction pages and the current page's actions.
  * @param props - {@link SsoGuidedSetupProps}
  * @returns JSX element
  */
@@ -78,6 +37,7 @@ export function SsoGuidedSetup({
   strategy,
   kind = 'creation',
   connectionName,
+  organizationDisplayName,
   provider = null,
   resolveSamlMetadata,
   configure,
@@ -85,10 +45,10 @@ export function SsoGuidedSetup({
   attributeMappingsError = false,
   slots,
   entryContext,
-  googleWorkspaceSetupComplete = false,
   initialPageKey,
   renderers,
   enabled = true,
+  hideLifecycleWarnings = false,
   isSubmitting = false,
   onBeforeCreate,
   onCreateProvider,
@@ -99,43 +59,18 @@ export function SsoGuidedSetup({
 }: SsoGuidedSetupProps) {
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
-  const {
-    instructions,
-    isLoading,
-    error,
-    companyName: company,
-  } = useGuidedSetupInstructions(kind, strategy, enabled);
-
-  const pages: readonly InstructionsPageItem[] = instructions?.pages ?? EMPTY_PAGES;
-  const providerAttributes = getProviderAttributes(provider);
-
-  const resolvedEntryContext = React.useMemo<InstructionsEntryContext>(
-    () => ({
-      hasMappings: entryContext?.hasMappings ?? (provider ? providerAttributes.length > 0 : true),
-      groupProvisioningEnabled: entryContext?.groupProvisioningEnabled ?? false,
-    }),
-    [
-      entryContext?.hasMappings,
-      entryContext?.groupProvisioningEnabled,
+  const { flow, isLoading, error, companyName, isDeprecated, showOutOfDate, dismissOutOfDate } =
+    useGuidedSetupPages({
+      kind,
+      strategy,
+      enabled,
+      hideLifecycleWarnings,
       provider,
-      providerAttributes.length,
-    ],
-  );
-
-  const exitState = React.useMemo(
-    () => ({ connectionExists: Boolean(provider), googleWorkspaceSetupComplete }),
-    [provider, googleWorkspaceSetupComplete],
-  );
-
-  const flow = useGuidedSetupFlow({
-    pages,
-    entryContext: resolvedEntryContext,
-    exitState,
-    initialPageKey,
-  });
-
+      attributeMappings,
+      entryContext,
+      initialPageKey,
+    });
   const currentPage = flow.currentPage;
-
   const leavePage = React.useCallback(
     (navigate: () => void) => {
       if (currentPage) onLeavePage?.(currentPage);
@@ -143,54 +78,29 @@ export function SsoGuidedSetup({
     },
     [currentPage, onLeavePage],
   );
-
-  const [isConfirmOpen, setConfirmOpen] = React.useState(false);
-  const [isCreating, setCreating] = React.useState(false);
-  const [advanceWhenCreated, setAdvanceWhenCreated] = React.useState(false);
-
-  // After a successful create the parent passes the provider in; then the page can be left.
-  React.useEffect(() => {
-    if (advanceWhenCreated && provider) {
-      setAdvanceWhenCreated(false);
-      leavePage(flow.goNext);
-    }
-  }, [advanceWhenCreated, provider, flow, leavePage]);
-
-  const isConnectionPage = currentPage?.exit_condition === 'connection_exists';
-  const needsCreate = isConnectionPage && !provider;
+  const creation = useGuidedSetupCreation({
+    flow,
+    provider,
+    leavePage,
+    onBeforeCreate,
+    onCreateProvider,
+    onComplete,
+  });
   const isBlockedByMappings =
     attributeMappingsError &&
-    Boolean(currentPage?.contents.some((content) => content.type === MAPPING_CONTENT_TYPE));
+    Boolean(
+      currentPage?.contents.some((content) => content.type === ATTRIBUTE_MAPPING_CONTENT_TYPE),
+    );
+  const lifecycleOrganization = organizationDisplayName || t('company_fallback');
+  const pageTitleId = useId();
+  const pageTitleRef = React.useRef<HTMLHeadingElement>(null);
+  const shownPageKey = React.useRef(currentPage?.key);
 
-  const handlePrimary = async () => {
-    if (needsCreate) {
-      const canCreate = onBeforeCreate ? await onBeforeCreate() : true;
-      if (canCreate) setConfirmOpen(true);
-      return;
-    }
-    if (flow.isLastPage) {
-      onComplete?.();
-      return;
-    }
-    leavePage(flow.goNext);
-  };
-
-  const handleProceed = async () => {
-    setCreating(true);
-    try {
-      const created = onCreateProvider ? await onCreateProvider() : false;
-      if (created) {
-        setConfirmOpen(false);
-        setAdvanceWhenCreated(true);
-      }
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  let primaryLabel = t('next');
-  if (needsCreate) primaryLabel = t('create_provider');
-  else if (flow.isLastPage) primaryLabel = t('done');
+  React.useEffect(() => {
+    const previousKey = shownPageKey.current;
+    shownPageKey.current = currentPage?.key;
+    if (previousKey && previousKey !== currentPage?.key) pageTitleRef.current?.focus();
+  }, [currentPage?.key]);
 
   const setup = React.useMemo<InstructionSetup>(
     () => ({
@@ -222,7 +132,12 @@ export function SsoGuidedSetup({
   if (isLoading) {
     return (
       <Card className={className} data-slot="sso-guided-setup">
-        <CardContent className="flex items-center justify-center min-h-[200px]">
+        <CardContent
+          role="status"
+          aria-live="polite"
+          aria-label={t('loading')}
+          className="flex items-center justify-center min-h-[200px]"
+        >
           <Spinner />
         </CardContent>
       </Card>
@@ -233,8 +148,12 @@ export function SsoGuidedSetup({
     return (
       <Card className={className} data-slot="sso-guided-setup">
         <CardContent>
-          <p className="text-sm text-muted-foreground" role="status">
-            {error ? t('load_error') : t('unavailable')}
+          <p className="text-sm text-muted-foreground" role={error ? 'alert' : 'status'}>
+            {error
+              ? t('load_error')
+              : isDeprecated
+                ? t('lifecycle.deprecated', { organizationDisplayName: lifecycleOrganization })
+                : t('unavailable')}
           </p>
         </CardContent>
       </Card>
@@ -257,9 +176,36 @@ export function SsoGuidedSetup({
           />
         </nav>
 
-        <section className="min-w-0 space-y-6" aria-labelledby="sso-guided-setup-page-title">
+        <section className="min-w-0 space-y-6" aria-labelledby={pageTitleId}>
+          {showOutOfDate && (
+            <Alert variant="warning" className="pr-10" data-slot="sso-guided-setup-out-of-date">
+              <MessageSquareWarning aria-hidden="true" />
+              <AlertDescription className="text-warning-foreground">
+                {t('lifecycle.out_of_date', { organizationDisplayName: lifecycleOrganization })}
+              </AlertDescription>
+              <AlertAction>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label={t('lifecycle.dismiss')}
+                  onClick={dismissOutOfDate}
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+
           <div className="space-y-2">
-            <h3 id="sso-guided-setup-page-title" className="text-lg font-medium text-foreground">
+            <h3
+              ref={pageTitleRef}
+              id={pageTitleId}
+              data-slot="sso-guided-setup-page-title"
+              tabIndex={-1}
+              className="text-lg font-medium text-foreground outline-none"
+            >
               {currentPage.title}
             </h3>
 
@@ -267,7 +213,7 @@ export function SsoGuidedSetup({
               page={currentPage}
               setup={setup}
               renderers={renderers}
-              className={PAGE_DESCRIPTION_CLASSES}
+              className="[&>[data-slot=markdown]:first-child>p:first-child]:text-foreground [&>[data-slot=markdown]:first-child>p:first-child:not(:last-child)]:mb-6"
             />
           </div>
 
@@ -278,39 +224,23 @@ export function SsoGuidedSetup({
             showUnsavedChanges={false}
             nextAction={{
               type: 'button',
-              label: primaryLabel,
+              label: t(creation.primaryLabelKey),
               variant: 'primary',
-              disabled: isBlockedByMappings,
-              onClick: handlePrimary,
+              disabled: creation.isPrimaryDisabled || isBlockedByMappings,
+              onClick: creation.handlePrimary,
             }}
           />
         </section>
       </CardContent>
 
       <SsoGuidedSetupCreateModal
-        open={isConfirmOpen}
-        onOpenChange={setConfirmOpen}
-        onProceed={handleProceed}
-        isCreating={isCreating || isSubmitting}
-        companyName={company}
+        open={creation.isConfirmOpen}
+        onOpenChange={creation.setConfirmOpen}
+        onProceed={creation.handleProceed}
+        isCreating={creation.isCreating || isSubmitting}
+        companyName={companyName}
         customMessages={customMessages}
       />
     </Card>
   );
-}
-
-type InstructionsPageItem = IdpInstructionsPage | IdpProvisioningInstructionsPage;
-
-const EMPTY_PAGES: InstructionsPageItem[] = [];
-
-const MAPPING_CONTENT_TYPE = 'attribute_mapping_list_component';
-
-/**
- * Attribute mappings of a provider, for strategies whose response carries them.
- * @param provider - Provider, if any.
- * @returns The mappings, or an empty list.
- */
-function getProviderAttributes(provider: IdpKnownResponse | null): unknown[] {
-  if (!provider || !('attributes' in provider)) return [];
-  return Array.isArray(provider.attributes) ? provider.attributes : [];
 }

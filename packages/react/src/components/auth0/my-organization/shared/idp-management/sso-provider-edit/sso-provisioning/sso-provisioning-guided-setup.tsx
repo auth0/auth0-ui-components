@@ -25,6 +25,8 @@ export interface SsoProvisioningGuidedSetupProps
   provider: IdpKnownResponse;
   provisioningConfig: IdpProvisioningConfig | null;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  organizationDisplayName?: string;
+  hideLifecycleWarnings?: boolean;
   onComplete: () => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
   manageTokenMessages?: ProvisioningManageTokenProps['customMessages'];
@@ -41,6 +43,8 @@ export function SsoProvisioningGuidedSetup({
   provider,
   provisioningConfig,
   idpConfig,
+  organizationDisplayName,
+  hideLifecycleWarnings,
   onComplete,
   customMessages,
   manageTokenMessages,
@@ -100,6 +104,8 @@ export function SsoProvisioningGuidedSetup({
       strategy={strategy}
       kind="provisioning"
       connectionName={provider.name ?? undefined}
+      organizationDisplayName={organizationDisplayName}
+      hideLifecycleWarnings={hideLifecycleWarnings}
       provider={provider}
       attributeMappings={attributeMappings}
       entryContext={{ groupProvisioningEnabled: false }}

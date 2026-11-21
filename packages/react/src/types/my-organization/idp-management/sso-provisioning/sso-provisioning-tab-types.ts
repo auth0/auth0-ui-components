@@ -41,6 +41,7 @@ export interface SsoProvisioningTabEditProps {
 /** Guided provisioning setup options for `SsoProviderEdit`. */
 export interface SsoProvisioningGuidedSetup {
   enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
 }
 
 /** CSS classes for SsoProvisioningTab. */
@@ -78,6 +79,8 @@ export interface SsoProvisioningTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   onStartGuidedSetup?: () => void;
+  hideGuidedSetupLifecycleWarnings?: boolean;
+  organizationDisplayName?: string;
 }
 
 export interface SsoProvisioningTabSchemas {}

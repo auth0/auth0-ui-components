@@ -70,6 +70,7 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
       strategy={strategy}
       isProvisioning={kind === 'provisioning'}
       hideExternalNamespace={kind === 'provisioning' && strategy === 'okta'}
+      hideHeader
     />
   );
 }
@@ -82,14 +83,4 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
  */
 export function InstructionTestConnection({ setup }: InstructionContentProps) {
   return <>{setup.slots?.testConnection ?? null}</>;
-}
-
-/**
- * Shows the Google Workspace setup component when one is provided.
- * @param props - Component props.
- * @param props.setup - Guided setup state; carries the slots.
- * @returns The slot content, or `null`.
- */
-export function InstructionGoogleWorkspaceSetup({ setup }: InstructionContentProps) {
-  return <>{setup.slots?.googleWorkspaceSetup ?? null}</>;
 }

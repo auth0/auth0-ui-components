@@ -3,7 +3,9 @@
 import {
   getComponentStyles,
   getStrategyUserAttributes,
+  STRATEGY_DISPLAY_NAMES,
   toSsoAttributeMappings,
+  type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
@@ -11,12 +13,14 @@ import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-ma
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
+import { SsoProviderTestCard } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { MarkdownContent } from '@/components/auth0/shared/markdown-content';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -127,6 +131,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     handleCreate,
     createStepActions,
     guidedSetup,
+    permissions,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -138,6 +143,12 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     Boolean(guidedSetup?.isAvailable),
   );
   const canStartGuidedSetup = Boolean(guidedSetup?.isAvailable && instructions?.pages.length);
+  const isGuidedSetupDeprecated = instructions?.version_info?.lifecycle_status === 'deprecated';
+  const guidedMessages = useMemo(
+    () => ({ ...customMessages?.guided_setup }),
+    [customMessages?.guided_setup],
+  );
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup', guidedMessages);
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -213,6 +224,14 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
                   ? {
                       onClick: guidedSetup.start,
                       className: currentStyles?.classes?.['SsoProviderCreate-guidedSetupButton'],
+                      disabled: isGuidedSetupDeprecated,
+                      tooltip:
+                        isGuidedSetupDeprecated && !guidedSetup.hideLifecycleWarnings
+                          ? tGuided('lifecycle.deprecated', {
+                              organizationDisplayName:
+                                guidedSetup.organizationDisplayName || tGuided('company_fallback'),
+                            })
+                          : undefined,
                     }
                   : undefined
               }
@@ -245,6 +264,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       connectionNamePrefix,
       canStartGuidedSetup,
       guidedSetup,
+      isGuidedSetupDeprecated,
+      tGuided,
     ],
   );
 
@@ -296,6 +317,31 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       : undefined;
   }, [guidedAttributeMappings, guidedAttributeMappingsError]);
 
+  const { t: tTest } = useTranslator('idp_management.test_sso_provider');
+  const guidedProvider = guidedSetup?.provider;
+  const guidedSlots = useMemo(() => {
+    if (!guidedProvider || !strategy) return undefined;
+    const instructions = [
+      tGuided('test_connection.instructions', {
+        testButton: tTest('test_button_label'),
+        providerName: STRATEGY_DISPLAY_NAMES[strategy],
+        protocol: TEST_RESPONSE_PROTOCOL[strategy],
+      }),
+      tGuided('test_connection.keep_open'),
+    ].join('\n\n');
+    return {
+      testConnection: (
+        <SsoProviderTestCard
+          provider={guidedProvider}
+          variant="inline"
+          readOnly={!permissions.canTestProvider}
+          permissionDenied={!permissions.canTestProvider}
+          details={<MarkdownContent text={instructions} />}
+        />
+      ),
+    };
+  }, [guidedProvider, strategy, permissions.canTestProvider, tGuided, tTest]);
+
   const guidedConnectionName =
     connectionNamePrefix && details?.name
       ? `${connectionNamePrefix}-${details.name}`
@@ -319,12 +365,15 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
             <SsoGuidedSetup
               strategy={strategy}
               connectionName={guidedConnectionName}
+              organizationDisplayName={guidedSetup.organizationDisplayName}
+              hideLifecycleWarnings={guidedSetup.hideLifecycleWarnings}
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}
               attributeMappings={guidedAttributeMappings}
               attributeMappingsError={guidedAttributeMappingsError}
               entryContext={guidedEntryContext}
+              slots={guidedSlots}
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}
               onCreateProvider={guidedSetup.create}
@@ -386,4 +435,14 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * />
  * ```
  */
+const TEST_RESPONSE_PROTOCOL: Record<IdpStrategy, string> = {
+  adfs: 'WS-Federation',
+  'google-apps': 'OIDC',
+  oidc: 'OIDC',
+  okta: 'OIDC',
+  pingfederate: 'SAML',
+  samlp: 'SAML',
+  waad: 'OIDC',
+};
+
 export { SsoProviderCreate, SsoProviderCreateView };

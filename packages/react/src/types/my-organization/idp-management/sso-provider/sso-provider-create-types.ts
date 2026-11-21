@@ -105,7 +105,12 @@ export interface ProviderConfigureProps
   crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
-  guidedSetupAction?: { onClick: () => void; className?: string };
+  guidedSetupAction?: {
+    onClick: () => void;
+    className?: string;
+    disabled?: boolean;
+    tooltip?: string;
+  };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -215,12 +220,16 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 
 export interface SsoProviderCreateGuidedSetup {
   enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
+  onComplete?: (provider: IdpKnownResponse) => void;
 }
 
 export interface SsoProviderCreateGuidedSetupState {
   isAvailable: boolean;
   isActive: boolean;
   provider: IdpKnownResponse | null;
+  organizationDisplayName?: string;
+  hideLifecycleWarnings?: boolean;
   configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
   start: () => void;
   saveConfigure: () => void;
@@ -251,12 +260,18 @@ export interface UseSsoProviderCreateOptions {
   readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
+export interface UseSsoProviderCreateServiceOptions extends UseSsoProviderCreateOptions {
+  shouldDeferSuccessToast?: () => boolean;
+}
+
 export interface UseSsoProviderCreateServiceReturn {
   createProvider: (
     data: CreateIdentityProviderRequestContentPrivate,
   ) => Promise<IdpKnownResponse | undefined>;
   isCreating: boolean;
   isOrganizationBlocked: boolean;
+  organizationDisplayName?: string;
+  notifyCreated: (providerName?: string | null) => void;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {

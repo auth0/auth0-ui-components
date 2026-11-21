@@ -4,26 +4,12 @@
  * @internal
  */
 
-import type {
-  IdpInstructionsPage,
-  IdpProvisioningInstructionsPage,
-} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { InstructionContents } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-contents';
 import { DEFAULT_INSTRUCTION_RENDERERS } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-renderers';
 import { cn } from '@/lib/utils';
-import type {
-  InstructionRenderers,
-  InstructionSetup,
-} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
-
-export interface InstructionsPageProps {
-  page: IdpInstructionsPage | IdpProvisioningInstructionsPage;
-  setup: InstructionSetup;
-  renderers?: InstructionRenderers;
-  className?: string;
-}
+import type { InstructionsPageProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Renders a page's content items in order through the renderer registry. Unknown content types

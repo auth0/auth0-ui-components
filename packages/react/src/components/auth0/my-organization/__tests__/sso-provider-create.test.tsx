@@ -21,6 +21,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
+import { createMockIdpInstructions } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
@@ -531,8 +532,7 @@ describe('SsoProviderCreate', () => {
 
     const guidedSetupButton = () =>
       screen.queryByRole('button', { name: 'guided_setup_button_text' });
-    // The guided page title, by id: some pages have other headings.
-    const pageTitle = () => document.getElementById('sso-guided-setup-page-title');
+    const pageTitle = () => document.querySelector('[data-slot="sso-guided-setup-page-title"]');
     const domainInput = () => screen.getByRole('textbox', { name: /fields\.okta\.domain\.label/i });
 
     const goToConfigureStep = async (
@@ -626,6 +626,40 @@ describe('SsoProviderCreate', () => {
       }
     });
 
+    describe('with deprecated instructions', () => {
+      beforeEach(() => {
+        const { identityProviderInstructions } =
+          mockCoreClient.getMyOrganizationApiClient().organization.configuration;
+        vi.mocked(identityProviderInstructions.get).mockResolvedValue(
+          createMockIdpInstructions('okta', {
+            version_info: { version: '1', lifecycle_status: 'deprecated' },
+          }),
+        );
+      });
+
+      it('disables guided setup and explains why', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+
+        const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
+        expect(button).toBeDisabled();
+        await user.hover(button.parentElement!);
+        expect((await screen.findAllByText('lifecycle.deprecated')).length).toBeGreaterThan(0);
+      });
+
+      it('keeps it disabled without the explanation when lifecycle warnings are hidden', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true, hideLifecycleWarnings: true } });
+        await goToConfigureStep(user);
+
+        const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
+        expect(button).toBeDisabled();
+        await user.hover(button);
+        expect(screen.queryByText('lifecycle.deprecated')).not.toBeInTheDocument();
+      });
+    });
+
     it('keeps the configure values when moving between pages', async () => {
       const user = userEvent.setup();
       renderCreate({ guidedSetup: { enabled: true } });
@@ -676,6 +710,31 @@ describe('SsoProviderCreate', () => {
         expect.objectContaining({ name: 'my-okta', strategy: 'okta' }),
         CREATED_PROVIDER,
       );
+    });
+
+    it('offers the provider test on the last page once the provider exists', async () => {
+      const user = userEvent.setup();
+      const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .create as ReturnType<typeof vi.fn>;
+      createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await fillOktaConnection(user);
+      await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+      await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Claims Mapping'));
+
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(pageTitle()).toHaveTextContent('Test SSO');
+      expect(screen.getByRole('button', { name: 'test_button_label' })).toBeEnabled();
+      expect(screen.getByText('test_connection.instructions')).toBeInTheDocument();
+      expect(screen.getByText('test_connection.keep_open')).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'title' })).not.toBeInTheDocument();
     });
 
     describe('connection access set in the advanced form', () => {

@@ -17,6 +17,12 @@ const SsoProviderCreatePage = () => {
             navigate('/sso-providers');
           },
         }}
+        guidedSetup={{
+          enabled: true,
+          onComplete: (provider) => {
+            navigate(provider.id ? `/sso-provider/edit/${provider.id}` : '/sso-providers');
+          },
+        }}
       />
     </div>
   );

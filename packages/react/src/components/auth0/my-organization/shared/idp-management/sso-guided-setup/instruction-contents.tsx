@@ -4,29 +4,8 @@
  * @internal
  */
 
-import type {
-  InstructionContent,
-  InstructionRenderers,
-  InstructionSetup,
-} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
-
-const warnedTypes = new Set<string>();
-
-/**
- * Warns once per unknown content type; the API tells clients to ignore types they don't know.
- * @param type - Content type without a renderer.
- */
-function warnUnknownType(type: string) {
-  if (warnedTypes.has(type)) return;
-  warnedTypes.add(type);
-  console.warn(`[SsoGuidedSetup] No renderer for instruction content type "${type}"; skipped.`);
-}
-
-export interface InstructionContentsProps {
-  contents: readonly InstructionContent[];
-  setup: InstructionSetup;
-  renderers: InstructionRenderers;
-}
+import { warnUnknownInstructionType } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
+import type { InstructionContentsProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Renders content items in order; items without a renderer render nothing.
@@ -40,9 +19,11 @@ export function InstructionContents({ contents, setup, renderers }: InstructionC
   return (
     <>
       {contents.map((content) => {
-        const Renderer = renderers[content.type];
+        const Renderer = Object.hasOwn(renderers, content.type)
+          ? renderers[content.type]
+          : undefined;
         if (!Renderer) {
-          warnUnknownType(content.type);
+          warnUnknownInstructionType(content.type);
           return null;
         }
         return <Renderer key={content.key} content={content} setup={setup} renderers={renderers} />;

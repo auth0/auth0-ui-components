@@ -27,6 +27,8 @@ import type { SsoProviderTestCardProps } from '@/types/my-organization/idp-manag
  * @param props.customMessages - Custom translation messages to override defaults.
  * @param props.notificationMessages - Custom notification messages to override defaults.
  * @param props.styling - Styling configuration.
+ * @param props.variant - `card` (default) or `inline`, without the card and title, for a page that has its own.
+ * @param props.details - Extra content under the description.
  * @returns JSX element
  */
 export function SsoProviderTestCard({
@@ -36,6 +38,8 @@ export function SsoProviderTestCard({
   customMessages = {},
   notificationMessages = {},
   styling,
+  variant = 'card',
+  details,
 }: SsoProviderTestCardProps) {
   const { t } = useTranslator('idp_management.test_sso_provider', customMessages);
   const { state, user, errorReason, errorMessage, blockedTestUrl, start, retry } =
@@ -45,49 +49,67 @@ export function SsoProviderTestCard({
   const isStarting = state === SSO_PROVIDER_TEST_STATE.STARTING;
   const isRunning = isStarting || state === SSO_PROVIDER_TEST_STATE.POLLING;
 
+  const testButton = (
+    <PermissionDeniedTooltip
+      customMessages={customMessages}
+      enabled={permissionDenied}
+      className="shrink-0"
+    >
+      <Button
+        type="button"
+        variant="outline"
+        ref={testButtonRef}
+        onClick={start}
+        disabled={readOnly || isRunning}
+      >
+        {t('test_button_label')}
+      </Button>
+    </PermissionDeniedTooltip>
+  );
+
+  const result = (state === SSO_PROVIDER_TEST_STATE.SUCCESS ||
+    state === SSO_PROVIDER_TEST_STATE.ERROR ||
+    state === SSO_PROVIDER_TEST_STATE.TIMEOUT) && (
+    <SsoProviderTestResult
+      state={state}
+      user={user}
+      errorReason={errorReason}
+      errorMessage={errorMessage}
+      customMessages={customMessages.result}
+      styling={styling}
+    />
+  );
+
   return (
     <div className={cn('w-full', styling?.classes?.['SsoProviderTest-root'])}>
-      <Card className="p-6">
-        <CardContent className="space-y-6 p-0">
-          <div className="flex items-start justify-between gap-6">
-            <div className="flex-1 space-y-2">
-              <h3 className={cn('font-semibold text-left text-subtitle')}>{t('title')}</h3>
-              <p className={cn('text-muted-foreground text-left text-paragraph')}>
-                {t('description')}
-              </p>
+      {variant === 'inline' ? (
+        <div className="space-y-6">
+          <div className="space-y-6">
+            <p className={cn('text-foreground text-left text-paragraph')}>{t('description')}</p>
+            {details}
+          </div>
+          <div>{testButton}</div>
+          {result}
+        </div>
+      ) : (
+        <Card className="p-6">
+          <CardContent className="space-y-6 p-0">
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex-1 space-y-2">
+                <h3 className={cn('font-semibold text-left text-subtitle')}>{t('title')}</h3>
+                <p className={cn('text-muted-foreground text-left text-paragraph')}>
+                  {t('description')}
+                </p>
+                {details}
+              </div>
+
+              {testButton}
             </div>
 
-            <PermissionDeniedTooltip
-              customMessages={customMessages}
-              enabled={permissionDenied}
-              className="shrink-0"
-            >
-              <Button
-                type="button"
-                variant="outline"
-                ref={testButtonRef}
-                onClick={start}
-                disabled={readOnly || isRunning}
-              >
-                {t('test_button_label')}
-              </Button>
-            </PermissionDeniedTooltip>
-          </div>
-
-          {(state === SSO_PROVIDER_TEST_STATE.SUCCESS ||
-            state === SSO_PROVIDER_TEST_STATE.ERROR ||
-            state === SSO_PROVIDER_TEST_STATE.TIMEOUT) && (
-            <SsoProviderTestResult
-              state={state}
-              user={user}
-              errorReason={errorReason}
-              errorMessage={errorMessage}
-              customMessages={customMessages.result}
-              styling={styling}
-            />
-          )}
-        </CardContent>
-      </Card>
+            {result}
+          </CardContent>
+        </Card>
+      )}
 
       <SsoProviderTestPollingOverlay
         open={isRunning}

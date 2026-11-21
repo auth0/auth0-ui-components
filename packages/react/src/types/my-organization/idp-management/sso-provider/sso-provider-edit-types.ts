@@ -175,6 +175,7 @@ export interface SsoProviderAttributeMappingsProps
   strategy: IdpStrategy | null;
   isProvisioning?: boolean;
   hideExternalNamespace?: boolean;
+  hideHeader?: boolean;
   className?: string;
 }
 

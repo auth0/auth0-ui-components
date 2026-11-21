@@ -8,7 +8,6 @@ import {
   getIdpManagementPermissions,
   type CreateIdentityProviderRequestContentPrivate,
   type IdpKnownResponse,
-  type ProviderConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -17,8 +16,8 @@ import { useConfig } from '@/hooks/my-organization/shared/services/use-config-se
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
+import { pickConnectionAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
-  ConnectionAccessFormValues,
   FormState,
   ProviderConfigureHandle,
   ProviderDetailsFormHandle,
@@ -28,29 +27,6 @@ import type {
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export type { UseSsoProviderCreateResult };
-
-const CONNECTION_ACCESS_FIELDS = [
-  'use_for_third_party_client_access',
-  'cross_app_access_resource_app',
-] as const;
-
-/**
- * Third-party and Cross App Access values the form holds, which it only does when they're shown.
- * @param data - Configure form values.
- * @returns The access values that are set.
- */
-function pickConnectionAccess(
-  data: ProviderConfigureFormValues | null | undefined,
-): Partial<Pick<ConnectionAccessFormValues, (typeof CONNECTION_ACCESS_FIELDS)[number]>> {
-  if (!data) return {};
-  const values = data as Record<string, unknown>;
-  return Object.fromEntries(
-    CONNECTION_ACCESS_FIELDS.filter((field) => values[field] !== undefined).map((field) => [
-      field,
-      values[field],
-    ]),
-  );
-}
 
 /**
  * Hook for SSO provider creation. Manages form state, step navigation,
@@ -89,9 +65,16 @@ export function useSsoProviderCreate({
     [createAction],
   );
 
-  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
+  const {
+    createProvider,
+    isCreating,
+    isOrganizationBlocked,
+    organizationDisplayName,
+    notifyCreated,
+  } = useSsoProviderCreateService({
     createAction: serviceCreateAction,
     customMessages,
+    shouldDeferSuccessToast: () => isGuidedSetupRef.current,
   });
 
   const [formData, setFormData] = useState<FormState>({});
@@ -174,6 +157,8 @@ export function useSsoProviderCreate({
       isAvailable: guidedSetupEnabled,
       isActive: isGuidedSetup,
       provider: guidedProvider,
+      organizationDisplayName,
+      hideLifecycleWarnings: guidedSetupOptions?.hideLifecycleWarnings,
       configureRef: guidedConfigureRef,
       start: () => {
         const data = configureRef.current?.getData();
@@ -209,6 +194,11 @@ export function useSsoProviderCreate({
         const pending = pendingOnAfterRef.current;
         if (!pending) return;
         pendingOnAfterRef.current = null;
+        notifyCreated(pending.result.name);
+        if (guidedSetupOptions?.onComplete) {
+          guidedSetupOptions.onComplete(pending.result);
+          return;
+        }
         createAction?.onAfter?.(pending.data, pending.result);
       },
     }),
@@ -217,12 +207,16 @@ export function useSsoProviderCreate({
       permissions.canCreateProvider,
       isGuidedSetup,
       guidedProvider,
+      organizationDisplayName,
+      guidedSetupOptions?.hideLifecycleWarnings,
       saveGuidedConfigure,
       strategy,
       details,
       formData.configure,
       createProvider,
       createAction,
+      guidedSetupOptions?.onComplete,
+      notifyCreated,
     ],
   );
 
