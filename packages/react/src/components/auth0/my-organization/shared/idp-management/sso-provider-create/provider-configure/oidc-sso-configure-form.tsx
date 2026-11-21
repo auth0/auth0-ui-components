@@ -4,20 +4,24 @@
  * @internal
  */
 
-import { STRATEGIES, type OidcConfigureFormValues } from '@auth0/universal-components-core';
+import {
+  createProviderConfigureSchema,
+  STRATEGIES,
+  type OidcConfigureFormValues,
+} from '@auth0/universal-components-core';
 import * as React from 'react';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
 import { SsoOidcConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields';
 import { Form } from '@/components/ui/form';
+import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import {
-  useStrategyConfigureForm,
-  type StrategyConfigureFormHandle,
-} from '@/hooks/my-organization/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
 import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+
+const schema = createProviderConfigureSchema('oidc');
 
 export type OidcConfigureFormHandle = StrategyConfigureFormHandle<OidcConfigureFormValues>;
 
@@ -48,8 +52,8 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
 
     const oidcData = initialData as OidcConfigureFormValues | undefined;
 
-    const form = useStrategyConfigureForm<OidcConfigureFormValues>(ref, {
-      strategy: 'oidc',
+    const form = useStrategyConfigureForm(ref, {
+      schema,
       onFormDirty,
       defaultValues: {
         discovery_url: oidcData?.discovery_url || '',

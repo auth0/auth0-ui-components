@@ -6,16 +6,10 @@
 import * as React from 'react';
 import { useFormContext, type FieldValues, type Path, type PathValue } from 'react-hook-form';
 
-export interface UseFileContentFieldResult {
-  /** Files currently selected, for the upload control's `value`. */
-  files: File[];
-  /** Pass to the upload control's `onChange`. */
-  onFilesChange: (files: File[]) => Promise<void>;
-}
+import type { UseFileContentFieldResult } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
- * Keeps a form field in sync with the text content of an uploaded file (for example a signing
- * certificate). Clearing the upload clears the field. Must be used inside a form context.
+ * Keeps a form field in sync with the text content of an uploaded file
  * @param name - Form field that receives the file content.
  * @returns The selected files and the change handler.
  */
