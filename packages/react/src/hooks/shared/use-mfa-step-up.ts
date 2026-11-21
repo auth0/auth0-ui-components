@@ -54,11 +54,12 @@ export function useMfaStepUp({ error, onComplete }: UseMfaStepUpProps) {
   const challenge = useCallback(
     async (authenticator: { id?: string }) => {
       try {
-        return await stepUpClient.challenge({
+        const result = await stepUpClient.challenge({
           mfaToken,
           challengeType: 'oob',
           authenticatorId: authenticator.id,
         });
+        return result;
       } catch (err) {
         handleError(err);
         return undefined;
