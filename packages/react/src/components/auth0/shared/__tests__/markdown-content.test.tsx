@@ -40,6 +40,30 @@ describe('MarkdownContent', () => {
     });
   });
 
+  describe('typography', () => {
+    it('steps headings down one level under the page title', () => {
+      render(<MarkdownContent text={'# Title\n\n## Section'} />);
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Title' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 4, name: 'Section' })).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
+    });
+
+    it('uses compact muted text, outside bullets and medium bold', () => {
+      render(<MarkdownContent text={'Body with **bold**.\n\n- one\n- two'} />);
+
+      expect(screen.getByText(/Body with/)).toHaveClass('text-muted-foreground', 'text-sm');
+      expect(screen.getByRole('list')).toHaveClass('list-outside', 'list-disc');
+      expect(screen.getByText('bold')).toHaveClass('font-medium');
+    });
+
+    it('does not pass react-markdown internals to the DOM', () => {
+      const { container } = render(<MarkdownContent text={'Text\n\n1. a\n2. b\n\n- c'} />);
+
+      expect(container.querySelector('[node], [ordered], [depth], [index]')).toBeNull();
+    });
+  });
+
   describe('images', () => {
     it('resolves relative image paths against base_url', () => {
       render(<MarkdownContent text="![Okta apps](/img/okta/1.png)" baseUrl={BASE_URL} />);
