@@ -46,7 +46,6 @@ export function SsoCallbackUrlField({ messageKey, customMessages = {} }: SsoCall
               type="text"
               placeholder={t(`${messageKey}.callback_url.placeholder`)}
               error={Boolean(fieldState.error)}
-              readOnly={true}
               {...field}
             />
           </FormControl>
