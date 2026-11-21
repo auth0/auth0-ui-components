@@ -1,5 +1,5 @@
 /**
- * Navigation state for the SSO guided setup pages.
+ * Page navigation for the SSO guided setup.
  * @module use-guided-setup-flow
  */
 
@@ -17,12 +17,11 @@ import type {
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Tracks which instructions page is shown and whether the administrator may move on. The current
- * page is kept by key, so it survives pages appearing or disappearing.
+ * Tracks the current instructions page and whether the administrator may move on.
  * @param options - Hook options.
- * @param options.pages - Pages from the instructions response.
- * @param options.entryContext - Facts for entry conditions.
- * @param options.exitState - Facts for exit conditions.
+ * @param options.pages - Instruction pages.
+ * @param options.entryContext - Entry condition facts.
+ * @param options.exitState - Exit condition facts.
  * @param options.initialPageKey - Page to start on.
  * @returns Flow state and navigation.
  */

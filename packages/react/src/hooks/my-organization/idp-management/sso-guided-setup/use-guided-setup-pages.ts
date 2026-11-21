@@ -1,5 +1,5 @@
 /**
- * Instructions pages and navigation state for the SSO guided setup.
+ * Instruction pages for the SSO guided setup.
  * @module use-guided-setup-pages
  */
 
@@ -15,18 +15,16 @@ import type {
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Loads the instructions and tracks which page is shown. Mappings count as present before the
- * provider exists, and group provisioning is off unless the caller says otherwise.
+ * Loads the instructions and builds the page flow.
  * @param options - Hook options.
  * @param options.kind - `creation` or `provisioning`.
  * @param options.strategy - IdP strategy.
  * @param options.enabled - Extra gate for loading.
  * @param options.provider - The created provider, if any.
- * @param options.attributeMappings - Attribute mappings supplied by the host.
- * @param options.entryContext - Overrides for the entry condition facts.
- * @param options.googleWorkspaceSetupComplete - Whether the Google Workspace setup is done.
+ * @param options.attributeMappings - Mappings supplied by the host.
+ * @param options.entryContext - Entry condition overrides.
  * @param options.initialPageKey - Page to start on.
- * @returns The flow, the loading state and the name for `{{companyName}}`.
+ * @returns The flow, loading state and company name.
  */
 export function useGuidedSetupPages({
   kind,
@@ -35,7 +33,6 @@ export function useGuidedSetupPages({
   provider,
   attributeMappings,
   entryContext,
-  googleWorkspaceSetupComplete = false,
   initialPageKey,
 }: UseGuidedSetupPagesOptions): UseGuidedSetupPagesResult {
   const { instructions, isLoading, error, companyName } = useGuidedSetupInstructions(
@@ -56,8 +53,8 @@ export function useGuidedSetupPages({
   );
 
   const exitState = React.useMemo(
-    () => ({ connectionExists: Boolean(provider), googleWorkspaceSetupComplete }),
-    [provider, googleWorkspaceSetupComplete],
+    () => ({ connectionExists: Boolean(provider), googleWorkspaceSetupComplete: false }),
+    [provider],
   );
 
   const flow = useGuidedSetupFlow({

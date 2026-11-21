@@ -1,5 +1,5 @@
 /**
- * Provider creation and the primary action of the SSO guided setup.
+ * Provider creation for the SSO guided setup.
  * @module use-guided-setup-creation
  */
 
@@ -11,15 +11,14 @@ import type {
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Handles the primary button: confirm and create the provider on the connection page, otherwise
- * move to the next page, or finish on the last one.
+ * Handles the primary button and provider creation.
  * @param options - Hook options.
  * @param options.flow - Navigation state.
  * @param options.provider - The created provider, if any.
- * @param options.onBeforeCreate - Called before the confirmation; return `false` to stop.
- * @param options.onCreateProvider - Creates the provider; resolves `true` on success.
- * @param options.onComplete - Called when the administrator finishes the last page.
- * @returns Primary button state and the confirmation modal state.
+ * @param options.onBeforeCreate - Runs before the confirmation.
+ * @param options.onCreateProvider - Creates the provider.
+ * @param options.onComplete - Runs when the last page is finished.
+ * @returns Primary action and confirmation modal state.
  */
 export function useGuidedSetupCreation({
   flow,

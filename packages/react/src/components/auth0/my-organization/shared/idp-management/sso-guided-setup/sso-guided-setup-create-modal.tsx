@@ -37,13 +37,12 @@ export function SsoGuidedSetupCreateModal({
 }: SsoGuidedSetupCreateModalProps) {
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
+  const handleOpenChange = (next: boolean) => {
+    if (!isCreating) onOpenChange(next);
+  };
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!isCreating) onOpenChange(next);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="gap-6 p-10" showCloseButton={!isCreating}>
         <DialogHeader className="gap-6">
           <DialogTitle>{t('create_modal.title')}</DialogTitle>

@@ -7,7 +7,6 @@
 import {
   InstructionAttributeMapping,
   InstructionConfigureConnection,
-  InstructionGoogleWorkspaceSetup,
   InstructionTestConnection,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components';
 import { InstructionCopyValue } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value';
@@ -19,17 +18,15 @@ import {
 } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type { InstructionRenderers } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
+const renderAs = (types: readonly string[], renderer: InstructionRenderers[string]) =>
+  Object.fromEntries(types.map((type) => [type, renderer]));
+
 /** Built-in renderers; anything else can be added or replaced through `renderers`. */
 export const DEFAULT_INSTRUCTION_RENDERERS: InstructionRenderers = {
   markdown_component: InstructionMarkdown,
   tabs_component: InstructionTabs,
-  ...Object.fromEntries(
-    Object.keys(COPY_VALUE_CONTENT_TYPES).map((type) => [type, InstructionCopyValue]),
-  ),
-  ...Object.fromEntries(
-    CONFIGURE_CONNECTION_CONTENT_TYPES.map((type) => [type, InstructionConfigureConnection]),
-  ),
+  ...renderAs(Object.keys(COPY_VALUE_CONTENT_TYPES), InstructionCopyValue),
+  ...renderAs(CONFIGURE_CONNECTION_CONTENT_TYPES, InstructionConfigureConnection),
   attribute_mapping_list_component: InstructionAttributeMapping,
   test_connection_component: InstructionTestConnection,
-  google_workspace_setup_component: InstructionGoogleWorkspaceSetup,
 };

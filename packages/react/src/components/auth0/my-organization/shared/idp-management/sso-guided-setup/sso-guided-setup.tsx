@@ -39,7 +39,6 @@ export function SsoGuidedSetup({
   attributeMappings,
   slots,
   entryContext,
-  googleWorkspaceSetupComplete = false,
   initialPageKey,
   renderers,
   enabled = true,
@@ -59,7 +58,6 @@ export function SsoGuidedSetup({
     provider,
     attributeMappings,
     entryContext,
-    googleWorkspaceSetupComplete,
     initialPageKey,
   });
   const creation = useGuidedSetupCreation({

@@ -45,7 +45,6 @@ export interface SsoGuidedSetupConfigureForm {
 /** Content filled in by other features (test connection, Google Workspace setup). */
 export interface SsoGuidedSetupSlots {
   testConnection?: React.ReactNode;
-  googleWorkspaceSetup?: React.ReactNode;
 }
 
 /** UI state the guided setup passes to every instruction content component. */
@@ -122,7 +121,6 @@ export interface SsoGuidedSetupProps
   strategy: IdpStrategy;
   kind?: InstructionsKind;
   entryContext?: Partial<InstructionsEntryContext>;
-  googleWorkspaceSetupComplete?: boolean;
   initialPageKey?: string;
   renderers?: InstructionRenderers;
   enabled?: boolean;
@@ -176,7 +174,6 @@ export interface UseGuidedSetupPagesOptions {
   provider: IdpKnownResponse | null;
   attributeMappings?: InstructionSetup['attributeMappings'];
   entryContext?: Partial<InstructionsEntryContext>;
-  googleWorkspaceSetupComplete?: boolean;
   initialPageKey?: string;
 }
 
