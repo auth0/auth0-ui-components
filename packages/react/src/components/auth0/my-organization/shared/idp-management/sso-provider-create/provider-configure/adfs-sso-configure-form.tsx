@@ -8,7 +8,6 @@ import {
   createProviderConfigureSchema,
   STRATEGIES,
   type AdfsConfigureFormInput,
-  type AdfsConfigureFormValues,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -21,14 +20,12 @@ import {
   useStrategyConfigureForm,
 } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type {
+  AdfsConfigureFormHandle,
+  AdfsConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('adfs');
-
-export type AdfsConfigureFormHandle = StrategyConfigureFormHandle<AdfsConfigureFormValues>;
-
-interface AdfsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
 
 export const AdfsProviderForm = React.forwardRef<AdfsConfigureFormHandle, AdfsConfigureFormProps>(
   function AdfsProviderForm(
