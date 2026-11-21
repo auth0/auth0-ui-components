@@ -6,12 +6,6 @@ import type {
   IdpStrategy,
 } from '@auth0/universal-components-core';
 
-/**
- * Instruction fixtures that mirror the live My Organization API content: page keys and order,
- * entry and exit conditions, content keys and types, payload fields and tab structure.
- * Markdown text is short placeholder text; help links are the real public URLs.
- */
-
 const BASE_URL = 'https://acme.auth0.com/my-org/public/instructions';
 const TENANT = 'acme';
 const VERSION_INFO = { version: '1', lifecycle_status: 'latest' } as const;

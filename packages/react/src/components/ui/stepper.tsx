@@ -1,5 +1,5 @@
 /**
- * Multi-step progress stepper component (UDS parity, horizontal and vertical).
+ * Multi-step progress stepper component (horizontal and vertical).
  * @module stepper
  * @internal
  */
@@ -143,7 +143,6 @@ interface StepperIndicatorProps
   extends React.ComponentPropsWithoutRef<'div'>,
     VariantProps<typeof stepperIndicatorVariants> {
   value: number;
-  /** Render the step number when the step is not complete. */
   showNumber?: boolean;
 }
 
@@ -210,7 +209,6 @@ const stepperSeparatorVariants = cva('shrink-0 transition-colors duration-200', 
 
 interface StepperSeparatorProps extends React.ComponentPropsWithoutRef<'div'> {
   status?: 'complete' | 'incomplete';
-  /** Decorative separators are hidden from assistive tech (matches `ui/separator`). */
   decorative?: boolean;
 }
 
@@ -270,7 +268,6 @@ interface StepperContentProps extends React.ComponentPropsWithoutRef<'div'> {
 }
 
 const StepperContent = React.forwardRef<HTMLDivElement, StepperContentProps>(
-  // `value` is accepted for UDS API parity; the content wrapper does not depend on it.
   ({ className, value: _value, children, ...props }, ref) => {
     const { orientation } = useStepperContext();
 
