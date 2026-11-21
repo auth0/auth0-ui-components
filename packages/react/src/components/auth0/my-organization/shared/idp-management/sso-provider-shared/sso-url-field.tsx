@@ -17,19 +17,7 @@ import {
 } from '@/components/ui/form';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoUrlFieldProps {
-  /** Form field name. */
-  name: string;
-  /** Message key prefix with `label`, `placeholder` and `helper_text`. */
-  messageKey: string;
-  readOnly?: boolean;
-  /** Mark the input as required for assistive technology. */
-  required?: boolean;
-  /** Render with a copy button (for example the ADFS metadata location URL). */
-  copyable?: boolean;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoUrlFieldProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * URL input for connection settings (metadata URL, sign-in URL, ...).
@@ -70,6 +58,7 @@ export function SsoUrlField({
                 placeholder={t(`${messageKey}.placeholder`)}
                 error={Boolean(fieldState.error)}
                 readOnly={readOnly}
+                {...(required ? { 'aria-required': true } : {})}
                 {...field}
               />
             ) : (

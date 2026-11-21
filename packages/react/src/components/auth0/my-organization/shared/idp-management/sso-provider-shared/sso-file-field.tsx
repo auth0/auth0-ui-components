@@ -15,21 +15,8 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoFileFieldProps {
-  /** Form field that receives the file content. */
-  name: string;
-  /** Message key prefix with `label`, `placeholder` and `helper_text`. */
-  messageKey: string;
-  /** Accepted file extensions, comma separated (e.g. `.pem,.cer`). */
-  accept: string;
-  readOnly?: boolean;
-  /** Message key shown when a dropped file does not match `accept`. Off when omitted. */
-  invalidFileMessageKey?: string;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoFileFieldProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Single-file upload for connection settings.
@@ -37,6 +24,8 @@ export interface SsoFileFieldProps {
  * @param props.name - Form field name.
  * @param props.messageKey - Message key prefix.
  * @param props.accept - Accepted extensions.
+ * @param props.files - Selected files, owned by the parent so they survive the field unmounting.
+ * @param props.onFilesChange - Called with the files the user selects or removes.
  * @param props.readOnly - Disable the upload.
  * @param props.invalidFileMessageKey - Error message key for rejected files.
  * @param props.customMessages - Custom translation messages.
@@ -46,6 +35,8 @@ export function SsoFileField({
   name,
   messageKey,
   accept,
+  files,
+  onFilesChange,
   readOnly = false,
   invalidFileMessageKey,
   customMessages = {},
@@ -55,7 +46,6 @@ export function SsoFileField({
     customMessages,
   );
   const { control, setError } = useFormContext();
-  const { files, onFilesChange } = useFileContentField(name);
 
   const extensions = accept.split(',').map((extension) => extension.trim().toLowerCase());
   const onInvalidFiles = invalidFileMessageKey
@@ -77,18 +67,16 @@ export function SsoFileField({
         <FormItem>
           <FormLabel className="text-label font-medium">{t(`${messageKey}.label`)}</FormLabel>
           <FormControl>
-            <div className="space-y-3">
-              <FileUpload
-                accept={accept}
-                onChange={onFilesChange}
-                onInvalidFiles={onInvalidFiles}
-                value={files}
-                maxFiles={1}
-                disabled={readOnly}
-                className="w-full"
-                placeholder={t(`${messageKey}.placeholder`)}
-              />
-            </div>
+            <FileUpload
+              accept={accept}
+              onChange={onFilesChange}
+              onInvalidFiles={onInvalidFiles}
+              value={files}
+              maxFiles={1}
+              disabled={readOnly}
+              className="w-full"
+              placeholder={t(`${messageKey}.placeholder`)}
+            />
           </FormControl>
           <FormMessage role="alert" className="text-left text-paragraph" />
           <FormDescription className="text-paragraph font-normal text-left">

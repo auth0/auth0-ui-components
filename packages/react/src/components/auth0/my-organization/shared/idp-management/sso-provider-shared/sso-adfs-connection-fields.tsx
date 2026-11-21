@@ -4,24 +4,16 @@
  * @internal
  */
 
-import { useFormContext } from 'react-hook-form';
+import type { AdfsConfigureFormValues } from '@auth0/universal-components-core';
 
 import { SsoConnectionSourceSelector } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
 import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
-import type { ConnectionSourceSelectorVariant } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
-
-export interface SsoAdfsConnectionFieldsProps {
-  readOnly?: boolean;
-  /** How the source is chosen: a radio group (advanced flow) or tabs (guided setup). */
-  sourceSelector?: ConnectionSourceSelectorVariant;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
+import type { SsoAdfsConnectionFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
- * Lets the administrator connect ADFS by metadata URL or by uploading the federation metadata
- * file. Reads and writes `meta_data_source`, `adfs_server`, `meta_data_location_url` and
- * `fedMetadataXml` in the surrounding form.
+ * Connects ADFS by metadata URL or by uploading the federation metadata file.
  * @param props - Component props.
  * @param props.readOnly - Disable editing.
  * @param props.sourceSelector - `radio` (default) or `tabs` (Automatic / Manual).
@@ -33,46 +25,45 @@ export function SsoAdfsConnectionFields({
   sourceSelector = 'radio',
   customMessages = {},
 }: SsoAdfsConnectionFieldsProps) {
-  const { watch } = useFormContext();
-  const source = watch('meta_data_source');
+  const federationMetadata = useFileContentField<AdfsConfigureFormValues>('fedMetadataXml');
 
   return (
-    <>
-      <SsoConnectionSourceSelector
-        messageKey="fields.adfs.meta_data_source"
-        variant={sourceSelector}
-        readOnly={readOnly}
-        customMessages={customMessages}
-      />
-
-      {source === 'meta_data_url' && (
-        <>
-          <SsoUrlField
-            name="adfs_server"
-            messageKey="fields.adfs.meta_data_url"
-            required
+    <SsoConnectionSourceSelector
+      messageKey="fields.adfs.meta_data_source"
+      variant={sourceSelector}
+      readOnly={readOnly}
+      customMessages={customMessages}
+      panels={{
+        meta_data_url: (
+          <>
+            <SsoUrlField
+              name="adfs_server"
+              messageKey="fields.adfs.meta_data_url"
+              required
+              readOnly={readOnly}
+              customMessages={customMessages}
+            />
+            <SsoUrlField
+              name="meta_data_location_url"
+              messageKey="fields.adfs.meta_data_location_url"
+              copyable
+              readOnly={readOnly}
+              customMessages={customMessages}
+            />
+          </>
+        ),
+        meta_data_file: (
+          <SsoFileField
+            name="fedMetadataXml"
+            messageKey="fields.adfs.federation_metadata_file"
+            accept=".xml"
+            files={federationMetadata.files}
+            onFilesChange={federationMetadata.onFilesChange}
             readOnly={readOnly}
             customMessages={customMessages}
           />
-          <SsoUrlField
-            name="meta_data_location_url"
-            messageKey="fields.adfs.meta_data_location_url"
-            copyable
-            readOnly={readOnly}
-            customMessages={customMessages}
-          />
-        </>
-      )}
-
-      {source === 'meta_data_file' && (
-        <SsoFileField
-          name="fedMetadataXml"
-          messageKey="fields.adfs.federation_metadata_file"
-          accept=".xml"
-          readOnly={readOnly}
-          customMessages={customMessages}
-        />
-      )}
-    </>
+        ),
+      }}
+    />
   );
 }
