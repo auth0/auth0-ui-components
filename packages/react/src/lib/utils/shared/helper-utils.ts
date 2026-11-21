@@ -119,3 +119,16 @@ export function openHttpsUrlInNewTab(url: string): boolean {
   window.open(parsed.href, '_blank', 'noopener,noreferrer');
   return true;
 }
+
+/**
+ * Runs a callback, treating a throw as `false`.
+ * @param action - Callback to run.
+ * @returns The callback's result, or `false` if it throws.
+ */
+export async function resolveOrFalse(action: () => Promise<boolean> | boolean): Promise<boolean> {
+  try {
+    return await action();
+  } catch {
+    return false;
+  }
+}

@@ -5,6 +5,7 @@
 
 import * as React from 'react';
 
+import { resolveOrFalse } from '@/lib/utils/shared/helper-utils';
 import type {
   UseGuidedSetupCreationOptions,
   UseGuidedSetupCreationResult,
@@ -44,7 +45,7 @@ export function useGuidedSetupCreation({
   const handlePrimary = async () => {
     if (isAwaitingProvider) return;
     if (needsCreate) {
-      const canCreate = onBeforeCreate ? await onBeforeCreate() : true;
+      const canCreate = onBeforeCreate ? await resolveOrFalse(onBeforeCreate) : true;
       if (canCreate) setConfirmOpen(true);
       return;
     }
@@ -59,7 +60,7 @@ export function useGuidedSetupCreation({
     if (isAwaitingProvider || isCreating) return;
     setCreating(true);
     try {
-      const created = onCreateProvider ? await onCreateProvider() : false;
+      const created = onCreateProvider ? await resolveOrFalse(onCreateProvider) : false;
       if (created) {
         setConfirmOpen(false);
         setCreatedFromPageKey(currentPageKey ?? null);
