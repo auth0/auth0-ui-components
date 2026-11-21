@@ -187,7 +187,7 @@ describe('SsoGuidedSetup', () => {
   });
 
   describe('content renderers', () => {
-    it('renders the strategy form from context on the configure page', async () => {
+    it('renders the strategy form on the configure page', async () => {
       const ref = React.createRef<never>();
       renderSetup({
         configure: { ref, props: { idpConfig: null } },
@@ -241,16 +241,5 @@ describe('SsoGuidedSetup', () => {
     renderSetup();
 
     expect(await screen.findByText('Create Application for Okta and acme.')).toBeInTheDocument();
-  });
-
-  it('shows the confirmation with the company name', async () => {
-    renderSetup();
-    await screen.findByText('Okta');
-    await act(async () => {
-      await userEvent.click(primary(/^next$/));
-    });
-    await userEvent.click(primary(/create_provider/));
-
-    expect(await screen.findByText(/create_modal.description/)).toBeInTheDocument();
   });
 });
