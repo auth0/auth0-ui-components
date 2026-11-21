@@ -1,16 +1,15 @@
 import { describe, expect, it } from 'vitest';
 
+import { EXIT_CONDITION_POLICY } from '../instructions-constants';
 import {
   canLeavePage,
-  EXIT_CONDITION_POLICY,
   getExitConditionPolicy,
   getInstructionsLocale,
   isExitConditionMet,
   isPageVisible,
   resolveVisiblePages,
-  type InstructionsEntryContext,
-  type InstructionsExitState,
 } from '../instructions-flow';
+import type { InstructionsEntryContext, InstructionsExitState } from '../instructions-types';
 
 const noFacts: InstructionsEntryContext = { hasMappings: false, groupProvisioningEnabled: false };
 const allFacts: InstructionsEntryContext = { hasMappings: true, groupProvisioningEnabled: true };

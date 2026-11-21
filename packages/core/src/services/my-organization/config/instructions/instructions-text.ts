@@ -29,7 +29,7 @@ export function dedentText(text: string): string {
 }
 
 /**
- * Replaces `{{name}}` / `${name}` placeholders with values. Placeholders without a value are left unchanged.
+ * Replaces `{{name}}` / `${name}` placeholders with values.
  * @param text - Text containing placeholders.
  * @param values - Placeholder values by name.
  * @returns Text with placeholders replaced.

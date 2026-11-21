@@ -83,7 +83,7 @@ describe('useIdpInstructionsService', () => {
 
   it('does not fetch in preview mode', () => {
     vi.mocked(useCoreClient).mockReturnValue({
-      coreClient: { ...mockCoreClient, auth: { ...mockCoreClient.auth, previewMode: true } },
+      coreClient: { ...mockCoreClient, auth: {}, myOrganizationApiClient: undefined },
     });
 
     render({ kind: 'creation', strategy: 'okta', locale: 'en' });

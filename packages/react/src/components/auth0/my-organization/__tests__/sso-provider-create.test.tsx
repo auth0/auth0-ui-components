@@ -531,8 +531,7 @@ describe('SsoProviderCreate', () => {
 
     const guidedSetupButton = () =>
       screen.queryByRole('button', { name: 'guided_setup_button_text' });
-    // The guided page title, by id: some pages have other headings.
-    const pageTitle = () => document.getElementById('sso-guided-setup-page-title');
+    const pageTitle = () => document.querySelector('[data-slot="sso-guided-setup-page-title"]');
     const domainInput = () => screen.getByRole('textbox', { name: /fields\.okta\.domain\.label/i });
 
     const goToConfigureStep = async (

@@ -1,52 +1,19 @@
 /**
- * Page flow rules for identity provider instructions: which pages show, and when the
- * administrator may leave a page.
+ * Page flow rules for identity provider instructions.
  * @module instructions-flow
  * @internal
  */
 
+import { EXIT_CONDITION_POLICY } from './instructions-constants';
 import type {
-  IdpInstructionsEntryCondition,
-  IdpInstructionsExitCondition,
+  ExitConditionPolicy,
   IdpInstructionsLocale,
-  IdpProvisioningInstructionsEntryCondition,
-  IdpProvisioningInstructionsExitCondition,
+  InstructionsEntryCondition,
+  InstructionsEntryContext,
+  InstructionsExitCondition,
+  InstructionsExitState,
+  InstructionsFlowPage,
 } from './instructions-types';
-
-export type InstructionsKind = 'creation' | 'provisioning';
-
-export type InstructionsEntryCondition =
-  | IdpInstructionsEntryCondition
-  | IdpProvisioningInstructionsEntryCondition;
-
-export type InstructionsExitCondition =
-  | IdpInstructionsExitCondition
-  | IdpProvisioningInstructionsExitCondition;
-
-export interface InstructionsFlowPage {
-  key: string;
-  entry_condition?: string;
-  exit_condition?: string;
-}
-
-export interface InstructionsEntryContext {
-  hasMappings: boolean;
-  groupProvisioningEnabled: boolean;
-}
-
-export interface InstructionsExitState {
-  connectionExists: boolean;
-  googleWorkspaceSetupComplete: boolean;
-}
-
-export type ExitConditionPolicy = 'blocking' | 'suggested';
-
-export const EXIT_CONDITION_POLICY: Record<InstructionsExitCondition, ExitConditionPolicy> = {
-  connection_exists: 'blocking',
-  connection_testing_suggested: 'suggested',
-  token_generation_suggested: 'suggested',
-  google_workspace_setup_complete: 'blocking',
-};
 
 const ENTRY_CONDITION_CHECKS: Record<
   InstructionsEntryCondition,
@@ -60,25 +27,24 @@ const SUPPORTED_LOCALES: readonly IdpInstructionsLocale[] = ['en'];
 const DEFAULT_LOCALE: IdpInstructionsLocale = 'en';
 
 /**
- * Whether a page's entry condition allows it to be shown. Pages without a condition, or with a
- * condition this client does not know, are shown.
+ * Whether a page's entry condition allows it to be shown; unknown conditions show it.
  * @param page - Instruction page.
- * @param context - Facts the conditions depend on.
+ * @param context - Entry condition facts.
  * @returns `true` when the page should be shown.
  */
 export function isPageVisible(
   page: InstructionsFlowPage,
   context: InstructionsEntryContext,
 ): boolean {
-  if (!page.entry_condition) return true;
-  const check = ENTRY_CONDITION_CHECKS[page.entry_condition as InstructionsEntryCondition];
-  return check ? check(context) : true;
+  const condition = page.entry_condition;
+  if (!condition || !Object.hasOwn(ENTRY_CONDITION_CHECKS, condition)) return true;
+  return ENTRY_CONDITION_CHECKS[condition as InstructionsEntryCondition](context);
 }
 
 /**
  * The pages to show, in order.
- * @param pages - Pages from the instructions response.
- * @param context - Facts the entry conditions depend on.
+ * @param pages - Instruction pages.
+ * @param context - Entry condition facts.
  * @returns Visible pages.
  */
 export function resolveVisiblePages<TPage extends InstructionsFlowPage>(
@@ -89,23 +55,22 @@ export function resolveVisiblePages<TPage extends InstructionsFlowPage>(
 }
 
 /**
- * Policy for a page's exit condition. Pages without one, or with one this client does not know,
- * never block.
+ * Policy for a page's exit condition; unknown conditions never block.
  * @param page - Instruction page.
- * @returns The policy, or `undefined` when nothing is required.
+ * @returns The policy, or `undefined` when there is none.
  */
 export function getExitConditionPolicy(
   page: InstructionsFlowPage,
 ): ExitConditionPolicy | undefined {
-  if (!page.exit_condition) return undefined;
-  return EXIT_CONDITION_POLICY[page.exit_condition as InstructionsExitCondition];
+  const condition = page.exit_condition;
+  if (!condition || !Object.hasOwn(EXIT_CONDITION_POLICY, condition)) return undefined;
+  return EXIT_CONDITION_POLICY[condition as InstructionsExitCondition];
 }
 
 /**
- * Whether a page's exit condition currently holds. Suggested conditions always hold; the client
- * prompts but lets the administrator continue.
+ * Whether a page's exit condition holds; suggested conditions always hold.
  * @param page - Instruction page.
- * @param state - Facts the conditions depend on.
+ * @param state - Exit condition facts.
  * @returns `true` when the condition holds or there is none.
  */
 export function isExitConditionMet(
@@ -125,16 +90,15 @@ export function isExitConditionMet(
 /**
  * Whether the administrator may move past a page.
  * @param page - Instruction page.
- * @param state - Facts the exit conditions depend on.
- * @returns `true` unless a blocking exit condition is unmet.
+ * @param state - Exit condition facts.
+ * @returns `true` unless a blocking condition is unmet.
  */
 export function canLeavePage(page: InstructionsFlowPage, state: InstructionsExitState): boolean {
   return getExitConditionPolicy(page) !== 'blocking' || isExitConditionMet(page, state);
 }
 
 /**
- * Maps an application locale (e.g. `en-US`, `fr-FR`) to a locale the instructions endpoints
- * accept, falling back to `en`.
+ * Maps an application locale to a supported instructions locale, falling back to `en`.
  * @param appLocale - Application locale.
  * @returns Instructions locale.
  */
