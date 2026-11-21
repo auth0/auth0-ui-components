@@ -23,6 +23,7 @@ import {
   useStrategyConfigureForm,
 } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
+import { getPrefixedConnectionName } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   SamlpConfigureFormHandle,
   SamlpConfigureFormProps,
@@ -57,10 +58,7 @@ export const SamlpProviderForm = React.forwardRef<
   },
   ref,
 ) {
-  const connectionName =
-    connectionNamePrefix && connectionNameProp
-      ? `${connectionNamePrefix}-${connectionNameProp}`
-      : connectionNameProp;
+  const connectionName = getPrefixedConnectionName(connectionNameProp, connectionNamePrefix);
 
   const spValues = useServiceProviderValues({ connectionName, resolveSamlMetadata });
   const spMetadataUrls = React.useMemo(

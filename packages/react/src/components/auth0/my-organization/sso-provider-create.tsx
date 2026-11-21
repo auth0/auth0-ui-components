@@ -17,6 +17,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { getPrefixedConnectionName } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type { SsoGuidedSetupConfigureForm } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 import type {
   FormState,
@@ -250,6 +251,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
         ref: guidedSetup.configureRef,
         props: {
           initialData: configure ?? undefined,
+          readOnly: Boolean(guidedSetup.provider),
           idpConfig: idpConfig ?? null,
           connectionName: details?.name,
           connectionNamePrefix,
@@ -280,10 +282,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     ],
   );
 
-  const guidedConnectionName =
-    connectionNamePrefix && details?.name
-      ? `${connectionNamePrefix}-${details.name}`
-      : details?.name;
+  const guidedConnectionName = getPrefixedConnectionName(details?.name, connectionNamePrefix);
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -306,6 +305,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}
+              autoFocus
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}
               onCreateProvider={guidedSetup.create}

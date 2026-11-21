@@ -726,6 +726,150 @@ describe('SsoProviderCreate', () => {
       });
     });
 
+    it('locks the configure form once the provider is created', async () => {
+      const user = userEvent.setup();
+      const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .create as ReturnType<typeof vi.fn>;
+      createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await fillOktaConnection(user);
+      await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+      await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Claims Mapping'));
+
+      await user.click(screen.getByRole('button', { name: /Configure Connection/ }));
+
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      expect(domainInput()).toHaveValue('acme.okta.com');
+      expect(domainInput()).toHaveAttribute('readonly');
+    });
+
+    describe('SAML and ADFS connection tabs', () => {
+      const openGuidedConfigure = async (
+        user: ReturnType<typeof userEvent.setup>,
+        strategyName: string,
+      ) => {
+        await goToConfigureStep(user, strategyName);
+        await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+        await waitFor(() => expect(pageTitle()).toBeInTheDocument());
+        while (!pageTitle()?.textContent?.includes('Configure Connection')) {
+          await user.click(screen.getByRole('button', { name: /^next$/ }));
+        }
+      };
+      const tab = (name: 'automatic' | 'manual') =>
+        screen.getByRole('tab', { name: `fields.common.connection_method.${name}` });
+
+      it('keeps the Automatic and Manual SAML values apart', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await openGuidedConfigure(user, 'Custom SAML');
+        const metadataUrl = () =>
+          screen.getByRole('textbox', { name: /fields\.samlp\.meta_data_url\.label/i });
+        const signInUrl = () =>
+          screen.getByRole('textbox', { name: /fields\.samlp\.single_sign_on_login_url\.label/i });
+
+        await user.type(metadataUrl(), 'https://idp.example.com/metadata');
+        await user.click(tab('manual'));
+        await user.type(signInUrl(), 'https://idp.example.com/sso');
+        await user.click(tab('automatic'));
+        expect(metadataUrl()).toHaveValue('https://idp.example.com/metadata');
+        await user.click(tab('manual'));
+        expect(signInUrl()).toHaveValue('https://idp.example.com/sso');
+      });
+
+      it('creates a SAML provider from the Automatic tab only', async () => {
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce({ ...CREATED_PROVIDER, strategy: 'samlp' });
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await openGuidedConfigure(user, 'Custom SAML');
+        await user.type(
+          screen.getByRole('textbox', { name: /fields\.samlp\.meta_data_url\.label/i }),
+          'https://idp.example.com/metadata',
+        );
+        await user.click(tab('manual'));
+        await user.type(
+          screen.getByRole('textbox', { name: /fields\.samlp\.single_sign_on_login_url\.label/i }),
+          'https://idp.example.com/sso',
+        );
+        await user.click(tab('automatic'));
+
+        await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+        await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        const body = JSON.stringify(createApi.mock.calls[0]![0]);
+        expect(body).toContain('https://idp.example.com/metadata');
+        expect(body).not.toContain('https://idp.example.com/sso');
+      });
+
+      it('shows the ADFS Automatic and Manual tabs and keeps the Automatic values', async () => {
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await openGuidedConfigure(user, 'ADFS');
+        const server = () =>
+          screen.getByRole('textbox', { name: /fields\.adfs\.meta_data_url\.label/i });
+
+        await user.type(server(), 'https://adfs.example.com');
+        await user.click(tab('manual'));
+        await user.click(tab('automatic'));
+
+        expect(server()).toHaveValue('https://adfs.example.com');
+      });
+    });
+
+    describe('strategies with connection access fields in the wizard', () => {
+      it('sends third-party and Cross App Access set for ADFS before switching to guided setup', async () => {
+        vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(
+          createMockUseConfig({
+            config: { connection_deletion_behavior: 'allow', allowed_strategies: ['adfs'] },
+            filteredStrategies: ['adfs'],
+            showThirdPartyAccess: true,
+          }),
+        );
+        vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+          createMockUseIdpConfig({
+            showCrossAppAccess: vi.fn(() => true),
+            isCrossAppAccessReadOnly: vi.fn(() => false),
+          }),
+        );
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce({ ...CREATED_PROVIDER, strategy: 'adfs' });
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user, 'ADFS');
+        const [thirdParty, crossAppAccess] = screen.getAllByRole('checkbox', { name: 'label' });
+        await user.click(thirdParty!);
+        await user.click(crossAppAccess!);
+
+        await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+        await waitFor(() => expect(pageTitle()).toBeInTheDocument());
+        while (!pageTitle()?.textContent?.includes('Configure Connection')) {
+          await user.click(screen.getByRole('button', { name: /^next$/ }));
+        }
+        expect(screen.queryByRole('checkbox', { name: 'label' })).not.toBeInTheDocument();
+        await user.type(
+          screen.getByRole('textbox', { name: /fields\.adfs\.meta_data_url\.label/i }),
+          'https://adfs.example.com',
+        );
+        await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+        await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        expect(createApi.mock.calls[0]![0]).toMatchObject({
+          strategy: 'adfs',
+          use_for_third_party_client_access: true,
+          cross_app_access_resource_app: { status: 'enabled' },
+        });
+      });
+    });
+
     it('stays on the configure page when creating fails', async () => {
       const user = userEvent.setup();
       const createAction = createMockCreateAction();
