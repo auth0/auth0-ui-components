@@ -146,23 +146,25 @@ export function useSsoProviderCreateService({
   });
 
   const createProvider = useCallback(
-    async (data: CreateIdentityProviderRequestContentPrivate): Promise<void> => {
+    async (
+      data: CreateIdentityProviderRequestContentPrivate,
+    ): Promise<IdpKnownResponse | undefined> => {
       if (!coreClient) {
         showToast({
           type: 'error',
           message: t('notifications.general_error'),
         });
-        return;
+        return undefined;
       }
 
       if (createAction?.onBefore) {
         const canProceed = createAction.onBefore(data);
         if (!canProceed) {
-          return;
+          return undefined;
         }
       }
 
-      await createProviderMutation.mutateAsync(data);
+      return createProviderMutation.mutateAsync(data);
     },
     [coreClient, createAction, createProviderMutation],
   );
