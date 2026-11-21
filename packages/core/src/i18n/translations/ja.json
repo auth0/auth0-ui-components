@@ -3,6 +3,7 @@
     "copy": "コピー",
     "copied": "コピーしました",
     "copy_failed": "コピーに失敗しました",
+    "your_domain_placeholder": "あなたのドメイン",
     "last_updated": "最終更新日",
     "refresh": "更新",
     "time": {
@@ -449,6 +450,10 @@
             "assign_membership_on_login": {
               "label": "ログイン時にメンバーシップを割り当て",
               "helper_text": "この接続を通じてログインしたユーザーに組織メンバーシップを自動的に付与します"
+            },
+            "connection_method": {
+              "automatic": "自動",
+              "manual": "手動"
             }
           },
           "okta": {

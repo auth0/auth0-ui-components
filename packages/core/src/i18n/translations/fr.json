@@ -3,6 +3,7 @@
     "copy": "Copier",
     "copied": "Copié!",
     "copy_failed": "Échec de la copie",
+    "your_domain_placeholder": "VOTRE_DOMAINE",
     "last_updated": "Dernière mise à jour",
     "refresh": "Rafraîchir",
     "time": {
@@ -396,6 +397,10 @@
             "assign_membership_on_login": {
               "label": "Attribuer l'appartenance lors de la connexion",
               "helper_text": "Accordez automatiquement l'appartenance à l'organisation aux utilisateurs qui se connectent via cette connexion"
+            },
+            "connection_method": {
+              "automatic": "Automatique",
+              "manual": "Manuelle"
             }
           },
           "okta": {
