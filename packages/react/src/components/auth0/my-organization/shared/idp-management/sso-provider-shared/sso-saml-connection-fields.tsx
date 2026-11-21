@@ -5,11 +5,11 @@
  */
 
 import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
-import { useFormContext } from 'react-hook-form';
 
 import { SsoConnectionSourceSelector } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-connection-source-selector';
 import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-file-field';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
+import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
 import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type { SsoSamlConnectionFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
@@ -28,46 +28,45 @@ export function SsoSamlConnectionFields({
   sourceSelector = 'radio',
   customMessages = {},
 }: SsoSamlConnectionFieldsProps) {
-  const { watch } = useFormContext<SamlpConfigureFormValues>();
-  const isManual = watch('meta_data_source') === 'meta_data_file';
+  const certificate = useFileContentField<SamlpConfigureFormValues>('signingCert');
 
   return (
-    <>
-      <SsoConnectionSourceSelector
-        messageKey="fields.samlp.meta_data_source"
-        variant={sourceSelector}
-        readOnly={readOnly}
-        customMessages={customMessages}
-      />
-
-      {!isManual && (
-        <SsoUrlField
-          name="metadataUrl"
-          messageKey="fields.samlp.meta_data_url"
-          required
-          readOnly={readOnly}
-          customMessages={customMessages}
-        />
-      )}
-
-      {isManual && (
-        <>
+    <SsoConnectionSourceSelector
+      messageKey="fields.samlp.meta_data_source"
+      variant={sourceSelector}
+      readOnly={readOnly}
+      customMessages={customMessages}
+      panels={{
+        meta_data_url: (
           <SsoUrlField
-            name="signInEndpoint"
-            messageKey="fields.samlp.single_sign_on_login_url"
+            name="metadataUrl"
+            messageKey="fields.samlp.meta_data_url"
             required
             readOnly={readOnly}
             customMessages={customMessages}
           />
-          <SsoFileField
-            name="signingCert"
-            messageKey="fields.samlp.cert"
-            accept={ALLOWED_CERT_EXTENSIONS.join(',')}
-            readOnly={readOnly}
-            customMessages={customMessages}
-          />
-        </>
-      )}
-    </>
+        ),
+        meta_data_file: (
+          <>
+            <SsoUrlField
+              name="signInEndpoint"
+              messageKey="fields.samlp.single_sign_on_login_url"
+              required
+              readOnly={readOnly}
+              customMessages={customMessages}
+            />
+            <SsoFileField
+              name="signingCert"
+              messageKey="fields.samlp.cert"
+              accept={ALLOWED_CERT_EXTENSIONS.join(',')}
+              files={certificate.files}
+              onFilesChange={certificate.onFilesChange}
+              readOnly={readOnly}
+              customMessages={customMessages}
+            />
+          </>
+        ),
+      }}
+    />
   );
 }

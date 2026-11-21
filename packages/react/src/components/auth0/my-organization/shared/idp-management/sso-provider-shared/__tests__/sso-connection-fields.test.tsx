@@ -2,7 +2,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { AdfsProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/adfs-sso-configure-form';
 import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
@@ -86,7 +86,13 @@ describe('SsoFileField', () => {
   // strategy schema to keep the manual error.
   it('does not set an error without an invalid file message key', async () => {
     const { container } = renderIn(
-      <SsoFileField name="cert" messageKey="fields.samlp.cert" accept=".pem,.cer" />,
+      <SsoFileField
+        name="cert"
+        messageKey="fields.samlp.cert"
+        accept=".pem,.cer"
+        files={[]}
+        onFilesChange={vi.fn()}
+      />,
     );
 
     await dropInvalidFile(container);
@@ -126,6 +132,30 @@ describe('SsoAdfsConnectionFields', () => {
 
     expect(formRef?.getValues('meta_data_source')).toBe('meta_data_file');
     expect(screen.getByText('fields.adfs.federation_metadata_file.label')).toBeInTheDocument();
+  });
+});
+
+describe('selected files across source switches', () => {
+  const selectFile = async (container: HTMLElement, name: string) => {
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [new File(['content'], name)] } });
+    });
+  };
+
+  it('keeps the ADFS federation metadata file visible after switching sources and back', async () => {
+    const { container } = renderIn(<SsoAdfsConnectionFields sourceSelector="tabs" />, {
+      meta_data_source: 'meta_data_file',
+      fedMetadataXml: '',
+    });
+    await selectFile(container, 'federation.xml');
+    expect(screen.getByText('federation.xml')).toBeInTheDocument();
+
+    const [automatic, manual] = screen.getAllByRole('tab');
+    await userEvent.click(automatic!);
+    await userEvent.click(manual!);
+
+    expect(screen.getByText('federation.xml')).toBeInTheDocument();
   });
 });
 

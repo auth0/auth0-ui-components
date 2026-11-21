@@ -9,13 +9,16 @@ import { useFormContext } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import {
   SAML_CONNECTION_SOURCE_TAB_LABEL_KEYS,
   SAML_CONNECTION_SOURCES,
 } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
-import type { SsoConnectionSourceSelectorProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type {
+  SamlConnectionSource,
+  SsoConnectionSourceSelectorProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Selector bound to the `meta_data_source` form field.
@@ -23,6 +26,7 @@ import type { SsoConnectionSourceSelectorProps } from '@/types/my-organization/i
  * @param props.messageKey - Message key prefix for the label and radio options.
  * @param props.variant - `radio` (default) or `tabs`.
  * @param props.readOnly - Disable editing.
+ * @param props.panels - Fields shown for each source; the tabs variant renders them as tab panels.
  * @param props.customMessages - Custom translation messages.
  * @returns JSX element
  */
@@ -30,6 +34,7 @@ export function SsoConnectionSourceSelector({
   messageKey,
   variant = 'radio',
   readOnly = false,
+  panels,
   customMessages = {},
 }: SsoConnectionSourceSelectorProps) {
   const { t } = useTranslator(
@@ -44,8 +49,8 @@ export function SsoConnectionSourceSelector({
       name="meta_data_source"
       render={({ field }) =>
         variant === 'tabs' ? (
-          <FormItem>
-            <Tabs value={field.value} onValueChange={field.onChange}>
+          <Tabs value={field.value} onValueChange={field.onChange} className="gap-6">
+            <FormItem>
               <TabsList aria-label={t(`${messageKey}.label`)}>
                 {SAML_CONNECTION_SOURCES.map((source) => (
                   <TabsTrigger key={source} value={source} disabled={readOnly}>
@@ -53,31 +58,39 @@ export function SsoConnectionSourceSelector({
                   </TabsTrigger>
                 ))}
               </TabsList>
-            </Tabs>
-            <FormMessage role="alert" className="text-left text-paragraph" />
-          </FormItem>
+              <FormMessage role="alert" className="text-left text-paragraph" />
+            </FormItem>
+            {SAML_CONNECTION_SOURCES.map((source) => (
+              <TabsContent key={source} value={source} className="space-y-6">
+                {panels?.[source]}
+              </TabsContent>
+            ))}
+          </Tabs>
         ) : (
-          <FormItem>
-            <FormLabel className="text-label font-medium">{t(`${messageKey}.label`)}</FormLabel>
-            <FormControl>
-              <RadioGroup
-                value={field.value}
-                onValueChange={field.onChange}
-                disabled={readOnly}
-                className="flex flex-col space-y-2"
-              >
-                {SAML_CONNECTION_SOURCES.map((source) => (
-                  <div key={source} className="flex items-center space-x-2">
-                    <RadioGroupItem value={source} id={source} />
-                    <Label htmlFor={source} className="text-sm font-normal cursor-pointer">
-                      {t(`${messageKey}.options.${source}.label`)}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </FormControl>
-            <FormMessage role="alert" className="text-left text-paragraph" />
-          </FormItem>
+          <>
+            <FormItem>
+              <FormLabel className="text-label font-medium">{t(`${messageKey}.label`)}</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={readOnly}
+                  className="flex flex-col space-y-2"
+                >
+                  {SAML_CONNECTION_SOURCES.map((source) => (
+                    <div key={source} className="flex items-center space-x-2">
+                      <RadioGroupItem value={source} id={source} />
+                      <Label htmlFor={source} className="text-sm font-normal cursor-pointer">
+                        {t(`${messageKey}.options.${source}.label`)}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+              <FormMessage role="alert" className="text-left text-paragraph" />
+            </FormItem>
+            {panels?.[field.value as SamlConnectionSource]}
+          </>
         )
       }
     />

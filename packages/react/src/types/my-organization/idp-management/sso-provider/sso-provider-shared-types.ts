@@ -4,6 +4,11 @@
  * @internal
  */
 
+import type {
+  PingFederateConfigureFormValues,
+  SamlpConfigureFormValues,
+} from '@auth0/universal-components-core';
+import type * as React from 'react';
 import type { DefaultValues, FieldValues, Mode, Path, UseFormReturn } from 'react-hook-form';
 import type { z } from 'zod';
 
@@ -14,21 +19,25 @@ export interface SelectOption {
 
 export interface SamlSelectFieldConfig {
   name: 'signatureAlgorithm' | 'digestAlgorithm' | 'bindingMethod';
-  /** Message key under the request settings prefix, e.g. `sign_request_algorithm`. */
   messageKey: string;
   options: readonly SelectOption[];
 }
+
+export type SamlRequestSettingsFormValues = Pick<
+  PingFederateConfigureFormValues,
+  'signSAMLRequest' | 'signatureAlgorithm' | 'digestAlgorithm'
+> &
+  Partial<Pick<SamlpConfigureFormValues, 'meta_data_source' | 'bindingMethod'>>;
 
 export type SamlConnectionSource = 'meta_data_url' | 'meta_data_file';
 
 export type ConnectionSourceSelectorVariant = 'radio' | 'tabs';
 
 export interface SsoConnectionSourceSelectorProps {
-  /** Message key prefix, e.g. `fields.samlp.meta_data_source`. */
   messageKey: string;
-  /** `radio` (advanced flow) or `tabs` (guided setup, Automatic / Manual). */
   variant?: ConnectionSourceSelectorVariant;
   readOnly?: boolean;
+  panels?: Partial<Record<SamlConnectionSource, React.ReactNode>>;
   customMessages?: Partial<Record<string, unknown>>;
 }
 
@@ -40,16 +49,10 @@ export interface SsoSamlConnectionFieldsProps {
 
 export interface SsoSamlRequestSettingsProps {
   signRequestCertUrl: string;
-  /** Message key prefix, e.g. `fields.samlp.advanced_settings`. */
   messageKey?: string;
   readOnly?: boolean;
   showSignRequest?: boolean;
-  /** Show the request protocol binding select (not used by PingFederate). */
   showProtocolBinding?: boolean;
-  /**
-   * `by-source`: the sign request help text follows `meta_data_source`
-   * (`helper_text_metadata_url` / `helper_text_metadata_file`). `single`: one `helper_text`.
-   */
   signRequestHelperText?: 'by-source' | 'single';
   customMessages?: Partial<Record<string, unknown>>;
 }
@@ -107,4 +110,28 @@ export interface UseServiceProviderValuesOptions {
   connectionName?: string;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   fallbackDomain?: string;
+}
+
+export interface SsoAdfsConnectionFieldsProps {
+  readOnly?: boolean;
+  sourceSelector?: ConnectionSourceSelectorVariant;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoFileFieldProps extends UseFileContentFieldResult {
+  name: string;
+  messageKey: string;
+  accept: string;
+  readOnly?: boolean;
+  invalidFileMessageKey?: string;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoUrlFieldProps {
+  name: string;
+  messageKey: string;
+  readOnly?: boolean;
+  required?: boolean;
+  copyable?: boolean;
+  customMessages?: Partial<Record<string, unknown>>;
 }
