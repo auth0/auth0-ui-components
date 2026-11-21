@@ -4,7 +4,6 @@
  * @internal
  */
 
-import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
 import {
@@ -37,6 +36,7 @@ import {
   SAML_SIGNATURE_ALGORITHM_FIELD,
 } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type {
+  SamlRequestSettingsFormValues,
   SamlSelectFieldConfig,
   SsoSamlRequestSettingsProps,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
@@ -67,7 +67,7 @@ export function SsoSamlRequestSettings({
     'idp_management.create_sso_provider.provider_configure',
     customMessages,
   );
-  const { control, watch } = useFormContext<SamlpConfigureFormValues>();
+  const { control, watch } = useFormContext<SamlRequestSettingsFormValues>();
 
   const source = watch('meta_data_source');
   const signRequestEnabled = watch('signSAMLRequest');

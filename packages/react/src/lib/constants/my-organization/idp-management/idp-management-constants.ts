@@ -60,6 +60,10 @@ export const SAML_CONNECTION_SOURCE_TAB_LABEL_KEYS = {
   meta_data_file: 'fields.common.connection_method.manual',
 } as const;
 
+export const PING_FEDERATE_HELP_LINKS = {
+  sign_request: 'domain/pem?cert=connection',
+} as const;
+
 export const CONFIGURE_ORG_DOMAINS_DOCS_URL =
   'https://auth0.com/docs/get-started/universal-components/web/components/configure-org-domains';
 
