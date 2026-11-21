@@ -3466,11 +3466,6 @@
           "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx"
         },
         {
-          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx"
-        },
-        {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx"
@@ -3894,6 +3889,11 @@
           "path": "src/hooks/my-organization/use-guided-setup-flow.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-guided-setup-flow.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-guided-setup-instructions.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-guided-setup-instructions.ts"
         },
         {
           "path": "src/hooks/my-organization/use-oidc-channel.ts",
@@ -4322,11 +4322,6 @@
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx",
           "type": "registry:component",
           "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page.tsx"
-        },
-        {
-          "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx",
-          "type": "registry:component",
-          "target": "components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context.tsx"
         },
         {
           "path": "src/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-create-modal.tsx",
@@ -4892,6 +4887,11 @@
           "path": "src/hooks/my-organization/use-guided-setup-flow.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/use-guided-setup-flow.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/use-guided-setup-instructions.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/use-guided-setup-instructions.ts"
         },
         {
           "path": "src/hooks/my-organization/use-oidc-channel.ts",
