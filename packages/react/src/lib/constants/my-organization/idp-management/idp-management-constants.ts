@@ -64,6 +64,14 @@ export const PING_FEDERATE_HELP_LINKS = {
   sign_request: 'domain/pem?cert=connection',
 } as const;
 
+export const OKTA_HELP_LINKS = {
+  domain: 'https://developer.okta.com/docs/guides/find-your-domain/main/',
+  client_id: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
+  client_secret: 'https://developer.okta.com/docs/guides/find-your-app-credentials/main',
+} as const;
+
+export const OIDC_CHANNELS = ['back_channel', 'front_channel'] as const;
+
 export const CONFIGURE_ORG_DOMAINS_DOCS_URL =
   'https://auth0.com/docs/get-started/universal-components/web/components/configure-org-domains';
 
