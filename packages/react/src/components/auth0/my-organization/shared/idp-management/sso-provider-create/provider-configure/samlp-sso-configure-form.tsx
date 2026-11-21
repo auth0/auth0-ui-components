@@ -5,9 +5,9 @@
  */
 
 import {
+  createProviderConfigureSchema,
   STRATEGIES,
   type SamlpConfigureFormInput,
-  type SamlpConfigureFormValues,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
@@ -17,18 +17,16 @@ import { SsoSamlConnectionFields } from '@/components/auth0/my-organization/shar
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoSamlServiceProviderFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields';
 import { Form } from '@/components/ui/form';
-import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
+import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import {
   parseStrategyConfigureValues,
   useStrategyConfigureForm,
-  type StrategyConfigureFormHandle,
-} from '@/hooks/my-organization/use-strategy-configure-form';
+} from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-
-export type SamlpConfigureFormHandle = StrategyConfigureFormHandle<SamlpConfigureFormValues>;
-
-type SamlpConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+import type {
+  SamlpConfigureFormHandle,
+  SamlpConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export const SamlpProviderForm = React.forwardRef<
   SamlpConfigureFormHandle,
@@ -78,8 +76,9 @@ export const SamlpProviderForm = React.forwardRef<
   const defaultMetaDataSource =
     samlpData?.meta_data_source ?? (hasSignInEndpoint ? 'meta_data_file' : 'meta_data_url');
 
-  const form = useStrategyConfigureForm<SamlpConfigureFormValues>(ref, {
-    strategy: 'samlp',
+  const schema = createProviderConfigureSchema('samlp');
+  const form = useStrategyConfigureForm(ref, {
+    schema,
     onFormDirty,
     defaultValues: {
       meta_data_source: defaultMetaDataSource,
@@ -104,7 +103,7 @@ export const SamlpProviderForm = React.forwardRef<
     },
     getData: (samlpForm) => {
       const values = samlpForm.getValues();
-      return parseStrategyConfigureValues('samlp', {
+      return parseStrategyConfigureValues(schema, {
         ...values,
         protocolBinding: values.bindingMethod,
       });

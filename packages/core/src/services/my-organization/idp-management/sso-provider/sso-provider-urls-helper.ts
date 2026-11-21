@@ -1,65 +1,62 @@
 /**
- * Service provider (Auth0 side) values an administrator copies into their identity provider.
- * Shared by the strategy forms and the guided setup copy fields.
- * @module sso-provider-urls
+ * Auth0-side values an administrator copies into their identity provider.
+ * @module sso-provider-urls-helper
  */
 
 /**
- * Tenant name used in SAML URNs: the first label of the Auth0 domain.
- * For custom domains this is not the tenant name; callers that know the real entity ID should
- * supply it instead (see `resolveSamlMetadata` on the SAML form).
- * @param domain - Auth0 domain, e.g. `acme.us.auth0.com`.
- * @returns The first domain label, or `''`.
+ * First label of the Auth0 domain, used as the tenant in SAML URNs. Wrong for custom domains.
+ * @param domain - Auth0 domain.
+ * @returns The tenant, or `''`.
  */
 export function getTenantFromDomain(domain: string): string {
   return domain.split('.')[0] ?? '';
 }
 
 /**
- * OAuth / OIDC callback URL. Also the ADFS WS-Federation passive URL and the Google redirect URI.
+ * OIDC callback URL, also used for ADFS WS-Federation and the Google redirect URI.
  * @param domain - Auth0 domain.
- * @returns `https://{domain}/login/callback`.
+ * @returns The URL.
  */
 export function buildCallbackUrl(domain: string): string {
   return `https://${domain}/login/callback`;
 }
 
 /**
- * SAML Single Sign-On (assertion consumer service) URL. Also the PingFederate endpoint URL.
+ * SAML single sign-on URL, also the PingFederate endpoint URL.
  * @param domain - Auth0 domain.
- * @param connectionName - Connection name; omitted from the URL when empty.
- * @returns `https://{domain}/login/callback?connection={connectionName}`.
+ * @param connectionName - Connection name, URL-encoded, left out when empty.
+ * @returns The URL.
  */
 export function buildSamlSsoUrl(domain: string, connectionName?: string): string {
-  const query = connectionName ? `?connection=${connectionName}` : '';
+  const query = connectionName ? `?connection=${encodeURIComponent(connectionName)}` : '';
   return `${buildCallbackUrl(domain)}${query}`;
 }
 
 /**
  * SAML service provider metadata URL.
  * @param domain - Auth0 domain.
- * @param connectionName - Connection name; omitted from the URL when empty.
- * @returns `https://{domain}/samlp/metadata?connection={connectionName}`.
+ * @param connectionName - Connection name, URL-encoded, left out when empty.
+ * @returns The URL.
  */
 export function buildSamlMetadataUrl(domain: string, connectionName?: string): string {
-  const query = connectionName ? `?connection=${connectionName}` : '';
+  const query = connectionName ? `?connection=${encodeURIComponent(connectionName)}` : '';
   return `https://${domain}/samlp/metadata${query}`;
 }
 
 /**
- * Certificate used to verify signed SAML requests.
+ * Certificate URL for verifying signed SAML requests.
  * @param domain - Auth0 domain.
- * @returns `https://{domain}/pem?cert=connection`.
+ * @returns The URL.
  */
 export function buildSignRequestCertUrl(domain: string): string {
   return `https://${domain}/pem?cert=connection`;
 }
 
 /**
- * SAML service provider entity ID (audience). Also the PingFederate partner's entity ID.
+ * SAML service provider entity ID, also the PingFederate partner entity ID.
  * @param domain - Auth0 domain.
  * @param connectionName - Connection name.
- * @returns `urn:auth0:{tenant}:{connectionName}`, or `''` without a connection name or tenant.
+ * @returns The entity ID, or `''` without a tenant or connection name.
  */
 export function buildServiceProviderEntityId(domain: string, connectionName?: string): string {
   const tenant = getTenantFromDomain(domain);
@@ -67,9 +64,9 @@ export function buildServiceProviderEntityId(domain: string, connectionName?: st
 }
 
 /**
- * ADFS relying party trust identifier. Unlike the SAML entity ID it has no connection name.
+ * ADFS relying party trust identifier.
  * @param domain - Auth0 domain.
- * @returns `urn:auth0:{tenant}`, or `''` without a tenant.
+ * @returns The identifier, or `''` without a tenant.
  */
 export function buildAdfsRelyingPartyIdentifier(domain: string): string {
   const tenant = getTenantFromDomain(domain);
@@ -79,23 +76,22 @@ export function buildAdfsRelyingPartyIdentifier(domain: string): string {
 /**
  * Google Workspace authorized JavaScript origin.
  * @param domain - Auth0 domain.
- * @returns `https://{domain}`.
+ * @returns The origin.
  */
 export function buildGoogleJavascriptOrigin(domain: string): string {
   return `https://${domain}`;
 }
 
 /**
- * SCIM 2.0 endpoint for a provider's provisioning.
+ * SCIM endpoint for a provider's provisioning.
  * @param domain - Auth0 domain.
- * @param connectionId - Provider (connection) ID.
- * @returns `https://{domain}/scim/v2/connections/{connectionId}/`.
+ * @param connectionId - Provider ID, URL-encoded.
+ * @returns The URL.
  */
 export function buildScimEndpointUrl(domain: string, connectionId: string): string {
-  return `https://${domain}/scim/v2/connections/${connectionId}/`;
+  return `https://${domain}/scim/v2/connections/${encodeURIComponent(connectionId)}/`;
 }
 
-/** All service provider values for a domain and connection. */
 export interface ServiceProviderValues {
   callbackUrl: string;
   samlSsoUrl: string;
@@ -114,9 +110,9 @@ export interface ServiceProviderValues {
  * Builds every service provider value for a domain and connection.
  * @param domain - Auth0 domain.
  * @param options - Options.
- * @param options.connectionName - Connection name (SAML, PingFederate values).
- * @param options.entityId - Entity ID to use instead of the domain-derived one (custom domains).
- * @returns The values, keyed by name.
+ * @param options.connectionName - Connection name.
+ * @param options.entityId - Entity ID that replaces the domain-derived one.
+ * @returns The values by name.
  */
 export function buildServiceProviderValues(
   domain: string,

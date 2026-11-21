@@ -27,16 +27,16 @@ import {
   PingFederateProviderForm,
   type PingFederateConfigureFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/ping-federate-sso-configure-form';
-import {
-  SamlpProviderForm,
-  type SamlpConfigureFormHandle,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
+import { SamlpProviderForm } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/samlp-sso-configure-form';
 import {
   WaadProviderForm,
   type WaadConfigureFormHandle,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/waad-sso-configure-form';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type {
+  ProviderConfigureFieldsProps,
+  SamlpConfigureFormHandle,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 export type ProviderConfigureFormHandle =
   | OktaConfigureFormHandle
