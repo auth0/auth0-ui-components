@@ -5,6 +5,12 @@ import { useServiceProviderValues } from '../use-service-provider-values';
 
 const mockGetDomain = vi.fn<() => string | undefined>();
 
+vi.mock('@/hooks/shared/use-translator', () => ({
+  useTranslator: () => ({
+    t: (key: string) => (key === 'your_domain_placeholder' ? 'YOUR_DOMAIN' : key),
+  }),
+}));
+
 vi.mock('@/hooks/shared/use-core-client', () => ({
   useCoreClient: () => ({ coreClient: { getDomain: mockGetDomain } }),
 }));
