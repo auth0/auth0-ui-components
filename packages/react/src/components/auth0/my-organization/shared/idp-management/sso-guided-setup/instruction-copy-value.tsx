@@ -7,7 +7,7 @@
 import type { ServiceProviderValues } from '@auth0/universal-components-core';
 
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
-import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
+import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 

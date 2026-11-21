@@ -22,12 +22,14 @@ import type {
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
   GetIdpConfigurationResponseContent,
+  SamlpConfigureFormValues,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 export interface ProviderConfigureHandle {
@@ -148,6 +150,10 @@ export interface ProviderConfigureFieldsProps
    */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
+
+export type SamlpConfigureFormHandle = StrategyConfigureFormHandle<SamlpConfigureFormValues>;
+
+export type SamlpConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 /** Cross App Access status of a connection. */
 export type CrossAppAccessStatus = 'enabled' | 'disabled';

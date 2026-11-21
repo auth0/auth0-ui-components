@@ -4,14 +4,11 @@
  * @internal
  */
 
+import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
+
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoSamlServiceProviderFieldsProps {
-  /** SP entity ID (issuer URN) to display. */
-  spIssuerUrn: string;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoSamlServiceProviderFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Renders the SAML service provider values. The URLs are read from the form fields
@@ -32,17 +29,17 @@ export function SsoSamlServiceProviderFields({
 
   return (
     <>
-      <SsoServiceProviderField
+      <SsoServiceProviderField<SamlpConfigureFormValues>
         name="callback_url"
         label={t('fields.samlp.callback_url.label')}
         helperText={t('fields.samlp.callback_url.helper_text')}
       />
-      <SsoServiceProviderField
+      <SsoServiceProviderField<SamlpConfigureFormValues>
         name="acs_url"
         label={t('fields.samlp.acs_url.label')}
         helperText={t('fields.samlp.acs_url.helper_text')}
       />
-      <SsoServiceProviderField
+      <SsoServiceProviderField<SamlpConfigureFormValues>
         name="sp_metadata_url"
         label={t('fields.samlp.sp_metadata_url.label')}
         helperText={t('fields.samlp.sp_metadata_url.helper_text')}
