@@ -88,7 +88,42 @@ describe('SsoSamlConnectionFields', () => {
 
     await userEvent.click(screen.getAllByRole('tab')[1]!);
 
-    expect(formRef?.formState.dirtyFields.meta_data_source).toBe(true);
+    expect(formRef?.getFieldState('meta_data_source').isDirty).toBe(true);
+  });
+
+  it("renders the tab panel each tab controls, holding that source's fields", async () => {
+    renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />);
+
+    const [automatic, manual] = screen.getAllByRole('tab');
+    const panel = screen.getByRole('tabpanel');
+
+    expect(automatic).toHaveAttribute('aria-controls', panel.id);
+    expect(panel).toContainElement(screen.getByText('fields.samlp.meta_data_url.label'));
+
+    await userEvent.click(manual!);
+    const manualPanel = screen.getByRole('tabpanel');
+
+    expect(manual).toHaveAttribute('aria-controls', manualPanel.id);
+    expect(manualPanel).toContainElement(
+      screen.getByText('fields.samlp.single_sign_on_login_url.label'),
+    );
+  });
+
+  it('keeps the signing certificate visible after switching sources and back', async () => {
+    const { container } = renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />, {
+      meta_data_source: 'meta_data_file',
+    });
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    await act(async () => {
+      fireEvent.change(input, { target: { files: [new File(['pem'], 'signing.pem')] } });
+    });
+    expect(screen.getByText('signing.pem')).toBeInTheDocument();
+
+    const [automatic, manual] = screen.getAllByRole('tab');
+    await userEvent.click(automatic!);
+    await userEvent.click(manual!);
+
+    expect(screen.getByText('signing.pem')).toBeInTheDocument();
   });
 
   it('disables the selector when read only', () => {

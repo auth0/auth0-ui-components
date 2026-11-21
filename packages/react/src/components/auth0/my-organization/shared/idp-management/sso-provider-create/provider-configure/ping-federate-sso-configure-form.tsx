@@ -17,22 +17,46 @@ import { SsoFileField } from '@/components/auth0/my-organization/shared/idp-mana
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-url-field';
 import { Form } from '@/components/ui/form';
+import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
 import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
-import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
+import {
+  ALLOWED_CERT_EXTENSIONS,
+  PING_FEDERATE_HELP_LINKS,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
-
-const PING_FEDERATE_HELP_LINKS = {
-  sign_request: 'domain/pem?cert=connection',
-} as const;
+import type {
+  PingFederateConfigureFormHandle,
+  PingFederateConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('pingfederate');
 
-export type PingFederateConfigureFormHandle =
-  StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
+/**
+ * Signing certificate upload. Owns the selected file so it sits inside the form provider.
+ * @param props - Component props.
+ * @param props.readOnly - Disable the upload.
+ * @param props.customMessages - Custom translation messages.
+ * @returns JSX element
+ */
+function PingFederateSigningCertField({
+  readOnly,
+  customMessages,
+}: Pick<PingFederateConfigureFormProps, 'readOnly' | 'customMessages'>) {
+  const signingCert = useFileContentField<PingFederateConfigureFormValues>('signingCert');
 
-interface PingFederateConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
+  return (
+    <SsoFileField
+      name="signingCert"
+      messageKey="fields.ping-federate.sign_cert"
+      accept={ALLOWED_CERT_EXTENSIONS.join(',')}
+      files={signingCert.files}
+      onFilesChange={signingCert.onFilesChange}
+      invalidFileMessageKey="fields.ping-federate.sign_cert.error"
+      readOnly={readOnly}
+      customMessages={customMessages}
+    />
+  );
+}
 
 export const PingFederateProviderForm = React.forwardRef<
   PingFederateConfigureFormHandle,
@@ -90,14 +114,7 @@ export const PingFederateProviderForm = React.forwardRef<
           customMessages={customMessages}
         />
 
-        <SsoFileField
-          name="signingCert"
-          messageKey="fields.ping-federate.sign_cert"
-          accept={ALLOWED_CERT_EXTENSIONS.join(',')}
-          invalidFileMessageKey="fields.ping-federate.sign_cert.error"
-          readOnly={readOnly}
-          customMessages={customMessages}
-        />
+        <PingFederateSigningCertField readOnly={readOnly} customMessages={customMessages} />
 
         <SsoSamlRequestSettings
           signRequestCertUrl={PING_FEDERATE_HELP_LINKS.sign_request}
