@@ -37,14 +37,11 @@ export interface SsoGuidedSetupSlots {
   googleWorkspaceSetup?: React.ReactNode;
 }
 
-/** Values every instruction content component can read. */
-export interface SsoGuidedSetupContextValue {
+/** UI state the guided setup passes to every instruction content component. */
+export interface InstructionSetup {
   kind: InstructionsKind;
   strategy: IdpStrategy;
-  baseUrl?: string;
-  tenant?: string;
   connectionName?: string;
-  companyName?: string;
   provider?: IdpKnownResponse | null;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   configure?: SsoGuidedSetupConfigureForm;
@@ -56,6 +53,8 @@ export interface SsoGuidedSetupContextValue {
 /** Props every instruction content component receives. */
 export interface InstructionContentProps {
   content: InstructionContent;
+  setup: InstructionSetup;
+  renderers: InstructionRenderers;
 }
 
 /** Content type → component that renders it. */
