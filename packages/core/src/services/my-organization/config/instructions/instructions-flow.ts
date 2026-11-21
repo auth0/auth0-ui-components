@@ -4,8 +4,7 @@
  * @internal
  */
 
-import { EXIT_CONDITION_POLICY } from '../config-constants';
-
+import { EXIT_CONDITION_POLICY } from './instructions-constants';
 import type {
   ExitConditionPolicy,
   IdpInstructionsLocale,

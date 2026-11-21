@@ -21,6 +21,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
+import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { createTestQueryClient, renderWithProviders } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type { SsoProviderCreateProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -508,6 +509,242 @@ describe('SsoProviderCreate', () => {
           });
         });
       });
+    });
+  });
+
+  describe('guidedSetup', () => {
+    const CREATED_PROVIDER = {
+      id: 'con_123',
+      name: 'my-okta',
+      strategy: 'okta',
+      options: {},
+      attributes: [
+        {
+          user_attribute_profile_id: 'email',
+          label: 'Email',
+          description: 'Email',
+          sso_field: ['email'],
+          is_required: true,
+        },
+      ],
+    } as unknown as IdpKnownResponse;
+
+    const guidedSetupButton = () =>
+      screen.queryByRole('button', { name: 'guided_setup_button_text' });
+    const pageTitle = () => document.querySelector('[data-slot="sso-guided-setup-page-title"]');
+    const domainInput = () => screen.getByRole('textbox', { name: /fields\.okta\.domain\.label/i });
+
+    const goToConfigureStep = async (
+      user: ReturnType<typeof userEvent.setup>,
+      strategyName = 'Okta',
+    ) => {
+      await waitForComponentToLoad();
+      const strategyButtons = await waitForStrategyButtons();
+      const strategyButton = Array.from(strategyButtons).find((button) =>
+        button.textContent?.includes(strategyName),
+      );
+      await user.click(strategyButton!);
+      await user.type(screen.getByRole('textbox', { name: /fields\.name\.label/i }), 'my-okta');
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.display_name\.label/i }),
+        'My Okta',
+      );
+      await user.click(screen.getByRole('button', { name: /nextbuttonlabel/i }));
+      await screen.findByRole('button', { name: /completebuttonlabel/i });
+    };
+
+    const fillOktaConnection = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(domainInput(), 'acme.okta.com');
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.okta\.client_id\.label/i }),
+        'client-id',
+      );
+      await user.type(screen.getByLabelText(/fields\.okta\.client_secret\.label/i), 'secret');
+    };
+
+    it('is not offered unless enabled', async () => {
+      const user = userEvent.setup();
+      renderCreate();
+
+      await goToConfigureStep(user);
+
+      expect(guidedSetupButton()).not.toBeInTheDocument();
+    });
+
+    it('is not offered without permission to read the configuration', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderCreate
+          {...createMockSsoProviderCreateProps({ guidedSetup: { enabled: true } })}
+        />,
+        {
+          queryClient,
+          permissions: ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:configuration'),
+        },
+      );
+
+      await goToConfigureStep(user);
+
+      expect(guidedSetupButton()).not.toBeInTheDocument();
+    });
+
+    it('opens guided setup on the same page with the values entered so far', async () => {
+      const user = userEvent.setup();
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.type(domainInput(), 'acme.okta.com');
+
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      expect(
+        screen.queryByRole('button', { name: /completebuttonlabel/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('https://test-domain.auth0.com/login/callback'),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      expect(domainInput()).toHaveValue('acme.okta.com');
+    });
+
+    it('leaves the SAML service provider values out of the guided form', async () => {
+      const user = userEvent.setup();
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user, 'Custom SAML');
+      expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
+
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      for (const field of ['callback_url', 'acs_url', 'sp_metadata_url', 'sp_issuer_urn']) {
+        expect(screen.queryByText(`fields.samlp.${field}.label`)).not.toBeInTheDocument();
+      }
+    });
+
+    it('keeps the configure values when moving between pages', async () => {
+      const user = userEvent.setup();
+      renderCreate({ guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      await user.type(domainInput(), 'acme.okta.com');
+      await user.click(screen.getByRole('button', { name: /create application/i }));
+      expect(pageTitle()).toHaveTextContent('Create Application');
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+      expect(domainInput()).toHaveValue('acme.okta.com');
+    });
+
+    it('creates the provider mid-flow and runs onAfter on Done', async () => {
+      const user = userEvent.setup();
+      const createAction = createMockCreateAction();
+      const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .create as ReturnType<typeof vi.fn>;
+      createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+      renderCreate({ createAction, guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await fillOktaConnection(user);
+
+      await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+      await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Claims Mapping'));
+      expect(createApi).toHaveBeenCalledTimes(1);
+      expect(createApi.mock.calls[0]![0]).toMatchObject({
+        strategy: 'okta',
+        name: 'my-okta',
+        display_name: 'My Okta',
+      });
+      expect(createAction.onAfter).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await user.click(screen.getByRole('button', { name: /^done$/ }));
+
+      expect(createAction.onAfter).toHaveBeenCalledTimes(1);
+      expect(createAction.onAfter).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'my-okta', strategy: 'okta' }),
+        CREATED_PROVIDER,
+      );
+    });
+
+    describe('connection access set in the advanced form', () => {
+      const createThroughGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
+        await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+        await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+        await fillOktaConnection(user);
+        await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+        await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+      };
+
+      it('sends third-party access set before switching to guided setup', async () => {
+        vi.spyOn(useConfigModule, 'useConfig').mockReturnValue(
+          createMockUseConfig({
+            config: { connection_deletion_behavior: 'allow', allowed_strategies: ['okta'] },
+            filteredStrategies: ['okta'],
+            showThirdPartyAccess: true,
+          }),
+        );
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+        await user.click(screen.getByRole('checkbox', { name: 'label' }));
+
+        await createThroughGuidedSetup(user);
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        expect(createApi.mock.calls[0]![0]).toMatchObject({
+          use_for_third_party_client_access: true,
+        });
+      });
+
+      it('leaves out access fields the advanced form never showed', async () => {
+        const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .create as ReturnType<typeof vi.fn>;
+        createApi.mockResolvedValueOnce(CREATED_PROVIDER);
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user);
+
+        await createThroughGuidedSetup(user);
+
+        await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+        expect(createApi.mock.calls[0]![0].use_for_third_party_client_access).toBeUndefined();
+      });
+    });
+
+    it('stays on the configure page when creating fails', async () => {
+      const user = userEvent.setup();
+      const createAction = createMockCreateAction();
+      const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .create as ReturnType<typeof vi.fn>;
+      createApi.mockRejectedValueOnce(new Error('boom'));
+      renderCreate({ createAction, guidedSetup: { enabled: true } });
+      await goToConfigureStep(user);
+      await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+      await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      await user.click(screen.getByRole('button', { name: /^next$/ }));
+      await fillOktaConnection(user);
+
+      await user.click(screen.getByRole('button', { name: /^create_provider$/ }));
+      await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
+
+      await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+      expect(pageTitle()).toHaveTextContent('Configure Connection');
+      expect(createAction.onAfter).not.toHaveBeenCalled();
     });
   });
 

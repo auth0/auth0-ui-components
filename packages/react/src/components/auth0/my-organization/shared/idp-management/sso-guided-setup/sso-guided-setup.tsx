@@ -46,6 +46,7 @@ export function SsoGuidedSetup({
   onBeforeCreate,
   onCreateProvider,
   onComplete,
+  onLeavePage,
   customMessages = {},
   className,
 }: SsoGuidedSetupProps) {
@@ -60,14 +61,22 @@ export function SsoGuidedSetup({
     entryContext,
     initialPageKey,
   });
+  const currentPage = flow.currentPage;
+  const leavePage = React.useCallback(
+    (navigate: () => void) => {
+      if (currentPage) onLeavePage?.(currentPage);
+      navigate();
+    },
+    [currentPage, onLeavePage],
+  );
   const creation = useGuidedSetupCreation({
     flow,
     provider,
+    leavePage,
     onBeforeCreate,
     onCreateProvider,
     onComplete,
   });
-  const currentPage = flow.currentPage;
   const pageTitleId = useId();
   const pageTitleRef = React.useRef<HTMLHeadingElement>(null);
   const shownPageKey = React.useRef(currentPage?.key);
@@ -142,7 +151,7 @@ export function SsoGuidedSetup({
             orientation="vertical"
             steps={flow.visiblePages.map((page) => ({ id: page.key, title: page.title }))}
             currentStep={flow.currentIndex}
-            onStepClick={(index) => flow.goToPage(index)}
+            onStepClick={(index) => leavePage(() => flow.goToPage(index))}
           />
         </nav>
 

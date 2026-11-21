@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { EXIT_CONDITION_POLICY } from '../../config-constants';
+import { EXIT_CONDITION_POLICY } from '../instructions-constants';
 import {
   canLeavePage,
   getExitConditionPolicy,
