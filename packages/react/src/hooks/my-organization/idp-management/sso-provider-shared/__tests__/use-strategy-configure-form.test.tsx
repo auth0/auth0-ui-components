@@ -108,10 +108,10 @@ describe('useStrategyConfigureForm validation mode', () => {
     expect(hook.result.current.control._options.mode).toBe('onTouched');
   });
 
-  it('keeps an explicit undefined mode (react-hook-form default)', () => {
-    const { hook } = setup({ mode: undefined });
+  it('validates on submit when read only', () => {
+    const { hook } = setup({ readOnly: true });
 
-    expect(hook.result.current.control._options.mode).toBeUndefined();
+    expect(hook.result.current.control._options.mode).toBe('onSubmit');
   });
 });
 

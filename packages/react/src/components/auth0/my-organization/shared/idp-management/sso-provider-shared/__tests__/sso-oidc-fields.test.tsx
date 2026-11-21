@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import { describe, expect, it } from 'vitest';
 
 import { SsoCallbackUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field';
@@ -9,30 +9,21 @@ import { SsoClientCredentialsFields } from '@/components/auth0/my-organization/s
 import { SsoIdpDomainField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field';
 import { SsoOidcConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-oidc-connection-fields';
 import { Form } from '@/components/ui/form';
-import { renderWithProviders } from '@/tests/utils/test-provider';
+import { renderWithForm, renderWithProviders } from '@/tests/utils/test-provider';
 
 type Values = Record<string, unknown>;
 
-let formRef: ReturnType<typeof useForm<Values>> | undefined;
+const defaultValues: Values = {
+  domain: '',
+  client_id: '',
+  client_secret: '',
+  callback_url: 'https://acme.auth0.com/login/callback',
+  discovery_url: '',
+  type: 'back_channel',
+};
 
-function Harness({ defaults = {}, children }: { defaults?: Values; children: React.ReactNode }) {
-  const form = useForm<Values>({
-    defaultValues: {
-      domain: '',
-      client_id: '',
-      client_secret: '',
-      callback_url: 'https://acme.auth0.com/login/callback',
-      discovery_url: '',
-      type: 'back_channel',
-      ...defaults,
-    },
-  });
-  formRef = form;
-  return <Form {...form}>{children}</Form>;
-}
-
-const renderIn = (ui: React.ReactNode, defaults?: Values) =>
-  renderWithProviders(<Harness defaults={defaults}>{ui}</Harness>);
+const renderIn = (ui: React.ReactElement, overrides?: Values) =>
+  renderWithForm<Values>(ui, { ...defaultValues, ...overrides });
 
 describe('SsoIdpDomainField', () => {
   it('shows the help link only when a help URL is given', () => {
@@ -51,11 +42,11 @@ describe('SsoIdpDomainField', () => {
   });
 
   it('writes the typed domain to the form', async () => {
-    renderIn(<SsoIdpDomainField name="domain" messageKey="fields.okta.domain" />);
+    const { form } = renderIn(<SsoIdpDomainField name="domain" messageKey="fields.okta.domain" />);
 
     await userEvent.type(screen.getByRole('textbox'), 'acme.okta.com');
 
-    expect(formRef?.getValues('domain')).toBe('acme.okta.com');
+    expect(form.getValues('domain')).toBe('acme.okta.com');
   });
 });
 
@@ -120,14 +111,23 @@ describe('SsoOidcConnectionFields', () => {
   });
 
   it('hides and clears the client secret when switching to the front channel', async () => {
-    renderIn(<SsoOidcConnectionFields />, { client_secret: 'secret' });
+    let form: UseFormReturn<Values> | undefined;
+    const LiveForm = () => {
+      form = useForm<Values>({ defaultValues: { ...defaultValues, client_secret: 'secret' } });
+      return (
+        <Form {...form}>
+          <SsoOidcConnectionFields />
+        </Form>
+      );
+    };
+    renderWithProviders(<LiveForm />);
 
     await userEvent.click(screen.getByLabelText('fields.oidc.type.options.front_channel.label'));
 
     expect(
       screen.queryByPlaceholderText('fields.oidc.client_secret.placeholder'),
     ).not.toBeInTheDocument();
-    expect(formRef?.getValues('client_secret')).toBe('');
+    expect(form?.getValues('client_secret')).toBe('');
   });
 
   it('marks the discovery URL and credentials as required', () => {

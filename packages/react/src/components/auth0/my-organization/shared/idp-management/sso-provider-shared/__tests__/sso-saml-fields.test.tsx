@@ -1,43 +1,32 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
 import { describe, expect, it } from 'vitest';
 
 import { SsoSamlConnectionFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-connection-fields';
 import { SsoSamlRequestSettings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-request-settings';
 import { SsoSamlServiceProviderFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-saml-service-provider-fields';
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
-import { Form } from '@/components/ui/form';
-import { renderWithProviders } from '@/tests/utils/test-provider';
+import { renderWithForm, renderWithProviders } from '@/tests/utils/test-provider';
 
 type Values = Record<string, unknown>;
 
-let formRef: ReturnType<typeof useForm<Values>> | undefined;
+const defaultValues: Values = {
+  meta_data_source: 'meta_data_url',
+  metadataUrl: '',
+  signInEndpoint: '',
+  signingCert: '',
+  signSAMLRequest: false,
+  signatureAlgorithm: 'rsa-sha256',
+  digestAlgorithm: 'sha256',
+  bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
+  callback_url: 'https://acme.auth0.com/login/callback',
+  acs_url: 'https://acme.auth0.com/login/callback?connection=c',
+  sp_metadata_url: 'https://acme.auth0.com/samlp/metadata?connection=c',
+};
 
-function Harness({ defaults = {}, children }: { defaults?: Values; children: React.ReactNode }) {
-  const form = useForm<Values>({
-    defaultValues: {
-      meta_data_source: 'meta_data_url',
-      metadataUrl: '',
-      signInEndpoint: '',
-      signingCert: '',
-      signSAMLRequest: false,
-      signatureAlgorithm: 'rsa-sha256',
-      digestAlgorithm: 'sha256',
-      bindingMethod: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
-      callback_url: 'https://acme.auth0.com/login/callback',
-      acs_url: 'https://acme.auth0.com/login/callback?connection=c',
-      sp_metadata_url: 'https://acme.auth0.com/samlp/metadata?connection=c',
-      ...defaults,
-    },
-  });
-  formRef = form;
-  return <Form {...form}>{children}</Form>;
-}
-
-const renderIn = (ui: React.ReactNode, defaults?: Values) =>
-  renderWithProviders(<Harness defaults={defaults}>{ui}</Harness>);
+const renderIn = (ui: React.ReactElement, overrides?: Values) =>
+  renderWithForm<Values>(ui, { ...defaultValues, ...overrides });
 
 describe('SsoSamlConnectionFields', () => {
   it('shows the metadata URL field for the URL source', () => {
@@ -58,17 +47,17 @@ describe('SsoSamlConnectionFields', () => {
   });
 
   it('switches source with the radio selector by default', async () => {
-    renderIn(<SsoSamlConnectionFields />);
+    const { form } = renderIn(<SsoSamlConnectionFields />);
 
     expect(screen.getAllByRole('radio')).toHaveLength(2);
     await userEvent.click(screen.getAllByRole('radio')[1]!);
 
-    expect(formRef?.getValues('meta_data_source')).toBe('meta_data_file');
+    expect(form.getValues('meta_data_source')).toBe('meta_data_file');
     expect(screen.getByText('fields.samlp.cert.label')).toBeInTheDocument();
   });
 
   it('switches source with tabs when sourceSelector is tabs', async () => {
-    renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />);
+    const { form } = renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />);
 
     expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     const tabs = screen.getAllByRole('tab');
@@ -79,16 +68,16 @@ describe('SsoSamlConnectionFields', () => {
 
     await userEvent.click(tabs[1]!);
 
-    expect(formRef?.getValues('meta_data_source')).toBe('meta_data_file');
+    expect(form.getValues('meta_data_source')).toBe('meta_data_file');
     expect(screen.getByText('fields.samlp.single_sign_on_login_url.label')).toBeInTheDocument();
   });
 
   it('marks the source change as dirty in both selectors', async () => {
-    renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />);
+    const { form } = renderIn(<SsoSamlConnectionFields sourceSelector="tabs" />);
 
     await userEvent.click(screen.getAllByRole('tab')[1]!);
 
-    expect(formRef?.getFieldState('meta_data_source').isDirty).toBe(true);
+    expect(form.getFieldState('meta_data_source').isDirty).toBe(true);
   });
 
   it("renders the tab panel each tab controls, holding that source's fields", async () => {
