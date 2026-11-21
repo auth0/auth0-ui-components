@@ -2,7 +2,6 @@
 
 import {
   getComponentStyles,
-  getInstructionsLocale,
   getStrategyUserAttributes,
   toSsoAttributeMappings,
 } from '@auth0/universal-components-core';
@@ -17,7 +16,7 @@ import { Header } from '@/components/auth0/shared/header';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
-import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
@@ -131,17 +130,13 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
   } = props;
 
   const { isDarkMode } = useTheme();
-  const { t, currentLanguage } = useTranslator(
-    'idp_management.create_sso_provider',
-    customMessages,
-  );
+  const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
 
-  const { instructions } = useIdpInstructionsService({
-    kind: 'creation',
+  const { instructions } = useGuidedSetupInstructions(
+    'creation',
     strategy,
-    locale: getInstructionsLocale(currentLanguage),
-    enabled: Boolean(guidedSetup?.isAvailable),
-  });
+    Boolean(guidedSetup?.isAvailable),
+  );
   const canStartGuidedSetup = Boolean(guidedSetup?.isAvailable && instructions?.pages.length);
 
   const currentStyles = useMemo(

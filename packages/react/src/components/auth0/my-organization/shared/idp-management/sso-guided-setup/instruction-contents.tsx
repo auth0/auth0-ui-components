@@ -4,14 +4,11 @@
  * @internal
  */
 
-import * as React from 'react';
-
 import type {
   InstructionContent,
   InstructionRenderers,
+  InstructionSetup,
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
-
-const InstructionRenderersContext = React.createContext<InstructionRenderers>({});
 
 const warnedTypes = new Set<string>();
 
@@ -25,36 +22,21 @@ function warnUnknownType(type: string) {
   console.warn(`[SsoGuidedSetup] No renderer for instruction content type "${type}"; skipped.`);
 }
 
-/**
- * Supplies the renderer registry to {@link InstructionContents} below it.
- * @param props - Component props.
- * @param props.renderers - Content type → component.
- * @param props.children - Children.
- * @returns JSX element
- */
-export function InstructionRenderersProvider({
-  renderers,
-  children,
-}: {
+export interface InstructionContentsProps {
+  contents: readonly InstructionContent[];
+  setup: InstructionSetup;
   renderers: InstructionRenderers;
-  children: React.ReactNode;
-}) {
-  return (
-    <InstructionRenderersContext.Provider value={renderers}>
-      {children}
-    </InstructionRenderersContext.Provider>
-  );
 }
 
 /**
  * Renders content items in order; items without a renderer render nothing.
  * @param props - Component props.
  * @param props.contents - Content items.
+ * @param props.setup - Guided setup state for the renderers.
+ * @param props.renderers - Content type → component.
  * @returns JSX element
  */
-export function InstructionContents({ contents }: { contents: readonly InstructionContent[] }) {
-  const renderers = React.useContext(InstructionRenderersContext);
-
+export function InstructionContents({ contents, setup, renderers }: InstructionContentsProps) {
   return (
     <>
       {contents.map((content) => {
@@ -63,7 +45,7 @@ export function InstructionContents({ contents }: { contents: readonly Instructi
           warnUnknownType(content.type);
           return null;
         }
-        return <Renderer key={content.key} content={content} />;
+        return <Renderer key={content.key} content={content} setup={setup} renderers={renderers} />;
       })}
     </>
   );

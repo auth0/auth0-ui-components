@@ -1,14 +1,10 @@
 import type { IdpStrategy } from '@auth0/universal-components-core';
-import { renderHook, screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { InstructionsPage } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page';
-import {
-  SsoGuidedSetupProvider,
-  useSsoGuidedSetupContext,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import {
   createMockIdpInstructions,
   createMockIdpProvisioningInstructions,
@@ -16,7 +12,7 @@ import {
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type {
   InstructionContentProps,
-  SsoGuidedSetupContextValue,
+  InstructionSetup,
 } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 const BASE_URL = 'https://acme.auth0.com/my-org/public/instructions';
@@ -30,27 +26,23 @@ const STRATEGIES: IdpStrategy[] = [
   'pingfederate',
 ];
 
-const context = (
-  overrides: Partial<SsoGuidedSetupContextValue> = {},
-): SsoGuidedSetupContextValue => ({
+const setup = (overrides: Partial<InstructionSetup> = {}): InstructionSetup => ({
   kind: 'creation',
   strategy: 'okta',
-  baseUrl: BASE_URL,
-  companyName: 'Acme Corp',
   ...overrides,
 });
 
 const renderPage = (
   page: Parameters<typeof InstructionsPage>[0]['page'],
   options: {
-    value?: SsoGuidedSetupContextValue;
+    setup?: InstructionSetup;
     renderers?: Parameters<typeof InstructionsPage>[0]['renderers'];
+    coreClient?: ReturnType<typeof createMockCoreClient>;
   } = {},
 ) =>
   renderWithProviders(
-    <SsoGuidedSetupProvider value={options.value ?? context()}>
-      <InstructionsPage page={page} renderers={options.renderers} />
-    </SsoGuidedSetupProvider>,
+    <InstructionsPage page={page} setup={options.setup ?? setup()} renderers={options.renderers} />,
+    { coreClient: options.coreClient },
   );
 
 describe('InstructionsPage', () => {
@@ -59,59 +51,81 @@ describe('InstructionsPage', () => {
   });
 
   describe('fixtures for every strategy', () => {
-    it.each(STRATEGIES)('renders every creation page for %s without crashing', (strategy) => {
+    it.each(STRATEGIES)('renders every creation page for %s', (strategy) => {
       vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const { pages } = createMockIdpInstructions(strategy);
 
-      pages.forEach((page) => {
-        const { container, unmount } = renderPage(page, { value: context({ strategy }) });
+      createMockIdpInstructions(strategy).pages.forEach((page) => {
+        const { container, unmount } = renderPage(page, { setup: setup({ strategy }) });
         expect(container.querySelector(`[data-page="${page.key}"]`)).toBeInTheDocument();
         unmount();
       });
     });
 
-    it.each(STRATEGIES)('renders every provisioning page for %s without crashing', (strategy) => {
+    it.each(STRATEGIES)('renders every provisioning page for %s', (strategy) => {
       vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const { pages } = createMockIdpProvisioningInstructions(strategy);
 
-      pages.forEach((page) => {
-        const { unmount } = renderPage(page, {
-          value: context({ strategy, kind: 'provisioning' }),
+      createMockIdpProvisioningInstructions(strategy).pages.forEach((page) => {
+        const { container, unmount } = renderPage(page, {
+          setup: setup({ strategy, kind: 'provisioning' }),
         });
+        expect(container.querySelector(`[data-page="${page.key}"]`)).toBeInTheDocument();
         unmount();
       });
     });
   });
 
-  it('renders markdown with base_url images and the company name', () => {
+  it('fills markdown images and the company name from the cached instructions', async () => {
     const [createApplication] = createMockIdpInstructions('okta').pages;
 
     renderPage(createApplication!);
 
-    expect(screen.getByText(/Create Application for Okta and Acme Corp\./)).toBeInTheDocument();
+    expect(await screen.findByText('Create Application for Okta and acme.')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Create Application' })).toHaveAttribute(
       'src',
       `${BASE_URL}/img/okta/okta-create-application.png`,
     );
   });
 
-  it('renders the notice variant as a callout', () => {
+  it('requests the instructions once however many markdown blocks the page has', async () => {
+    const coreClient = createMockCoreClient();
+    const get =
+      coreClient.getMyOrganizationApiClient().organization.configuration
+        .identityProviderInstructions.get;
+    const page = {
+      key: 'p',
+      title: 'Page',
+      contents: ['one', 'two', 'three'].map((text) => ({
+        key: text,
+        type: 'markdown_component',
+        markdown_component: { text: `Step ${text} for {{companyName}}.` },
+      })),
+    } as never;
+
+    renderPage(page, { coreClient });
+
+    expect(await screen.findByText('Step three for acme.')).toBeInTheDocument();
+    expect(get).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders the notice variant as a callout', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const configureScim = createMockIdpProvisioningInstructions('okta').pages.find(
       (page) => page.key === 'okta-configure-scim',
     )!;
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    renderPage(configureScim, { value: context({ kind: 'provisioning' }) });
+    renderPage(configureScim, { setup: setup({ kind: 'provisioning' }) });
 
-    expect(screen.getByRole('note')).toHaveTextContent('Note for configure scim.');
+    await waitFor(() =>
+      expect(screen.getByRole('note')).toHaveTextContent('Note for configure scim.'),
+    );
   });
 
-  it('opens the default tab and switches tabs', async () => {
+  it('opens the default tab and renders the other tab on switch', async () => {
     const assignAccess = createMockIdpInstructions('waad').pages.find(
       (page) => page.key === 'waad-assign-access',
     )!;
 
-    renderPage(assignAccess, { value: context({ strategy: 'waad' }) });
+    renderPage(assignAccess, { setup: setup({ strategy: 'waad' }) });
 
     const tabs = screen.getAllByRole('tab');
     expect(tabs).toHaveLength(2);
@@ -141,46 +155,20 @@ describe('InstructionsPage', () => {
     expect(warn.mock.calls[0]?.[0]).toContain('future_widget_component');
   });
 
-  it('uses custom renderers for interactive content types', () => {
-    const CallbackUrl = ({ content }: InstructionContentProps) => {
-      const { strategy } = useSsoGuidedSetupContext();
-      return <p>{`${content.type} for ${strategy}`}</p>;
-    };
-    const [createApplication] = createMockIdpInstructions('okta').pages;
-
-    renderPage(createApplication!, { renderers: { callback_url_component: CallbackUrl } });
-
-    expect(screen.getByText('callback_url_component for okta')).toBeInTheDocument();
-  });
-
-  it('lets custom renderers replace the defaults', () => {
-    const Markdown = () => <p>custom markdown</p>;
-    const [createApplication] = createMockIdpInstructions('okta').pages;
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    renderPage(createApplication!, { renderers: { markdown_component: Markdown } });
-
-    expect(screen.getAllByText('custom markdown').length).toBeGreaterThan(0);
-  });
-});
-
-describe('useSsoGuidedSetupContext', () => {
-  it('throws outside SsoGuidedSetupProvider', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-
-    expect(() => renderHook(() => useSsoGuidedSetupContext())).toThrow(
-      'useSsoGuidedSetupContext must be used within SsoGuidedSetupProvider',
+  it('passes the setup to custom renderers, including inside tabs', async () => {
+    const Markdown = ({ setup: { strategy, connectionName } }: InstructionContentProps) => (
+      <p>{`${strategy}:${connectionName}`}</p>
     );
-  });
+    const assignAccess = createMockIdpInstructions('waad').pages.find(
+      (page) => page.key === 'waad-assign-access',
+    )!;
 
-  it('returns the provided value', () => {
-    const value = context({ connectionName: 'my-okta' });
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <SsoGuidedSetupProvider value={value}>{children}</SsoGuidedSetupProvider>
-    );
+    renderPage(assignAccess, {
+      setup: setup({ strategy: 'waad', connectionName: 'my-entra' }),
+      renderers: { markdown_component: Markdown },
+    });
+    await userEvent.click(screen.getAllByRole('tab')[1]!);
 
-    const { result } = renderHook(() => useSsoGuidedSetupContext(), { wrapper });
-
-    expect(result.current.connectionName).toBe('my-okta');
+    expect(screen.getAllByText('waad:my-entra').length).toBeGreaterThan(0);
   });
 });
