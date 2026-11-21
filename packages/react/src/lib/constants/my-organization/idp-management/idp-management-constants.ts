@@ -162,3 +162,6 @@ export const CONNECTION_ACCESS_FIELDS = [
   'use_for_third_party_client_access',
   'cross_app_access_resource_app',
 ] as const;
+
+/** Instruction content type that renders the attribute mappings. */
+export const ATTRIBUTE_MAPPING_CONTENT_TYPE = 'attribute_mapping_list_component';

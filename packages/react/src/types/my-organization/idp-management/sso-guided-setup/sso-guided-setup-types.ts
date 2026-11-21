@@ -56,6 +56,7 @@ export interface InstructionSetup {
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   configure?: SsoGuidedSetupConfigureForm;
   attributeMappings?: IdpUserAttributeMapItem[] | IdpProvisioningUserAttributeMapItem[] | null;
+  attributeMappingsError?: boolean;
   slots?: SsoGuidedSetupSlots;
   customMessages?: Partial<Record<string, unknown>>;
 }
@@ -116,6 +117,7 @@ export interface SsoGuidedSetupProps
     | 'resolveSamlMetadata'
     | 'configure'
     | 'attributeMappings'
+    | 'attributeMappingsError'
     | 'slots'
   > {
   strategy: IdpStrategy;

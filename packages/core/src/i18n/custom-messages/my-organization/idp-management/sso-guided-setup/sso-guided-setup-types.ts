@@ -39,5 +39,6 @@ export interface SsoGuidedSetupMessages {
   create_modal?: SsoGuidedSetupCreateModalMessages;
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
+  attribute_mapping_unavailable?: string;
   instruction_tabs_label?: string;
 }

@@ -1,6 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { formatNumber, getRelativeTimeLabel, openHttpsUrlInNewTab } from '../helper-utils';
+import {
+  formatNumber,
+  getRelativeTimeLabel,
+  openHttpsUrlInNewTab,
+  resolveOrFalse,
+} from '../helper-utils';
 
 const mockT = ((_key: string, vars?: Record<string, unknown>, fallback?: string): string => {
   const template = fallback ?? '';
@@ -219,5 +224,22 @@ describe('openHttpsUrlInNewTab', () => {
 
     expect(openHttpsUrlInNewTab(url)).toBe(false);
     expect(open).not.toHaveBeenCalled();
+  });
+});
+
+describe('resolveOrFalse', () => {
+  it.each([
+    ['a sync result', () => true, true],
+    ['an async result', async () => false, false],
+    [
+      'a sync throw',
+      () => {
+        throw new Error('boom');
+      },
+      false,
+    ],
+    ['an async rejection', () => Promise.reject(new Error('boom')), false],
+  ])('returns the outcome of %s', async (_name, action, expected) => {
+    await expect(resolveOrFalse(action)).resolves.toBe(expected);
   });
 });

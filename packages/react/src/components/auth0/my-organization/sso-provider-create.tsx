@@ -1,6 +1,10 @@
 /** @module sso-provider-create */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import {
+  getComponentStyles,
+  getStrategyUserAttributes,
+  toSsoAttributeMappings,
+} from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
 import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup';
@@ -280,6 +284,18 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     ],
   );
 
+  const guidedAttributeMappings = useMemo(() => {
+    const userAttributes = getStrategyUserAttributes(idpConfig, strategy);
+    return userAttributes ? toSsoAttributeMappings(userAttributes) : undefined;
+  }, [idpConfig, strategy]);
+  const guidedAttributeMappingsError = !isLoadingIdpConfig && idpConfig === null;
+  const guidedEntryContext = useMemo(() => {
+    if (guidedAttributeMappingsError) return { hasMappings: true };
+    return guidedAttributeMappings
+      ? { hasMappings: guidedAttributeMappings.length > 0 }
+      : undefined;
+  }, [guidedAttributeMappings, guidedAttributeMappingsError]);
+
   const guidedConnectionName =
     connectionNamePrefix && details?.name
       ? `${connectionNamePrefix}-${details.name}`
@@ -306,6 +322,9 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}
+              attributeMappings={guidedAttributeMappings}
+              attributeMappingsError={guidedAttributeMappingsError}
+              entryContext={guidedEntryContext}
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}
               onCreateProvider={guidedSetup.create}

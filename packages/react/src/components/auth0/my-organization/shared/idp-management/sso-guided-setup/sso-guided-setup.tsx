@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useGuidedSetupCreation } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-creation';
 import { useGuidedSetupPages } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-pages';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { ATTRIBUTE_MAPPING_CONTENT_TYPE } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
 import { useId } from '@/lib/utils/use-id-compat';
 import type {
@@ -37,6 +38,7 @@ export function SsoGuidedSetup({
   resolveSamlMetadata,
   configure,
   attributeMappings,
+  attributeMappingsError = false,
   slots,
   entryContext,
   initialPageKey,
@@ -77,6 +79,11 @@ export function SsoGuidedSetup({
     onCreateProvider,
     onComplete,
   });
+  const isBlockedByMappings =
+    attributeMappingsError &&
+    Boolean(
+      currentPage?.contents.some((content) => content.type === ATTRIBUTE_MAPPING_CONTENT_TYPE),
+    );
   const pageTitleId = useId();
   const pageTitleRef = React.useRef<HTMLHeadingElement>(null);
   const shownPageKey = React.useRef(currentPage?.key);
@@ -96,6 +103,7 @@ export function SsoGuidedSetup({
       resolveSamlMetadata,
       configure,
       attributeMappings,
+      attributeMappingsError,
       slots,
       customMessages,
     }),
@@ -107,6 +115,7 @@ export function SsoGuidedSetup({
       resolveSamlMetadata,
       configure,
       attributeMappings,
+      attributeMappingsError,
       slots,
       customMessages,
     ],
@@ -184,7 +193,7 @@ export function SsoGuidedSetup({
               type: 'button',
               label: t(creation.primaryLabelKey),
               variant: 'primary',
-              disabled: creation.isPrimaryDisabled,
+              disabled: creation.isPrimaryDisabled || isBlockedByMappings,
               onClick: creation.handlePrimary,
             }}
           />
