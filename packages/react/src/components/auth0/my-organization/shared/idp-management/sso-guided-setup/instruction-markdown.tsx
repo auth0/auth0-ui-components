@@ -4,8 +4,8 @@
  * @internal
  */
 
-import { useSsoGuidedSetupContext } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
 import { MarkdownContent } from '@/components/auth0/shared/markdown-content';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
@@ -13,10 +13,11 @@ import type { InstructionContentProps } from '@/types/my-organization/idp-manage
  * variant renders as a callout.
  * @param props - Component props.
  * @param props.content - Instruction content item.
+ * @param props.setup - Guided setup state; picks the instructions to read.
  * @returns JSX element, or `null` without text.
  */
-export function InstructionMarkdown({ content }: InstructionContentProps) {
-  const { baseUrl, companyName } = useSsoGuidedSetupContext();
+export function InstructionMarkdown({ content, setup }: InstructionContentProps) {
+  const { baseUrl, companyName } = useGuidedSetupInstructions(setup.kind, setup.strategy);
   const markdown = content.markdown_component as { text?: string; variant?: 'notice' } | undefined;
 
   if (!markdown?.text) {

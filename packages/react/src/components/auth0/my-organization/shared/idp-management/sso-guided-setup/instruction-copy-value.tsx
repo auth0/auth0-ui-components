@@ -6,7 +6,6 @@
 
 import type { ServiceProviderValues } from '@auth0/universal-components-core';
 
-import { useSsoGuidedSetupContext } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
 import { useServiceProviderValues } from '@/hooks/my-organization/use-service-provider-values';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -55,10 +54,11 @@ export const COPY_VALUE_CONTENT_TYPES: Record<string, CopyValueDefinition> = {
  * Shows the copy value for the content type, built for the tenant and connection name.
  * @param props - Component props.
  * @param props.content - Instruction content item.
+ * @param props.setup - Guided setup state (connection name, SAML metadata resolver).
  * @returns JSX element, or `null` for a type that is not a copy value.
  */
-export function InstructionCopyValue({ content }: InstructionContentProps) {
-  const { connectionName, resolveSamlMetadata, customMessages } = useSsoGuidedSetupContext();
+export function InstructionCopyValue({ content, setup }: InstructionContentProps) {
+  const { connectionName, resolveSamlMetadata, customMessages } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
   const values = useServiceProviderValues({ connectionName, resolveSamlMetadata });
 
