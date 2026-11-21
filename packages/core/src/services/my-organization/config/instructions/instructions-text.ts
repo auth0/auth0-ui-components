@@ -29,7 +29,7 @@ export function dedentText(text: string): string {
 }
 
 /**
- * Replaces `{{name}}` / `${name}` placeholders with values. Placeholders without a value are left unchanged.
+ * Replaces `{{name}}` / `${name}` placeholders with values.
  * @param text - Text containing placeholders.
  * @param values - Placeholder values by name.
  * @returns Text with placeholders replaced.
@@ -88,4 +88,15 @@ function toHttpsUrl(value: string): string | undefined {
  */
 export function isExternalUrl(href: string | undefined): boolean {
   return !!href && /^https?:\/\//i.test(href.trim());
+}
+
+/**
+ * Name used for `{{companyName}}`: the tenant's friendly name, else the tenant name.
+ * @param instructions - Instructions response.
+ * @returns The name, or `undefined` when the response has neither.
+ */
+export function getInstructionsCompanyName(
+  instructions: { tenant?: string; tenant_friendly_name?: string } | null | undefined,
+): string | undefined {
+  return instructions?.tenant_friendly_name?.trim() || instructions?.tenant?.trim() || undefined;
 }

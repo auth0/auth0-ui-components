@@ -1112,6 +1112,9 @@
         "auto_sync_disabled_success": "La synchronisation automatique a été désactivée."
       },
       "test_provider_start_error": "Un problème est survenu lors du démarrage du test du fournisseur."
+    },
+    "sso_guided_setup": {
+      "instruction_tabs_label": "Options de configuration"
     }
   },
   "user_mfa_management": {
