@@ -11,7 +11,7 @@ import type {
   IdpInstructionsLocale,
   IdpProvisioningInstructionsEntryCondition,
   IdpProvisioningInstructionsExitCondition,
-} from '../config-types';
+} from './instructions-types';
 
 export type InstructionsKind = 'creation' | 'provisioning';
 
