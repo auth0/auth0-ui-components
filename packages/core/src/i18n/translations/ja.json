@@ -1166,6 +1166,9 @@
         "auto_sync_disabled_success": "自動同期が無効になりました。"
       },
       "test_provider_start_error": "プロバイダーのテストの開始中に問題が発生しました。"
+    },
+    "sso_guided_setup": {
+      "instruction_tabs_label": "セットアップオプション"
     }
   },
   "user_mfa_management": {

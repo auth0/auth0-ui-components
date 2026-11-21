@@ -11,17 +11,9 @@ import {
   type InstructionsKind,
 } from '@auth0/universal-components-core';
 
-import {
-  useIdpInstructionsService,
-  type UseIdpInstructionsServiceResult,
-} from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
+import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface UseGuidedSetupInstructionsResult<TKind extends InstructionsKind>
-  extends UseIdpInstructionsServiceResult<TKind> {
-  baseUrl: string | undefined;
-  companyName: string | undefined;
-}
+import type { UseGuidedSetupInstructionsResult } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Reads the instructions from the query cache (fetching them once) so every part of the guided

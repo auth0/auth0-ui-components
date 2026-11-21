@@ -1,10 +1,11 @@
 import type { UpdateIdentityProviderRequestContentPrivate } from '@auth0/universal-components-core';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   getProviderAccess,
   getProviderAccessLevel,
   pickLimitedUpdateFields,
+  warnUnknownInstructionType,
 } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 
 describe('getProviderAccessLevel', () => {
@@ -89,5 +90,19 @@ describe('pickLimitedUpdateFields', () => {
     } as UpdateIdentityProviderRequestContentPrivate);
 
     expect(Object.keys(picked).sort()).toEqual(['show_as_button', 'strategy']);
+  });
+});
+
+describe('warnUnknownInstructionType', () => {
+  it('warns once per content type', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    warnUnknownInstructionType('video');
+    warnUnknownInstructionType('video');
+    warnUnknownInstructionType('diagram');
+
+    expect(warn).toHaveBeenCalledTimes(2);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"video"'));
+    warn.mockRestore();
   });
 });

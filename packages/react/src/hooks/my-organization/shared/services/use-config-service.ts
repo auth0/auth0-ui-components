@@ -6,13 +6,13 @@
 import {
   AVAILABLE_STRATEGY_LIST,
   configQueryKeys,
-  hasApiErrorBody,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { getDiscoveryState } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { createRetryUnlessNotFound } from '@/lib/utils/shared/query-utils';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 /**
@@ -27,14 +27,7 @@ export function useConfig(): UseConfigResult {
     queryKey: configQueryKeys.details(),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.configuration.get(),
     enabled: !!coreClient,
-    retry: (failureCount, error) => {
-      if (hasApiErrorBody(error) && error.body?.status === 404) {
-        return false;
-      }
-      // Defer the retry count to the provider-level retryConfig baked into the client.
-      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
-      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
-    },
+    retry: createRetryUnlessNotFound(queryClient),
   });
 
   const config = configQuery.data;

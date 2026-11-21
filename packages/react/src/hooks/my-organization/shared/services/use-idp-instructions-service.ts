@@ -4,39 +4,16 @@
  * @internal
  */
 
-import {
-  hasApiErrorBody,
-  idpInstructionsQueryKeys,
-  type IdpInstructionsLocale,
-  type IdpInstructionsResponse,
-  type IdpProvisioningInstructionsResponse,
-  type IdpStrategy,
-  type InstructionsKind,
-} from '@auth0/universal-components-core';
+import { idpInstructionsQueryKeys, type InstructionsKind } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { getCacheTimeOption } from '@/lib/utils/tanstack-compat';
-
-export const INSTRUCTIONS_STALE_TIME_MS = 60 * 60 * 1000;
-export const INSTRUCTIONS_GC_TIME_MS = 24 * 60 * 60 * 1000;
-
-type InstructionsResponseFor<TKind extends InstructionsKind> = TKind extends 'creation'
-  ? IdpInstructionsResponse
-  : IdpProvisioningInstructionsResponse;
-
-export interface UseIdpInstructionsServiceOptions<TKind extends InstructionsKind> {
-  kind: TKind;
-  strategy: IdpStrategy | undefined;
-  locale: IdpInstructionsLocale;
-  enabled?: boolean;
-}
-
-export interface UseIdpInstructionsServiceResult<TKind extends InstructionsKind> {
-  instructions: InstructionsResponseFor<TKind> | null;
-  isLoading: boolean;
-  error: unknown;
-}
+import { createRetryUnlessNotFound, nullOnNotFound } from '@/lib/utils/shared/query-utils';
+import type {
+  InstructionsResponseFor,
+  UseIdpInstructionsServiceOptions,
+  UseIdpInstructionsServiceResult,
+} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Loads the creation or provisioning instructions for a strategy.
@@ -55,7 +32,6 @@ export function useIdpInstructionsService<TKind extends InstructionsKind>({
 }: UseIdpInstructionsServiceOptions<TKind>): UseIdpInstructionsServiceResult<TKind> {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
-  const isPreview = Boolean(coreClient?.auth?.previewMode);
 
   const query = useQuery<InstructionsResponseFor<TKind> | null>({
     queryKey:
@@ -64,29 +40,18 @@ export function useIdpInstructionsService<TKind extends InstructionsKind>({
         : idpInstructionsQueryKeys.provisioning(strategy!, locale),
     queryFn: async () => {
       const configuration = coreClient!.getMyOrganizationApiClient().organization.configuration;
-      try {
-        const response =
-          kind === 'creation'
-            ? await configuration.identityProviderInstructions.get(strategy!, { locale })
-            : await configuration.identityProviderProvisioningInstructions.get(strategy!, {
-                locale,
-              });
-        return response as InstructionsResponseFor<TKind>;
-      } catch (error) {
-        if (hasApiErrorBody(error) && error.body?.status === 404) {
-          return null;
-        }
-        throw error;
-      }
+      const response =
+        kind === 'creation'
+          ? await nullOnNotFound(
+              configuration.identityProviderInstructions.get(strategy!, { locale }),
+            )
+          : await nullOnNotFound(
+              configuration.identityProviderProvisioningInstructions.get(strategy!, { locale }),
+            );
+      return response as InstructionsResponseFor<TKind> | null;
     },
-    enabled: Boolean(coreClient) && !isPreview && Boolean(strategy) && enabled,
-    staleTime: INSTRUCTIONS_STALE_TIME_MS,
-    ...getCacheTimeOption(INSTRUCTIONS_GC_TIME_MS),
-    retry: (failureCount, error) => {
-      if (hasApiErrorBody(error) && error.body?.status === 404) return false;
-      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
-      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
-    },
+    enabled: Boolean(coreClient?.myOrganizationApiClient) && Boolean(strategy) && enabled,
+    retry: createRetryUnlessNotFound(queryClient),
   });
 
   return {

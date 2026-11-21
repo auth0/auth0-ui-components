@@ -1286,6 +1286,9 @@
         "auto_sync_disabled_success": "Automatic sync has been disabled."
       },
       "test_provider_start_error": "There was an issue starting the provider test."
+    },
+    "sso_guided_setup": {
+      "instruction_tabs_label": "Setup options"
     }
   },
   "user_mfa_management": {

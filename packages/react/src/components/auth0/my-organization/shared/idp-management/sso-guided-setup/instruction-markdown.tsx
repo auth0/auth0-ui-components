@@ -5,7 +5,7 @@
  */
 
 import { MarkdownContent } from '@/components/auth0/shared/markdown-content';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
@@ -18,18 +18,20 @@ import type { InstructionContentProps } from '@/types/my-organization/idp-manage
  */
 export function InstructionMarkdown({ content, setup }: InstructionContentProps) {
   const { baseUrl, companyName } = useGuidedSetupInstructions(setup.kind, setup.strategy);
-  const markdown = content.markdown_component as { text?: string; variant?: 'notice' } | undefined;
+  const markdown = content.markdown_component;
 
   if (!markdown?.text) {
     return null;
   }
+
+  const isNotice = 'variant' in markdown && markdown.variant === 'notice';
 
   return (
     <MarkdownContent
       text={markdown.text}
       baseUrl={baseUrl}
       values={{ companyName }}
-      variant={markdown.variant === 'notice' ? 'notice' : 'default'}
+      variant={isNotice ? 'notice' : 'default'}
     />
   );
 }

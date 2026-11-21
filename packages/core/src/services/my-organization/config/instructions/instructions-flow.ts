@@ -5,48 +5,17 @@
  * @internal
  */
 
+import { EXIT_CONDITION_POLICY } from '../config-constants';
+
 import type {
-  IdpInstructionsEntryCondition,
-  IdpInstructionsExitCondition,
+  ExitConditionPolicy,
   IdpInstructionsLocale,
-  IdpProvisioningInstructionsEntryCondition,
-  IdpProvisioningInstructionsExitCondition,
+  InstructionsEntryCondition,
+  InstructionsEntryContext,
+  InstructionsExitCondition,
+  InstructionsExitState,
+  InstructionsFlowPage,
 } from './instructions-types';
-
-export type InstructionsKind = 'creation' | 'provisioning';
-
-export type InstructionsEntryCondition =
-  | IdpInstructionsEntryCondition
-  | IdpProvisioningInstructionsEntryCondition;
-
-export type InstructionsExitCondition =
-  | IdpInstructionsExitCondition
-  | IdpProvisioningInstructionsExitCondition;
-
-export interface InstructionsFlowPage {
-  key: string;
-  entry_condition?: string;
-  exit_condition?: string;
-}
-
-export interface InstructionsEntryContext {
-  hasMappings: boolean;
-  groupProvisioningEnabled: boolean;
-}
-
-export interface InstructionsExitState {
-  connectionExists: boolean;
-  googleWorkspaceSetupComplete: boolean;
-}
-
-export type ExitConditionPolicy = 'blocking' | 'suggested';
-
-export const EXIT_CONDITION_POLICY: Record<InstructionsExitCondition, ExitConditionPolicy> = {
-  connection_exists: 'blocking',
-  connection_testing_suggested: 'suggested',
-  token_generation_suggested: 'suggested',
-  google_workspace_setup_complete: 'blocking',
-};
 
 const ENTRY_CONDITION_CHECKS: Record<
   InstructionsEntryCondition,
@@ -70,9 +39,9 @@ export function isPageVisible(
   page: InstructionsFlowPage,
   context: InstructionsEntryContext,
 ): boolean {
-  if (!page.entry_condition) return true;
-  const check = ENTRY_CONDITION_CHECKS[page.entry_condition as InstructionsEntryCondition];
-  return check ? check(context) : true;
+  const condition = page.entry_condition;
+  if (!condition || !Object.hasOwn(ENTRY_CONDITION_CHECKS, condition)) return true;
+  return ENTRY_CONDITION_CHECKS[condition as InstructionsEntryCondition](context);
 }
 
 /**
@@ -97,8 +66,9 @@ export function resolveVisiblePages<TPage extends InstructionsFlowPage>(
 export function getExitConditionPolicy(
   page: InstructionsFlowPage,
 ): ExitConditionPolicy | undefined {
-  if (!page.exit_condition) return undefined;
-  return EXIT_CONDITION_POLICY[page.exit_condition as InstructionsExitCondition];
+  const condition = page.exit_condition;
+  if (!condition || !Object.hasOwn(EXIT_CONDITION_POLICY, condition)) return undefined;
+  return EXIT_CONDITION_POLICY[condition as InstructionsExitCondition];
 }
 
 /**
