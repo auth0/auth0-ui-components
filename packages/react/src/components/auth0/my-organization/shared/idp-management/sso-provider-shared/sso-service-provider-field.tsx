@@ -35,7 +35,7 @@ export function SsoServiceProviderField<TValues extends FieldValues = FieldValue
       <Label htmlFor={id} className="text-label font-medium">
         {label}
       </Label>
-      <CopyableTextField id={id} type="text" readOnly={true} value={value} />
+      <CopyableTextField id={id} type="text" value={value} />
       {helperText && (
         <p className="text-muted-foreground text-paragraph font-normal text-left">{helperText}</p>
       )}
@@ -63,7 +63,7 @@ function SsoServiceProviderFormField<TValues extends FieldValues>({
         <FormItem>
           <FormLabel className="text-label font-medium">{label}</FormLabel>
           <FormControl>
-            <CopyableTextField type="text" readOnly={true} {...field} />
+            <CopyableTextField type="text" {...field} />
           </FormControl>
           {helperText && (
             <FormDescription className="text-paragraph font-normal text-left">
