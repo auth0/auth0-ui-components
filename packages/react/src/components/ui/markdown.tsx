@@ -1,7 +1,5 @@
 /**
- * Markdown renderer styled through element overrides (no typography plugin).
- * Ported from the UDS markdown component onto react-markdown v8, which keeps the
- * React 16 peer range supported.
+ * Markdown renderer
  * @module markdown
  * @internal
  */
@@ -19,6 +17,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+
+/** react-markdown@8 types use the global `JSX` namespace, which @types/react 19 no longer declares. */
+declare global {
+  namespace JSX {
+    type ElementType = React.JSX.ElementType;
+    type Element = React.JSX.Element;
+    type IntrinsicElements = React.JSX.IntrinsicElements;
+  }
+}
 
 export type MarkdownVariant = 'default' | 'instruction';
 

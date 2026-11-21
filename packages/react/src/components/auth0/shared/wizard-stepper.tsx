@@ -33,7 +33,6 @@ interface WizardStepperProps {
   onStepClick?: (stepIndex: number, stepId?: string) => void;
   className?: string;
   hideNumbers?: boolean;
-  /** Layout direction. The vertical layout has no card wrapper or separators. */
   orientation?: StepperOrientation;
 }
 
