@@ -4,11 +4,7 @@
  * @internal
  */
 
-import {
-  getComponentStyles,
-  getInstructionsLocale,
-  type IdpStrategy,
-} from '@auth0/universal-components-core';
+import { getComponentStyles, type IdpStrategy } from '@auth0/universal-components-core';
 import { ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
@@ -28,7 +24,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useIdpInstructionsService } from '@/hooks/my-organization/shared/services/use-idp-instructions-service';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -65,7 +61,7 @@ export function SsoProvisioningTab({
   hideGuidedSetupLifecycleWarnings = false,
   organizationDisplayName,
 }: SsoProvisioningTabProps): React.JSX.Element {
-  const { t, currentLanguage } = useTranslator(
+  const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
     customMessages,
   );
@@ -134,12 +130,11 @@ export function SsoProvisioningTab({
     !readOnly &&
     permissions.canReadConfiguration &&
     (isProvisioningEnabled || canTurnProvisioningOn);
-  const { instructions: provisioningInstructions } = useIdpInstructionsService({
-    kind: 'provisioning',
+  const { instructions: provisioningInstructions } = useGuidedSetupInstructions(
+    'provisioning',
     strategy,
-    locale: getInstructionsLocale(currentLanguage),
-    enabled: canOfferGuidedSetup,
-  });
+    canOfferGuidedSetup,
+  );
   const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
   const isGuidedSetupDeprecated =
     provisioningInstructions?.version_info?.lifecycle_status === 'deprecated';
