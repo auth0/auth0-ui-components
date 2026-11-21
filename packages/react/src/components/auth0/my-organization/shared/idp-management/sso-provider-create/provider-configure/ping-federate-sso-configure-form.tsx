@@ -85,6 +85,7 @@ export const PingFederateProviderForm = React.forwardRef<
 
   const form = useStrategyConfigureForm(ref, {
     schema,
+    readOnly,
     onFormDirty,
     defaultValues: {
       pingFederateBaseUrl: pingFederateData?.pingFederateBaseUrl || '',

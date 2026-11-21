@@ -80,6 +80,7 @@ export const SamlpProviderForm = React.forwardRef<
   const schema = createProviderConfigureSchema('samlp');
   const form = useStrategyConfigureForm(ref, {
     schema,
+    readOnly,
     onFormDirty,
     defaultValues: {
       meta_data_source: defaultMetaDataSource,

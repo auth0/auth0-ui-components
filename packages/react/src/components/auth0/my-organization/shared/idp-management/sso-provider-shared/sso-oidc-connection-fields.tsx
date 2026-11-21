@@ -18,16 +18,10 @@ import {
 } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useOidcChannel, type OidcChannel } from '@/hooks/my-organization/use-oidc-channel';
+import { useOidcChannel } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-oidc-channel';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-const CHANNELS: readonly OidcChannel[] = ['back_channel', 'front_channel'];
-
-export interface SsoOidcConnectionFieldsProps {
-  readOnly?: boolean;
-  showCopyButton?: boolean;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import { OIDC_CHANNELS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
+import type { SsoOidcConnectionFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Generic OIDC connection fields. Reads and writes `discovery_url`, `type`, `client_id` and `client_secret`
@@ -72,7 +66,7 @@ export function SsoOidcConnectionFields({
                 disabled={readOnly}
                 className="flex flex-col space-y-2"
               >
-                {CHANNELS.map((channel) => (
+                {OIDC_CHANNELS.map((channel) => (
                   <div key={channel} className="flex items-center space-x-2">
                     <RadioGroupItem value={channel} id={channel} />
                     <Label htmlFor={channel} className="text-sm font-normal cursor-pointer">

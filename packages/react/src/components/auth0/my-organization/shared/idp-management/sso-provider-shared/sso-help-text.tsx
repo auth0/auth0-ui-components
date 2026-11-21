@@ -6,13 +6,7 @@
 
 import { Link } from '@/components/ui/link';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoHelpTextProps {
-  messageKey: string;
-  href?: string;
-  linkKey?: string;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoHelpTextProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Renders a field's helper text; when `href` is given the `<link>` part opens it in a new tab.
