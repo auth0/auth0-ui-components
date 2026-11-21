@@ -40,3 +40,25 @@ export type IdpProvisioningInstructionsExitCondition =
   MyOrganization.IdpProvisioningInstructionsPageExitConditionEnum;
 export type IdpProvisioningInstructionsMarkdownComponent =
   MyOrganization.IdpProvisioningInstructionsMarkdownComponent;
+
+export type InstructionsKind = 'creation' | 'provisioning';
+export type InstructionsEntryCondition =
+  | IdpInstructionsEntryCondition
+  | IdpProvisioningInstructionsEntryCondition;
+export type InstructionsExitCondition =
+  | IdpInstructionsExitCondition
+  | IdpProvisioningInstructionsExitCondition;
+export interface InstructionsFlowPage {
+  key: string;
+  entry_condition?: string;
+  exit_condition?: string;
+}
+export interface InstructionsEntryContext {
+  hasMappings: boolean;
+  groupProvisioningEnabled: boolean;
+}
+export interface InstructionsExitState {
+  connectionExists: boolean;
+  googleWorkspaceSetupComplete: boolean;
+}
+export type ExitConditionPolicy = 'blocking' | 'suggested';

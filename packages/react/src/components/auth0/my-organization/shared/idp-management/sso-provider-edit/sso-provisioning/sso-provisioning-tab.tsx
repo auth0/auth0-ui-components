@@ -24,7 +24,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';

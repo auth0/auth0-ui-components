@@ -26,8 +26,8 @@ const PROVIDER = {
   ],
 } as unknown as IdpKnownResponse;
 
-// The page title, by id: other headings exist on some pages, and an open modal hides the page.
-const pageTitle = () => document.getElementById('sso-guided-setup-page-title') as HTMLElement;
+const pageTitle = () =>
+  document.querySelector('[data-slot="sso-guided-setup-page-title"]') as HTMLElement;
 const primary = (name: RegExp) => screen.getByRole('button', { name });
 
 const renderSetup = (props: Partial<React.ComponentProps<typeof SsoGuidedSetup>> = {}) =>
@@ -273,7 +273,7 @@ describe('SsoGuidedSetup', () => {
     it('does not show deprecated instructions', async () => {
       renderWithLifecycle('deprecated');
 
-      expect(await screen.findByRole('status')).toHaveTextContent('lifecycle.deprecated');
+      expect(await screen.findByText('lifecycle.deprecated')).toBeInTheDocument();
       expect(pageTitle()).toBeNull();
     });
   });

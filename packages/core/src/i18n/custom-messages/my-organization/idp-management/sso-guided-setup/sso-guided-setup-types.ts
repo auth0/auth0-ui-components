@@ -47,6 +47,7 @@ export interface SsoGuidedSetupMessages {
   done?: string;
   unavailable?: string;
   load_error?: string;
+  loading?: string;
   company_fallback?: string;
   create_modal?: SsoGuidedSetupCreateModalMessages;
   copy_values?: SsoGuidedSetupCopyValueMessages;
@@ -54,6 +55,7 @@ export interface SsoGuidedSetupMessages {
   attribute_mapping_unavailable?: string;
   lifecycle?: SsoGuidedSetupLifecycleMessages;
   test_connection?: SsoGuidedSetupTestConnectionMessages;
+  instruction_tabs_label?: string;
 }
 
 export interface SsoProvisioningSetupMessages {

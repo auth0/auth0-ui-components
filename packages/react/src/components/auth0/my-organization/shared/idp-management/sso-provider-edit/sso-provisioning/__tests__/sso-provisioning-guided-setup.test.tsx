@@ -57,7 +57,7 @@ const renderSetup = (
     />,
   );
 
-const pageTitle = () => document.getElementById('sso-guided-setup-page-title');
+const pageTitle = () => document.querySelector('[data-slot="sso-guided-setup-page-title"]');
 const next = () => screen.getByRole('button', { name: /^next$/ });
 
 describe('SsoProvisioningGuidedSetup', () => {

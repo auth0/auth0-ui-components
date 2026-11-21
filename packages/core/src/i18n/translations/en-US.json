@@ -1299,6 +1299,7 @@
       "done": "Done",
       "unavailable": "Guided setup isn't available for this provider. Use the form instead.",
       "load_error": "We couldn't load the setup instructions. Try again later or use the form instead.",
+      "loading": "Loading setup instructions",
       "company_fallback": "your organization",
       "create_modal": {
         "title": "Before Creating the Provider, Please Note:",
@@ -1351,7 +1352,8 @@
       "test_connection": {
         "instructions": "Selecting **${testButton}** will open a new window and redirect you to log in with ${providerName}. You'll receive a ${protocol} response in return.",
         "keep_open": "Please do not close out of this window while testing."
-      }
+      },
+      "instruction_tabs_label": "Setup options"
     }
   },
   "user_mfa_management": {

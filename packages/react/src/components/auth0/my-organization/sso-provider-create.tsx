@@ -20,7 +20,7 @@ import { MarkdownContent } from '@/components/auth0/shared/markdown-content';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';

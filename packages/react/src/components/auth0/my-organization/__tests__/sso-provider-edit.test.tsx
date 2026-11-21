@@ -1023,9 +1023,9 @@ describe('SsoProviderEdit', () => {
       await user.click(screen.getByText(/tabs.provisioning.name/i));
       await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
       await waitFor(() =>
-        expect(document.getElementById('sso-guided-setup-page-title')).toHaveTextContent(
-          'Configure Provisioning',
-        ),
+        expect(
+          document.querySelector('[data-slot="sso-guided-setup-page-title"]'),
+        ).toHaveTextContent('Configure Provisioning'),
       );
     };
 
@@ -1097,7 +1097,7 @@ describe('SsoProviderEdit', () => {
         'aria-selected',
         'true',
       );
-      expect(document.getElementById('sso-guided-setup-page-title')).toBeNull();
+      expect(document.querySelector('[data-slot="sso-guided-setup-page-title"]')).toBeNull();
     });
   });
 

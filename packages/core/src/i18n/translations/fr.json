@@ -1125,6 +1125,7 @@
       "done": "Terminé",
       "unavailable": "La configuration guidée n'est pas disponible pour ce fournisseur. Utilisez plutôt le formulaire.",
       "load_error": "Impossible de charger les instructions de configuration. Réessayez plus tard ou utilisez plutôt le formulaire.",
+      "loading": "Chargement des instructions de configuration",
       "company_fallback": "votre organisation",
       "create_modal": {
         "title": "Avant de créer le fournisseur, veuillez noter :",
@@ -1177,7 +1178,8 @@
       "test_connection": {
         "instructions": "Sélectionnez **${testButton}** pour ouvrir une nouvelle fenêtre et vous connecter avec ${providerName}. Vous recevrez une réponse ${protocol} en retour.",
         "keep_open": "Ne fermez pas cette fenêtre pendant le test."
-      }
+      },
+      "instruction_tabs_label": "Options de configuration"
     }
   },
   "user_mfa_management": {

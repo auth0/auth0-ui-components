@@ -4,51 +4,11 @@
  * @internal
  */
 
-import type { ServiceProviderValues } from '@auth0/universal-components-core';
-
 import { SsoServiceProviderField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-service-provider-field';
 import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { COPY_VALUE_CONTENT_TYPES } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
-
-interface CopyValueDefinition {
-  value: keyof ServiceProviderValues;
-  messageKey: string;
-}
-
-/** Copy-value content types and the value each one shows. */
-export const COPY_VALUE_CONTENT_TYPES: Record<string, CopyValueDefinition> = {
-  callback_url_component: { value: 'callbackUrl', messageKey: 'callback_url' },
-  sso_url_component: { value: 'samlSsoUrl', messageKey: 'sso_url' },
-  service_provider_entity_id_component: {
-    value: 'serviceProviderEntityId',
-    messageKey: 'service_provider_entity_id',
-  },
-  adfs_relying_party_ws_federation_passive_protocol_url_component: {
-    value: 'adfsWsFederationUrl',
-    messageKey: 'adfs_ws_federation_url',
-  },
-  adfs_relying_party_trust_identifier_component: {
-    value: 'adfsRelyingPartyIdentifier',
-    messageKey: 'adfs_relying_party_identifier',
-  },
-  google_apps_authorized_javascript_origins_component: {
-    value: 'googleJavascriptOrigin',
-    messageKey: 'google_javascript_origin',
-  },
-  google_apps_authorized_redirect_uri_component: {
-    value: 'googleRedirectUri',
-    messageKey: 'google_redirect_uri',
-  },
-  pingfederate_partners_entity_id_component: {
-    value: 'pingFederatePartnerEntityId',
-    messageKey: 'pingfederate_partner_entity_id',
-  },
-  pingfederate_endpoint_url_component: {
-    value: 'pingFederateEndpointUrl',
-    messageKey: 'pingfederate_endpoint_url',
-  },
-};
 
 /**
  * Shows the copy value for the content type, built for the tenant and connection name.
