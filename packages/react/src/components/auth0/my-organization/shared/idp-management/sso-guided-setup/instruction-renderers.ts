@@ -10,23 +10,14 @@ import {
   InstructionGoogleWorkspaceSetup,
   InstructionTestConnection,
 } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-connection-components';
-import {
-  COPY_VALUE_CONTENT_TYPES,
-  InstructionCopyValue,
-} from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value';
+import { InstructionCopyValue } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-copy-value';
 import { InstructionMarkdown } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-markdown';
 import { InstructionTabs } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instruction-tabs';
+import {
+  CONFIGURE_CONNECTION_CONTENT_TYPES,
+  COPY_VALUE_CONTENT_TYPES,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type { InstructionRenderers } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
-
-const CONFIGURE_CONNECTION_CONTENT_TYPES = [
-  'okta_configure_connection_component',
-  'oidc_configure_connection_component',
-  'samlp_configure_connection_component',
-  'adfs_configure_connection_component',
-  'waad_configure_connection_component',
-  'google_apps_configure_connection_component',
-  'pingfederate_configure_connection_component',
-] as const;
 
 /** Built-in renderers; anything else can be added or replaced through `renderers`. */
 export const DEFAULT_INSTRUCTION_RENDERERS: InstructionRenderers = {

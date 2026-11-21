@@ -4,8 +4,6 @@
  * @internal
  */
 
-import type { SsoGuidedSetupMessages } from '@auth0/universal-components-core';
-
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import {
   Dialog,
@@ -16,15 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoGuidedSetupCreateModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onProceed: () => void;
-  isCreating?: boolean;
-  companyName: string;
-  customMessages?: Partial<SsoGuidedSetupMessages>;
-}
+import type { SsoGuidedSetupCreateModalProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Warns that creating the provider enables SSO access

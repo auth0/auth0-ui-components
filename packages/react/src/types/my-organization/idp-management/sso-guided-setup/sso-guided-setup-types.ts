@@ -5,6 +5,7 @@
  */
 
 import type {
+  ExitConditionPolicy,
   IdpInstructionsLocale,
   IdpInstructionsPage,
   IdpProvisioningUserAttributeMapItem,
@@ -17,7 +18,12 @@ import type {
   IdpProvisioningInstructionsPageContent,
   IdpProvisioningInstructionsResponse,
   IdpStrategy,
+  InstructionsEntryContext,
+  InstructionsExitState,
+  InstructionsFlowPage,
   InstructionsKind,
+  ServiceProviderValues,
+  SsoGuidedSetupMessages,
 } from '@auth0/universal-components-core';
 import type * as React from 'react';
 
@@ -101,4 +107,98 @@ export interface UseGuidedSetupInstructionsResult<TKind extends InstructionsKind
   extends UseIdpInstructionsServiceResult<TKind> {
   baseUrl: string | undefined;
   companyName: string;
+}
+
+export interface SsoGuidedSetupProps
+  extends Pick<
+    InstructionSetup,
+    | 'connectionName'
+    | 'provider'
+    | 'resolveSamlMetadata'
+    | 'configure'
+    | 'attributeMappings'
+    | 'slots'
+  > {
+  strategy: IdpStrategy;
+  kind?: InstructionsKind;
+  entryContext?: Partial<InstructionsEntryContext>;
+  googleWorkspaceSetupComplete?: boolean;
+  initialPageKey?: string;
+  renderers?: InstructionRenderers;
+  enabled?: boolean;
+  isSubmitting?: boolean;
+  onBeforeCreate?: () => Promise<boolean> | boolean;
+  onCreateProvider?: () => Promise<boolean>;
+  onComplete?: () => void;
+  customMessages?: Partial<SsoGuidedSetupMessages>;
+  className?: string;
+}
+
+export interface SsoGuidedSetupCreateModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onProceed: () => void;
+  isCreating?: boolean;
+  companyName: string;
+  customMessages?: Partial<SsoGuidedSetupMessages>;
+}
+
+export interface CopyValueDefinition {
+  value: keyof ServiceProviderValues;
+  messageKey: string;
+}
+
+export type InstructionsPageItem = IdpInstructionsPage | IdpProvisioningInstructionsPage;
+
+export interface UseGuidedSetupFlowOptions<TPage extends InstructionsFlowPage> {
+  pages: readonly TPage[];
+  entryContext: InstructionsEntryContext;
+  exitState: InstructionsExitState;
+  initialPageKey?: string;
+}
+
+export interface UseGuidedSetupFlowResult<TPage extends InstructionsFlowPage> {
+  visiblePages: TPage[];
+  currentIndex: number;
+  currentPage: TPage | undefined;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+  canLeaveCurrentPage: boolean;
+  currentExitPolicy: ExitConditionPolicy | undefined;
+  goNext: () => boolean;
+  goToPage: (index: number) => boolean;
+}
+
+export interface UseGuidedSetupPagesOptions {
+  kind: InstructionsKind;
+  strategy: IdpStrategy;
+  enabled?: boolean;
+  provider: IdpKnownResponse | null;
+  attributeMappings?: InstructionSetup['attributeMappings'];
+  entryContext?: Partial<InstructionsEntryContext>;
+  googleWorkspaceSetupComplete?: boolean;
+  initialPageKey?: string;
+}
+
+export interface UseGuidedSetupPagesResult {
+  flow: UseGuidedSetupFlowResult<InstructionsPageItem>;
+  isLoading: boolean;
+  error: unknown;
+  companyName: string;
+}
+
+export interface UseGuidedSetupCreationOptions
+  extends Pick<SsoGuidedSetupProps, 'onBeforeCreate' | 'onCreateProvider' | 'onComplete'> {
+  flow: UseGuidedSetupFlowResult<InstructionsPageItem>;
+  provider: IdpKnownResponse | null;
+}
+
+export interface UseGuidedSetupCreationResult {
+  isConfirmOpen: boolean;
+  setConfirmOpen: (open: boolean) => void;
+  isCreating: boolean;
+  primaryLabelKey: 'next' | 'create_provider' | 'done';
+  isPrimaryDisabled: boolean;
+  handlePrimary: () => Promise<void>;
+  handleProceed: () => Promise<void>;
 }

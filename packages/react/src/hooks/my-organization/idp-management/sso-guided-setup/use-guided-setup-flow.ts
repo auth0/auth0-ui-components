@@ -7,31 +7,14 @@ import {
   canLeavePage,
   getExitConditionPolicy,
   resolveVisiblePages,
-  type ExitConditionPolicy,
-  type InstructionsEntryContext,
-  type InstructionsExitState,
   type InstructionsFlowPage,
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
-export interface UseGuidedSetupFlowOptions<TPage extends InstructionsFlowPage> {
-  pages: readonly TPage[];
-  entryContext: InstructionsEntryContext;
-  exitState: InstructionsExitState;
-  initialPageKey?: string;
-}
-
-export interface UseGuidedSetupFlowResult<TPage extends InstructionsFlowPage> {
-  visiblePages: TPage[];
-  currentIndex: number;
-  currentPage: TPage | undefined;
-  isFirstPage: boolean;
-  isLastPage: boolean;
-  canLeaveCurrentPage: boolean;
-  currentExitPolicy: ExitConditionPolicy | undefined;
-  goNext: () => boolean;
-  goToPage: (index: number) => boolean;
-}
+import type {
+  UseGuidedSetupFlowOptions,
+  UseGuidedSetupFlowResult,
+} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
  * Tracks which instructions page is shown and whether the administrator may move on. The current

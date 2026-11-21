@@ -1120,6 +1120,7 @@
       "done": "Terminé",
       "unavailable": "La configuration guidée n'est pas disponible pour ce fournisseur. Utilisez plutôt le formulaire.",
       "load_error": "Impossible de charger les instructions de configuration. Réessayez plus tard ou utilisez plutôt le formulaire.",
+      "loading": "Chargement des instructions de configuration",
       "company_fallback": "votre organisation",
       "create_modal": {
         "title": "Avant de créer le fournisseur, veuillez noter :",
