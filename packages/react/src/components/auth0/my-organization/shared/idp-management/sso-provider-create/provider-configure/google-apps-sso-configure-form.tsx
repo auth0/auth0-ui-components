@@ -9,38 +9,24 @@ import {
   STRATEGIES,
   type GoogleAppsConfigureFormValues,
 } from '@auth0/universal-components-core';
-import { zodResolver } from '@hookform/resolvers/zod';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
 
 import { CommonConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/common-configure-fields';
 import { getConnectionAccessDefaults } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/connection-access-defaults';
-import { CopyableTextField } from '@/components/auth0/shared/copyable-text-field';
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { TextField } from '@/components/ui/text-field';
+import { SsoCallbackUrlField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-callback-url-field';
+import { SsoClientCredentialsFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-client-credentials-fields';
+import { SsoIdpDomainField } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-idp-domain-field';
+import { Form } from '@/components/ui/form';
+import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
+import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
-import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+import type {
+  GoogleAppsConfigureFormHandle,
+  GoogleAppsConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
-export interface GoogleAppsConfigureFormHandle {
-  validate: () => Promise<boolean>;
-  getData: () => GoogleAppsConfigureFormValues;
-  isDirty: () => boolean;
-  reset: (data?: GoogleAppsConfigureFormValues) => void;
-}
-
-interface GoogleAppsConfigureFormProps extends Omit<ProviderConfigureFieldsProps, 'strategy'> {}
+const schema = createProviderConfigureSchema('google-apps');
 
 export const GoogleAppsProviderForm = React.forwardRef<
   GoogleAppsConfigureFormHandle,
@@ -65,25 +51,15 @@ export const GoogleAppsProviderForm = React.forwardRef<
   },
   ref,
 ) {
-  const { t } = useTranslator(
-    'idp_management.create_sso_provider.provider_configure',
-    customMessages,
-  );
-
-  const { coreClient } = useCoreClient();
   const { showCopyButtons } = useProviderFormMode(mode);
-
-  const callbackUrl = React.useMemo(() => {
-    const domain = coreClient?.getDomain() || 'YOUR_DOMAIN';
-    return `https://${domain}/login/callback`;
-  }, [coreClient]);
+  const { callbackUrl } = useServiceProviderValues();
 
   const googleAppsData = initialData as GoogleAppsConfigureFormValues | undefined;
 
-  const form = useForm<GoogleAppsConfigureFormValues>({
-    resolver: zodResolver(createProviderConfigureSchema('google-apps')),
-    mode: readOnly ? undefined : FORM_VALIDATION_MODE,
-    reValidateMode: FORM_REVALIDATE_MODE,
+  const form = useStrategyConfigureForm(ref, {
+    schema,
+    readOnly,
+    onFormDirty,
     defaultValues: {
       domain: googleAppsData?.domain || '',
       client_id: googleAppsData?.client_id || '',
@@ -101,128 +77,24 @@ export const GoogleAppsProviderForm = React.forwardRef<
     },
   });
 
-  const { isDirty } = form.formState;
-
-  React.useEffect(() => {
-    onFormDirty?.(isDirty);
-  }, [isDirty, onFormDirty]);
-
-  React.useImperativeHandle(ref, () => ({
-    validate: async () => {
-      return await form.trigger();
-    },
-    getData: () => form.getValues(),
-    isDirty: () => form.formState.isDirty,
-    reset: (data) => {
-      if (data) {
-        form.reset(data);
-      } else {
-        form.reset();
-      }
-    },
-  }));
-
   return (
     <Form {...form}>
       <div className={cn('space-y-6', className)}>
-        <FormField
-          control={form.control}
+        <SsoIdpDomainField
           name="domain"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.google-apps.domain.label')}
-              </FormLabel>
-              <FormControl>
-                <TextField
-                  type="text"
-                  placeholder={t('fields.google-apps.domain.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-            </FormItem>
-          )}
+          messageKey="fields.google-apps.domain"
+          readOnly={readOnly}
+          customMessages={customMessages}
         />
 
-        <FormField
-          control={form.control}
-          name="client_id"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.google-apps.client_id.label')}
-              </FormLabel>
-              <FormControl>
-                <CopyableTextField
-                  type="text"
-                  placeholder={t('fields.google-apps.client_id.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  showCopyButton={showCopyButtons}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.google-apps.client_id.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
+        <SsoClientCredentialsFields
+          messageKey="fields.google-apps"
+          showCopyButton={showCopyButtons}
+          readOnly={readOnly}
+          customMessages={customMessages}
         />
 
-        <FormField
-          control={form.control}
-          name="client_secret"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.google-apps.client_secret.label')}
-              </FormLabel>
-              <FormControl>
-                <CopyableTextField
-                  type="password"
-                  placeholder={t('fields.google-apps.client_secret.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={readOnly}
-                  showCopyButton={showCopyButtons}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.google-apps.client_secret.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="callback_url"
-          render={({ field, fieldState }) => (
-            <FormItem>
-              <FormLabel className="text-label font-medium">
-                {t('fields.google-apps.callback_url.label')}
-              </FormLabel>
-              <FormControl>
-                <CopyableTextField
-                  type="text"
-                  placeholder={t('fields.google-apps.callback_url.placeholder')}
-                  error={Boolean(fieldState.error)}
-                  readOnly={true}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage role="alert" className="text-left text-paragraph" />
-              <FormDescription className="text-paragraph font-normal text-left">
-                {t('fields.google-apps.callback_url.helper_text')}
-              </FormDescription>
-            </FormItem>
-          )}
-        />
+        <SsoCallbackUrlField messageKey="fields.google-apps" customMessages={customMessages} />
 
         <CommonConfigureFields
           idpConfig={idpConfig}

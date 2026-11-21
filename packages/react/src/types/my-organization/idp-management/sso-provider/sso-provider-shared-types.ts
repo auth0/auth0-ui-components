@@ -9,7 +9,7 @@ import type {
   SamlpConfigureFormValues,
 } from '@auth0/universal-components-core';
 import type * as React from 'react';
-import type { DefaultValues, FieldValues, Mode, Path, UseFormReturn } from 'react-hook-form';
+import type { DefaultValues, FieldValues, Path, UseFormReturn } from 'react-hook-form';
 import type { z } from 'zod';
 
 export interface SelectOption {
@@ -100,7 +100,7 @@ export interface StrategyConfigureFormHandle<TValues> {
 export interface UseStrategyConfigureFormOptions<TSchema extends z.ZodTypeAny> {
   schema: TSchema;
   defaultValues: DefaultValues<z.infer<TSchema>>;
-  mode?: Mode;
+  readOnly?: boolean;
   onFormDirty?: (isDirty: boolean) => void;
   getData?: (form: UseFormReturn<z.infer<TSchema>>) => z.infer<TSchema>;
   reset?: (form: UseFormReturn<z.infer<TSchema>>, data?: z.infer<TSchema>) => void;
@@ -133,5 +133,48 @@ export interface SsoUrlFieldProps {
   readOnly?: boolean;
   required?: boolean;
   copyable?: boolean;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export type OidcChannel = 'back_channel' | 'front_channel';
+
+export interface UseOidcChannelResult {
+  channel: OidcChannel | undefined;
+  showClientSecret: boolean;
+}
+
+export interface SsoCallbackUrlFieldProps {
+  messageKey: string;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoClientCredentialsFieldsProps {
+  messageKey: string;
+  readOnly?: boolean;
+  showCopyButton?: boolean;
+  required?: boolean;
+  showClientSecret?: boolean;
+  helpUrls?: { clientId?: string; clientSecret?: string };
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoIdpDomainFieldProps {
+  name: string;
+  messageKey: string;
+  helpUrl?: string;
+  readOnly?: boolean;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoHelpTextProps {
+  messageKey: string;
+  href?: string;
+  linkKey?: string;
+  customMessages?: Partial<Record<string, unknown>>;
+}
+
+export interface SsoOidcConnectionFieldsProps {
+  readOnly?: boolean;
+  showCopyButton?: boolean;
   customMessages?: Partial<Record<string, unknown>>;
 }

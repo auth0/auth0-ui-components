@@ -101,6 +101,20 @@ describe('useStrategyConfigureForm', () => {
   });
 });
 
+describe('useStrategyConfigureForm validation mode', () => {
+  it('validates on touch by default', () => {
+    const { hook } = setup();
+
+    expect(hook.result.current.control._options.mode).toBe('onTouched');
+  });
+
+  it('validates on submit when read only', () => {
+    const { hook } = setup({ readOnly: true });
+
+    expect(hook.result.current.control._options.mode).toBe('onSubmit');
+  });
+});
+
 describe('parseStrategyConfigureValues', () => {
   it('returns the raw values when they do not pass the schema', () => {
     const raw = { ...defaults };
