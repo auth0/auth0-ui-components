@@ -120,6 +120,7 @@ export {
   configQueryKeys,
   idpConfigQueryKeys,
 } from './services/my-organization/config/config-query-keys';
+export { idpInstructionsQueryKeys } from './services/my-organization/config/instructions/instructions-query-keys';
 
 // My Organization services
 export * from './services/my-organization/organization-management/organization-details-types';
@@ -150,6 +151,7 @@ export * from './services/my-organization/member-management/member-management-co
 export * from './services/my-organization/member-management/member-management-permissions';
 
 export * from './services/my-organization/config/config-types';
+export * from './services/my-organization/config/instructions/instructions-types';
 export * from './services/my-organization/config/instructions/instructions-text';
 export * from './services/my-organization/config/instructions/instructions-flow';
 export * from './services/my-organization/config/config-constants';
