@@ -4,6 +4,7 @@
  * @internal
  */
 
+import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
 import { FileUpload } from '@/components/ui/file-upload';
@@ -19,26 +20,17 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TextField } from '@/components/ui/text-field';
-import { useFileContentField } from '@/hooks/my-organization/use-file-content-field';
+import { useFileContentField } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-file-content-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { ALLOWED_CERT_EXTENSIONS } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
-
-export type SamlConnectionSource = 'meta_data_url' | 'meta_data_file';
-
-export interface SsoSamlConnectionFieldsProps {
-  readOnly?: boolean;
-  /** How the source is chosen: a radio group (advanced flow) or tabs (guided setup). */
-  sourceSelector?: 'radio' | 'tabs';
-  customMessages?: Partial<Record<string, unknown>>;
-}
-
-const SOURCES: readonly SamlConnectionSource[] = ['meta_data_url', 'meta_data_file'];
-
-/** Tab labels follow the guided setup wording: automatic (metadata URL) or manual entry. */
-const TAB_LABEL_KEYS: Record<SamlConnectionSource, string> = {
-  meta_data_url: 'fields.common.connection_method.automatic',
-  meta_data_file: 'fields.common.connection_method.manual',
-};
+import {
+  ALLOWED_CERT_EXTENSIONS,
+  SAML_CONNECTION_SOURCES,
+  SAML_CONNECTION_SOURCE_TAB_LABEL_KEYS,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
+import type {
+  SamlConnectionSource,
+  SsoSamlConnectionFieldsProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Lets the administrator connect the SAML identity provider either by metadata URL or manually
@@ -59,8 +51,8 @@ export function SsoSamlConnectionFields({
     'idp_management.create_sso_provider.provider_configure',
     customMessages,
   );
-  const { control, watch } = useFormContext();
-  const certificate = useFileContentField('signingCert');
+  const { control, watch } = useFormContext<SamlpConfigureFormValues>();
+  const certificate = useFileContentField<SamlpConfigureFormValues>('signingCert');
 
   const isManual = watch('meta_data_source') === 'meta_data_file';
   const sourceLabel = (source: SamlConnectionSource) =>
@@ -76,9 +68,9 @@ export function SsoSamlConnectionFields({
             <FormItem>
               <Tabs value={field.value} onValueChange={field.onChange}>
                 <TabsList aria-label={t('fields.samlp.meta_data_source.label')}>
-                  {SOURCES.map((source) => (
+                  {SAML_CONNECTION_SOURCES.map((source) => (
                     <TabsTrigger key={source} value={source} disabled={readOnly}>
-                      {t(TAB_LABEL_KEYS[source])}
+                      {t(SAML_CONNECTION_SOURCE_TAB_LABEL_KEYS[source])}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -97,7 +89,7 @@ export function SsoSamlConnectionFields({
                   disabled={readOnly}
                   className="flex flex-col space-y-2"
                 >
-                  {SOURCES.map((source) => (
+                  {SAML_CONNECTION_SOURCES.map((source) => (
                     <div key={source} className="flex items-center space-x-2">
                       <RadioGroupItem value={source} id={source} />
                       <Label htmlFor={source} className="text-sm font-normal cursor-pointer">

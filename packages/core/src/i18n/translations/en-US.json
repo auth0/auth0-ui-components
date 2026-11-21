@@ -3,6 +3,7 @@
     "copy": "Copy",
     "copied": "Copied!",
     "copy_failed": "Failed to copy",
+    "your_domain_placeholder": "YOUR_DOMAIN",
     "last_updated": "Last updated",
     "refresh": "Refresh",
     "time": {

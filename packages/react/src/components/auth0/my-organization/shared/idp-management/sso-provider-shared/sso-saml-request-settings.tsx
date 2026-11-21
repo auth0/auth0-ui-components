@@ -4,6 +4,7 @@
  * @internal
  */
 
+import type { SamlpConfigureFormValues } from '@auth0/universal-components-core';
 import { useFormContext } from 'react-hook-form';
 
 import {
@@ -30,35 +31,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-const SIGNATURE_ALGORITHMS = [
-  { value: 'rsa-sha1', label: 'RSA-SHA1' },
-  { value: 'rsa-sha256', label: 'RSA-SHA256' },
-] as const;
-
-const DIGEST_ALGORITHMS = [
-  { value: 'sha1', label: 'SHA1' },
-  { value: 'sha256', label: 'SHA256' },
-] as const;
-
-const BINDING_METHODS = [
-  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect', label: 'HTTP-Redirect' },
-  { value: 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST', label: 'HTTP-POST' },
-] as const;
-
-interface SelectOption {
-  readonly value: string;
-  readonly label: string;
-}
-
-export interface SsoSamlRequestSettingsProps {
-  /** URL of the certificate used to verify signed requests. */
-  signRequestCertUrl: string;
-  readOnly?: boolean;
-  /** Show the sign request checkbox and algorithms. */
-  showSignRequest?: boolean;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import {
+  SAML_BINDING_METHOD_FIELD,
+  SAML_DIGEST_ALGORITHM_FIELD,
+  SAML_SIGNATURE_ALGORITHM_FIELD,
+} from '@/lib/constants/my-organization/idp-management/idp-management-constants';
+import type {
+  SamlSelectFieldConfig,
+  SsoSamlRequestSettingsProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Advanced SAML request settings. Reads and writes `signSAMLRequest`, `signatureAlgorithm`,
@@ -80,17 +61,12 @@ export function SsoSamlRequestSettings({
     'idp_management.create_sso_provider.provider_configure',
     customMessages,
   );
-  const { control, watch } = useFormContext();
+  const { control, watch } = useFormContext<SamlpConfigureFormValues>();
 
   const source = watch('meta_data_source');
   const signRequestEnabled = watch('signSAMLRequest');
 
-  const renderSelect = (
-    name: string,
-    labelKey: string,
-    placeholderKey: string,
-    options: readonly SelectOption[],
-  ) => (
+  const renderSelect = ({ name, labelKey, placeholderKey, options }: SamlSelectFieldConfig) => (
     <FormField
       control={control}
       name={name}
@@ -172,26 +148,11 @@ export function SsoSamlRequestSettings({
 
           {showSignRequest && signRequestEnabled && (
             <>
-              {renderSelect(
-                'signatureAlgorithm',
-                'fields.samlp.advanced_settings.sign_request_algorithm.label',
-                'fields.samlp.advanced_settings.sign_request_algorithm.placeholder',
-                SIGNATURE_ALGORITHMS,
-              )}
-              {renderSelect(
-                'digestAlgorithm',
-                'fields.samlp.advanced_settings.sign_request_algorithm_digest.label',
-                'fields.samlp.advanced_settings.sign_request_algorithm_digest.placeholder',
-                DIGEST_ALGORITHMS,
-              )}
+              {renderSelect(SAML_SIGNATURE_ALGORITHM_FIELD)}
+              {renderSelect(SAML_DIGEST_ALGORITHM_FIELD)}
             </>
           )}
-          {renderSelect(
-            'bindingMethod',
-            'fields.samlp.advanced_settings.request_protocol_binding.label',
-            'fields.samlp.advanced_settings.request_protocol_binding.placeholder',
-            BINDING_METHODS,
-          )}
+          {renderSelect(SAML_BINDING_METHOD_FIELD)}
         </AccordionContent>
       </AccordionItem>
     </Accordion>
