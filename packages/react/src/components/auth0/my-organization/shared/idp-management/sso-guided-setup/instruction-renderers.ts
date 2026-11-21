@@ -28,11 +28,7 @@ const CONFIGURE_CONNECTION_CONTENT_TYPES = [
   'pingfederate_configure_connection_component',
 ] as const;
 
-/**
- * Built-in renderers. Provisioning-only types (SCIM endpoint, bearer token, Okta schema URN) are
- * added with the provisioning setup page; anything else can be added or replaced through
- * `renderers`.
- */
+/** Built-in renderers; anything else can be added or replaced through `renderers`. */
 export const DEFAULT_INSTRUCTION_RENDERERS: InstructionRenderers = {
   markdown_component: InstructionMarkdown,
   tabs_component: InstructionTabs,

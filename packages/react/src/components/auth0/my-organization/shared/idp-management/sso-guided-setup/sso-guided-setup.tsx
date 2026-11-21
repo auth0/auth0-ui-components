@@ -24,8 +24,8 @@ import { FormActions } from '@/components/auth0/shared/form-actions';
 import { WizardStepper } from '@/components/auth0/shared/wizard-stepper';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useGuidedSetupFlow } from '@/hooks/my-organization/use-guided-setup-flow';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 import type {

@@ -1210,7 +1210,8 @@
           "label": "エンドポイント URL"
         }
       },
-      "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。"
+      "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",
+      "instruction_tabs_label": "セットアップオプション"
     }
   },
   "user_mfa_management": {

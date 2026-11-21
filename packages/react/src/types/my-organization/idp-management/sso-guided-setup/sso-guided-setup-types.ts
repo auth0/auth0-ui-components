@@ -5,12 +5,17 @@
  */
 
 import type {
+  IdpInstructionsLocale,
+  IdpInstructionsPage,
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
   IdpInstructionsPageContent,
   IdpInstructionsTabContent,
+  IdpInstructionsResponse,
   IdpKnownResponse,
+  IdpProvisioningInstructionsPage,
   IdpProvisioningInstructionsPageContent,
+  IdpProvisioningInstructionsResponse,
   IdpStrategy,
   InstructionsKind,
 } from '@auth0/universal-components-core';
@@ -61,3 +66,39 @@ export interface InstructionContentProps {
 export type InstructionRenderers = Partial<
   Record<string, React.ComponentType<InstructionContentProps>>
 >;
+
+export interface InstructionContentsProps {
+  contents: readonly InstructionContent[];
+  setup: InstructionSetup;
+  renderers: InstructionRenderers;
+}
+
+export interface InstructionsPageProps {
+  page: IdpInstructionsPage | IdpProvisioningInstructionsPage;
+  setup: InstructionSetup;
+  renderers?: InstructionRenderers;
+  className?: string;
+}
+
+export type InstructionsResponseFor<TKind extends InstructionsKind> = TKind extends 'creation'
+  ? IdpInstructionsResponse
+  : IdpProvisioningInstructionsResponse;
+
+export interface UseIdpInstructionsServiceOptions<TKind extends InstructionsKind> {
+  kind: TKind;
+  strategy: IdpStrategy | undefined;
+  locale: IdpInstructionsLocale;
+  enabled?: boolean;
+}
+
+export interface UseIdpInstructionsServiceResult<TKind extends InstructionsKind> {
+  instructions: InstructionsResponseFor<TKind> | null;
+  isLoading: boolean;
+  error: unknown;
+}
+
+export interface UseGuidedSetupInstructionsResult<TKind extends InstructionsKind>
+  extends UseIdpInstructionsServiceResult<TKind> {
+  baseUrl: string | undefined;
+  companyName: string;
+}

@@ -1330,7 +1330,8 @@
           "label": "Endpoint URL"
         }
       },
-      "attribute_mapping_pending": "Attribute mappings appear here once the provider is created."
+      "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
+      "instruction_tabs_label": "Setup options"
     }
   },
   "user_mfa_management": {

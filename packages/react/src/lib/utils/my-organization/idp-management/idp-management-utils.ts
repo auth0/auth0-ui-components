@@ -70,3 +70,15 @@ export function pickLimitedUpdateFields(
     ...(is_enabled !== undefined && { is_enabled }),
   };
 }
+
+const warnedInstructionTypes = new Set<string>();
+
+/**
+ * Warns once per unknown instruction content type; the API tells clients to ignore types they don't know.
+ * @param type - Content type without a renderer.
+ */
+export function warnUnknownInstructionType(type: string): void {
+  if (warnedInstructionTypes.has(type)) return;
+  warnedInstructionTypes.add(type);
+  console.warn(`[SsoGuidedSetup] No renderer for instruction content type "${type}"; skipped.`);
+}

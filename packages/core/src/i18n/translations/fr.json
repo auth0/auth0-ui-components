@@ -1156,7 +1156,8 @@
           "label": "URL du point de terminaison"
         }
       },
-      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé."
+      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
+      "instruction_tabs_label": "Options de configuration"
     }
   },
   "user_mfa_management": {
