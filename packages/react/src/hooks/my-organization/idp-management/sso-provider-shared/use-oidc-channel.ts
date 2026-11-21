@@ -6,12 +6,10 @@
 import * as React from 'react';
 import { useFormContext } from 'react-hook-form';
 
-export type OidcChannel = 'back_channel' | 'front_channel';
-
-export interface UseOidcChannelResult {
-  channel: OidcChannel | undefined;
-  showClientSecret: boolean;
-}
+import type {
+  OidcChannel,
+  UseOidcChannelResult,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * Watches the OIDC channel and clears the client secret (value and error)

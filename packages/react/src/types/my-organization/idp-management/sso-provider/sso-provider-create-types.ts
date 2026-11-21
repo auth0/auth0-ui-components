@@ -25,6 +25,10 @@ import type {
   SamlpConfigureFormValues,
   AdfsConfigureFormValues,
   PingFederateConfigureFormValues,
+  OktaConfigureFormValues,
+  OidcConfigureFormValues,
+  WaadConfigureFormValues,
+  GoogleAppsConfigureFormValues,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -138,6 +142,23 @@ export type PingFederateConfigureFormHandle =
   StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
 
 export type PingFederateConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type OktaConfigureFormHandle = StrategyConfigureFormHandle<OktaConfigureFormValues>;
+
+export type OktaConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type OidcConfigureFormHandle = StrategyConfigureFormHandle<OidcConfigureFormValues>;
+
+export type OidcConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type WaadConfigureFormHandle = StrategyConfigureFormHandle<WaadConfigureFormValues>;
+
+export type WaadConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type GoogleAppsConfigureFormHandle =
+  StrategyConfigureFormHandle<GoogleAppsConfigureFormValues>;
+
+export type GoogleAppsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 /** Cross App Access status of a connection. */
 export type CrossAppAccessStatus = 'enabled' | 'disabled';

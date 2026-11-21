@@ -16,11 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { useTranslator } from '@/hooks/shared/use-translator';
-
-export interface SsoCallbackUrlFieldProps {
-  messageKey: string;
-  customMessages?: Partial<Record<string, unknown>>;
-}
+import type { SsoCallbackUrlFieldProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 
 /**
  * The callback URL the administrator registers in their identity provider.

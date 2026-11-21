@@ -20,17 +20,13 @@ import { Form } from '@/components/ui/form';
 import { useServiceProviderValues } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values';
 import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
-import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type {
+  GoogleAppsConfigureFormHandle,
+  GoogleAppsConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('google-apps');
-
-export type GoogleAppsConfigureFormHandle =
-  StrategyConfigureFormHandle<GoogleAppsConfigureFormValues>;
-
-type GoogleAppsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const GoogleAppsProviderForm = React.forwardRef<
   GoogleAppsConfigureFormHandle,
@@ -62,7 +58,7 @@ export const GoogleAppsProviderForm = React.forwardRef<
 
   const form = useStrategyConfigureForm(ref, {
     schema,
-    mode: readOnly ? undefined : FORM_VALIDATION_MODE,
+    readOnly,
     onFormDirty,
     defaultValues: {
       domain: googleAppsData?.domain || '',

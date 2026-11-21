@@ -18,14 +18,12 @@ import { Form } from '@/components/ui/form';
 import { useStrategyConfigureForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-strategy-configure-form';
 import { useProviderFormMode } from '@/hooks/my-organization/use-provider-form-mode';
 import { cn } from '@/lib/utils';
-import type { ProviderConfigureFieldsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
-import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type {
+  OidcConfigureFormHandle,
+  OidcConfigureFormProps,
+} from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const schema = createProviderConfigureSchema('oidc');
-
-export type OidcConfigureFormHandle = StrategyConfigureFormHandle<OidcConfigureFormValues>;
-
-type OidcConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
 
 export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcConfigureFormProps>(
   function OidcProviderForm(
@@ -54,6 +52,7 @@ export const OidcProviderForm = React.forwardRef<OidcConfigureFormHandle, OidcCo
 
     const form = useStrategyConfigureForm(ref, {
       schema,
+      readOnly,
       onFormDirty,
       defaultValues: {
         discovery_url: oidcData?.discovery_url || '',
