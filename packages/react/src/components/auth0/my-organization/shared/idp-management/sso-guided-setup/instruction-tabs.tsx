@@ -14,9 +14,11 @@ import type { InstructionContentProps } from '@/types/my-organization/idp-manage
  * Renders tabbed instruction content, opening `default_tab` first.
  * @param props - Component props.
  * @param props.content - Instruction content item.
+ * @param props.setup - Guided setup state for the renderers.
+ * @param props.renderers - Content type → component.
  * @returns JSX element, or `null` without tabs.
  */
-export function InstructionTabs({ content }: InstructionContentProps) {
+export function InstructionTabs({ content, setup, renderers }: InstructionContentProps) {
   const tabs = (content as { tabs_component?: IdpInstructionsTabsComponent }).tabs_component;
 
   if (!tabs?.tabs?.length) {
@@ -37,7 +39,7 @@ export function InstructionTabs({ content }: InstructionContentProps) {
       </TabsList>
       {tabs.tabs.map((tab, index) => (
         <TabsContent key={index} value={String(index)} className="pt-3">
-          <InstructionContents contents={tab.contents} />
+          <InstructionContents contents={tab.contents} setup={setup} renderers={renderers} />
         </TabsContent>
       ))}
     </Tabs>

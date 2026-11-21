@@ -5,18 +5,19 @@
  * @internal
  */
 
-import { useSsoGuidedSetupContext } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/sso-guided-setup-context';
 import { ProviderConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Renders the strategy's connection form (Automatic / Manual tabs for SAML and ADFS). The form
- * and its ref come from the guided setup context.
- * @returns JSX element, or `null` without a configure form in context.
+ * Renders the strategy's connection form (Automatic / Manual tabs for SAML and ADFS).
+ * @param props - Component props.
+ * @param props.setup - Guided setup state; carries the form and its ref.
+ * @returns JSX element, or `null` without a configure form.
  */
-export function InstructionConfigureConnection() {
-  const { strategy, configure } = useSsoGuidedSetupContext();
+export function InstructionConfigureConnection({ setup }: InstructionContentProps) {
+  const { strategy, configure } = setup;
 
   if (!configure) {
     return null;
@@ -35,11 +36,13 @@ export function InstructionConfigureConnection() {
 /**
  * Lists the attribute mappings: the given ones, or the provider's for creation instructions.
  * Without either, shows a short note; when the mappings can't be loaded, an error.
+ * @param props - Component props.
+ * @param props.setup - Guided setup state; carries the mappings and the created provider.
  * @returns JSX element
  */
-export function InstructionAttributeMapping() {
+export function InstructionAttributeMapping({ setup }: InstructionContentProps) {
   const { kind, strategy, provider, attributeMappings, attributeMappingsError, customMessages } =
-    useSsoGuidedSetupContext();
+    setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
   if (attributeMappingsError) {
@@ -73,18 +76,20 @@ export function InstructionAttributeMapping() {
 
 /**
  * Shows the test connection component when one is provided.
+ * @param props - Component props.
+ * @param props.setup - Guided setup state; carries the slots.
  * @returns The slot content, or `null`.
  */
-export function InstructionTestConnection() {
-  const { slots } = useSsoGuidedSetupContext();
-  return <>{slots?.testConnection ?? null}</>;
+export function InstructionTestConnection({ setup }: InstructionContentProps) {
+  return <>{setup.slots?.testConnection ?? null}</>;
 }
 
 /**
  * Shows the Google Workspace setup component when one is provided.
+ * @param props - Component props.
+ * @param props.setup - Guided setup state; carries the slots.
  * @returns The slot content, or `null`.
  */
-export function InstructionGoogleWorkspaceSetup() {
-  const { slots } = useSsoGuidedSetupContext();
-  return <>{slots?.googleWorkspaceSetup ?? null}</>;
+export function InstructionGoogleWorkspaceSetup({ setup }: InstructionContentProps) {
+  return <>{setup.slots?.googleWorkspaceSetup ?? null}</>;
 }
