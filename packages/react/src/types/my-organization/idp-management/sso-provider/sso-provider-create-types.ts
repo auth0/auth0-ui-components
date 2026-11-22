@@ -41,6 +41,7 @@ import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-man
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
+  getValues: () => ProviderConfigureFormValues;
 }
 
 export interface ProviderDetailsFormHandle {

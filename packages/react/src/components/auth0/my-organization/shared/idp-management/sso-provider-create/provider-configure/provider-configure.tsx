@@ -51,6 +51,9 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       getData: () => {
         return formRef.current?.getData() as ProviderConfigureFormValues;
       },
+      getValues: () => {
+        return formRef.current?.getValues() as ProviderConfigureFormValues;
+      },
     }));
 
     if (isLoading) {

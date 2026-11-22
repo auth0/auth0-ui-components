@@ -129,6 +129,7 @@ export interface SsoGuidedSetupProps
   renderers?: InstructionRenderers;
   enabled?: boolean;
   hideLifecycleWarnings?: boolean;
+  autoFocus?: boolean;
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
