@@ -964,6 +964,18 @@ describe('SsoProviderCreate', () => {
         expect(pageTitle()).toHaveTextContent('Configure Connection');
       });
 
+      it('leaves the wizard working when the configuration has a malformed attribute', async () => {
+        mockIdpConfig(withAdfsUserAttributes({ email: null, name: { sso_field: 'name' } }));
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+
+        await goToConfigureStep(user, 'ADFS');
+
+        expect(
+          await screen.findByRole('button', { name: 'guided_setup_button_text' }),
+        ).toBeInTheDocument();
+      });
+
       it('stops on the mapping page when the configuration is unavailable', async () => {
         mockIdpConfig(null);
         const user = userEvent.setup();
@@ -974,6 +986,24 @@ describe('SsoProviderCreate', () => {
         expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
         expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_unavailable');
         expect(screen.getByRole('button', { name: /^next$/ })).toBeDisabled();
+      });
+
+      it('offers a retry and does not block Next when the configuration fails to load', async () => {
+        const refetchIdpConfig = vi.fn(async () => undefined);
+        vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+          createMockUseIdpConfig({ idpConfig: null, isIdpConfigError: true, refetchIdpConfig }),
+        );
+        const user = userEvent.setup();
+        await openAdfsGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+        expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
+        expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_load_failed');
+        expect(screen.getByRole('button', { name: /^next$/ })).toBeEnabled();
+
+        await user.click(screen.getByRole('button', { name: 'attribute_mapping_retry' }));
+        expect(refetchIdpConfig).toHaveBeenCalledTimes(1);
       });
     });
   });

@@ -96,6 +96,8 @@ export function useIdpConfig(): UseConfigIdpResult {
     idpConfig,
     isIdpConfigValid: !!strategies && Object.keys(strategies).length > 0,
     isLoadingIdpConfig: idpConfigQuery.isLoading,
+    isIdpConfigError: idpConfigQuery.isError,
+    refetchIdpConfig: () => idpConfigQuery.refetch(),
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
     getScimTokenConfig,

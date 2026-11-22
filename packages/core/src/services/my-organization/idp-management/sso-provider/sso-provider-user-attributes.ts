@@ -34,7 +34,7 @@ export function getStrategyUserAttributes(
 
 /**
  * Single sign-on mappings in the shape the mapping table shows: required first, then by label.
- * Attributes without an SSO field are left out.
+ * Attributes without an SSO field, and malformed entries, are left out.
  * @param userAttributes - The strategy's `user_attributes`.
  * @returns Mapping items.
  */
@@ -42,7 +42,7 @@ export function toSsoAttributeMappings(
   userAttributes: IdpConfigUserAttributes,
 ): IdpUserAttributeMapItem[] {
   return sortAttributes(
-    Object.entries(userAttributes).flatMap(([id, attribute]) => {
+    getAttributeEntries(userAttributes).flatMap(([id, attribute]) => {
       const ssoField = toFieldList(attribute.sso_field);
       if (ssoField.length === 0) return [];
       return [{ ...toBaseItem(id, attribute), sso_field: ssoField }];
@@ -52,7 +52,7 @@ export function toSsoAttributeMappings(
 
 /**
  * Provisioning mappings in the shape the mapping table shows: required first, then by label.
- * Attributes without a provisioning field are left out.
+ * Attributes without a provisioning field, and malformed entries, are left out.
  * @param userAttributes - The strategy's `user_attributes`.
  * @returns Mapping items.
  */
@@ -60,10 +60,24 @@ export function toProvisioningAttributeMappings(
   userAttributes: IdpConfigUserAttributes,
 ): IdpProvisioningUserAttributeMapItem[] {
   return sortAttributes(
-    Object.entries(userAttributes).flatMap(([id, attribute]) => {
+    getAttributeEntries(userAttributes).flatMap(([id, attribute]) => {
       if (!attribute.provisioning_field) return [];
       return [{ ...toBaseItem(id, attribute), provisioning_field: attribute.provisioning_field }];
     }),
+  );
+}
+
+/**
+ * The entries of `user_attributes` that are objects; the API data isn't trusted to be well formed.
+ * @param userAttributes - The strategy's `user_attributes`.
+ * @returns Pairs of profile id and configuration entry.
+ */
+function getAttributeEntries(
+  userAttributes: IdpConfigUserAttributes,
+): [string, IdpConfigUserAttribute][] {
+  return Object.entries(userAttributes ?? {}).filter(
+    (entry): entry is [string, IdpConfigUserAttribute] =>
+      typeof entry[1] === 'object' && entry[1] !== null,
   );
 }
 
@@ -85,12 +99,13 @@ function toBaseItem(id: string, attribute: IdpConfigUserAttribute) {
 }
 
 /**
- * SSO field names without empty entries.
+ * SSO field names without empty entries; anything but a list gives none.
  * @param value - Field names, or nothing.
  * @returns Field names.
  */
 function toFieldList(value: string[] | undefined): string[] {
-  return (value ?? []).filter((name) => typeof name === 'string' && name.length > 0);
+  if (!Array.isArray(value)) return [];
+  return value.filter((name) => typeof name === 'string' && name.length > 0);
 }
 
 /**

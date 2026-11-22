@@ -277,6 +277,8 @@ export interface UseSsoProviderCreateResult {
   isLoadingConfig: boolean;
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
+  isIdpConfigError: boolean;
+  refetchIdpConfig: () => Promise<unknown>;
   idpConfig?: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
