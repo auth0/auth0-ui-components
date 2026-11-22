@@ -26,6 +26,7 @@ import type {
 export function InstructionScimEndpoint({ content, setup }: InstructionContentProps) {
   const { provider, customMessages } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
+  const { t: tCommon } = useTranslator('common');
   const { coreClient } = useCoreClient();
 
   if (!provider?.id) return null;
@@ -33,7 +34,10 @@ export function InstructionScimEndpoint({ content, setup }: InstructionContentPr
   return (
     <SsoServiceProviderField
       id={content.key}
-      value={buildScimEndpointUrl(coreClient?.getDomain() || 'YOUR_DOMAIN', provider.id)}
+      value={buildScimEndpointUrl(
+        coreClient?.getDomain() || tCommon('your_domain_placeholder'),
+        provider.id,
+      )}
       label={t('copy_values.scim_endpoint_url.label')}
     />
   );

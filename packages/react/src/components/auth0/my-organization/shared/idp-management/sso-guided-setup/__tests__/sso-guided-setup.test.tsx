@@ -203,6 +203,18 @@ describe('SsoGuidedSetup', () => {
       expect(await screen.findByText('attribute_mapping_pending')).toBeInTheDocument();
     });
 
+    it('does not say the provider is yet to be created when it exists without mappings', async () => {
+      renderSetup({
+        kind: 'provisioning',
+        provider: PROVIDER,
+        initialPageKey: 'okta-mapping',
+        entryContext: { hasMappings: true },
+      });
+
+      expect(await screen.findByText('attribute_mapping_unavailable')).toBeInTheDocument();
+      expect(screen.queryByText('attribute_mapping_pending')).not.toBeInTheDocument();
+    });
+
     it('fills the test connection slot', async () => {
       renderSetup({
         provider: PROVIDER,

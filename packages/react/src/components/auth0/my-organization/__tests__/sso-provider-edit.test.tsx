@@ -1023,9 +1023,9 @@ describe('SsoProviderEdit', () => {
       await user.click(screen.getByText(/tabs.provisioning.name/i));
       await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
       await waitFor(() =>
-        expect(document.getElementById('sso-guided-setup-page-title')).toHaveTextContent(
-          'Configure Provisioning',
-        ),
+        expect(
+          document.querySelector('[data-slot="sso-guided-setup-page-title"]'),
+        ).toHaveTextContent('Configure Provisioning'),
       );
     };
 
@@ -1056,11 +1056,93 @@ describe('SsoProviderEdit', () => {
 
       await openGuidedSetup(user);
 
-      expect(screen.getByRole('heading', { name: 'provisioning_setup.title' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'provisioning_setup.title' })).toHaveFocus();
       expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
       expect(
         screen.getByDisplayValue(/\/scim\/v2\/connections\/con_abc123xyz456\/$/),
       ).toBeInTheDocument();
+    });
+
+    describe('when provisioning is off and the host has a createAction', () => {
+      const provisioningApi = () =>
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .provisioning as unknown as {
+          create: ReturnType<typeof vi.fn>;
+          get: ReturnType<typeof vi.fn>;
+        };
+
+      const renderWithCreateAction = (createAction: {
+        onBefore: ReturnType<typeof vi.fn>;
+        onAfter?: ReturnType<typeof vi.fn>;
+      }) => {
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get = vi
+          .fn()
+          .mockResolvedValue(createMockIdentityProvider({ is_enabled: true }));
+        return renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({
+              provisioning: { guidedSetup: { enabled: true }, createAction },
+            })}
+          />,
+        );
+      };
+
+      it('does not turn provisioning on or open guided setup when onBefore returns false', async () => {
+        const createAction = { onBefore: vi.fn(() => false), onAfter: vi.fn() };
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction);
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+
+        await waitFor(() => expect(createAction.onBefore).toHaveBeenCalledTimes(1));
+        expect(provisioningApi().create).not.toHaveBeenCalled();
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+        expect(document.querySelector('[data-slot="sso-guided-setup-page-title"]')).toBeNull();
+      });
+
+      it('does not turn provisioning on from the switch when onBefore returns false', async () => {
+        const createAction = { onBefore: vi.fn(() => false), onAfter: vi.fn() };
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction);
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await within(screen.getByRole('tabpanel')).findByRole('switch'));
+
+        await waitFor(() => expect(createAction.onBefore).toHaveBeenCalledTimes(1));
+        expect(provisioningApi().create).not.toHaveBeenCalled();
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs onBefore and onAfter around turning provisioning on for guided setup', async () => {
+        const createAction = { onBefore: vi.fn(() => true), onAfter: vi.fn() };
+        const config = { strategy: 'samlp', user_id_attribute: 'externalId', attributes: [] };
+        let isCreated = false;
+        provisioningApi().get = vi.fn(() =>
+          isCreated ? Promise.resolve(config) : Promise.reject({ status: 404 }),
+        );
+        provisioningApi().create = vi.fn(async () => {
+          isCreated = true;
+          return config;
+        });
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction);
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+
+        await waitFor(() =>
+          expect(
+            document.querySelector('[data-slot="sso-guided-setup-page-title"]'),
+          ).toBeInTheDocument(),
+        );
+        expect(createAction.onBefore).toHaveBeenCalledTimes(1);
+        expect(provisioningApi().create).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(createAction.onAfter).toHaveBeenCalledTimes(1));
+      });
     });
 
     it('returns to the Provisioning tab on Done', async () => {
@@ -1078,6 +1160,9 @@ describe('SsoProviderEdit', () => {
       expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveAttribute(
         'aria-selected',
         'true',
+      );
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
       );
     });
 
@@ -1097,7 +1182,10 @@ describe('SsoProviderEdit', () => {
         'aria-selected',
         'true',
       );
-      expect(document.getElementById('sso-guided-setup-page-title')).toBeNull();
+      expect(document.querySelector('[data-slot="sso-guided-setup-page-title"]')).toBeNull();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
+      );
     });
   });
 

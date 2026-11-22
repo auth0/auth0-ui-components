@@ -23,7 +23,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useGuidedSetupInstructions } from '@/hooks/my-organization/use-guided-setup-instructions';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -43,6 +43,9 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it, turning provisioning on first when it's off.
+ * @param props.focusGuidedSetupButton - Moves focus to the Guided Setup button once it shows, after returning from guided setup.
+ * @param props.onCreateProvisioning - Turns provisioning on through the host's provisioning actions.
+ * @param props.isProvisioningUpdating - Whether the host is turning provisioning on.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -57,6 +60,9 @@ export function SsoProvisioningTab({
   permissions,
   readOnly = false,
   onStartGuidedSetup,
+  onCreateProvisioning,
+  focusGuidedSetupButton = false,
+  isProvisioningUpdating: isHostProvisioningUpdating,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -67,13 +73,11 @@ export function SsoProvisioningTab({
   const {
     provisioningConfig,
     isProvisioningLoading,
-    isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
     fetchProvisioning,
-    createProvisioning,
     deleteProvisioning,
     listScimTokens,
     createScimToken,
@@ -99,7 +103,7 @@ export function SsoProvisioningTab({
     if (!provider?.id) return;
 
     if (enabled) {
-      await createProvisioning();
+      await onCreateProvisioning();
       await fetchProvisioning();
     } else {
       setDeleteModalOpen(true);
@@ -111,7 +115,7 @@ export function SsoProvisioningTab({
     setDeleteModalOpen(false);
   };
 
-  const isLoading = isProvisioningLoading || isProvisioningUpdating || isProvisioningDeleting;
+  const isLoading = isProvisioningLoading || isHostProvisioningUpdating || isProvisioningDeleting;
   const isProvisioningEnabled = !!provisioningConfig;
   const canToggleProvisioning = isProvisioningEnabled
     ? permissions.canDeleteProvisioning
@@ -135,6 +139,22 @@ export function SsoProvisioningTab({
   const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
 
   const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
+
+  const guidedSetupButtonRef = React.useRef<HTMLButtonElement>(null);
+  const hasFocusedGuidedSetupButton = React.useRef(false);
+  const isGuidedSetupButtonDisabled = isStartingGuidedSetup || isLoading;
+  React.useEffect(() => {
+    if (
+      !focusGuidedSetupButton ||
+      !showGuidedSetup ||
+      isGuidedSetupButtonDisabled ||
+      hasFocusedGuidedSetupButton.current
+    ) {
+      return;
+    }
+    hasFocusedGuidedSetupButton.current = true;
+    guidedSetupButtonRef.current?.focus();
+  }, [focusGuidedSetupButton, showGuidedSetup, isGuidedSetupButtonDisabled]);
   const handleStartGuidedSetup = async () => {
     if (!onStartGuidedSetup) return;
     if (isProvisioningEnabled) {
@@ -142,7 +162,7 @@ export function SsoProvisioningTab({
       return;
     }
     setStartingGuidedSetup(true);
-    const config = await createProvisioning()
+    const config = await onCreateProvisioning()
       .then(() => fetchProvisioning())
       .catch(() => null);
     setStartingGuidedSetup(false);
@@ -189,11 +209,12 @@ export function SsoProvisioningTab({
             <div className="flex items-center gap-3">
               {showGuidedSetup && (
                 <Button
+                  ref={guidedSetupButtonRef}
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={handleStartGuidedSetup}
-                  disabled={isStartingGuidedSetup || isLoading}
+                  disabled={isGuidedSetupButtonDisabled}
                   className={cn(
                     'flex items-center gap-2',
                     currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],

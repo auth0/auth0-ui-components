@@ -57,11 +57,11 @@ export function SsoProvisioningGuidedSetup({
 }: SsoProvisioningGuidedSetupProps) {
   const strategy = provider.strategy as IdpStrategy;
 
-  // Mapping instructions from the IdP configuration; without them, the provider's mappings.
+  // Mapping instructions from the IdP configuration; without any, the provider's mappings.
   const attributeMappings = React.useMemo(() => {
     const userAttributes = getStrategyUserAttributes(idpConfig, strategy);
-    if (userAttributes) return toProvisioningAttributeMappings(userAttributes);
-    return provisioningConfig?.attributes ?? null;
+    const configured = userAttributes ? toProvisioningAttributeMappings(userAttributes) : [];
+    return configured.length > 0 ? configured : (provisioningConfig?.attributes ?? null);
   }, [idpConfig, strategy, provisioningConfig?.attributes]);
 
   const slots = React.useMemo(

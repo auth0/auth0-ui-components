@@ -82,9 +82,10 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
   const mappings = attributeMappings ?? (kind === 'creation' ? providerAttributes : undefined);
 
   if (!mappings) {
+    const isPending = kind === 'creation' && !provider;
     return (
       <p className="text-sm text-muted-foreground" data-slot="attribute-mapping-pending">
-        {t('attribute_mapping_pending')}
+        {t(isPending ? 'attribute_mapping_pending' : 'attribute_mapping_unavailable')}
       </p>
     );
   }

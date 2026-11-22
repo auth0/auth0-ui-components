@@ -78,6 +78,7 @@ export interface SsoProvisioningTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   onStartGuidedSetup?: () => void;
+  focusGuidedSetupButton?: boolean;
 }
 
 export interface SsoProvisioningTabSchemas {}
