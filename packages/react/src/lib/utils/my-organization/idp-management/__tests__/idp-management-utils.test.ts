@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   getProviderAccess,
   getProviderAccessLevel,
+  getPrefixedConnectionName,
   getProviderAttributes,
   pickLimitedUpdateFields,
   warnUnknownInstructionType,
@@ -117,5 +118,20 @@ describe('getProviderAttributes', () => {
 
   it.each([null, {}, { attributes: 'none' }])('returns an empty list for %o', (provider) => {
     expect(getProviderAttributes(provider as never)).toEqual([]);
+  });
+});
+
+describe('getPrefixedConnectionName', () => {
+  it('prefixes the name', () => {
+    expect(getPrefixedConnectionName('acme', 'org1')).toBe('org1-acme');
+  });
+
+  it.each([
+    ['acme', undefined, 'acme'],
+    ['acme', '', 'acme'],
+    [undefined, 'org1', undefined],
+    ['', 'org1', ''],
+  ])('leaves %p with prefix %p as %p', (name, prefix, expected) => {
+    expect(getPrefixedConnectionName(name, prefix)).toBe(expected);
   });
 });
