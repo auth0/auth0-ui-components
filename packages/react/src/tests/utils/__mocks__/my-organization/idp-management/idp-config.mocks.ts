@@ -38,6 +38,8 @@ export const createMockUseIdpConfig = (
     domain_aliases_config: { domain_verification: 'optional' },
   } satisfies GetIdpConfigurationResponseContent,
   isLoadingIdpConfig: false,
+  isIdpConfigError: false,
+  refetchIdpConfig: vi.fn(async () => undefined),
   isIdpConfigValid: true,
   fetchIdpConfig: vi.fn(async () => undefined),
   isProvisioningEnabled: vi.fn(() => false),

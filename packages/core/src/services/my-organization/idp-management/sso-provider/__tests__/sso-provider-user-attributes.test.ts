@@ -118,6 +118,18 @@ describe('sso-provider-user-attributes', () => {
     it('returns an empty list for no attributes', () => {
       expect(toSsoAttributeMappings({})).toEqual([]);
     });
+
+    it('skips malformed entries instead of throwing', () => {
+      const malformed = {
+        email: null,
+        name: { label: 'Name', sso_field: 'name' },
+        nickname: { label: 'Nickname', sso_field: ['nickname'] },
+      } as never;
+
+      expect(toSsoAttributeMappings(malformed).map((item) => item.user_attribute)).toEqual([
+        'nickname',
+      ]);
+    });
   });
 
   describe('toProvisioningAttributeMappings', () => {
@@ -135,6 +147,17 @@ describe('sso-provider-user-attributes', () => {
           provisioning_field: 'userName',
         }),
       ]);
+    });
+
+    it('skips null entries instead of throwing', () => {
+      const malformed = {
+        email: null,
+        name: { label: 'Name', provisioning_field: 'name' },
+      } as never;
+
+      expect(toProvisioningAttributeMappings(malformed).map((item) => item.user_attribute)).toEqual(
+        ['name'],
+      );
     });
   });
 });

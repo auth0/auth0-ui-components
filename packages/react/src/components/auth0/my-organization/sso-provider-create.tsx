@@ -22,7 +22,10 @@ import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { getPrefixedConnectionName } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
-import type { SsoGuidedSetupConfigureForm } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
+import type {
+  AttributeMappingsError,
+  SsoGuidedSetupConfigureForm,
+} from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 import type {
   FormState,
   SsoProviderCreateProps,
@@ -110,6 +113,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     isLoadingConfig,
     filteredStrategies,
     isLoadingIdpConfig,
+    isIdpConfigError,
+    refetchIdpConfig,
     idpConfig,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
@@ -286,11 +291,17 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     ],
   );
 
+  const isGuidedActive = Boolean(guidedSetup?.isActive);
   const guidedAttributeMappings = useMemo(() => {
+    if (!isGuidedActive) return undefined;
     const userAttributes = getStrategyUserAttributes(idpConfig, strategy);
     return userAttributes ? toSsoAttributeMappings(userAttributes) : undefined;
-  }, [idpConfig, strategy]);
-  const guidedAttributeMappingsError = !isLoadingIdpConfig && idpConfig === null;
+  }, [isGuidedActive, idpConfig, strategy]);
+  let guidedAttributeMappingsError: AttributeMappingsError | undefined;
+  if (!isLoadingIdpConfig) {
+    if (isIdpConfigError) guidedAttributeMappingsError = 'load_failed';
+    else if (idpConfig === null) guidedAttributeMappingsError = 'unavailable';
+  }
   const guidedEntryContext = useMemo(() => {
     if (guidedAttributeMappingsError) return { hasMappings: true };
     return guidedAttributeMappings
@@ -324,6 +335,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               autoFocus
               attributeMappings={guidedAttributeMappings}
               attributeMappingsError={guidedAttributeMappingsError}
+              onRetryAttributeMappings={refetchIdpConfig}
               entryContext={guidedEntryContext}
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}

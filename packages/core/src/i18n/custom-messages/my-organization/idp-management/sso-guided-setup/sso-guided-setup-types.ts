@@ -40,5 +40,7 @@ export interface SsoGuidedSetupMessages {
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
   attribute_mapping_unavailable?: string;
+  attribute_mapping_load_failed?: string;
+  attribute_mapping_retry?: string;
   instruction_tabs_label?: string;
 }
