@@ -1224,6 +1224,8 @@
       },
       "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",
       "attribute_mapping_unavailable": "ユーザー属性プロファイルが割り当てられていないため、属性マッピングを利用できません。このプロバイダーの設定を完了するには、管理者にお問い合わせください。",
+      "attribute_mapping_load_failed": "属性マッピングを読み込めませんでした。もう一度お試しいただくか、このまま進めて後で確認してください。",
+      "attribute_mapping_retry": "再試行",
       "lifecycle": {
         "out_of_date": "プロバイダーの手順が古くなっている可能性があります。必要に応じて ${organizationDisplayName} のサポートにお問い合わせください。",
         "dismiss": "閉じる",

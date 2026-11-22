@@ -52,6 +52,7 @@ export type ActionProps = ButtonActionProps | SwitchActionProps;
 
 export interface HeaderProps {
   title?: string;
+  titleRef?: React.Ref<HTMLHeadingElement>;
   description?: string;
   backButton?: {
     text?: string;
@@ -147,7 +148,7 @@ const SwitchAction: React.FC<SwitchActionProps> = ({
 export const Header = React.forwardRef<
   HTMLDivElement,
   HeaderProps & React.HTMLAttributes<HTMLDivElement>
->(({ title, description, backButton, actions, isLoading, className, ...props }, ref) => {
+>(({ title, titleRef, description, backButton, actions, isLoading, className, ...props }, ref) => {
   const BackIcon = backButton?.icon || ArrowLeft;
 
   const renderAction = (action: ActionProps, index: number) => {
@@ -205,8 +206,11 @@ export const Header = React.forwardRef<
         <div className="flex flex-col min-w-0 flex-1">
           {title && (
             <h1
+              ref={titleRef}
+              tabIndex={titleRef ? -1 : undefined}
               className={cn(
                 'text-primary font-bold leading-tight break-words text-left text-page-header mb-0',
+                titleRef && 'outline-none',
               )}
             >
               {title}

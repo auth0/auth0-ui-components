@@ -42,7 +42,8 @@ export function SsoGuidedSetup({
   resolveSamlMetadata,
   configure,
   attributeMappings,
-  attributeMappingsError = false,
+  attributeMappingsError,
+  onRetryAttributeMappings,
   slots,
   entryContext,
   initialPageKey,
@@ -88,7 +89,7 @@ export function SsoGuidedSetup({
     onComplete,
   });
   const isBlockedByMappings =
-    attributeMappingsError &&
+    attributeMappingsError === 'unavailable' &&
     Boolean(
       currentPage?.contents.some((content) => content.type === ATTRIBUTE_MAPPING_CONTENT_TYPE),
     );
@@ -115,6 +116,7 @@ export function SsoGuidedSetup({
       configure,
       attributeMappings,
       attributeMappingsError,
+      onRetryAttributeMappings,
       slots,
       customMessages,
     }),
@@ -127,6 +129,7 @@ export function SsoGuidedSetup({
       configure,
       attributeMappings,
       attributeMappingsError,
+      onRetryAttributeMappings,
       slots,
       customMessages,
     ],

@@ -81,6 +81,7 @@ export interface SsoProvisioningTabProps
   onStartGuidedSetup?: () => void;
   hideGuidedSetupLifecycleWarnings?: boolean;
   organizationDisplayName?: string;
+  focusGuidedSetupButton?: boolean;
 }
 
 export interface SsoProvisioningTabSchemas {}

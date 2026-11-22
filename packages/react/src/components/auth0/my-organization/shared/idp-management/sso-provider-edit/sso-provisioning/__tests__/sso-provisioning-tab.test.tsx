@@ -70,6 +70,23 @@ describe('SsoProvisioningTab', () => {
     expect(switchElement).not.toBeChecked();
   });
 
+  it('should turn provisioning on through the host callback', async () => {
+    const hostCreate = vi.fn().mockResolvedValue(undefined);
+    mockFetchProvisioning.mockResolvedValue(null);
+    renderComponent({ onCreateProvisioning: hostCreate });
+
+    await userEvent.click(screen.getByRole('switch'));
+
+    await waitFor(() => expect(hostCreate).toHaveBeenCalledTimes(1));
+    expect(mockOnCreateProvisioning).not.toHaveBeenCalled();
+  });
+
+  it('should show the host loading state while provisioning is being turned on', () => {
+    renderComponent({ isProvisioningUpdating: true });
+
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+  });
+
   it('should disable switch when provider id is missing', () => {
     renderComponent({ provider: { ...mockProvider, id: '' } });
 
@@ -385,6 +402,21 @@ describe('SsoProvisioningTab', () => {
 
         await waitFor(() => expect(onStartGuidedSetup).toHaveBeenCalled());
         expect(mockOnCreateProvisioning).toHaveBeenCalled();
+      });
+
+      it('turns provisioning on through the host callback so its actions apply', async () => {
+        const hostCreate = vi.fn().mockResolvedValue(undefined);
+        mockFetchProvisioning.mockResolvedValue({ strategy: 'waad', attributes: [] });
+        const onStartGuidedSetup = vi.fn();
+        renderComponent({ onStartGuidedSetup, onCreateProvisioning: hostCreate });
+
+        await userEvent.click(
+          await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+        );
+
+        await waitFor(() => expect(onStartGuidedSetup).toHaveBeenCalled());
+        expect(hostCreate).toHaveBeenCalledTimes(1);
+        expect(mockOnCreateProvisioning).not.toHaveBeenCalled();
       });
 
       it('stays on the tab when turning provisioning on is cancelled', async () => {

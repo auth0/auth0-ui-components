@@ -14,6 +14,8 @@ import type {
 export interface UseConfigIdpResult {
   idpConfig: GetIdpConfigurationResponseContent | null;
   isLoadingIdpConfig: boolean;
+  isIdpConfigError: boolean;
+  refetchIdpConfig: () => Promise<unknown>;
   fetchIdpConfig: () => Promise<void>;
   isProvisioningEnabled: (
     strategy: IdpStrategy | undefined,

@@ -100,6 +100,8 @@ export function useSsoProviderCreate({
   } = useConfig();
   const {
     isLoadingIdpConfig,
+    isIdpConfigError,
+    refetchIdpConfig,
     idpConfig,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
@@ -238,6 +240,8 @@ export function useSsoProviderCreate({
     isLoadingConfig,
     filteredStrategies,
     isLoadingIdpConfig,
+    isIdpConfigError,
+    refetchIdpConfig,
     idpConfig,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,

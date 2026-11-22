@@ -3,7 +3,7 @@
 'use client';
 
 import { PROVISIONING_METHODS, getComponentStyles } from '@auth0/universal-components-core';
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
@@ -196,6 +196,12 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const [activeTab, setActiveTab] = useState('sso');
   const [isProvisioningGuidedSetup, setProvisioningGuidedSetup] = useState(false);
   const organizationDisplayName = organization?.display_name || undefined;
+  const [hasLeftProvisioningGuidedSetup, setLeftProvisioningGuidedSetup] = useState(false);
+  const guidedSetupTitleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (isProvisioningGuidedSetup) guidedSetupTitleRef.current?.focus();
+  }, [isProvisioningGuidedSetup]);
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = useMemo(
@@ -225,12 +231,16 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const providerSwitchBlockedReason = getProviderSwitchBlockedReason();
 
   if (isProvisioningGuidedSetup && provider) {
-    const closeGuidedSetup = () => setProvisioningGuidedSetup(false);
+    const closeGuidedSetup = () => {
+      setLeftProvisioningGuidedSetup(true);
+      setProvisioningGuidedSetup(false);
+    };
     return (
       <StyledScope style={currentStyles.variables}>
         <div className="w-full overflow-y-auto space-y-6">
           <Header
             title={t('provisioning_setup.title')}
+            titleRef={guidedSetupTitleRef}
             backButton={{
               onClick: closeGuidedSetup,
               text: t('provisioning_setup.back_button_text', {
@@ -399,9 +409,13 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   onListScimTokens={listScimTokens}
                   onCreateScimToken={createScimToken}
                   onDeleteScimToken={deleteScimToken}
+                  focusGuidedSetupButton={hasLeftProvisioningGuidedSetup}
                   onStartGuidedSetup={
                     provisioning?.guidedSetup?.enabled
-                      ? () => setProvisioningGuidedSetup(true)
+                      ? () => {
+                          setLeftProvisioningGuidedSetup(false);
+                          setProvisioningGuidedSetup(true);
+                        }
                       : undefined
                   }
                   hideGuidedSetupLifecycleWarnings={

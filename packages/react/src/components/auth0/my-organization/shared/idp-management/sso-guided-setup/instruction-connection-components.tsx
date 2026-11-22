@@ -7,6 +7,7 @@
 
 import { ProviderConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
+import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
@@ -41,15 +42,39 @@ export function InstructionConfigureConnection({ setup }: InstructionContentProp
  * @returns JSX element
  */
 export function InstructionAttributeMapping({ setup }: InstructionContentProps) {
-  const { kind, strategy, provider, attributeMappings, attributeMappingsError, customMessages } =
-    setup;
+  const {
+    kind,
+    strategy,
+    provider,
+    attributeMappings,
+    attributeMappingsError,
+    onRetryAttributeMappings,
+    customMessages,
+  } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
-  if (attributeMappingsError) {
+  if (attributeMappingsError === 'unavailable') {
     return (
-      <p className="text-sm text-destructive" role="alert" data-slot="attribute-mapping-error">
+      <p
+        className="text-sm text-destructive-foreground"
+        role="alert"
+        data-slot="attribute-mapping-error"
+      >
         {t('attribute_mapping_unavailable')}
       </p>
+    );
+  }
+
+  if (attributeMappingsError === 'load_failed') {
+    return (
+      <div className="space-y-3" role="alert" data-slot="attribute-mapping-error">
+        <p className="text-sm text-destructive-foreground">{t('attribute_mapping_load_failed')}</p>
+        {onRetryAttributeMappings && (
+          <Button type="button" variant="outline" size="sm" onClick={onRetryAttributeMappings}>
+            {t('attribute_mapping_retry')}
+          </Button>
+        )}
+      </div>
     );
   }
 
@@ -57,9 +82,10 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
   const mappings = attributeMappings ?? (kind === 'creation' ? providerAttributes : undefined);
 
   if (!mappings) {
+    const isPending = kind === 'creation' && !provider;
     return (
       <p className="text-sm text-muted-foreground" data-slot="attribute-mapping-pending">
-        {t('attribute_mapping_pending')}
+        {t(isPending ? 'attribute_mapping_pending' : 'attribute_mapping_unavailable')}
       </p>
     );
   }

@@ -5,6 +5,7 @@ import * as React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SsoProvisioningGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-guided-setup';
+import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
 import { ALL_IDP_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
@@ -39,6 +40,7 @@ const mockListScimTokens = vi.fn(async () => ({ scim_tokens: [] }));
 
 const renderSetup = (
   props: Partial<React.ComponentProps<typeof SsoProvisioningGuidedSetup>> = {},
+  options?: Parameters<typeof renderWithProviders>[1],
 ) =>
   renderWithProviders(
     <SsoProvisioningGuidedSetup
@@ -55,6 +57,7 @@ const renderSetup = (
       permissions={ALL_IDP_PERMISSIONS}
       {...props}
     />,
+    options,
   );
 
 const pageTitle = () => document.querySelector('[data-slot="sso-guided-setup-page-title"]');
@@ -87,6 +90,18 @@ describe('SsoProvisioningGuidedSetup', () => {
     await waitFor(() => expect(mockListScimTokens).toHaveBeenCalled());
   });
 
+  it('uses a placeholder domain in the SCIM endpoint when the domain is unknown', async () => {
+    const coreClient = { ...createMockCoreClient(), getDomain: () => '' };
+    renderSetup({}, { coreClient });
+    await waitFor(() => expect(pageTitle()).toHaveTextContent('Add SCIM Template App'));
+
+    await userEvent.click(next());
+
+    expect(
+      screen.getByDisplayValue('https://your_domain_placeholder/scim/v2/connections/con_123/'),
+    ).toBeInTheDocument();
+  });
+
   it('shows the namespace once and the configured mappings', async () => {
     renderSetup();
     await waitFor(() => expect(pageTitle()).toHaveTextContent('Add SCIM Template App'));
@@ -102,6 +117,36 @@ describe('SsoProvisioningGuidedSetup', () => {
   it('uses the provisioning attributes when the configuration has no mappings', async () => {
     renderSetup({
       idpConfig: { organization: {}, strategies: {} } as typeof IDP_CONFIG,
+      provisioningConfig: {
+        strategy: 'okta',
+        attributes: [
+          {
+            user_attribute: 'email',
+            label: 'Email',
+            is_required: true,
+            is_extra: false,
+            is_missing: false,
+            provisioning_field: 'emails[work].value',
+          },
+        ],
+      } as unknown as React.ComponentProps<typeof SsoProvisioningGuidedSetup>['provisioningConfig'],
+    });
+    await waitFor(() => expect(pageTitle()).toHaveTextContent('Add SCIM Template App'));
+
+    await userEvent.click(next());
+    await userEvent.click(next());
+
+    expect(screen.getByDisplayValue('emails[work].value')).toBeInTheDocument();
+  });
+
+  it('uses the provisioning attributes when the configuration has no provisioning mappings', async () => {
+    renderSetup({
+      idpConfig: {
+        organization: {},
+        strategies: {
+          okta: { user_attributes: { email: { label: 'Email', sso_field: ['email'] } } },
+        },
+      } as unknown as typeof IDP_CONFIG,
       provisioningConfig: {
         strategy: 'okta',
         attributes: [

@@ -44,6 +44,9 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it, turning provisioning on first when it's off.
+ * @param props.focusGuidedSetupButton - Moves focus to the Guided Setup button once it shows, after returning from guided setup.
+ * @param props.onCreateProvisioning - Turns provisioning on through the host's provisioning actions.
+ * @param props.isProvisioningUpdating - Whether the host is turning provisioning on.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -58,6 +61,9 @@ export function SsoProvisioningTab({
   permissions,
   readOnly = false,
   onStartGuidedSetup,
+  onCreateProvisioning,
+  focusGuidedSetupButton = false,
+  isProvisioningUpdating: isHostProvisioningUpdating,
   hideGuidedSetupLifecycleWarnings = false,
   organizationDisplayName,
 }: SsoProvisioningTabProps): React.JSX.Element {
@@ -70,13 +76,11 @@ export function SsoProvisioningTab({
   const {
     provisioningConfig,
     isProvisioningLoading,
-    isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
     fetchProvisioning,
-    createProvisioning,
     deleteProvisioning,
     listScimTokens,
     createScimToken,
@@ -102,7 +106,7 @@ export function SsoProvisioningTab({
     if (!provider?.id) return;
 
     if (enabled) {
-      await createProvisioning();
+      await onCreateProvisioning();
       await fetchProvisioning();
     } else {
       setDeleteModalOpen(true);
@@ -114,7 +118,7 @@ export function SsoProvisioningTab({
     setDeleteModalOpen(false);
   };
 
-  const isLoading = isProvisioningLoading || isProvisioningUpdating || isProvisioningDeleting;
+  const isLoading = isProvisioningLoading || isHostProvisioningUpdating || isProvisioningDeleting;
   const isProvisioningEnabled = !!provisioningConfig;
   const canToggleProvisioning = isProvisioningEnabled
     ? permissions.canDeleteProvisioning
@@ -141,6 +145,22 @@ export function SsoProvisioningTab({
   const { t: tGuided } = useTranslator('idp_management.sso_guided_setup');
 
   const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
+
+  const guidedSetupButtonRef = React.useRef<HTMLButtonElement>(null);
+  const hasFocusedGuidedSetupButton = React.useRef(false);
+  const isGuidedSetupButtonDisabled = isStartingGuidedSetup || isLoading || isGuidedSetupDeprecated;
+  React.useEffect(() => {
+    if (
+      !focusGuidedSetupButton ||
+      !showGuidedSetup ||
+      isGuidedSetupButtonDisabled ||
+      hasFocusedGuidedSetupButton.current
+    ) {
+      return;
+    }
+    hasFocusedGuidedSetupButton.current = true;
+    guidedSetupButtonRef.current?.focus();
+  }, [focusGuidedSetupButton, showGuidedSetup, isGuidedSetupButtonDisabled]);
   const handleStartGuidedSetup = async () => {
     if (!onStartGuidedSetup) return;
     if (isProvisioningEnabled) {
@@ -148,7 +168,7 @@ export function SsoProvisioningTab({
       return;
     }
     setStartingGuidedSetup(true);
-    const config = await createProvisioning()
+    const config = await onCreateProvisioning()
       .then(() => fetchProvisioning())
       .catch(() => null);
     setStartingGuidedSetup(false);
@@ -201,11 +221,12 @@ export function SsoProvisioningTab({
                   })}
                 >
                   <Button
+                    ref={guidedSetupButtonRef}
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={handleStartGuidedSetup}
-                    disabled={isStartingGuidedSetup || isLoading || isGuidedSetupDeprecated}
+                    disabled={isGuidedSetupButtonDisabled}
                     className={cn(
                       'flex items-center gap-2',
                       currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
