@@ -93,13 +93,13 @@ jobs:
         working-directory: functional-tests
         run: pnpm run org:teardown
 
-      - name: Upload Playwright report
-        if: always()
+      # Videos only: the HTML report's step titles include typed input and artifacts are public.
+      # TODO: upload the full report once there is a private location for it.
+      - name: Upload failure videos
+        if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: playwright-report
-          path: |
-            functional-tests/playwright-report/
-            functional-tests/test-results/
+          name: playwright-videos
+          path: functional-tests/test-results/**/*.webm
           retention-days: 3
           if-no-files-found: ignore
