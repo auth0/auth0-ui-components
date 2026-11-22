@@ -8,6 +8,7 @@ import {
   getIdpManagementPermissions,
   type CreateIdentityProviderRequestContentPrivate,
   type IdpKnownResponse,
+  type ProviderConfigureFormValues,
 } from '@auth0/universal-components-core';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
@@ -76,6 +77,7 @@ export function useSsoProviderCreate({
   const configureRef = useRef<ProviderConfigureHandle>(null);
   const guidedConfigureRef = useRef<ProviderConfigureFormHandle>(null);
   const advancedConnectionAccessRef = useRef<ReturnType<typeof pickConnectionAccess>>({});
+  const guidedConfigureDataRef = useRef<ProviderConfigureFormValues | null>(null);
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
@@ -141,8 +143,10 @@ export function useSsoProviderCreate({
     permissions.canCreateProvider;
 
   const saveGuidedConfigure = useCallback(() => {
-    const data = guidedConfigureRef.current?.getData();
-    if (data) setFormData((prev) => ({ ...prev, configure: data }));
+    const form = guidedConfigureRef.current;
+    if (!form) return;
+    guidedConfigureDataRef.current = form.getData();
+    setFormData((prev) => ({ ...prev, configure: form.getValues() }));
   }, []);
 
   const guidedSetup = useMemo<SsoProviderCreateGuidedSetupState>(
@@ -152,9 +156,11 @@ export function useSsoProviderCreate({
       provider: guidedProvider,
       configureRef: guidedConfigureRef,
       start: () => {
-        const data = configureRef.current?.getData();
+        const form = configureRef.current;
+        const data = form?.getData();
         advancedConnectionAccessRef.current = pickConnectionAccess(data);
-        if (data) setFormData((prev) => ({ ...prev, configure: data }));
+        guidedConfigureDataRef.current = data ?? null;
+        if (form) setFormData((prev) => ({ ...prev, configure: form.getValues() }));
         isGuidedSetupRef.current = true;
         setGuidedSetup(true);
       },
@@ -166,7 +172,8 @@ export function useSsoProviderCreate({
       },
       create: async () => {
         if (!permissions.canCreateProvider || !strategy || !details) return false;
-        const configureData = guidedConfigureRef.current?.getData() ?? formData.configure;
+        const configureData =
+          guidedConfigureRef.current?.getData() ?? guidedConfigureDataRef.current;
         try {
           const created = await createProvider({
             strategy,
@@ -196,7 +203,6 @@ export function useSsoProviderCreate({
       saveGuidedConfigure,
       strategy,
       details,
-      formData.configure,
       createProvider,
       createAction,
     ],

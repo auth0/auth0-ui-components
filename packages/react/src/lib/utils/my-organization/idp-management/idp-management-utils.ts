@@ -113,3 +113,13 @@ export function pickConnectionAccess(
     ]),
   );
 }
+
+/**
+ * Connection name as the identity provider is registered, with the host's prefix when it has one.
+ * @param name - Name entered for the provider.
+ * @param prefix - Connection name prefix.
+ * @returns The prefixed name, or the name unchanged without a prefix or name.
+ */
+export function getPrefixedConnectionName(name?: string, prefix?: string): string | undefined {
+  return prefix && name ? `${prefix}-${name}` : name;
+}

@@ -53,6 +53,7 @@ export function useStrategyConfigureForm<TSchema extends z.ZodTypeAny>(
   React.useImperativeHandle(ref, () => ({
     validate: () => form.trigger(),
     getData: () => (getData ? getData(form) : form.getValues()),
+    getValues: () => form.getValues(),
     isDirty: () => form.formState.isDirty,
     reset: (data) => {
       if (reset) {

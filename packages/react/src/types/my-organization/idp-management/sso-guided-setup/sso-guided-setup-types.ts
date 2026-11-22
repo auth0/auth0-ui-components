@@ -126,6 +126,7 @@ export interface SsoGuidedSetupProps
   initialPageKey?: string;
   renderers?: InstructionRenderers;
   enabled?: boolean;
+  autoFocus?: boolean;
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
