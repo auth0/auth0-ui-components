@@ -1029,10 +1029,25 @@ describe('SsoProviderEdit', () => {
       );
     };
 
-    it('is not offered unless enabled', async () => {
+    it('is offered by default', async () => {
       turnProvisioningOn();
       const user = userEvent.setup();
       renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+      expect(
+        await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+      ).toBeVisible();
+    });
+
+    it('is not offered when disabled', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit {...createMockSsoProviderEditProps({ hideGuidedSetup: true })} />,
+      );
       await waitForComponentToLoad();
 
       await user.click(screen.getByText(/tabs.provisioning.name/i));
@@ -1048,11 +1063,7 @@ describe('SsoProviderEdit', () => {
     it('replaces the tabs with the provisioning instructions', async () => {
       turnProvisioningOn();
       const user = userEvent.setup();
-      renderWithProviders(
-        <SsoProviderEdit
-          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
-        />,
-      );
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
 
       await openGuidedSetup(user);
 
@@ -1081,7 +1092,7 @@ describe('SsoProviderEdit', () => {
         return renderWithProviders(
           <SsoProviderEdit
             {...createMockSsoProviderEditProps({
-              provisioning: { guidedSetup: { enabled: true }, createAction },
+              provisioning: { createAction },
             })}
           />,
         );
@@ -1148,11 +1159,7 @@ describe('SsoProviderEdit', () => {
     it('returns to the Provisioning tab on Done', async () => {
       turnProvisioningOn();
       const user = userEvent.setup();
-      renderWithProviders(
-        <SsoProviderEdit
-          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
-        />,
-      );
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
       await openGuidedSetup(user);
 
       await user.click(screen.getByRole('button', { name: /^done$/ }));
@@ -1169,11 +1176,7 @@ describe('SsoProviderEdit', () => {
     it('returns to the Provisioning tab with the back button', async () => {
       turnProvisioningOn();
       const user = userEvent.setup();
-      renderWithProviders(
-        <SsoProviderEdit
-          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
-        />,
-      );
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
       await openGuidedSetup(user);
 
       await user.click(screen.getByRole('button', { name: /provisioning_setup.back_button_text/ }));

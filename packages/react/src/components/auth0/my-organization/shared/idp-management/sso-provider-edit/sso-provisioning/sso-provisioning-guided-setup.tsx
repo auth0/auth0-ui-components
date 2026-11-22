@@ -61,7 +61,6 @@ export function SsoProvisioningGuidedSetup({
 }: SsoProvisioningGuidedSetupProps) {
   const strategy = provider.strategy as IdpStrategy;
 
-  // Mapping instructions from the IdP configuration; without any, the provider's mappings.
   const attributeMappings = React.useMemo(() => {
     const userAttributes = getStrategyUserAttributes(idpConfig, strategy);
     const configured = userAttributes ? toProvisioningAttributeMappings(userAttributes) : [];

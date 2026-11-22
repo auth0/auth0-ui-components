@@ -196,10 +196,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
 
   describe('guidedSetup', () => {
     it('exposes the organization display name from the organization details', () => {
-      const { result } = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true } }),
-        grantAll,
-      );
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
 
       expect(result.current.guidedSetup?.organizationDisplayName).toBe('Cyborg Inc');
     });
@@ -279,10 +276,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
     };
 
     const renderGuided = (options: Parameters<typeof useSsoProviderCreate>[0] = {}) => {
-      const hook = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true }, ...options }),
-        grantAll,
-      );
+      const hook = renderHook(() => useSsoProviderCreate({ ...options }), grantAll);
       act(() => {
         hook.result.current.setFormData({
           strategy: 'samlp',
@@ -292,18 +286,18 @@ describe('useSsoProviderCreate - logic behavior', () => {
       return hook;
     };
 
-    it('is available only when enabled and the user can read the configuration', () => {
-      const isAvailable = (enabled: boolean, permissions: string[]) =>
-        renderHook(() => useSsoProviderCreate({ guidedSetup: { enabled } }), {
+    it('is available unless hidden, and only to users who can read the configuration', () => {
+      const isAvailable = (hideGuidedSetup: boolean, permissions: string[]) =>
+        renderHook(() => useSsoProviderCreate({ hideGuidedSetup }), {
           wrapper: wrapperFor(permissions),
         }).result.current.guidedSetup?.isAvailable;
       const withoutConfiguration = ALL_MY_ORG_PERMISSIONS.filter(
         (permission) => permission !== 'read:my_org:configuration',
       );
 
-      expect(isAvailable(true, ALL_MY_ORG_PERMISSIONS)).toBe(true);
-      expect(isAvailable(false, ALL_MY_ORG_PERMISSIONS)).toBe(false);
-      expect(isAvailable(true, withoutConfiguration)).toBe(false);
+      expect(isAvailable(false, ALL_MY_ORG_PERMISSIONS)).toBe(true);
+      expect(isAvailable(true, ALL_MY_ORG_PERMISSIONS)).toBe(false);
+      expect(isAvailable(false, withoutConfiguration)).toBe(false);
     });
 
     it('keeps the raw form values when starting and sends the normalized ones on create', async () => {
@@ -368,10 +362,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
     });
 
     it('does not create without the permission or the entered details', async () => {
-      const { result } = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true } }),
-        grantAll,
-      );
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
 
       await act(async () => {
         expect(await result.current.guidedSetup!.create()).toBe(false);

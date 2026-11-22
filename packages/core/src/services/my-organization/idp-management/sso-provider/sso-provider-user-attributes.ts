@@ -68,7 +68,7 @@ export function toProvisioningAttributeMappings(
 }
 
 /**
- * The entries of `user_attributes` that are objects; the API data isn't trusted to be well formed.
+ * Entries of `user_attributes` that are objects.
  * @param userAttributes - The strategy's `user_attributes`.
  * @returns Pairs of profile id and configuration entry.
  */

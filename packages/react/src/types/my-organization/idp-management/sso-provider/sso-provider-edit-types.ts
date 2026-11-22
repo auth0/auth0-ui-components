@@ -87,6 +87,7 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
+  hideGuidedSetup?: boolean;
   hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
@@ -206,6 +207,7 @@ export interface SsoProviderEditViewProps
       | 'provisioning'
       | 'hideHeader'
       | 'hideProvisioningTab'
+      | 'hideGuidedSetup'
       | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'

@@ -22,10 +22,7 @@ export default function SsoProviderCreatePage() {
     [router],
   );
 
-  const guidedSetup = useMemo(
-    () => ({ enabled: true, onComplete: handleGuidedComplete }),
-    [handleGuidedComplete],
-  );
+  const guidedSetup = useMemo(() => ({ onComplete: handleGuidedComplete }), [handleGuidedComplete]);
 
   const createAction = useMemo(
     () => ({

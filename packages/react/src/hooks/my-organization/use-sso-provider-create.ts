@@ -41,6 +41,7 @@ export function useSsoProviderCreate({
   readOnly = false,
   onNext,
   onPrevious,
+  hideGuidedSetup = false,
   guidedSetup: guidedSetupOptions,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
   const [isGuidedSetup, setGuidedSetup] = useState(false);
@@ -147,9 +148,7 @@ export function useSsoProviderCreate({
   }, [permissions, strategy, details, createProvider]);
 
   const guidedSetupEnabled =
-    Boolean(guidedSetupOptions?.enabled) &&
-    permissions.canReadConfiguration &&
-    permissions.canCreateProvider;
+    !hideGuidedSetup && permissions.canReadConfiguration && permissions.canCreateProvider;
 
   const saveGuidedConfigure = useCallback(() => {
     const form = guidedConfigureRef.current;

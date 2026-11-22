@@ -46,7 +46,8 @@ import type {
  * @param props.onNext - Callback for next action
  * @param props.onPrevious - Callback for previous action
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
- * @param props.guidedSetup - Guided setup on the Configure step (off by default)
+ * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
+ * @param props.guidedSetup - Guided setup options
  * @internal
  * @returns JSX element
  */
@@ -66,6 +67,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     resolveSamlMetadata,
     showSignRequest,
     connectionNamePrefix,
+    hideGuidedSetup,
     guidedSetup,
   } = props;
 
@@ -74,6 +76,7 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     customMessages,
     onNext,
     onPrevious,
+    hideGuidedSetup,
     guidedSetup,
   });
 
@@ -427,7 +430,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * @param props.onNext - Callback when moving to next step
  * @param props.onPrevious - Callback when moving to previous step
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
- * @param props.guidedSetup - Guided setup on the Configure step (off by default)
+ * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
+ * @param props.guidedSetup - Guided setup options
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @returns SSO provider creation wizard component

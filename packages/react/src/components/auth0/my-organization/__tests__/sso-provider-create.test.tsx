@@ -563,9 +563,18 @@ describe('SsoProviderCreate', () => {
       await user.type(screen.getByLabelText(/fields\.okta\.client_secret\.label/i), 'secret');
     };
 
-    it('is not offered unless enabled', async () => {
+    it('is offered by default', async () => {
       const user = userEvent.setup();
       renderCreate();
+
+      await goToConfigureStep(user);
+
+      expect(await screen.findByRole('button', { name: 'guided_setup_button_text' })).toBeVisible();
+    });
+
+    it('is not offered when disabled', async () => {
+      const user = userEvent.setup();
+      renderCreate({ hideGuidedSetup: true });
 
       await goToConfigureStep(user);
 
@@ -574,15 +583,10 @@ describe('SsoProviderCreate', () => {
 
     it('is not offered without permission to read the configuration', async () => {
       const user = userEvent.setup();
-      renderWithProviders(
-        <SsoProviderCreate
-          {...createMockSsoProviderCreateProps({ guidedSetup: { enabled: true } })}
-        />,
-        {
-          queryClient,
-          permissions: ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:configuration'),
-        },
-      );
+      renderWithProviders(<SsoProviderCreate {...createMockSsoProviderCreateProps()} />, {
+        queryClient,
+        permissions: ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:configuration'),
+      });
 
       await goToConfigureStep(user);
 
@@ -591,7 +595,7 @@ describe('SsoProviderCreate', () => {
 
     it('opens guided setup on the same page with the values entered so far', async () => {
       const user = userEvent.setup();
-      renderCreate({ guidedSetup: { enabled: true } });
+      renderCreate();
       await goToConfigureStep(user);
       await user.type(domainInput(), 'acme.okta.com');
 
@@ -612,7 +616,7 @@ describe('SsoProviderCreate', () => {
 
     it('leaves the SAML service provider values out of the guided form', async () => {
       const user = userEvent.setup();
-      renderCreate({ guidedSetup: { enabled: true } });
+      renderCreate();
       await goToConfigureStep(user, 'Custom SAML');
       expect(screen.getByText('fields.samlp.acs_url.label')).toBeInTheDocument();
 
@@ -639,7 +643,7 @@ describe('SsoProviderCreate', () => {
 
       it('disables guided setup and explains why', async () => {
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await goToConfigureStep(user);
 
         const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
@@ -650,7 +654,7 @@ describe('SsoProviderCreate', () => {
 
       it('keeps it disabled without the explanation when lifecycle warnings are hidden', async () => {
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true, hideLifecycleWarnings: true } });
+        renderCreate({ guidedSetup: { hideLifecycleWarnings: true } });
         await goToConfigureStep(user);
 
         const button = await screen.findByRole('button', { name: 'guided_setup_button_text' });
@@ -662,7 +666,7 @@ describe('SsoProviderCreate', () => {
 
     it('keeps the configure values when moving between pages', async () => {
       const user = userEvent.setup();
-      renderCreate({ guidedSetup: { enabled: true } });
+      renderCreate();
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -682,7 +686,7 @@ describe('SsoProviderCreate', () => {
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockResolvedValueOnce(CREATED_PROVIDER);
-      renderCreate({ createAction, guidedSetup: { enabled: true } });
+      renderCreate({ createAction });
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -717,7 +721,7 @@ describe('SsoProviderCreate', () => {
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockResolvedValueOnce(CREATED_PROVIDER);
-      renderCreate({ guidedSetup: { enabled: true } });
+      renderCreate();
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -759,7 +763,7 @@ describe('SsoProviderCreate', () => {
           .create as ReturnType<typeof vi.fn>;
         createApi.mockResolvedValueOnce(CREATED_PROVIDER);
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await goToConfigureStep(user);
         await user.click(screen.getByRole('checkbox', { name: 'label' }));
 
@@ -776,7 +780,7 @@ describe('SsoProviderCreate', () => {
           .create as ReturnType<typeof vi.fn>;
         createApi.mockResolvedValueOnce(CREATED_PROVIDER);
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await goToConfigureStep(user);
 
         await createThroughGuidedSetup(user);
@@ -791,7 +795,7 @@ describe('SsoProviderCreate', () => {
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockResolvedValueOnce(CREATED_PROVIDER);
-      renderCreate({ guidedSetup: { enabled: true } });
+      renderCreate();
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -825,7 +829,7 @@ describe('SsoProviderCreate', () => {
 
       it('keeps the Automatic and Manual SAML values apart', async () => {
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await openGuidedConfigure(user, 'Custom SAML');
         const metadataUrl = () =>
           screen.getByRole('textbox', { name: /fields\.samlp\.meta_data_url\.label/i });
@@ -846,7 +850,7 @@ describe('SsoProviderCreate', () => {
           .create as ReturnType<typeof vi.fn>;
         createApi.mockResolvedValueOnce({ ...CREATED_PROVIDER, strategy: 'samlp' });
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await openGuidedConfigure(user, 'Custom SAML');
         await user.type(
           screen.getByRole('textbox', { name: /fields\.samlp\.meta_data_url\.label/i }),
@@ -870,7 +874,7 @@ describe('SsoProviderCreate', () => {
 
       it('shows the ADFS Automatic and Manual tabs and keeps the Automatic values', async () => {
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await openGuidedConfigure(user, 'ADFS');
         const server = () =>
           screen.getByRole('textbox', { name: /fields\.adfs\.meta_data_url\.label/i });
@@ -902,7 +906,7 @@ describe('SsoProviderCreate', () => {
           .create as ReturnType<typeof vi.fn>;
         createApi.mockResolvedValueOnce({ ...CREATED_PROVIDER, strategy: 'adfs' });
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await goToConfigureStep(user, 'ADFS');
         const [thirdParty, crossAppAccess] = screen.getAllByRole('checkbox', { name: 'label' });
         await user.click(thirdParty!);
@@ -936,7 +940,7 @@ describe('SsoProviderCreate', () => {
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockRejectedValueOnce(new Error('boom'));
-      renderCreate({ createAction, guidedSetup: { enabled: true } });
+      renderCreate({ createAction });
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -991,7 +995,7 @@ describe('SsoProviderCreate', () => {
       };
 
       const openAdfsGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
         await goToConfigureStep(user, 'ADFS');
         await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
         await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -1027,7 +1031,7 @@ describe('SsoProviderCreate', () => {
       it('leaves the wizard working when the configuration has a malformed attribute', async () => {
         mockIdpConfig(withAdfsUserAttributes({ email: null, name: { sso_field: 'name' } }));
         const user = userEvent.setup();
-        renderCreate({ guidedSetup: { enabled: true } });
+        renderCreate();
 
         await goToConfigureStep(user, 'ADFS');
 

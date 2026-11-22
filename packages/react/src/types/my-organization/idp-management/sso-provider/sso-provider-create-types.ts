@@ -220,7 +220,6 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 }
 
 export interface SsoProviderCreateGuidedSetup {
-  enabled?: boolean;
   hideLifecycleWarnings?: boolean;
   onComplete?: (provider: IdpKnownResponse) => void;
 }
@@ -252,6 +251,7 @@ export interface SsoProviderCreateProps
   connectionNamePrefix?: string;
   showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  hideGuidedSetup?: boolean;
   guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 
@@ -278,6 +278,7 @@ export interface UseSsoProviderCreateServiceReturn {
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
   onNext?: (stepId: string, values: Partial<FormState>) => boolean;
   onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
+  hideGuidedSetup?: boolean;
   guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 

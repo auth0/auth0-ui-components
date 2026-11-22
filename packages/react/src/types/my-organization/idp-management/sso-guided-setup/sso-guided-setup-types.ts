@@ -36,7 +36,6 @@ export type InstructionContent =
   | IdpProvisioningInstructionsPageContent
   | IdpInstructionsTabContent;
 
-/** Why the attribute mappings can't be shown: no profile assigned, or the configuration failed to load. */
 export type AttributeMappingsError = 'unavailable' | 'load_failed';
 
 /** Strategy form shown by the configure connection content types. */
