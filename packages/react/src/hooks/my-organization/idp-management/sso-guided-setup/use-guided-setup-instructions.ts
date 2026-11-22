@@ -16,12 +16,11 @@ import { useTranslator } from '@/hooks/shared/use-translator';
 import type { UseGuidedSetupInstructionsResult } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
- * Reads the instructions from the query cache (fetching them once) so every part of the guided
- * setup shares one request.
+ * Instructions for a strategy, shared through the query cache.
  * @param kind - `creation` or `provisioning`.
  * @param strategy - IdP strategy.
  * @param enabled - Extra gate.
- * @returns The query result plus the `base_url` and the name for `{{companyName}}` (with fallback).
+ * @returns The query result, `baseUrl`, and the `{{companyName}}` value.
  */
 export function useGuidedSetupInstructions<TKind extends InstructionsKind>(
   kind: TKind,

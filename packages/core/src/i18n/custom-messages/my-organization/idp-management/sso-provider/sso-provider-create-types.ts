@@ -5,6 +5,7 @@
  */
 
 import type { SharedMessages } from '../../../shared/shared-types';
+import type { SsoGuidedSetupMessages } from '../sso-guided-setup/sso-guided-setup-types';
 
 import type { ThirdPartyAccessMessages, CrossAppAccessMessages } from './sso-provider-edit-types';
 
@@ -344,6 +345,7 @@ export interface SsoProviderCreateMessages extends SharedMessages {
   provider_select?: ProviderSelectMessages;
   provider_details?: ProviderDetailsMessages;
   provider_configure?: ProviderConfigureMessages;
+  guided_setup?: SsoGuidedSetupMessages;
   notifications?: {
     general_error?: string;
     provider_create_success?: string;

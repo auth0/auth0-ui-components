@@ -124,10 +124,12 @@ export interface SsoGuidedSetupProps
   initialPageKey?: string;
   renderers?: InstructionRenderers;
   enabled?: boolean;
+  autoFocus?: boolean;
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
   onCreateProvider?: () => Promise<boolean>;
   onComplete?: () => void;
+  onLeavePage?: (page: InstructionsPageItem) => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
   className?: string;
 }
@@ -188,6 +190,7 @@ export interface UseGuidedSetupCreationOptions
   extends Pick<SsoGuidedSetupProps, 'onBeforeCreate' | 'onCreateProvider' | 'onComplete'> {
   flow: UseGuidedSetupFlowResult<InstructionsPageItem>;
   provider: IdpKnownResponse | null;
+  leavePage: (navigate: () => void) => void;
 }
 
 export interface UseGuidedSetupCreationResult {

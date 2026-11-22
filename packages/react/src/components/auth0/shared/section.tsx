@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
   icon?: LucideIcon;
+  iconPosition?: 'start' | 'end';
   className?: string;
 }
 
@@ -41,6 +42,7 @@ interface SectionProps {
 
 const ButtonAction: React.FC<ButtonActionProps> = ({
   icon: Icon,
+  iconPosition = 'start',
   className,
   label,
   onClick,
@@ -56,8 +58,13 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
     className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
     aria-label={label}
   >
-    {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
+    {Icon && iconPosition === 'start' && (
+      <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+    )}
     <span className="truncate">{label}</span>
+    {Icon && iconPosition === 'end' && (
+      <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+    )}
   </Button>
 );
 

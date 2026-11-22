@@ -156,3 +156,9 @@ export const SSO_PROVIDER_TEST_FATAL_POLL_STATUSES: ReadonlySet<number> = new Se
 export const SSO_PROVIDER_TEST_POLL_INTERVAL_MS = 5_000;
 export const SSO_PROVIDER_TEST_MAX_POLL_ATTEMPTS = 120;
 export const SSO_PROVIDER_TEST_MAX_POLL_DURATION_MS = 600_000;
+
+/** Connection access fields the advanced configure form holds only when it shows them. */
+export const CONNECTION_ACCESS_FIELDS = [
+  'use_for_third_party_client_access',
+  'cross_app_access_resource_app',
+] as const;

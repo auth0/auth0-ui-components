@@ -34,12 +34,14 @@ import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
+  getValues: () => ProviderConfigureFormValues;
 }
 
 export interface ProviderDetailsFormHandle {
@@ -56,6 +58,8 @@ export type FormMode = 'create' | 'edit';
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
   'SsoProviderCreate-wizard'?: string;
+  'SsoProviderCreate-guidedSetup'?: string;
+  'SsoProviderCreate-guidedSetupButton'?: string;
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
@@ -102,6 +106,7 @@ export interface ProviderConfigureProps
   crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  guidedSetupAction?: { onClick: () => void; className?: string };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -120,6 +125,7 @@ export interface ProviderConfigureFieldsProps
   showSignRequest?: boolean;
   /** Connection source selector for SAML and ADFS forms: radio group (default) or tabs. */
   connectionSourceSelector?: 'radio' | 'tabs';
+  showServiceProviderFields?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
@@ -207,6 +213,23 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+export interface SsoProviderCreateGuidedSetup {
+  enabled?: boolean;
+}
+
+export interface SsoProviderCreateGuidedSetupState {
+  isAvailable: boolean;
+  isActive: boolean;
+  provider: IdpKnownResponse | null;
+  configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
+  start: () => void;
+  saveConfigure: () => void;
+  validate: () => Promise<boolean>;
+  create: () => Promise<boolean>;
+  complete: () => void;
+}
+
 export interface SsoProviderCreateProps
   extends SharedComponentProps<
     SsoProviderCreateMessages,
@@ -220,6 +243,7 @@ export interface SsoProviderCreateProps
   connectionNamePrefix?: string;
   showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 
 export interface UseSsoProviderCreateOptions {
@@ -239,6 +263,7 @@ export interface UseSsoProviderCreateServiceReturn {
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
   onNext?: (stepId: string, values: Partial<FormState>) => boolean;
   onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
+  guidedSetup?: SsoProviderCreateGuidedSetup;
 }
 
 export interface UseSsoProviderCreateResult {
@@ -261,6 +286,7 @@ export interface UseSsoProviderCreateResult {
   getCrossAppAccessDefaultValue: () => CrossAppAccessStatus | undefined;
   isOrganizationBlocked: boolean;
   crossAppAccessDefaultValue?: CrossAppAccessStatus;
+  guidedSetup?: SsoProviderCreateGuidedSetupState;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

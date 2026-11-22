@@ -16,6 +16,7 @@ import type {
  * @param options - Hook options.
  * @param options.flow - Navigation state.
  * @param options.provider - The created provider, if any.
+ * @param options.leavePage - Runs a navigation after notifying the current page is left.
  * @param options.onBeforeCreate - Runs before the confirmation.
  * @param options.onCreateProvider - Creates the provider.
  * @param options.onComplete - Runs when the last page is finished.
@@ -24,6 +25,7 @@ import type {
 export function useGuidedSetupCreation({
   flow,
   provider,
+  leavePage,
   onBeforeCreate,
   onCreateProvider,
   onComplete,
@@ -37,8 +39,8 @@ export function useGuidedSetupCreation({
   React.useEffect(() => {
     if (createdFromPageKey === null || !provider) return;
     setCreatedFromPageKey(null);
-    if (currentPageKey === createdFromPageKey) flow.goNext();
-  }, [createdFromPageKey, currentPageKey, provider, flow]);
+    if (currentPageKey === createdFromPageKey) leavePage(flow.goNext);
+  }, [createdFromPageKey, currentPageKey, provider, flow, leavePage]);
 
   const needsCreate = flow.currentPage?.exit_condition === 'connection_exists' && !provider;
 
@@ -53,7 +55,7 @@ export function useGuidedSetupCreation({
       if (flow.canLeaveCurrentPage) onComplete?.();
       return;
     }
-    flow.goNext();
+    leavePage(flow.goNext);
   };
 
   const handleProceed = async () => {

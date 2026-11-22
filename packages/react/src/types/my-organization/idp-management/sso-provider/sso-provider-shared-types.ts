@@ -93,6 +93,7 @@ export interface UseFileContentFieldResult {
 export interface StrategyConfigureFormHandle<TValues> {
   validate: () => Promise<boolean>;
   getData: () => TValues;
+  getValues: () => TValues;
   isDirty: () => boolean;
   reset: (data?: TValues) => void;
 }
