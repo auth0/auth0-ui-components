@@ -304,7 +304,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={(tab) => {
+            setActiveTab(tab);
+            setLeftProvisioningGuidedSetup(false);
+          }}
           className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
         >
           <TabsList

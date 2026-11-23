@@ -1166,6 +1166,27 @@ describe('SsoProviderEdit', () => {
       );
     });
 
+    it('leaves focus on the tab when the Provisioning tab is revisited after Done', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit
+          {...createMockSsoProviderEditProps({ provisioning: { guidedSetup: { enabled: true } } })}
+        />,
+      );
+      await openGuidedSetup(user);
+      await user.click(screen.getByRole('button', { name: /^done$/ }));
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
+      );
+
+      await user.click(screen.getByRole('tab', { name: /tabs.sso.name/i }));
+      await user.click(screen.getByRole('tab', { name: /tabs.provisioning.name/i }));
+
+      await screen.findByRole('button', { name: /guided_setup_button_label/ });
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveFocus();
+    });
+
     it('returns to the Provisioning tab with the back button', async () => {
       turnProvisioningOn();
       const user = userEvent.setup();
