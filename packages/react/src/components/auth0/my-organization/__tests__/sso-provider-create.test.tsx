@@ -890,6 +890,122 @@ describe('SsoProviderCreate', () => {
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(createAction.onAfter).not.toHaveBeenCalled();
     });
+
+    describe('attribute mappings', () => {
+      const ADFS_USER_ATTRIBUTES = {
+        email: {
+          label: 'Email',
+          description: 'Email',
+          is_required: true,
+          sso_field: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'],
+        },
+        given_name: {
+          label: 'Given Name',
+          description: 'First name',
+          is_required: false,
+          sso_field: ['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'],
+        },
+      };
+
+      const mockIdpConfig = (idpConfig: unknown) => {
+        vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+          createMockUseIdpConfig({
+            idpConfig: idpConfig as ReturnType<typeof createMockUseIdpConfig>['idpConfig'],
+          }),
+        );
+      };
+
+      const withAdfsUserAttributes = (userAttributes: Record<string, unknown>) => {
+        const base = createMockUseIdpConfig().idpConfig!;
+        return {
+          ...base,
+          strategies: {
+            ...base.strategies,
+            adfs: {
+              enabled_features: [],
+              provisioning_methods: [],
+              user_attributes: userAttributes,
+            },
+          },
+        };
+      };
+
+      const openAdfsGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
+        renderCreate({ guidedSetup: { enabled: true } });
+        await goToConfigureStep(user, 'ADFS');
+        await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
+        await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
+      };
+
+      it('shows the mappings from the configuration before the provider exists', async () => {
+        mockIdpConfig(withAdfsUserAttributes(ADFS_USER_ATTRIBUTES));
+        const user = userEvent.setup();
+        await openAdfsGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+        expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
+        expect(screen.getByText('Email')).toBeInTheDocument();
+        expect(
+          screen.getByDisplayValue(
+            'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+          ),
+        ).toBeInTheDocument();
+        expect(screen.queryByText('attribute_mapping_pending')).not.toBeInTheDocument();
+      });
+
+      it('skips the mapping page when the configuration has no mappings', async () => {
+        mockIdpConfig(withAdfsUserAttributes({}));
+        const user = userEvent.setup();
+        await openAdfsGuidedSetup(user);
+
+        expect(screen.queryByText('Configure Claims Issuance Policy')).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+        expect(pageTitle()).toHaveTextContent('Configure Connection');
+      });
+
+      it('leaves the wizard working when the configuration has a malformed attribute', async () => {
+        mockIdpConfig(withAdfsUserAttributes({ email: null, name: { sso_field: 'name' } }));
+        const user = userEvent.setup();
+        renderCreate({ guidedSetup: { enabled: true } });
+
+        await goToConfigureStep(user, 'ADFS');
+
+        expect(
+          await screen.findByRole('button', { name: 'guided_setup_button_text' }),
+        ).toBeInTheDocument();
+      });
+
+      it('stops on the mapping page when the configuration is unavailable', async () => {
+        mockIdpConfig(null);
+        const user = userEvent.setup();
+        await openAdfsGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+        expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
+        expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_unavailable');
+        expect(screen.getByRole('button', { name: /^next$/ })).toBeDisabled();
+      });
+
+      it('offers a retry and does not block Next when the configuration fails to load', async () => {
+        const refetchIdpConfig = vi.fn(async () => undefined);
+        vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+          createMockUseIdpConfig({ idpConfig: null, isIdpConfigError: true, refetchIdpConfig }),
+        );
+        const user = userEvent.setup();
+        await openAdfsGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^next$/ }));
+
+        expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
+        expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_load_failed');
+        expect(screen.getByRole('button', { name: /^next$/ })).toBeEnabled();
+
+        await user.click(screen.getByRole('button', { name: 'attribute_mapping_retry' }));
+        expect(refetchIdpConfig).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('backButton', () => {

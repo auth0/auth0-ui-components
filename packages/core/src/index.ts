@@ -136,6 +136,7 @@ export * from './services/my-organization/idp-management/sso-provisioning/sso-pr
 export * from './services/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-constants';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-urls-helper';
+export * from './services/my-organization/idp-management/sso-provider/sso-provider-user-attributes';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-mappers';
 export * from './services/my-organization/idp-management/sso-provider/sso-provider-query-keys';
 export * from './services/my-organization/idp-management/sso-provisioning/sso-provisioning-constants';

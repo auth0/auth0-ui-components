@@ -1159,6 +1159,9 @@
         }
       },
       "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
+      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur.",
+      "attribute_mapping_load_failed": "Impossible de charger les mappages d’attributs. Réessayez, ou continuez et vérifiez-les plus tard.",
+      "attribute_mapping_retry": "Réessayer",
       "instruction_tabs_label": "Options de configuration"
     }
   },

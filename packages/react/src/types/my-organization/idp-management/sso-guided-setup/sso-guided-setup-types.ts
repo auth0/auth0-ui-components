@@ -36,6 +36,9 @@ export type InstructionContent =
   | IdpProvisioningInstructionsPageContent
   | IdpInstructionsTabContent;
 
+/** Why the attribute mappings can't be shown: no profile assigned, or the configuration failed to load. */
+export type AttributeMappingsError = 'unavailable' | 'load_failed';
+
 /** Strategy form shown by the configure connection content types. */
 export interface SsoGuidedSetupConfigureForm {
   ref: React.Ref<ProviderConfigureFormHandle>;
@@ -56,6 +59,8 @@ export interface InstructionSetup {
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   configure?: SsoGuidedSetupConfigureForm;
   attributeMappings?: IdpUserAttributeMapItem[] | IdpProvisioningUserAttributeMapItem[] | null;
+  attributeMappingsError?: AttributeMappingsError;
+  onRetryAttributeMappings?: () => void;
   slots?: SsoGuidedSetupSlots;
   customMessages?: Partial<Record<string, unknown>>;
 }
@@ -116,6 +121,8 @@ export interface SsoGuidedSetupProps
     | 'resolveSamlMetadata'
     | 'configure'
     | 'attributeMappings'
+    | 'attributeMappingsError'
+    | 'onRetryAttributeMappings'
     | 'slots'
   > {
   strategy: IdpStrategy;

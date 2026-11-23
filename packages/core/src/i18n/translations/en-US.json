@@ -1333,6 +1333,9 @@
         }
       },
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
+      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider.",
+      "attribute_mapping_load_failed": "Attribute mappings couldn't be loaded. Try again, or continue and check them later.",
+      "attribute_mapping_retry": "Try again",
       "instruction_tabs_label": "Setup options"
     }
   },
