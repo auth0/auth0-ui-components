@@ -44,14 +44,14 @@ test.describe('SSO providers list', () => {
     await ssoProviderCreate.goto(createRoute);
     await ssoProviderCreate.createOidcProvider({ name, displayName });
 
-    const connectionId = await findSsoConnectionIdByProviderName(name);
-    seededConnectionIds.push(connectionId);
-
     const ssoProviderTable = new SsoProviderTablePage(page);
     const row = ssoProviderTable.providerRow(name);
     await expect(row).toBeVisible();
     await expect(row).toContainText(name);
     await expect(row).toContainText(displayName);
+
+    const connectionId = await findSsoConnectionIdByProviderName(name);
+    seededConnectionIds.push(connectionId);
     const connection = await getConnection(connectionId);
     expect(connection.strategy).toBe('oidc');
     expect(connection.display_name).toBe(displayName);
@@ -133,12 +133,14 @@ test.describe('Refresh button', () => {
     const secondTabCreate = new SsoProviderCreatePage(secondPage);
     await secondTabCreate.goto(createRoute);
     await secondTabCreate.createOidcProvider({ name, displayName });
-    seededConnectionIds.push(await findSsoConnectionIdByProviderName(name));
 
     // Wait for the row before closing: closing mid-read can kill a token refresh after the server
     // rotated it, leaving the saved session dead and failing the NEXT test instead of this one.
     await expect(new SsoProviderTablePage(secondPage).providerRow(name)).toBeVisible();
     await secondPage.close();
+
+    const connectionId = await findSsoConnectionIdByProviderName(name);
+    seededConnectionIds.push(connectionId);
 
     await ssoProviderTable.refreshButton.click();
     await expect(ssoProviderTable.providerRow(name)).toBeVisible();
