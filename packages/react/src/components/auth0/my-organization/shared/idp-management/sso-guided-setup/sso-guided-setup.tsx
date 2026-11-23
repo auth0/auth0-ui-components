@@ -184,7 +184,12 @@ export function SsoGuidedSetup({
 
         <section className="min-w-0 space-y-6" aria-labelledby={pageTitleId}>
           {showOutOfDate && (
-            <Alert variant="warning" className="pr-10" data-slot="sso-guided-setup-out-of-date">
+            <Alert
+              variant="warning"
+              role="status"
+              className="pr-10"
+              data-slot="sso-guided-setup-out-of-date"
+            >
               <MessageSquareWarning aria-hidden="true" />
               <AlertDescription className="text-warning-foreground">
                 {t('lifecycle.out_of_date', { organizationDisplayName: lifecycleOrganization })}

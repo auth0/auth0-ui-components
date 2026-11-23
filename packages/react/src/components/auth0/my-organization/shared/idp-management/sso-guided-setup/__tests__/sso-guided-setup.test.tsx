@@ -262,6 +262,10 @@ describe('SsoGuidedSetup', () => {
       renderWithLifecycle('out_of_date');
 
       expect(await screen.findByText('lifecycle.out_of_date')).toBeInTheDocument();
+      expect(document.querySelector('[data-slot="sso-guided-setup-out-of-date"]')).toHaveAttribute(
+        'role',
+        'status',
+      );
       await userEvent.click(screen.getByRole('button', { name: 'lifecycle.dismiss' }));
 
       expect(screen.queryByText('lifecycle.out_of_date')).not.toBeInTheDocument();

@@ -57,10 +57,7 @@ export function useSsoProviderCreate({
       createAction && {
         ...createAction,
         onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
-          if (isGuidedSetupRef.current && result) {
-            pendingOnAfterRef.current = { data, result };
-            return;
-          }
+          if (isGuidedSetupRef.current && result) return;
           return createAction.onAfter?.(data, result);
         },
       },
@@ -184,14 +181,16 @@ export function useSsoProviderCreate({
         if (!permissions.canCreateProvider || !strategy || !details) return false;
         const configureData =
           guidedConfigureRef.current?.getData() ?? guidedConfigureDataRef.current;
+        const data = {
+          strategy,
+          ...details,
+          ...advancedConnectionAccessRef.current,
+          ...configureData,
+        };
         try {
-          const created = await createProvider({
-            strategy,
-            ...details,
-            ...advancedConnectionAccessRef.current,
-            ...configureData,
-          });
+          const created = await createProvider(data);
           if (!created) return false;
+          pendingOnAfterRef.current = { data, result: created };
           setGuidedProvider(created);
           return true;
         } catch {
