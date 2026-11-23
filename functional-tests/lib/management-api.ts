@@ -267,6 +267,22 @@ export function createDiscoveryDomain(
   });
 }
 
+export async function discoveryDomainExists(
+  organizationId: string,
+  discoveryDomainId: string,
+): Promise<boolean> {
+  try {
+    await mgmt<DiscoveryDomain>(
+      'GET',
+      `organizations/${organizationId}/discovery-domains/${discoveryDomainId}`,
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ManagementApiError && error.status === 404) return false;
+    throw error;
+  }
+}
+
 // Tolerates 404 so cleanup after a test that already deleted the domain through the UI is a no-op.
 export async function deleteDiscoveryDomain(
   organizationId: string,

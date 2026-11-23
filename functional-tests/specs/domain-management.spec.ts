@@ -2,12 +2,19 @@ import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { expect, test, uniqueDomain } from '../fixtures/domain.fixture';
 import { testUnauthenticatedRedirect } from '../fixtures/unauthenticated';
 import { t } from '../lib/i18n';
-import { deleteSsoProvider, findSsoConnectionIdByProviderName } from '../lib/management-api';
+import {
+  deleteSsoProvider,
+  discoveryDomainExists,
+  findSsoConnectionIdByProviderName,
+} from '../lib/management-api';
+import { POLL_TIMEOUT_MS, pollRead } from '../lib/poll';
+import { requireRunState } from '../lib/run-state';
 import { watchToasts } from '../lib/toast';
 import { DomainManagementPage } from '../pages/domain-management.page';
 import { SsoProviderCreatePage } from '../pages/sso-provider-create.page';
 
 const route = reactSpaNpmApp.routes.domainManagement;
+const org = requireRunState();
 
 testUnauthenticatedRedirect(route, (page) => new DomainManagementPage(page).addDomainButton);
 
@@ -125,5 +132,12 @@ test.describe('Delete domain', () => {
       t('domain_management.domain_table.notifications.domain_delete.success', { domainName }),
     );
     await expect(row).toBeHidden();
+
+    await expect
+      .poll(
+        pollRead(() => discoveryDomainExists(org.orgId, pendingDomain.id), true),
+        { timeout: POLL_TIMEOUT_MS },
+      )
+      .toBe(false);
   });
 });
