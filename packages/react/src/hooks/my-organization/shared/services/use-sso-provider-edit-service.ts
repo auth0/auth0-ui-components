@@ -32,6 +32,7 @@ import type {
   UseSsoProviderEditOptions,
   UseSsoProviderEditServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
+import type { CreateProvisioningOptions } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
 const ACTION_CANCELLED_ERROR = 'ACTION_CANCELLED';
 
@@ -229,7 +230,9 @@ export function useSsoProviderEditService(
    * Create provisioning mutation - enables provisioning for the provider.
    */
   const createProvisioningMutation = useMutation({
-    mutationFn: async (): Promise<GetIdPProvisioningConfigResponseContent> => {
+    mutationFn: async (
+      _options?: CreateProvisioningOptions,
+    ): Promise<GetIdPProvisioningConfigResponseContent> => {
       const provider = providerQuery.data;
       if (!provider) {
         throw new Error('Provider not loaded');
@@ -248,7 +251,7 @@ export function useSsoProviderEditService(
 
       return result;
     },
-    onSuccess: async (result) => {
+    onSuccess: async (result, options) => {
       const provider = providerQuery.data;
 
       showToast({
@@ -260,8 +263,11 @@ export function useSsoProviderEditService(
       });
       queryClient.setQueryData(ssoProviderQueryKeys.provisioning(idpId), result);
 
-      if (provisioning?.createAction?.onAfter && provider) {
-        await provisioning.createAction.onAfter(provider, result);
+      const onAfter = options?.guided
+        ? provisioning?.createGuidedSetupAction?.onAfter
+        : provisioning?.createAction?.onAfter;
+      if (onAfter && provider) {
+        await onAfter(provider, result);
       }
     },
     onError: (error) => {
@@ -601,20 +607,23 @@ export function useSsoProviderEditService(
     [coreClient, idpId, providerQuery.data, enableProviderMutation],
   );
 
-  const createProvisioning = useCallback(async (): Promise<void> => {
-    const provider = providerQuery.data;
-    if (!coreClient || !idpId || !provider) {
-      return;
-    }
-
-    try {
-      await createProvisioningMutation.mutateAsync();
-    } catch (error) {
-      if (!isActionCancelledError(error)) {
-        throw error;
+  const createProvisioning = useCallback(
+    async (options?: CreateProvisioningOptions): Promise<void> => {
+      const provider = providerQuery.data;
+      if (!coreClient || !idpId || !provider) {
+        return;
       }
-    }
-  }, [coreClient, createProvisioningMutation, idpId, providerQuery.data]);
+
+      try {
+        await createProvisioningMutation.mutateAsync(options);
+      } catch (error) {
+        if (!isActionCancelledError(error)) {
+          throw error;
+        }
+      }
+    },
+    [coreClient, createProvisioningMutation, idpId, providerQuery.data],
+  );
 
   const deleteProvisioning = useCallback(async (): Promise<void> => {
     const provider = providerQuery.data;

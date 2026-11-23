@@ -96,6 +96,7 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
       strategy={strategy}
       isProvisioning={kind === 'provisioning'}
       hideExternalNamespace={kind === 'provisioning' && strategy === 'okta'}
+      hideHeader
     />
   );
 }

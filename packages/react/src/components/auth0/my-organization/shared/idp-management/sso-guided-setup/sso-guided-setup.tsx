@@ -5,6 +5,7 @@
  */
 
 import { STRATEGY_DISPLAY_NAMES } from '@auth0/universal-components-core';
+import { MessageSquareWarning, X } from 'lucide-react';
 import * as React from 'react';
 
 import { InstructionsPage } from '@/components/auth0/my-organization/shared/idp-management/sso-guided-setup/instructions-page';
@@ -12,6 +13,8 @@ import { SsoGuidedSetupCreateModal } from '@/components/auth0/my-organization/sh
 import { SsoStrategyIcon } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-shared/sso-strategy-icon';
 import { FormActions } from '@/components/auth0/shared/form-actions';
 import { WizardStepper } from '@/components/auth0/shared/wizard-stepper';
+import { Alert, AlertAction, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { useGuidedSetupCreation } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-creation';
@@ -34,6 +37,7 @@ export function SsoGuidedSetup({
   strategy,
   kind = 'creation',
   connectionName,
+  organizationDisplayName,
   provider = null,
   resolveSamlMetadata,
   configure,
@@ -45,6 +49,7 @@ export function SsoGuidedSetup({
   initialPageKey,
   renderers,
   enabled = true,
+  hideLifecycleWarnings = false,
   autoFocus = false,
   isSubmitting = false,
   onBeforeCreate,
@@ -56,15 +61,17 @@ export function SsoGuidedSetup({
 }: SsoGuidedSetupProps) {
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
 
-  const { flow, isLoading, error, companyName } = useGuidedSetupPages({
-    kind,
-    strategy,
-    enabled,
-    provider,
-    attributeMappings,
-    entryContext,
-    initialPageKey,
-  });
+  const { flow, isLoading, error, companyName, isDeprecated, showOutOfDate, dismissOutOfDate } =
+    useGuidedSetupPages({
+      kind,
+      strategy,
+      enabled,
+      hideLifecycleWarnings,
+      provider,
+      attributeMappings,
+      entryContext,
+      initialPageKey,
+    });
   const currentPage = flow.currentPage;
   const leavePage = React.useCallback(
     (navigate: () => void) => {
@@ -86,6 +93,7 @@ export function SsoGuidedSetup({
     Boolean(
       currentPage?.contents.some((content) => content.type === ATTRIBUTE_MAPPING_CONTENT_TYPE),
     );
+  const lifecycleOrganization = organizationDisplayName || t('company_fallback');
   const pageTitleId = useId();
   const pageTitleRef = React.useRef<HTMLHeadingElement>(null);
   const shownPageKey = React.useRef(autoFocus ? undefined : currentPage?.key);
@@ -97,6 +105,11 @@ export function SsoGuidedSetup({
       pageTitleRef.current?.focus();
     }
   }, [currentPage?.key]);
+
+  const handleDismissOutOfDate = () => {
+    dismissOutOfDate();
+    pageTitleRef.current?.focus();
+  };
 
   const setup = React.useMemo<InstructionSetup>(
     () => ({
@@ -143,11 +156,19 @@ export function SsoGuidedSetup({
   }
 
   if (error || !currentPage) {
+    let unavailableMessage = t('unavailable');
+    if (error) unavailableMessage = t('load_error');
+    else if (isDeprecated) {
+      unavailableMessage = t('lifecycle.deprecated', {
+        organizationDisplayName: lifecycleOrganization,
+      });
+    }
+
     return (
       <Card className={className} data-slot="sso-guided-setup">
         <CardContent>
           <p className="text-sm text-muted-foreground" role={error ? 'alert' : 'status'}>
-            {error ? t('load_error') : t('unavailable')}
+            {unavailableMessage}
           </p>
         </CardContent>
       </Card>
@@ -171,6 +192,32 @@ export function SsoGuidedSetup({
         </nav>
 
         <section className="min-w-0 space-y-6" aria-labelledby={pageTitleId}>
+          {showOutOfDate && (
+            <Alert
+              variant="warning"
+              role="status"
+              className="pr-10"
+              data-slot="sso-guided-setup-out-of-date"
+            >
+              <MessageSquareWarning aria-hidden="true" />
+              <AlertDescription className="text-warning-foreground">
+                {t('lifecycle.out_of_date', { organizationDisplayName: lifecycleOrganization })}
+              </AlertDescription>
+              <AlertAction>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  aria-label={t('lifecycle.dismiss')}
+                  onClick={handleDismissOutOfDate}
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </Button>
+              </AlertAction>
+            </Alert>
+          )}
+
           <div className="space-y-2">
             <h3
               ref={pageTitleRef}

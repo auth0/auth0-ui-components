@@ -3,6 +3,7 @@
 import {
   getComponentStyles,
   getStrategyUserAttributes,
+  STRATEGY_DISPLAY_NAMES,
   toSsoAttributeMappings,
 } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
@@ -11,8 +12,10 @@ import { SsoGuidedSetup } from '@/components/auth0/my-organization/shared/idp-ma
 import ProviderConfigure from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure';
 import { ProviderDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-details';
 import { ProviderSelect } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-select';
+import { SsoProviderTestCard } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-test/sso-provider-test-card';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { MarkdownContent } from '@/components/auth0/shared/markdown-content';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Wizard } from '@/components/auth0/shared/wizard';
 import type { StepProps } from '@/components/auth0/shared/wizard';
@@ -21,6 +24,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { TEST_RESPONSE_PROTOCOL } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { getPrefixedConnectionName } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   AttributeMappingsError,
@@ -42,7 +46,10 @@ import type {
  * @param props.onNext - Callback for next action
  * @param props.onPrevious - Callback for previous action
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
- * @param props.guidedSetup - Guided setup on the Configure step (off by default)
+ * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
+ * @param props.guidedSetup - Guided setup options
+ * @param props.createGuidedSetupAction - Guided flow only: `onAfter` runs right after the provider is created
+ * @param props.completeGuidedSetupAction - Guided flow only: `onAfter` runs on Done
  * @internal
  * @returns JSX element
  */
@@ -62,7 +69,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     resolveSamlMetadata,
     showSignRequest,
     connectionNamePrefix,
+    hideGuidedSetup,
     guidedSetup,
+    createGuidedSetupAction,
+    completeGuidedSetupAction,
   } = props;
 
   const ssoProviderCreate = useSsoProviderCreate({
@@ -70,7 +80,10 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     customMessages,
     onNext,
     onPrevious,
+    hideGuidedSetup,
     guidedSetup,
+    createGuidedSetupAction,
+    completeGuidedSetupAction,
   });
 
   const { strategy, details, configure } = ssoProviderCreate.formData;
@@ -133,6 +146,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     handleCreate,
     createStepActions,
     guidedSetup,
+    permissions,
   } = props;
 
   const { isDarkMode } = useTheme();
@@ -144,6 +158,12 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     Boolean(guidedSetup?.isAvailable),
   );
   const canStartGuidedSetup = Boolean(guidedSetup?.isAvailable && instructions?.pages.length);
+  const isGuidedSetupDeprecated = instructions?.version_info?.lifecycle_status === 'deprecated';
+  const guidedMessages = useMemo(
+    () => ({ ...customMessages?.guided_setup }),
+    [customMessages?.guided_setup],
+  );
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup', guidedMessages);
 
   const currentStyles = useMemo(
     () => getComponentStyles(styling, isDarkMode),
@@ -219,6 +239,14 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
                   ? {
                       onClick: guidedSetup.start,
                       className: currentStyles?.classes?.['SsoProviderCreate-guidedSetupButton'],
+                      disabled: isGuidedSetupDeprecated,
+                      tooltip:
+                        isGuidedSetupDeprecated && !guidedSetup.hideLifecycleWarnings
+                          ? tGuided('lifecycle.deprecated', {
+                              organizationDisplayName:
+                                guidedSetup.organizationDisplayName || tGuided('company_fallback'),
+                            })
+                          : undefined,
                     }
                   : undefined
               }
@@ -251,6 +279,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       connectionNamePrefix,
       canStartGuidedSetup,
       guidedSetup,
+      isGuidedSetupDeprecated,
+      tGuided,
     ],
   );
 
@@ -309,6 +339,36 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       : undefined;
   }, [guidedAttributeMappings, guidedAttributeMappingsError]);
 
+  const testMessages = useMemo(
+    () => ({ ...customMessages?.test_provider }),
+    [customMessages?.test_provider],
+  );
+  const { t: tTest } = useTranslator('idp_management.test_sso_provider', testMessages);
+  const guidedProvider = guidedSetup?.provider;
+  const guidedSlots = useMemo(() => {
+    if (!guidedProvider || !strategy) return undefined;
+    const instructions = [
+      tGuided('test_connection.instructions', {
+        testButton: tTest('test_button_label'),
+        providerName: STRATEGY_DISPLAY_NAMES[strategy],
+        protocol: TEST_RESPONSE_PROTOCOL[strategy],
+      }),
+      tGuided('test_connection.keep_open'),
+    ].join('\n\n');
+    return {
+      testConnection: (
+        <SsoProviderTestCard
+          provider={guidedProvider}
+          variant="inline"
+          readOnly={!permissions.canTestProvider}
+          permissionDenied={!permissions.canTestProvider}
+          customMessages={testMessages}
+          details={<MarkdownContent text={instructions} />}
+        />
+      ),
+    };
+  }, [guidedProvider, strategy, permissions.canTestProvider, testMessages, tGuided, tTest]);
+
   const guidedConnectionName = getPrefixedConnectionName(details?.name, connectionNamePrefix);
 
   return (
@@ -329,6 +389,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
             <SsoGuidedSetup
               strategy={strategy}
               connectionName={guidedConnectionName}
+              organizationDisplayName={guidedSetup.organizationDisplayName}
+              hideLifecycleWarnings={guidedSetup.hideLifecycleWarnings}
               provider={guidedSetup.provider}
               resolveSamlMetadata={resolveSamlMetadata}
               configure={guidedConfigure}
@@ -337,6 +399,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
               attributeMappingsError={guidedAttributeMappingsError}
               onRetryAttributeMappings={refetchIdpConfig}
               entryContext={guidedEntryContext}
+              slots={guidedSlots}
               isSubmitting={isCreating}
               onBeforeCreate={guidedSetup.validate}
               onCreateProvider={guidedSetup.create}
@@ -378,7 +441,10 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * @param props.onNext - Callback when moving to next step
  * @param props.onPrevious - Callback when moving to previous step
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
- * @param props.guidedSetup - Guided setup on the Configure step (off by default)
+ * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
+ * @param props.guidedSetup - Guided setup options
+ * @param props.createGuidedSetupAction - Guided flow only: `onAfter` runs right after the provider is created
+ * @param props.completeGuidedSetupAction - Guided flow only: `onAfter` runs on Done
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @returns SSO provider creation wizard component

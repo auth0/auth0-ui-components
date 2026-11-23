@@ -20,16 +20,18 @@ import type {
  * @param options.kind - `creation` or `provisioning`.
  * @param options.strategy - IdP strategy.
  * @param options.enabled - Extra gate for loading.
+ * @param options.hideLifecycleWarnings - Hides the out-of-date notice.
  * @param options.provider - The created provider, if any.
  * @param options.attributeMappings - Mappings supplied by the host.
  * @param options.entryContext - Entry condition overrides.
  * @param options.initialPageKey - Page to start on.
- * @returns The flow, loading state and company name.
+ * @returns The flow, loading state, company name and lifecycle state.
  */
 export function useGuidedSetupPages({
   kind,
   strategy,
   enabled,
+  hideLifecycleWarnings = false,
   provider,
   attributeMappings,
   entryContext,
@@ -40,6 +42,13 @@ export function useGuidedSetupPages({
     strategy,
     enabled,
   );
+  const lifecycleStatus = instructions?.version_info?.lifecycle_status;
+  const isDeprecated = lifecycleStatus === 'deprecated';
+  const [isOutOfDateDismissed, setOutOfDateDismissed] = React.useState(false);
+  const showOutOfDate =
+    lifecycleStatus === 'out_of_date' && !hideLifecycleWarnings && !isOutOfDateDismissed;
+  const dismissOutOfDate = React.useCallback(() => setOutOfDateDismissed(true), []);
+
   const mappings =
     attributeMappings ?? (kind === 'creation' ? getProviderAttributes(provider) : null);
   const mappingCount = mappings?.length ?? 0;
@@ -58,11 +67,11 @@ export function useGuidedSetupPages({
   );
 
   const flow = useGuidedSetupFlow({
-    pages: instructions?.pages ?? EMPTY_INSTRUCTION_PAGES,
+    pages: !isDeprecated && instructions?.pages ? instructions.pages : EMPTY_INSTRUCTION_PAGES,
     entryContext: resolvedEntryContext,
     exitState,
     initialPageKey,
   });
 
-  return { flow, isLoading, error, companyName };
+  return { flow, isLoading, error, companyName, isDeprecated, showOutOfDate, dismissOutOfDate };
 }

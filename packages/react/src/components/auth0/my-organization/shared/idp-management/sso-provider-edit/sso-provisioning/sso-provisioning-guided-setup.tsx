@@ -25,6 +25,8 @@ export interface SsoProvisioningGuidedSetupProps
   provider: IdpKnownResponse;
   provisioningConfig: IdpProvisioningConfig | null;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  organizationDisplayName?: string;
+  hideLifecycleWarnings?: boolean;
   onComplete: () => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
   manageTokenMessages?: ProvisioningManageTokenProps['customMessages'];
@@ -41,6 +43,8 @@ export function SsoProvisioningGuidedSetup({
   provider,
   provisioningConfig,
   idpConfig,
+  organizationDisplayName,
+  hideLifecycleWarnings,
   onComplete,
   customMessages,
   manageTokenMessages,
@@ -57,7 +61,6 @@ export function SsoProvisioningGuidedSetup({
 }: SsoProvisioningGuidedSetupProps) {
   const strategy = provider.strategy as IdpStrategy;
 
-  // Mapping instructions from the IdP configuration; without any, the provider's mappings.
   const attributeMappings = React.useMemo(() => {
     const userAttributes = getStrategyUserAttributes(idpConfig, strategy);
     const configured = userAttributes ? toProvisioningAttributeMappings(userAttributes) : [];
@@ -100,6 +103,8 @@ export function SsoProvisioningGuidedSetup({
       strategy={strategy}
       kind="provisioning"
       connectionName={provider.name ?? undefined}
+      organizationDisplayName={organizationDisplayName}
+      hideLifecycleWarnings={hideLifecycleWarnings}
       provider={provider}
       attributeMappings={attributeMappings}
       entryContext={{ groupProvisioningEnabled: false }}

@@ -6,6 +6,7 @@
 import type {
   SharedComponentProps,
   SsoProvisioningTabMessages,
+  SsoGuidedSetupMessages,
   IdpKnownResponse,
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
@@ -29,6 +30,17 @@ export interface SsoProvisioningTabEditProps {
     IdpKnownResponse,
     CreateIdPProvisioningConfigResponseContent | DirectoryProvisioningConfig
   >;
+  createGuidedSetupAction?: Pick<
+    ComponentAction<
+      IdpKnownResponse,
+      CreateIdPProvisioningConfigResponseContent | DirectoryProvisioningConfig
+    >,
+    'onAfter'
+  >;
+  completeGuidedSetupAction?: Pick<
+    ComponentAction<IdpKnownResponse, GetIdPProvisioningConfigResponseContent>,
+    'onAfter'
+  >;
   deleteAction?: ComponentAction<IdpKnownResponse, void>;
   createScimTokenAction?: ComponentAction<
     IdpKnownResponse,
@@ -38,9 +50,14 @@ export interface SsoProvisioningTabEditProps {
   guidedSetup?: SsoProvisioningGuidedSetup;
 }
 
+/** Options for turning provisioning on. */
+export interface CreateProvisioningOptions {
+  guided?: boolean;
+}
+
 /** Guided provisioning setup options for `SsoProviderEdit`. */
 export interface SsoProvisioningGuidedSetup {
-  enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
 }
 
 /** CSS classes for SsoProvisioningTab. */
@@ -67,7 +84,7 @@ export interface SsoProvisioningTabProps
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;
   hideAttributeMappings?: boolean;
-  onCreateProvisioning: () => Promise<void>;
+  onCreateProvisioning: (options?: CreateProvisioningOptions) => Promise<void>;
   onDeleteProvisioning: () => Promise<void>;
   onListScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   onCreateScimToken: (
@@ -78,6 +95,9 @@ export interface SsoProvisioningTabProps
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
   onStartGuidedSetup?: () => void;
+  hideGuidedSetupLifecycleWarnings?: boolean;
+  organizationDisplayName?: string;
+  guidedSetupMessages?: Partial<SsoGuidedSetupMessages>;
   focusGuidedSetupButton?: boolean;
 }
 

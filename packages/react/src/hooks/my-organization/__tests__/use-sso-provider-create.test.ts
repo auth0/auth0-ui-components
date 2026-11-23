@@ -29,6 +29,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
 }));
 
 const mockCreateProvider = vi.fn();
+const mockNotifyCreated = vi.fn();
 let serviceOptions: { createAction?: { onAfter?: (...args: unknown[]) => unknown } } | undefined;
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
@@ -37,6 +38,8 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service
     return {
       createProvider: mockCreateProvider,
       isCreating: false,
+      organizationDisplayName: 'Cyborg Inc',
+      notifyCreated: mockNotifyCreated,
     };
   },
 }));
@@ -191,6 +194,14 @@ describe('useSsoProviderCreate - logic behavior', () => {
     expect(mockOnNext).not.toHaveBeenCalled();
   });
 
+  describe('guidedSetup', () => {
+    it('exposes the organization display name from the organization details', () => {
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
+
+      expect(result.current.guidedSetup?.organizationDisplayName).toBe('Cyborg Inc');
+    });
+  });
+
   describe('permission guards', () => {
     it('should refuse to create a provider without create:my_org:identity_providers', async () => {
       const { result } = renderHook(() => useSsoProviderCreate({}), {
@@ -265,10 +276,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
     };
 
     const renderGuided = (options: Parameters<typeof useSsoProviderCreate>[0] = {}) => {
-      const hook = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true }, ...options }),
-        grantAll,
-      );
+      const hook = renderHook(() => useSsoProviderCreate({ ...options }), grantAll);
       act(() => {
         hook.result.current.setFormData({
           strategy: 'samlp',
@@ -278,18 +286,18 @@ describe('useSsoProviderCreate - logic behavior', () => {
       return hook;
     };
 
-    it('is available only when enabled and the user can read the configuration', () => {
-      const isAvailable = (enabled: boolean, permissions: string[]) =>
-        renderHook(() => useSsoProviderCreate({ guidedSetup: { enabled } }), {
+    it('is available unless hidden, and only to users who can read the configuration', () => {
+      const isAvailable = (hideGuidedSetup: boolean, permissions: string[]) =>
+        renderHook(() => useSsoProviderCreate({ hideGuidedSetup }), {
           wrapper: wrapperFor(permissions),
         }).result.current.guidedSetup?.isAvailable;
       const withoutConfiguration = ALL_MY_ORG_PERMISSIONS.filter(
         (permission) => permission !== 'read:my_org:configuration',
       );
 
-      expect(isAvailable(true, ALL_MY_ORG_PERMISSIONS)).toBe(true);
-      expect(isAvailable(false, ALL_MY_ORG_PERMISSIONS)).toBe(false);
-      expect(isAvailable(true, withoutConfiguration)).toBe(false);
+      expect(isAvailable(false, ALL_MY_ORG_PERMISSIONS)).toBe(true);
+      expect(isAvailable(true, ALL_MY_ORG_PERMISSIONS)).toBe(false);
+      expect(isAvailable(false, withoutConfiguration)).toBe(false);
     });
 
     it('keeps the raw form values when starting and sends the normalized ones on create', async () => {
@@ -354,10 +362,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
     });
 
     it('does not create without the permission or the entered details', async () => {
-      const { result } = renderHook(
-        () => useSsoProviderCreate({ guidedSetup: { enabled: true } }),
-        grantAll,
-      );
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
 
       await act(async () => {
         expect(await result.current.guidedSetup!.create()).toBe(false);
@@ -365,29 +370,73 @@ describe('useSsoProviderCreate - logic behavior', () => {
       expect(mockCreateProvider).not.toHaveBeenCalled();
     });
 
-    it('holds onAfter while guided and releases it once on complete', () => {
-      const onAfter = vi.fn();
-      const { result } = renderGuided({ createAction: { onAfter } });
+    describe('onAfter', () => {
       const data = { strategy: 'samlp' };
 
-      act(() => result.current.guidedSetup!.start());
-      serviceOptions?.createAction?.onAfter?.(data, created);
-      expect(onAfter).not.toHaveBeenCalled();
+      const completeCreation = async (result: ReturnType<typeof renderGuided>['result']) => {
+        result.current.guidedSetup!.configureRef.current = handle(requestData);
+        mockCreateProvider.mockResolvedValue(created);
+        await act(async () => {
+          await result.current.guidedSetup!.create();
+        });
+      };
 
-      act(() => result.current.guidedSetup!.complete());
-      act(() => result.current.guidedSetup!.complete());
-      expect(onAfter).toHaveBeenCalledTimes(1);
-      expect(onAfter).toHaveBeenCalledWith(data, created);
-    });
+      it('runs createAction.onAfter right away in the advanced flow only', () => {
+        const advanced = vi.fn();
+        const guided = vi.fn();
+        renderGuided({
+          createAction: { onAfter: advanced },
+          createGuidedSetupAction: { onAfter: guided },
+        });
 
-    it('runs onAfter straight away outside guided setup', () => {
-      const onAfter = vi.fn();
-      renderGuided({ createAction: { onAfter } });
-      const data = { strategy: 'samlp' };
+        serviceOptions?.createAction?.onAfter?.(data, created);
 
-      serviceOptions?.createAction?.onAfter?.(data, created);
+        expect(advanced).toHaveBeenCalledWith(data, created);
+        expect(guided).not.toHaveBeenCalled();
+      });
 
-      expect(onAfter).toHaveBeenCalledWith(data, created);
+      it('runs createGuidedSetupAction.onAfter right after creation in the guided flow', () => {
+        const advanced = vi.fn();
+        const guided = vi.fn();
+        const { result } = renderGuided({
+          createAction: { onAfter: advanced },
+          createGuidedSetupAction: { onAfter: guided },
+        });
+        act(() => result.current.guidedSetup!.start());
+
+        serviceOptions?.createAction?.onAfter?.(data, created);
+
+        expect(guided).toHaveBeenCalledWith(data, created);
+        expect(advanced).not.toHaveBeenCalled();
+      });
+
+      it('runs completeGuidedSetupAction.onAfter once on Done, after the created notification', async () => {
+        const done = vi.fn();
+        const { result } = renderGuided({ completeGuidedSetupAction: { onAfter: done } });
+        act(() => result.current.guidedSetup!.start());
+        await completeCreation(result);
+        expect(done).not.toHaveBeenCalled();
+
+        act(() => result.current.guidedSetup!.complete());
+        act(() => result.current.guidedSetup!.complete());
+
+        expect(done).toHaveBeenCalledTimes(1);
+        expect(done).toHaveBeenCalledWith(expect.objectContaining(requestData), created);
+        expect(mockNotifyCreated).toHaveBeenCalledTimes(1);
+        expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
+      });
+
+      it('only announces the provider on Done when no completeGuidedSetupAction is given', async () => {
+        const advanced = vi.fn();
+        const { result } = renderGuided({ createAction: { onAfter: advanced } });
+        act(() => result.current.guidedSetup!.start());
+        await completeCreation(result);
+
+        act(() => result.current.guidedSetup!.complete());
+
+        expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
+        expect(advanced).not.toHaveBeenCalled();
+      });
     });
   });
 });

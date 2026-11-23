@@ -36,7 +36,6 @@ export type InstructionContent =
   | IdpProvisioningInstructionsPageContent
   | IdpInstructionsTabContent;
 
-/** Why the attribute mappings can't be shown: no profile assigned, or the configuration failed to load. */
 export type AttributeMappingsError = 'unavailable' | 'load_failed';
 
 /** Strategy form shown by the configure connection content types. */
@@ -127,11 +126,13 @@ export interface SsoGuidedSetupProps
     | 'slots'
   > {
   strategy: IdpStrategy;
+  organizationDisplayName?: string;
   kind?: InstructionsKind;
   entryContext?: Partial<InstructionsEntryContext>;
   initialPageKey?: string;
   renderers?: InstructionRenderers;
   enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
   autoFocus?: boolean;
   isSubmitting?: boolean;
   onBeforeCreate?: () => Promise<boolean> | boolean;
@@ -181,6 +182,7 @@ export interface UseGuidedSetupPagesOptions {
   kind: InstructionsKind;
   strategy: IdpStrategy;
   enabled?: boolean;
+  hideLifecycleWarnings?: boolean;
   provider: IdpKnownResponse | null;
   attributeMappings?: InstructionSetup['attributeMappings'];
   entryContext?: Partial<InstructionsEntryContext>;
@@ -192,6 +194,9 @@ export interface UseGuidedSetupPagesResult {
   isLoading: boolean;
   error: unknown;
   companyName: string;
+  isDeprecated: boolean;
+  showOutOfDate: boolean;
+  dismissOutOfDate: () => void;
 }
 
 export interface UseGuidedSetupCreationOptions

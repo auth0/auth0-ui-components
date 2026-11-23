@@ -35,6 +35,7 @@ import type {
  * @param props.domains - Array of domains
  * @param props.hideHeader - Whether to hide the header
  * @param props.hideProvisioningTab - Whether to hide the provisioning tab
+ * @param props.hideGuidedSetup - Whether to hide Guided Setup on the provisioning tab
  * @param props.hideDomainsTab - Whether to hide the domains tab
  * @param props.hideDeleteProvider - Whether to hide the delete provider action
  * @param props.hideRemoveFromOrganization - Whether to hide the remove from organization action
@@ -59,6 +60,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
     domains,
     hideHeader = false,
     hideProvisioningTab = false,
+    hideGuidedSetup = false,
     hideDomainsTab = false,
     hideDeleteProvider = false,
     hideRemoveFromOrganization = false,
@@ -106,6 +108,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         provisioning={provisioning}
         hideHeader={hideHeader}
         hideProvisioningTab={hideProvisioningTab}
+        hideGuidedSetup={hideGuidedSetup}
         hideDomainsTab={hideDomainsTab}
         hideDeleteProvider={hideDeleteProvider}
         hideRemoveFromOrganization={hideRemoveFromOrganization}
@@ -137,6 +140,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     provisioning,
     hideHeader,
     hideProvisioningTab,
+    hideGuidedSetup,
     hideDeleteProvider,
     hideRemoveFromOrganization,
     hideTestProvider,
@@ -195,6 +199,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
   const [isProvisioningGuidedSetup, setProvisioningGuidedSetup] = useState(false);
+  const organizationDisplayName = organization?.display_name || undefined;
   const [hasLeftProvisioningGuidedSetup, setLeftProvisioningGuidedSetup] = useState(false);
   const guidedSetupTitleRef = useRef<HTMLHeadingElement>(null);
 
@@ -234,6 +239,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
       setLeftProvisioningGuidedSetup(true);
       setProvisioningGuidedSetup(false);
     };
+    const completeGuidedSetup = () => {
+      closeGuidedSetup();
+      provisioning?.completeGuidedSetupAction?.onAfter?.(provider, provisioningConfig ?? undefined);
+    };
     return (
       <StyledScope style={currentStyles.variables}>
         <div className="w-full overflow-y-auto space-y-6">
@@ -252,7 +261,9 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             provider={provider}
             provisioningConfig={provisioningConfig}
             idpConfig={idpConfig}
-            onComplete={closeGuidedSetup}
+            organizationDisplayName={organizationDisplayName}
+            hideLifecycleWarnings={provisioning?.guidedSetup?.hideLifecycleWarnings}
+            onComplete={completeGuidedSetup}
             isScimTokensLoading={isScimTokensLoading}
             isScimTokenCreating={isScimTokenCreating}
             isScimTokenDeleting={isScimTokenDeleting}
@@ -411,13 +422,18 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   onDeleteScimToken={deleteScimToken}
                   focusGuidedSetupButton={hasLeftProvisioningGuidedSetup}
                   onStartGuidedSetup={
-                    provisioning?.guidedSetup?.enabled
+                    !hideGuidedSetup
                       ? () => {
                           setLeftProvisioningGuidedSetup(false);
                           setProvisioningGuidedSetup(true);
                         }
                       : undefined
                   }
+                  hideGuidedSetupLifecycleWarnings={
+                    provisioning?.guidedSetup?.hideLifecycleWarnings
+                  }
+                  organizationDisplayName={organizationDisplayName}
+                  guidedSetupMessages={customMessages?.provisioning_setup?.guided_setup}
                   customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                   permissions={permissions}

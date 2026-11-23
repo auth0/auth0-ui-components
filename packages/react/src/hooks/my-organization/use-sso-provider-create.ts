@@ -41,34 +41,40 @@ export function useSsoProviderCreate({
   readOnly = false,
   onNext,
   onPrevious,
+  hideGuidedSetup = false,
   guidedSetup: guidedSetupOptions,
+  createGuidedSetupAction,
+  completeGuidedSetupAction,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
   const [isGuidedSetup, setGuidedSetup] = useState(false);
   const [guidedProvider, setGuidedProvider] = useState<IdpKnownResponse | null>(null);
   const isGuidedSetupRef = useRef(false);
-  const pendingOnAfterRef = useRef<{
+  const pendingCompletionRef = useRef<{
     data: CreateIdentityProviderRequestContentPrivate;
     result: IdpKnownResponse;
   } | null>(null);
 
   const serviceCreateAction = useMemo(
-    () =>
-      createAction && {
-        ...createAction,
-        onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
-          if (isGuidedSetupRef.current && result) {
-            pendingOnAfterRef.current = { data, result };
-            return;
-          }
-          return createAction.onAfter?.(data, result);
-        },
+    () => ({
+      ...createAction,
+      onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
+        if (!isGuidedSetupRef.current) return createAction?.onAfter?.(data, result);
+        return result ? createGuidedSetupAction?.onAfter?.(data, result) : undefined;
       },
-    [createAction],
+    }),
+    [createAction, createGuidedSetupAction],
   );
 
-  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
+  const {
+    createProvider,
+    isCreating,
+    isOrganizationBlocked,
+    organizationDisplayName,
+    notifyCreated,
+  } = useSsoProviderCreateService({
     createAction: serviceCreateAction,
     customMessages,
+    shouldDeferSuccessToast: () => isGuidedSetupRef.current,
   });
 
   const [formData, setFormData] = useState<FormState>({});
@@ -140,9 +146,7 @@ export function useSsoProviderCreate({
   }, [permissions, strategy, details, createProvider]);
 
   const guidedSetupEnabled =
-    Boolean(guidedSetupOptions?.enabled) &&
-    permissions.canReadConfiguration &&
-    permissions.canCreateProvider;
+    !hideGuidedSetup && permissions.canReadConfiguration && permissions.canCreateProvider;
 
   const saveGuidedConfigure = useCallback(() => {
     const form = guidedConfigureRef.current;
@@ -156,6 +160,8 @@ export function useSsoProviderCreate({
       isAvailable: guidedSetupEnabled,
       isActive: isGuidedSetup,
       provider: guidedProvider,
+      organizationDisplayName,
+      hideLifecycleWarnings: guidedSetupOptions?.hideLifecycleWarnings,
       configureRef: guidedConfigureRef,
       start: () => {
         const form = configureRef.current;
@@ -176,14 +182,16 @@ export function useSsoProviderCreate({
         if (!permissions.canCreateProvider || !strategy || !details) return false;
         const configureData =
           guidedConfigureRef.current?.getData() ?? guidedConfigureDataRef.current;
+        const data = {
+          strategy,
+          ...details,
+          ...advancedConnectionAccessRef.current,
+          ...configureData,
+        };
         try {
-          const created = await createProvider({
-            strategy,
-            ...details,
-            ...advancedConnectionAccessRef.current,
-            ...configureData,
-          });
+          const created = await createProvider(data);
           if (!created) return false;
+          pendingCompletionRef.current = { data, result: created };
           setGuidedProvider(created);
           return true;
         } catch {
@@ -191,10 +199,11 @@ export function useSsoProviderCreate({
         }
       },
       complete: () => {
-        const pending = pendingOnAfterRef.current;
+        const pending = pendingCompletionRef.current;
         if (!pending) return;
-        pendingOnAfterRef.current = null;
-        createAction?.onAfter?.(pending.data, pending.result);
+        pendingCompletionRef.current = null;
+        notifyCreated(pending.result.name);
+        completeGuidedSetupAction?.onAfter?.(pending.data, pending.result);
       },
     }),
     [
@@ -202,11 +211,14 @@ export function useSsoProviderCreate({
       permissions.canCreateProvider,
       isGuidedSetup,
       guidedProvider,
+      organizationDisplayName,
+      guidedSetupOptions?.hideLifecycleWarnings,
       saveGuidedConfigure,
       strategy,
       details,
       createProvider,
-      createAction,
+      completeGuidedSetupAction,
+      notifyCreated,
     ],
   );
 

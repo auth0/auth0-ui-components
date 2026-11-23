@@ -29,6 +29,17 @@ export interface SsoGuidedSetupCopyValueMessages {
   external_namespace?: LabelMessages;
 }
 
+export interface SsoGuidedSetupLifecycleMessages {
+  out_of_date?: string;
+  dismiss?: string;
+  deprecated?: string;
+}
+
+export interface SsoGuidedSetupTestConnectionMessages {
+  instructions?: string;
+  keep_open?: string;
+}
+
 export interface SsoGuidedSetupMessages {
   stepper_label?: string;
   next?: string;
@@ -44,6 +55,8 @@ export interface SsoGuidedSetupMessages {
   attribute_mapping_unavailable?: string;
   attribute_mapping_load_failed?: string;
   attribute_mapping_retry?: string;
+  lifecycle?: SsoGuidedSetupLifecycleMessages;
+  test_connection?: SsoGuidedSetupTestConnectionMessages;
   instruction_tabs_label?: string;
 }
 

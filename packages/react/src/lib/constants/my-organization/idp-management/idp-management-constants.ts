@@ -8,6 +8,7 @@ import {
   DIGEST_ALGORITHMS,
   PROTOCOL_BINDINGS,
   SIGNATURE_ALGORITHMS,
+  type IdpStrategy,
 } from '@auth0/universal-components-core';
 
 import type {
@@ -163,5 +164,14 @@ export const CONNECTION_ACCESS_FIELDS = [
   'cross_app_access_resource_app',
 ] as const;
 
-/** Instruction content type that renders the attribute mappings. */
 export const ATTRIBUTE_MAPPING_CONTENT_TYPE = 'attribute_mapping_list_component';
+
+export const TEST_RESPONSE_PROTOCOL: Record<IdpStrategy, string> = {
+  adfs: 'WS-Federation',
+  'google-apps': 'OIDC',
+  oidc: 'OIDC',
+  okta: 'OIDC',
+  pingfederate: 'SAML',
+  samlp: 'SAML',
+  waad: 'OIDC',
+};

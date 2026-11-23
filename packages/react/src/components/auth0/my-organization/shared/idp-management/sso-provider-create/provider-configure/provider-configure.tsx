@@ -81,6 +81,8 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
                     iconPosition: 'end',
                     onClick: guidedSetupAction.onClick,
                     className: guidedSetupAction.className,
+                    disabled: guidedSetupAction.disabled,
+                    tooltip: guidedSetupAction.tooltip,
                   },
                 ]
               : undefined
