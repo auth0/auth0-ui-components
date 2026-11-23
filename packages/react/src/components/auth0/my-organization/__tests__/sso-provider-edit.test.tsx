@@ -1082,17 +1082,20 @@ describe('SsoProviderEdit', () => {
           get: ReturnType<typeof vi.fn>;
         };
 
-      const renderWithCreateAction = (createAction: {
-        onBefore: ReturnType<typeof vi.fn>;
-        onAfter?: ReturnType<typeof vi.fn>;
-      }) => {
+      const renderWithCreateAction = (
+        createAction: {
+          onBefore: ReturnType<typeof vi.fn>;
+          onAfter?: ReturnType<typeof vi.fn>;
+        },
+        guidedActions: Record<string, { onAfter: ReturnType<typeof vi.fn> }> = {},
+      ) => {
         mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get = vi
           .fn()
           .mockResolvedValue(createMockIdentityProvider({ is_enabled: true }));
         return renderWithProviders(
           <SsoProviderEdit
             {...createMockSsoProviderEditProps({
-              provisioning: { createAction },
+              provisioning: { createAction, ...guidedActions },
             })}
           />,
         );
@@ -1127,8 +1130,9 @@ describe('SsoProviderEdit', () => {
         expect(createAction.onAfter).not.toHaveBeenCalled();
       });
 
-      it('runs onBefore and onAfter around turning provisioning on for guided setup', async () => {
+      it('runs onBefore, then createGuidedSetupAction.onAfter when guided setup turns provisioning on', async () => {
         const createAction = { onBefore: vi.fn(() => true), onAfter: vi.fn() };
+        const createGuidedSetupAction = { onAfter: vi.fn() };
         const config = { strategy: 'samlp', user_id_attribute: 'externalId', attributes: [] };
         let isCreated = false;
         provisioningApi().get = vi.fn(() =>
@@ -1139,7 +1143,7 @@ describe('SsoProviderEdit', () => {
           return config;
         });
         const user = userEvent.setup();
-        renderWithCreateAction(createAction);
+        renderWithCreateAction(createAction, { createGuidedSetupAction });
         await waitForComponentToLoad();
         await user.click(screen.getByText(/tabs.provisioning.name/i));
 
@@ -1152,7 +1156,41 @@ describe('SsoProviderEdit', () => {
         );
         expect(createAction.onBefore).toHaveBeenCalledTimes(1);
         expect(provisioningApi().create).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(createGuidedSetupAction.onAfter).toHaveBeenCalledTimes(1));
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs createAction.onAfter, not the guided one, when the switch turns provisioning on', async () => {
+        const createAction = { onBefore: vi.fn(() => true), onAfter: vi.fn() };
+        const createGuidedSetupAction = { onAfter: vi.fn() };
+        provisioningApi().create = vi.fn(async () => ({ strategy: 'samlp', attributes: [] }));
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction, { createGuidedSetupAction });
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await within(screen.getByRole('tabpanel')).findByRole('switch'));
+
         await waitFor(() => expect(createAction.onAfter).toHaveBeenCalledTimes(1));
+        expect(createGuidedSetupAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs completeGuidedSetupAction.onAfter on Done', async () => {
+        const createAction = { onBefore: vi.fn(() => true) };
+        const completeGuidedSetupAction = { onAfter: vi.fn() };
+        const config = { strategy: 'samlp', user_id_attribute: 'externalId', attributes: [] };
+        provisioningApi().get = vi.fn().mockResolvedValue(config);
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction, { completeGuidedSetupAction });
+        await openGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^done$/ }));
+
+        expect(completeGuidedSetupAction.onAfter).toHaveBeenCalledTimes(1);
+        expect(completeGuidedSetupAction.onAfter).toHaveBeenCalledWith(
+          expect.objectContaining({ is_enabled: true }),
+          expect.objectContaining({ strategy: 'samlp' }),
+        );
       });
     });
 

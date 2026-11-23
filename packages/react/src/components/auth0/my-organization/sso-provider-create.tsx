@@ -5,7 +5,6 @@ import {
   getStrategyUserAttributes,
   STRATEGY_DISPLAY_NAMES,
   toSsoAttributeMappings,
-  type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useMemo } from 'react';
 
@@ -25,6 +24,7 @@ import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-c
 import { useTelemetry } from '@/hooks/shared/use-telemetry';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { TEST_RESPONSE_PROTOCOL } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { getPrefixedConnectionName } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   AttributeMappingsError,
@@ -48,6 +48,8 @@ import type {
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
  * @param props.guidedSetup - Guided setup options
+ * @param props.createGuidedSetupAction - Guided flow only: `onAfter` runs right after the provider is created
+ * @param props.completeGuidedSetupAction - Guided flow only: `onAfter` runs on Done
  * @internal
  * @returns JSX element
  */
@@ -69,6 +71,8 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     connectionNamePrefix,
     hideGuidedSetup,
     guidedSetup,
+    createGuidedSetupAction,
+    completeGuidedSetupAction,
   } = props;
 
   const ssoProviderCreate = useSsoProviderCreate({
@@ -78,6 +82,8 @@ function SsoProviderCreate(props: SsoProviderCreateProps) {
     onPrevious,
     hideGuidedSetup,
     guidedSetup,
+    createGuidedSetupAction,
+    completeGuidedSetupAction,
   });
 
   const { strategy, details, configure } = ssoProviderCreate.formData;
@@ -333,7 +339,11 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       : undefined;
   }, [guidedAttributeMappings, guidedAttributeMappingsError]);
 
-  const { t: tTest } = useTranslator('idp_management.test_sso_provider');
+  const testMessages = useMemo(
+    () => ({ ...customMessages?.test_provider }),
+    [customMessages?.test_provider],
+  );
+  const { t: tTest } = useTranslator('idp_management.test_sso_provider', testMessages);
   const guidedProvider = guidedSetup?.provider;
   const guidedSlots = useMemo(() => {
     if (!guidedProvider || !strategy) return undefined;
@@ -352,11 +362,12 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
           variant="inline"
           readOnly={!permissions.canTestProvider}
           permissionDenied={!permissions.canTestProvider}
+          customMessages={testMessages}
           details={<MarkdownContent text={instructions} />}
         />
       ),
     };
-  }, [guidedProvider, strategy, permissions.canTestProvider, tGuided, tTest]);
+  }, [guidedProvider, strategy, permissions.canTestProvider, testMessages, tGuided, tTest]);
 
   const guidedConnectionName = getPrefixedConnectionName(details?.name, connectionNamePrefix);
 
@@ -432,6 +443,8 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * @param props.showSignRequest - Whether to show the SAML "Sign request" option (default: true)
  * @param props.hideGuidedSetup - Whether to hide Guided Setup on the Configure step
  * @param props.guidedSetup - Guided setup options
+ * @param props.createGuidedSetupAction - Guided flow only: `onAfter` runs right after the provider is created
+ * @param props.completeGuidedSetupAction - Guided flow only: `onAfter` runs on Done
  * @param props.customMessages - Custom i18n message overrides
  * @param props.styling - CSS variables and class overrides
  * @returns SSO provider creation wizard component
@@ -451,14 +464,4 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
  * />
  * ```
  */
-const TEST_RESPONSE_PROTOCOL: Record<IdpStrategy, string> = {
-  adfs: 'WS-Federation',
-  'google-apps': 'OIDC',
-  oidc: 'OIDC',
-  okta: 'OIDC',
-  pingfederate: 'SAML',
-  samlp: 'SAML',
-  waad: 'OIDC',
-};
-
 export { SsoProviderCreate, SsoProviderCreateView };

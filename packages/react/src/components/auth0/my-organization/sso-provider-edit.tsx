@@ -239,6 +239,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
       setLeftProvisioningGuidedSetup(true);
       setProvisioningGuidedSetup(false);
     };
+    const completeGuidedSetup = () => {
+      closeGuidedSetup();
+      provisioning?.completeGuidedSetupAction?.onAfter?.(provider, provisioningConfig ?? undefined);
+    };
     return (
       <StyledScope style={currentStyles.variables}>
         <div className="w-full overflow-y-auto space-y-6">
@@ -259,7 +263,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
             idpConfig={idpConfig}
             organizationDisplayName={organizationDisplayName}
             hideLifecycleWarnings={provisioning?.guidedSetup?.hideLifecycleWarnings}
-            onComplete={closeGuidedSetup}
+            onComplete={completeGuidedSetup}
             isScimTokensLoading={isScimTokensLoading}
             isScimTokenCreating={isScimTokenCreating}
             isScimTokenDeleting={isScimTokenDeleting}
@@ -429,6 +433,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                     provisioning?.guidedSetup?.hideLifecycleWarnings
                   }
                   organizationDisplayName={organizationDisplayName}
+                  guidedSetupMessages={customMessages?.provisioning_setup?.guided_setup}
                   customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                   permissions={permissions}

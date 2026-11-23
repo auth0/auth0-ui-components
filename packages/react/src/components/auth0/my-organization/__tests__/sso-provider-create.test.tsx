@@ -680,13 +680,19 @@ describe('SsoProviderCreate', () => {
       expect(domainInput()).toHaveValue('acme.okta.com');
     });
 
-    it('creates the provider mid-flow and runs onAfter on Done', async () => {
+    it('creates the provider mid-flow and runs the guided onAfter callbacks', async () => {
       const user = userEvent.setup();
       const createAction = createMockCreateAction();
+      const guidedCreateAfter = vi.fn();
+      const guidedDone = vi.fn();
       const createApi = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
         .create as ReturnType<typeof vi.fn>;
       createApi.mockResolvedValueOnce(CREATED_PROVIDER);
-      renderCreate({ createAction });
+      renderCreate({
+        createAction,
+        createGuidedSetupAction: { onAfter: guidedCreateAfter },
+        completeGuidedSetupAction: { onAfter: guidedDone },
+      });
       await goToConfigureStep(user);
       await user.click(await screen.findByRole('button', { name: 'guided_setup_button_text' }));
       await waitFor(() => expect(pageTitle()).toHaveTextContent('Create Application'));
@@ -703,17 +709,22 @@ describe('SsoProviderCreate', () => {
         name: 'my-okta',
         display_name: 'My Okta',
       });
-      expect(createAction.onAfter).not.toHaveBeenCalled();
+      expect(guidedCreateAfter).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'my-okta', strategy: 'okta' }),
+        CREATED_PROVIDER,
+      );
+      expect(guidedDone).not.toHaveBeenCalled();
 
       await user.click(screen.getByRole('button', { name: /^next$/ }));
       await user.click(screen.getByRole('button', { name: /^next$/ }));
       await user.click(screen.getByRole('button', { name: /^done$/ }));
 
-      expect(createAction.onAfter).toHaveBeenCalledTimes(1);
-      expect(createAction.onAfter).toHaveBeenCalledWith(
+      expect(guidedDone).toHaveBeenCalledTimes(1);
+      expect(guidedDone).toHaveBeenCalledWith(
         expect.objectContaining({ name: 'my-okta', strategy: 'okta' }),
         CREATED_PROVIDER,
       );
+      expect(createAction.onAfter).not.toHaveBeenCalled();
     });
 
     it('offers the provider test on the last page once the provider exists', async () => {

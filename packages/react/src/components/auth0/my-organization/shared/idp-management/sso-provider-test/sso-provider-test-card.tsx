@@ -67,9 +67,12 @@ export function SsoProviderTestCard({
     </PermissionDeniedTooltip>
   );
 
-  const result = (state === SSO_PROVIDER_TEST_STATE.SUCCESS ||
+  const hasResult =
+    state === SSO_PROVIDER_TEST_STATE.SUCCESS ||
     state === SSO_PROVIDER_TEST_STATE.ERROR ||
-    state === SSO_PROVIDER_TEST_STATE.TIMEOUT) && (
+    state === SSO_PROVIDER_TEST_STATE.TIMEOUT;
+
+  const result = hasResult ? (
     <SsoProviderTestResult
       state={state}
       user={user}
@@ -78,7 +81,7 @@ export function SsoProviderTestCard({
       customMessages={customMessages.result}
       styling={styling}
     />
-  );
+  ) : null;
 
   return (
     <div className={cn('w-full', styling?.classes?.['SsoProviderTest-root'])}>

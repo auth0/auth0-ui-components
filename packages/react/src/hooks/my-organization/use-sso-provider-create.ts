@@ -43,25 +43,26 @@ export function useSsoProviderCreate({
   onPrevious,
   hideGuidedSetup = false,
   guidedSetup: guidedSetupOptions,
+  createGuidedSetupAction,
+  completeGuidedSetupAction,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
   const [isGuidedSetup, setGuidedSetup] = useState(false);
   const [guidedProvider, setGuidedProvider] = useState<IdpKnownResponse | null>(null);
   const isGuidedSetupRef = useRef(false);
-  const pendingOnAfterRef = useRef<{
+  const pendingCompletionRef = useRef<{
     data: CreateIdentityProviderRequestContentPrivate;
     result: IdpKnownResponse;
   } | null>(null);
 
   const serviceCreateAction = useMemo(
-    () =>
-      createAction && {
-        ...createAction,
-        onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
-          if (isGuidedSetupRef.current && result) return;
-          return createAction.onAfter?.(data, result);
-        },
+    () => ({
+      ...createAction,
+      onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
+        if (!isGuidedSetupRef.current) return createAction?.onAfter?.(data, result);
+        return result ? createGuidedSetupAction?.onAfter?.(data, result) : undefined;
       },
-    [createAction],
+    }),
+    [createAction, createGuidedSetupAction],
   );
 
   const {
@@ -190,7 +191,7 @@ export function useSsoProviderCreate({
         try {
           const created = await createProvider(data);
           if (!created) return false;
-          pendingOnAfterRef.current = { data, result: created };
+          pendingCompletionRef.current = { data, result: created };
           setGuidedProvider(created);
           return true;
         } catch {
@@ -198,15 +199,11 @@ export function useSsoProviderCreate({
         }
       },
       complete: () => {
-        const pending = pendingOnAfterRef.current;
+        const pending = pendingCompletionRef.current;
         if (!pending) return;
-        pendingOnAfterRef.current = null;
+        pendingCompletionRef.current = null;
         notifyCreated(pending.result.name);
-        if (guidedSetupOptions?.onComplete) {
-          guidedSetupOptions.onComplete(pending.result);
-          return;
-        }
-        createAction?.onAfter?.(pending.data, pending.result);
+        completeGuidedSetupAction?.onAfter?.(pending.data, pending.result);
       },
     }),
     [
@@ -220,8 +217,7 @@ export function useSsoProviderCreate({
       strategy,
       details,
       createProvider,
-      createAction,
-      guidedSetupOptions?.onComplete,
+      completeGuidedSetupAction,
       notifyCreated,
     ],
   );

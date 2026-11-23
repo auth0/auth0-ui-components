@@ -270,6 +270,7 @@ describe('SsoGuidedSetup', () => {
 
       expect(screen.queryByText('lifecycle.out_of_date')).not.toBeInTheDocument();
       expect(pageTitle()).toHaveTextContent('Create Application');
+      expect(pageTitle()).toHaveFocus();
     });
 
     it('hides the out of date warning with hideLifecycleWarnings', async () => {

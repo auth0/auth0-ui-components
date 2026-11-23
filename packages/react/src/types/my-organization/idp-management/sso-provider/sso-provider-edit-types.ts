@@ -43,6 +43,7 @@ import type {
   SsoProviderTabSchemas,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 import type {
+  CreateProvisioningOptions,
   SsoProvisioningTabClasses,
   SsoProvisioningTabEditProps,
   SsoProvisioningTabSchemas,
@@ -138,7 +139,7 @@ export interface UseSsoProviderEditServiceReturn {
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
   enableProvider: (enabled: boolean) => Promise<void>;
-  createProvisioning: () => Promise<void>;
+  createProvisioning: (options?: CreateProvisioningOptions) => Promise<void>;
   deleteProvisioning: () => Promise<void>;
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   createScimToken: (

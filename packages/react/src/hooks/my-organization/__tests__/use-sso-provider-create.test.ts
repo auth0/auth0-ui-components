@@ -370,51 +370,73 @@ describe('useSsoProviderCreate - logic behavior', () => {
       expect(mockCreateProvider).not.toHaveBeenCalled();
     });
 
-    const createGuided = async (result: ReturnType<typeof renderGuided>['result']) => {
-      result.current.guidedSetup!.configureRef.current = handle(requestData);
-      mockCreateProvider.mockResolvedValue(created);
-      await act(async () => {
-        await result.current.guidedSetup!.create();
-      });
-    };
-
-    it('holds onAfter while guided and releases it once on complete', async () => {
-      const onAfter = vi.fn();
-      const { result } = renderGuided({ createAction: { onAfter } });
-      act(() => result.current.guidedSetup!.start());
-
-      serviceOptions?.createAction?.onAfter?.(requestData, created);
-      await createGuided(result);
-      expect(onAfter).not.toHaveBeenCalled();
-
-      act(() => result.current.guidedSetup!.complete());
-      act(() => result.current.guidedSetup!.complete());
-      expect(onAfter).toHaveBeenCalledTimes(1);
-      expect(onAfter).toHaveBeenCalledWith(expect.objectContaining(requestData), created);
-      expect(mockNotifyCreated).toHaveBeenCalledTimes(1);
-      expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
-    });
-
-    it('completes without a createAction', async () => {
-      const onComplete = vi.fn();
-      const { result } = renderGuided({ guidedSetup: { onComplete } });
-      act(() => result.current.guidedSetup!.start());
-      await createGuided(result);
-
-      act(() => result.current.guidedSetup!.complete());
-
-      expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
-      expect(onComplete).toHaveBeenCalledWith(created);
-    });
-
-    it('runs onAfter straight away outside guided setup', () => {
-      const onAfter = vi.fn();
-      renderGuided({ createAction: { onAfter } });
+    describe('onAfter', () => {
       const data = { strategy: 'samlp' };
 
-      serviceOptions?.createAction?.onAfter?.(data, created);
+      const completeCreation = async (result: ReturnType<typeof renderGuided>['result']) => {
+        result.current.guidedSetup!.configureRef.current = handle(requestData);
+        mockCreateProvider.mockResolvedValue(created);
+        await act(async () => {
+          await result.current.guidedSetup!.create();
+        });
+      };
 
-      expect(onAfter).toHaveBeenCalledWith(data, created);
+      it('runs createAction.onAfter right away in the advanced flow only', () => {
+        const advanced = vi.fn();
+        const guided = vi.fn();
+        renderGuided({
+          createAction: { onAfter: advanced },
+          createGuidedSetupAction: { onAfter: guided },
+        });
+
+        serviceOptions?.createAction?.onAfter?.(data, created);
+
+        expect(advanced).toHaveBeenCalledWith(data, created);
+        expect(guided).not.toHaveBeenCalled();
+      });
+
+      it('runs createGuidedSetupAction.onAfter right after creation in the guided flow', () => {
+        const advanced = vi.fn();
+        const guided = vi.fn();
+        const { result } = renderGuided({
+          createAction: { onAfter: advanced },
+          createGuidedSetupAction: { onAfter: guided },
+        });
+        act(() => result.current.guidedSetup!.start());
+
+        serviceOptions?.createAction?.onAfter?.(data, created);
+
+        expect(guided).toHaveBeenCalledWith(data, created);
+        expect(advanced).not.toHaveBeenCalled();
+      });
+
+      it('runs completeGuidedSetupAction.onAfter once on Done, after the created notification', async () => {
+        const done = vi.fn();
+        const { result } = renderGuided({ completeGuidedSetupAction: { onAfter: done } });
+        act(() => result.current.guidedSetup!.start());
+        await completeCreation(result);
+        expect(done).not.toHaveBeenCalled();
+
+        act(() => result.current.guidedSetup!.complete());
+        act(() => result.current.guidedSetup!.complete());
+
+        expect(done).toHaveBeenCalledTimes(1);
+        expect(done).toHaveBeenCalledWith(expect.objectContaining(requestData), created);
+        expect(mockNotifyCreated).toHaveBeenCalledTimes(1);
+        expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
+      });
+
+      it('only announces the provider on Done when no completeGuidedSetupAction is given', async () => {
+        const advanced = vi.fn();
+        const { result } = renderGuided({ createAction: { onAfter: advanced } });
+        act(() => result.current.guidedSetup!.start());
+        await completeCreation(result);
+
+        act(() => result.current.guidedSetup!.complete());
+
+        expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
+        expect(advanced).not.toHaveBeenCalled();
+      });
     });
   });
 });

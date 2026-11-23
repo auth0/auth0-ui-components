@@ -44,6 +44,7 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
  * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it, turning provisioning on first when it's off.
+ * @param props.guidedSetupMessages - Custom messages for the guided setup texts shown on this tab.
  * @param props.focusGuidedSetupButton - Moves focus to the Guided Setup button once it shows, after returning from guided setup.
  * @param props.onCreateProvisioning - Turns provisioning on through the host's provisioning actions.
  * @param props.isProvisioningUpdating - Whether the host is turning provisioning on.
@@ -66,6 +67,7 @@ export function SsoProvisioningTab({
   isProvisioningUpdating: isHostProvisioningUpdating,
   hideGuidedSetupLifecycleWarnings = false,
   organizationDisplayName,
+  guidedSetupMessages,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -142,7 +144,7 @@ export function SsoProvisioningTab({
   const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
   const isGuidedSetupDeprecated =
     provisioningInstructions?.version_info?.lifecycle_status === 'deprecated';
-  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup');
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup', guidedSetupMessages);
 
   const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
 
@@ -168,7 +170,7 @@ export function SsoProvisioningTab({
       return;
     }
     setStartingGuidedSetup(true);
-    const config = await onCreateProvisioning()
+    const config = await onCreateProvisioning({ guided: true })
       .then(() => fetchProvisioning())
       .catch(() => null);
     setStartingGuidedSetup(false);

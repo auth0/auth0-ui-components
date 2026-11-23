@@ -106,6 +106,11 @@ export function SsoGuidedSetup({
     }
   }, [currentPage?.key]);
 
+  const handleDismissOutOfDate = () => {
+    dismissOutOfDate();
+    pageTitleRef.current?.focus();
+  };
+
   const setup = React.useMemo<InstructionSetup>(
     () => ({
       kind,
@@ -151,15 +156,19 @@ export function SsoGuidedSetup({
   }
 
   if (error || !currentPage) {
+    let unavailableMessage = t('unavailable');
+    if (error) unavailableMessage = t('load_error');
+    else if (isDeprecated) {
+      unavailableMessage = t('lifecycle.deprecated', {
+        organizationDisplayName: lifecycleOrganization,
+      });
+    }
+
     return (
       <Card className={className} data-slot="sso-guided-setup">
         <CardContent>
           <p className="text-sm text-muted-foreground" role={error ? 'alert' : 'status'}>
-            {error
-              ? t('load_error')
-              : isDeprecated
-                ? t('lifecycle.deprecated', { organizationDisplayName: lifecycleOrganization })
-                : t('unavailable')}
+            {unavailableMessage}
           </p>
         </CardContent>
       </Card>
@@ -201,7 +210,7 @@ export function SsoGuidedSetup({
                   size="icon"
                   className="h-6 w-6"
                   aria-label={t('lifecycle.dismiss')}
-                  onClick={dismissOutOfDate}
+                  onClick={handleDismissOutOfDate}
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </Button>

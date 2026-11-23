@@ -221,8 +221,12 @@ export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'>
 
 export interface SsoProviderCreateGuidedSetup {
   hideLifecycleWarnings?: boolean;
-  onComplete?: (provider: IdpKnownResponse) => void;
 }
+
+export type SsoProviderCreateGuidedSetupAction = Pick<
+  ComponentAction<CreateIdentityProviderRequestContentPrivate, IdpKnownResponse>,
+  'onAfter'
+>;
 
 export interface SsoProviderCreateGuidedSetupState {
   isAvailable: boolean;
@@ -253,6 +257,8 @@ export interface SsoProviderCreateProps
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
   hideGuidedSetup?: boolean;
   guidedSetup?: SsoProviderCreateGuidedSetup;
+  createGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
+  completeGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
 }
 
 export interface UseSsoProviderCreateOptions {
@@ -280,6 +286,8 @@ export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOpt
   onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
   hideGuidedSetup?: boolean;
   guidedSetup?: SsoProviderCreateGuidedSetup;
+  createGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
+  completeGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
 }
 
 export interface UseSsoProviderCreateResult {
