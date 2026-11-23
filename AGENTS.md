@@ -24,6 +24,7 @@
 | Format check             | `pnpm format:check`      |
 | Dev docs site            | `pnpm dev:docs`          |
 | Conventional commit      | `pnpm commit`            |
+| Generate changelog       | `pnpm changelog`         |
 
 ---
 
@@ -576,6 +577,17 @@ pnpm registry:generate
 | `publish-public-npm.yml` | Manual dispatch         | npm publish with dry-run option   |
 | `claude-code-review.yml` | PR comments             | AI code review                    |
 | `sca_scan.yml`           | -                       | Security vulnerability scanning   |
+
+### Releasing
+
+Releases are published by `publish-public-npm.yml` when a version bump lands on `main`. In the version bump PR:
+
+1. Bump the version in `packages/core/package.json` and `packages/react/package.json` (both must match), and add the `self-bump` label to the version bump PR so later changelogs leave it out.
+2. Run `pnpm changelog`. It reads the merged PRs since the previous `vX.Y.Z` tag, groups them by PR title prefix (`feat`, `fix`, `perf`, `refactor`, `docs`, everything else under Other), and adds a section to `packages/core/CHANGELOG.md` and `packages/react/CHANGELOG.md`. It needs `gh auth login`.
+3. Pass `--exclude <pr-number>` (repeatable) to leave a PR out, for example the PR that merges a release branch into `main`.
+4. Review and commit both `CHANGELOG.md` files with the version bump.
+
+The publish workflow fails before publishing if a package has no changelog section for the version, and uses that section as the GitHub Release notes.
 
 ### Validation Pipeline
 

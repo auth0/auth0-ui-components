@@ -20,6 +20,10 @@ Core utilities and services for Auth0 Universal Components. Framework-agnostic f
 npm install @auth0/universal-components-core
 ```
 
+## Changelog
+
+See the [GitHub releases](https://github.com/auth0/auth0-ui-components/releases) for release notes of every version.
+
 ## Requirements
 
 - Node.js >= 18
