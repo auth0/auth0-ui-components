@@ -1,87 +1,76 @@
 /**
- * MFA step-up operations hook.
+ * Runs one MFA step-up flow for an `mfa_required` error and exposes its snapshot.
  * @module use-mfa-step-up
- * @internal
  */
 
 import {
-  type EnrollParams,
-  type MfaRequiredError,
-  type VerifyParams,
+  getMfaToken,
+  type MfaFlowConfig,
+  type MfaStepUpMachine,
+  type MfaStepUpSnapshot,
 } from '@auth0/universal-components-core';
-import { useCallback, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 
-interface UseMfaStepUpProps {
-  error: MfaRequiredError;
-  onComplete: () => void;
+export interface UseMfaStepUpOptions {
+  error: unknown;
+  flow?: MfaFlowConfig;
+}
+
+interface ActiveMachine {
+  token: string;
+  machine: MfaStepUpMachine;
+  snapshot: MfaStepUpSnapshot;
+}
+
+export interface UseMfaStepUpResult {
+  machine?: MfaStepUpMachine;
+  snapshot?: MfaStepUpSnapshot;
 }
 
 /**
- * Wraps MFA step-up API operations with error handling and shared loading state.
+ * Creates the machine for one `mfa_token` and starts it. A new token starts a new flow, and the
+ * old one is disposed.
  *
- * @param props - Hook configuration.
- * @param props.error - The MFA required error containing the `mfa_token`.
- * @param props.onComplete - Called after a successful `verify`.
- * @returns `enroll`, `challenge`, `verify`, and `isLoading`.
- * @internal
+ * @param options - The `mfa_required` error and the flow customization.
+ * @param options.error - The error a request failed with. Without an `mfa_required` error there is no flow. Only its `mfa_token` restarts the flow.
+ * @param options.flow - Flow customization, read once when the flow is created.
+ * @returns The machine and its snapshot.
  */
-export function useMfaStepUp({ error, onComplete }: UseMfaStepUpProps) {
+export function useMfaStepUp({ error, flow }: UseMfaStepUpOptions): UseMfaStepUpResult {
   const { coreClient } = useCoreClient();
   const handleError = useErrorHandler();
-  const stepUpClient = coreClient!.getMFAStepUpApiClient();
 
-  const mfaToken = error.mfa_token;
-  const [isLoading, setIsLoading] = useState(false);
+  const [active, setActive] = useState<ActiveMachine>();
+  const token = getMfaToken(error);
 
-  const enroll = useCallback(
-    async (params: EnrollParams) => {
-      setIsLoading(true);
-      try {
-        return await stepUpClient.enroll(params);
-      } catch (err) {
-        handleError(err);
-        return undefined;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [stepUpClient, handleError],
-  );
+  useEffect(() => {
+    if (!coreClient || !token) {
+      setActive(undefined);
+      return;
+    }
+    const machine = coreClient.createMfaStepUpMachine({
+      error,
+      flow,
+      onError: handleError,
+    });
+    const unsubscribe = machine.subscribe(() =>
+      setActive({ token, machine, snapshot: machine.getSnapshot() }),
+    );
+    setActive({ token, machine, snapshot: machine.getSnapshot() });
+    machine.start();
 
-  const challenge = useCallback(
-    async (authenticator: { id?: string }) => {
-      try {
-        const result = await stepUpClient.challenge({
-          mfaToken,
-          challengeType: 'oob',
-          authenticatorId: authenticator.id,
-        });
-        return result;
-      } catch (err) {
-        handleError(err);
-        return undefined;
-      }
-    },
-    [mfaToken, stepUpClient, handleError],
-  );
+    return () => {
+      unsubscribe();
+      machine.dispose();
+    };
+  }, [coreClient, token]);
 
-  const verify = useCallback(
-    async (params: VerifyParams) => {
-      setIsLoading(true);
-      try {
-        await stepUpClient.verify(params);
-        onComplete();
-      } catch (err) {
-        handleError(err);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [stepUpClient, handleError, onComplete],
-  );
+  const current = active?.token === token ? active : undefined;
+  const machine = current?.machine;
+  const snapshot = current?.snapshot;
 
-  return { enroll, challenge, verify, isLoading };
+  return { machine, snapshot };
 }

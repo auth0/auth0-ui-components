@@ -60,6 +60,11 @@ export { useTheme } from './hooks/shared/use-theme';
 export { useCoreClientInitialization } from './hooks/shared/use-core-client-initialization';
 export { useErrorHandler } from './hooks/shared/use-error-handler';
 export { usePermissions } from './hooks/shared/use-permissions';
+export {
+  useMfaStepUp,
+  type UseMfaStepUpOptions,
+  type UseMfaStepUpResult,
+} from './hooks/shared/use-mfa-step-up';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
@@ -86,6 +91,7 @@ export { useOrganizationMemberDetail } from './hooks/my-organization/use-member-
 
 // Auth types
 export * from './types/auth-types';
+export * from './types/mfa-step-up-types';
 
 // My Account types
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';

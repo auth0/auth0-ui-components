@@ -54,6 +54,7 @@ export const Auth0ComponentProvider = ({
   children,
   telemetry: telemetryEnabled = true,
   disablePermissionEnforcement = false,
+  mfaStepUp,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
   const { baseUrl, fetcher } = proxyConfig;
@@ -130,7 +131,11 @@ export const Auth0ComponentProvider = ({
         )}
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
-            <QueryProvider cacheConfig={cacheConfig} retryConfig={retryConfig}>
+            <QueryProvider
+              cacheConfig={cacheConfig}
+              retryConfig={retryConfig}
+              mfaStepUp={mfaStepUp}
+            >
               <PermissionProvider
                 isAuthenticated
                 disablePermissionEnforcement={disablePermissionEnforcement}

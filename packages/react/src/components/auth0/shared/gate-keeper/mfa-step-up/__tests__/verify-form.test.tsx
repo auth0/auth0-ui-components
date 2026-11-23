@@ -1,243 +1,238 @@
-import { screen, waitFor, cleanup } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { VerifyForm } from '@/components/auth0/shared/gate-keeper/mfa-step-up/verify-form';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
-  mockMfaRequiredError,
-  mockUseMfaStepUp,
+  createMockFacts,
+  createMockSnapshot,
+  createMockStepUpMachine,
 } from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-const render = (ui: React.ReactElement) => renderWithProviders(<Dialog open>{ui}</Dialog>);
+const renderInDialog = (step: React.ReactElement) =>
+  renderWithProviders(
+    <Dialog open>
+      <DialogContent>{step}</DialogContent>
+    </Dialog>,
+  );
 
-vi.mock('@/hooks/shared/use-mfa-step-up');
+const challengeOption = (
+  authenticator: { authenticatorType: 'otp' | 'oob' | 'recovery-code'; name?: string },
+  factor: string,
+) => ({
+  id: 'challenge:auth-1',
+  kind: 'challenge' as const,
+  factor,
+  authenticator: { id: 'auth-1', ...authenticator },
+});
 
-const mockError = mockMfaRequiredError;
-
-const otpAuthenticator = { id: 'auth-1', authenticatorType: 'otp' as const };
-const oobSmsAuthenticator = {
-  id: 'auth-2',
-  authenticatorType: 'oob' as const,
-  type: 'sms',
-  name: '+1234567890',
-};
-const pushAuthenticator = {
-  id: 'auth-3',
-  authenticatorType: 'oob' as const,
-  type: 'push-notification',
-};
-const recoveryAuthenticator = { id: 'auth-4', authenticatorType: 'recovery-code' as const };
+const snapshotFor = (factor: string, overrides: Parameters<typeof createMockSnapshot>[0] = {}) =>
+  createMockSnapshot({
+    step: 'challenge',
+    facts: createMockFacts({ mode: 'challenge', factor, optionCount: 1 }),
+    ...overrides,
+  });
 
 describe('VerifyForm', () => {
   afterEach(() => {
     vi.clearAllMocks();
-    cleanup();
   });
 
-  describe('OTP authenticator', () => {
-    it('calls verify with otp on submit', async () => {
-      const user = userEvent.setup();
-      const mockVerify = vi.fn().mockResolvedValue(undefined);
-      mockUseMfaStepUp({ verify: mockVerify });
-
-      render(
+  describe('answering with an authenticator the user already has', () => {
+    it('asks for the one-time code of an OTP authenticator', async () => {
+      renderInDialog(
         <VerifyForm
-          error={mockError}
-          authenticator={otpAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
+          snapshot={snapshotFor('otp', {
+            selected: challengeOption({ authenticatorType: 'otp' }, 'otp'),
+          })}
+          machine={createMockStepUpMachine()}
         />,
       );
 
-      const inputs = await screen.findAllByRole('textbox');
-      await user.type(inputs[0]!, '123456');
+      expect(await screen.findByText('mfa.challenge.otp_title')).toBeInTheDocument();
+      expect(screen.getByText('mfa.challenge.otp_description')).toBeInTheDocument();
+    });
+
+    it('hands a recovery code to the machine', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderInDialog(
+        <VerifyForm
+          snapshot={snapshotFor('recovery-code', {
+            selected: challengeOption({ authenticatorType: 'recovery-code' }, 'recovery-code'),
+          })}
+          machine={machine}
+        />,
+      );
+
+      await user.type(await screen.findByRole('textbox'), 'ABCD-1234');
       await user.click(screen.getByRole('button', { name: 'mfa.verify_button' }));
 
-      await waitFor(() => {
-        expect(mockVerify).toHaveBeenCalledWith({
-          mfaToken: mockError.mfa_token,
-          otp: '123456',
-        });
-      });
+      await waitFor(() => expect(machine.next).toHaveBeenCalledWith('ABCD-1234'));
     });
-  });
 
-  describe('recovery-code authenticator', () => {
-    it('calls verify with recovery code on submit', async () => {
-      const user = userEvent.setup();
-      const mockVerify = vi.fn().mockResolvedValue(undefined);
-      mockUseMfaStepUp({ verify: mockVerify });
-
-      render(
+    it('says where the code was sent for an out-of-band authenticator', async () => {
+      renderInDialog(
         <VerifyForm
-          error={mockError}
-          authenticator={recoveryAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
+          snapshot={snapshotFor('sms', {
+            selected: challengeOption({ authenticatorType: 'oob', name: '+1 *** 0123' }, 'sms'),
+          })}
+          machine={createMockStepUpMachine()}
         />,
       );
 
-      const input = await screen.findByRole('textbox');
-      await user.type(input, 'RECOVERY-CODE-XYZ');
-      await user.click(screen.getByRole('button', { name: 'mfa.verify_button' }));
-
-      await waitFor(() => {
-        expect(mockVerify).toHaveBeenCalledWith({
-          mfaToken: mockError.mfa_token,
-          recoveryCode: 'RECOVERY-CODE-XYZ',
-        });
-      });
+      expect(await screen.findByText('mfa.challenge.code_sent_description')).toBeInTheDocument();
     });
-  });
 
-  describe('OOB (SMS) authenticator', () => {
-    it('calls verify with oobCode and binding code on submit', async () => {
+    it('cancels through the machine', async () => {
+      const machine = createMockStepUpMachine();
       const user = userEvent.setup();
-      const mockVerify = vi.fn().mockResolvedValue(undefined);
-      const resolvedOobCode = 'oob-code-123';
-      mockUseMfaStepUp({
-        verify: mockVerify,
-        challenge: vi.fn().mockResolvedValue({ oobCode: resolvedOobCode }),
-      });
-
-      render(
+      renderInDialog(
         <VerifyForm
-          error={mockError}
-          authenticator={oobSmsAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
-        />,
-      );
-
-      const inputs = await screen.findAllByRole('textbox');
-      await user.type(inputs[0]!, '123456');
-      await user.click(screen.getByRole('button', { name: 'mfa.verify_button' }));
-
-      await waitFor(() => {
-        expect(mockVerify).toHaveBeenCalledWith({
-          mfaToken: mockError.mfa_token,
-          oobCode: resolvedOobCode,
-          bindingCode: '123456',
-        });
-      });
-    });
-  });
-
-  describe('Push authenticator', () => {
-    it('renders push waiting title and message', async () => {
-      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
-
-      render(
-        <VerifyForm
-          error={mockError}
-          authenticator={pushAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
-        />,
-      );
-
-      expect(await screen.findByText('mfa.challenge.push_title')).toBeInTheDocument();
-      expect(await screen.findByText('mfa.challenge.push_waiting')).toBeInTheDocument();
-    });
-
-    it('calls onCancel when cancel is clicked in push view', async () => {
-      const user = userEvent.setup();
-      const mockOnCancel = vi.fn();
-      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
-
-      render(
-        <VerifyForm
-          error={mockError}
-          authenticator={pushAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={mockOnCancel}
+          snapshot={snapshotFor('recovery-code', {
+            selected: challengeOption({ authenticatorType: 'recovery-code' }, 'recovery-code'),
+          })}
+          machine={machine}
         />,
       );
 
       await user.click(await screen.findByRole('button', { name: 'mfa.cancel' }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(machine.cancel).toHaveBeenCalledTimes(1);
     });
 
-    it('calls onComplete when continue is clicked in push view', async () => {
-      const user = userEvent.setup();
-      const mockOnComplete = vi.fn();
-      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
-
-      render(
+    it('shows the verifying state while the request runs', async () => {
+      renderInDialog(
         <VerifyForm
-          error={mockError}
-          authenticator={pushAuthenticator}
-          onComplete={mockOnComplete}
-          onCancel={vi.fn()}
+          snapshot={snapshotFor('recovery-code', {
+            selected: challengeOption({ authenticatorType: 'recovery-code' }, 'recovery-code'),
+            request: { name: 'verify', isLoading: true },
+          })}
+          machine={createMockStepUpMachine()}
         />,
       );
 
-      await user.click(await screen.findByRole('button', { name: 'mfa.continue' }));
-
-      expect(mockOnComplete).toHaveBeenCalledTimes(1);
+      expect(await screen.findByRole('button', { name: 'mfa.challenge.verifying' })).toBeDisabled();
     });
   });
 
-  describe('OOB without existing oobCode', () => {
-    it('shows spinner while challenge is being initiated', () => {
-      mockUseMfaStepUp({
-        challenge: vi.fn().mockReturnValue(new Promise(() => {})),
+  describe('resending the code', () => {
+    const oobSnapshot = (canResend: boolean) =>
+      snapshotFor('sms', {
+        canResend,
+        selected: challengeOption({ authenticatorType: 'oob', name: 'phone' }, 'sms'),
       });
 
-      render(
-        <VerifyForm
-          error={mockError}
-          authenticator={{ id: 'auth-5', authenticatorType: 'oob' as const, type: 'sms' }}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
-        />,
+    it('offers a resend link only when the flow says it applies', async () => {
+      renderInDialog(
+        <VerifyForm snapshot={oobSnapshot(false)} machine={createMockStepUpMachine()} />,
       );
 
-      // Spinner is shown while not yet challenged
-      expect(screen.queryByRole('button', { name: 'mfa.verify_button' })).not.toBeInTheDocument();
+      expect(await screen.findByText('mfa.challenge.code_sent_description')).toBeInTheDocument();
+      expect(screen.queryByText('mfa.challenge.resend')).not.toBeInTheDocument();
     });
 
-    it('shows code form after challenge resolves', async () => {
-      mockUseMfaStepUp({
-        challenge: vi.fn().mockResolvedValue({ oobCode: 'new-oob-code' }),
-      });
+    it('asks the machine for a new code', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderInDialog(<VerifyForm snapshot={oobSnapshot(true)} machine={machine} />);
 
-      render(
-        <VerifyForm
-          error={mockError}
-          authenticator={{ id: 'auth-5', authenticatorType: 'oob' as const, type: 'sms' }}
-          onComplete={vi.fn()}
-          onCancel={vi.fn()}
-        />,
-      );
+      await user.click(await screen.findByText('mfa.challenge.resend'));
 
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'mfa.verify_button' })).toBeInTheDocument();
-      });
+      expect(machine.resend).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('back navigation', () => {
-    it('calls onCancel when back button is clicked', async () => {
-      const user = userEvent.setup();
-      const mockOnCancel = vi.fn();
-      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-code-123' }) });
-
-      render(
+  describe('finishing an enrollment', () => {
+    it('says where the code was sent, using the contact the user entered', async () => {
+      renderInDialog(
         <VerifyForm
-          error={mockError}
-          authenticator={oobSmsAuthenticator}
-          onComplete={vi.fn()}
-          onCancel={mockOnCancel}
+          snapshot={createMockSnapshot({
+            step: 'enroll.verify',
+            contact: '+14155550123',
+            selected: { id: 'enroll:sms', kind: 'enroll', factor: 'sms' },
+            enrollment: { authenticatorType: 'oob' },
+          })}
+          machine={createMockStepUpMachine()}
+        />,
+      );
+
+      expect(await screen.findByText('mfa.challenge.code_sent_description')).toBeInTheDocument();
+    });
+
+    it('asks for the code of the authenticator app after an OTP enrollment', async () => {
+      renderInDialog(
+        <VerifyForm
+          snapshot={createMockSnapshot({
+            step: 'enroll.verify',
+            selected: { id: 'enroll:otp', kind: 'enroll', factor: 'otp' },
+            enrollment: { authenticatorType: 'otp' },
+          })}
+          machine={createMockStepUpMachine()}
+        />,
+      );
+
+      expect(await screen.findByText('mfa.challenge.otp_description')).toBeInTheDocument();
+    });
+  });
+
+  describe('finishing an enrollment, going back', () => {
+    it('goes back through the machine, not out of the flow', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderInDialog(
+        <VerifyForm
+          snapshot={createMockSnapshot({
+            step: 'enroll.verify',
+            selected: { id: 'enroll:otp', kind: 'enroll', factor: 'otp' },
+            enrollment: { authenticatorType: 'otp' },
+          })}
+          machine={machine}
         />,
       );
 
       await user.click(await screen.findByRole('button', { name: 'mfa.back' }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(machine.back).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('push', () => {
+    const pushSnapshot = (mode: 'push' | 'code', canApprove = true) =>
+      snapshotFor('push', {
+        selected: challengeOption({ authenticatorType: 'oob', name: 'iPhone' }, 'push'),
+        push: { mode, phase: 'waiting', canApprove },
+      });
+
+    it('waits for the approval on the device while in push mode', async () => {
+      renderInDialog(
+        <VerifyForm snapshot={pushSnapshot('push')} machine={createMockStepUpMachine()} />,
+      );
+
+      expect(await screen.findByText('mfa.challenge.push_waiting_title')).toBeInTheDocument();
+    });
+
+    it('does not offer the push again when it cannot be approved here', async () => {
+      renderInDialog(
+        <VerifyForm snapshot={pushSnapshot('code', false)} machine={createMockStepUpMachine()} />,
+      );
+
+      expect(await screen.findByText('mfa.challenge.guardian_code_title')).toBeInTheDocument();
+      expect(screen.queryByText('mfa.challenge.use_push_instead')).not.toBeInTheDocument();
+    });
+
+    it('asks for the code from Guardian in code mode, and offers the push again', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderInDialog(<VerifyForm snapshot={pushSnapshot('code')} machine={machine} />);
+
+      expect(await screen.findByText('mfa.challenge.guardian_code_title')).toBeInTheDocument();
+      expect(await screen.findAllByRole('textbox')).toHaveLength(6);
+      await user.click(screen.getByText('mfa.challenge.use_push_instead'));
+
+      expect(machine.switchToPush).toHaveBeenCalledTimes(1);
     });
   });
 });

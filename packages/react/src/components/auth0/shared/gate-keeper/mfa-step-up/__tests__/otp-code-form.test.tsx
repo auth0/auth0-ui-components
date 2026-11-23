@@ -17,45 +17,27 @@ describe('OtpCodeForm', () => {
   });
 
   describe('rendering', () => {
-    it('renders OTP input and description for OTP authenticator', async () => {
-      renderWithProviders(
-        <OtpCodeForm {...defaultProps} authenticator={{ authenticatorType: 'otp' }} />,
-      );
+    it('renders six digit boxes for a one-time code', async () => {
+      renderWithProviders(<OtpCodeForm {...defaultProps} />);
 
-      const inputs = await screen.findAllByRole('textbox');
-      expect(inputs.length).toBeGreaterThan(0);
-      expect(await screen.findByText('mfa.challenge.otp_description')).toBeInTheDocument();
+      expect(await screen.findAllByRole('textbox')).toHaveLength(6);
     });
 
-    it('renders text input and description for recovery-code authenticator', async () => {
-      renderWithProviders(
-        <OtpCodeForm {...defaultProps} authenticator={{ authenticatorType: 'recovery-code' }} />,
-      );
+    it('renders one text input for a recovery code', async () => {
+      renderWithProviders(<OtpCodeForm {...defaultProps} isRecoveryCode />);
 
-      expect(await screen.findByRole('textbox')).toBeInTheDocument();
-      expect(
-        await screen.findByText('mfa.challenge.recovery_code_description'),
-      ).toBeInTheDocument();
+      expect(await screen.findAllByRole('textbox')).toHaveLength(1);
     });
 
-    it('shows code_sent description when authenticator has a name', async () => {
-      renderWithProviders(
-        <OtpCodeForm
-          {...defaultProps}
-          authenticator={{ authenticatorType: 'oob', name: 'user@example.com' }}
-        />,
-      );
+    it('shows the footer under the field', async () => {
+      renderWithProviders(<OtpCodeForm {...defaultProps} footer={<p>another way</p>} />);
 
-      expect(await screen.findByText('mfa.challenge.code_sent_description')).toBeInTheDocument();
+      expect(await screen.findByText('another way')).toBeInTheDocument();
     });
 
     it('renders resend link when onResend is provided', async () => {
       renderWithProviders(
-        <OtpCodeForm
-          {...defaultProps}
-          authenticator={{ authenticatorType: 'oob' }}
-          onResend={vi.fn().mockResolvedValue(undefined)}
-        />,
+        <OtpCodeForm {...defaultProps} onResend={vi.fn().mockResolvedValue(undefined)} />,
       );
 
       expect(await screen.findByText('mfa.challenge.resend')).toBeInTheDocument();
@@ -70,31 +52,43 @@ describe('OtpCodeForm', () => {
 
   describe('button state', () => {
     it('disables verify button initially when no code is entered', async () => {
-      renderWithProviders(
-        <OtpCodeForm {...defaultProps} authenticator={{ authenticatorType: 'recovery-code' }} />,
-      );
+      renderWithProviders(<OtpCodeForm {...defaultProps} isRecoveryCode />);
 
       const verifyButton = await screen.findByRole('button', { name: 'mfa.verify_button' });
       expect(verifyButton).toBeDisabled();
     });
 
     it('shows verifying label and disables verify button when isLoading is true', async () => {
-      renderWithProviders(
-        <OtpCodeForm {...defaultProps} isLoading authenticator={{ authenticatorType: 'oob' }} />,
-      );
+      renderWithProviders(<OtpCodeForm {...defaultProps} isLoading />);
 
       expect(await screen.findByRole('button', { name: 'mfa.challenge.verifying' })).toBeDisabled();
     });
   });
 
   describe('interactions', () => {
-    it('calls onCancel when back button is clicked', async () => {
+    it('puts Verify before Cancel', async () => {
+      renderWithProviders(<OtpCodeForm {...defaultProps} />);
+
+      const buttons = await screen.findAllByRole('button');
+      expect(buttons.map((button) => button.textContent)).toEqual([
+        'mfa.verify_button',
+        'mfa.cancel',
+      ]);
+    });
+
+    it('labels the cancel button as asked', async () => {
+      renderWithProviders(<OtpCodeForm {...defaultProps} cancelLabel="mfa.back" />);
+
+      expect(await screen.findByRole('button', { name: 'mfa.back' })).toBeInTheDocument();
+    });
+
+    it('calls onCancel when cancel is clicked', async () => {
       const user = userEvent.setup();
       const mockOnCancel = vi.fn();
 
       renderWithProviders(<OtpCodeForm {...defaultProps} onCancel={mockOnCancel} />);
 
-      await user.click(await screen.findByRole('button', { name: 'mfa.back' }));
+      await user.click(await screen.findByRole('button', { name: 'mfa.cancel' }));
 
       expect(mockOnCancel).toHaveBeenCalledTimes(1);
     });
@@ -103,13 +97,7 @@ describe('OtpCodeForm', () => {
       const user = userEvent.setup();
       const mockOnSubmit = vi.fn().mockResolvedValue(undefined);
 
-      renderWithProviders(
-        <OtpCodeForm
-          {...defaultProps}
-          onSubmit={mockOnSubmit}
-          authenticator={{ authenticatorType: 'recovery-code' }}
-        />,
-      );
+      renderWithProviders(<OtpCodeForm {...defaultProps} onSubmit={mockOnSubmit} isRecoveryCode />);
 
       const input = await screen.findByRole('textbox');
       await user.type(input, 'RECOVERY-CODE-123');
@@ -124,13 +112,7 @@ describe('OtpCodeForm', () => {
       const user = userEvent.setup();
       const mockOnResend = vi.fn().mockResolvedValue(undefined);
 
-      renderWithProviders(
-        <OtpCodeForm
-          {...defaultProps}
-          authenticator={{ authenticatorType: 'oob' }}
-          onResend={mockOnResend}
-        />,
-      );
+      renderWithProviders(<OtpCodeForm {...defaultProps} onResend={mockOnResend} />);
 
       await user.click(await screen.findByText('mfa.challenge.resend'));
 

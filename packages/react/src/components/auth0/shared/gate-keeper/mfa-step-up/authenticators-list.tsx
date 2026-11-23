@@ -1,94 +1,61 @@
 /** @internal */
-import {
-  normalizeFactorType,
-  type EnrollmentFactor,
-  type MfaAuthenticator,
-  type MfaRequiredError,
-} from '@auth0/universal-components-core';
+import type { MfaStepUpMachine, MfaStepUpSnapshot } from '@auth0/universal-components-core';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
+import { ActionRow } from './elements/action-row';
+import {
+  AuthenticatorCard,
+  METHOD_GROUPS,
+  OTHER_GROUP,
+  getMethodGroup,
+} from './elements/authenticator-card';
+import { MfaButton } from './elements/dialog-elements';
+
 import { Card, CardAction, CardHeader, CardTitle } from '@/components/ui/card';
 import { List, ListItem } from '@/components/ui/list';
+import { RadioGroup } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
-import { useMfaRequirements } from '@/hooks/shared/use-mfa-requirements';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
+import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 
 interface AuthenticatorsListProps {
-  error: MfaRequiredError;
-  onSelectFactor: (factor: EnrollmentFactor) => void;
-  onSelectAuthenticator: (authenticator: MfaAuthenticator) => void;
-  onCancel: () => void;
+  snapshot: MfaStepUpSnapshot;
+  machine: MfaStepUpMachine;
 }
+
+const UNKNOWN_FACTOR = 'oob';
 
 /**
  * @param props - Component props.
- * @param props.error - The MFA required error.
- * @param props.onSelectFactor - Called when the user picks a factor to enroll.
- * @param props.onSelectAuthenticator - Called when the user picks an authenticator to challenge.
- * @param props.onCancel - Called when the user cancels.
- * @returns Authenticator list element, spinner during load, or null.
+ * @param props.snapshot - The flow's snapshot. Its options are listed.
+ * @param props.machine - The flow's machine. Picking an option and cancelling go through it.
+ * @returns Enrollment list element.
  * @internal
  */
-export function AuthenticatorsList({
-  error,
-  onSelectFactor,
-  onSelectAuthenticator,
-  onCancel,
-}: AuthenticatorsListProps) {
+function EnrollList({ snapshot, machine }: AuthenticatorsListProps) {
   const { t } = useTranslator('gate_keeper');
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
-  const { factors, authenticators, isEnrollMode, isLoading } = useMfaRequirements(error);
-
-  const handleSelectFactor = (factor: EnrollmentFactor) => {
-    setActiveItemId(factor.type);
-    onSelectFactor(factor);
+  const handleSelect = async (optionId: string) => {
+    setActiveItemId(optionId);
+    try {
+      await machine.next(optionId);
+    } finally {
+      setActiveItemId(null);
+    }
   };
 
-  const handleSelectAuthenticator = (auth: MfaAuthenticator) => {
-    setActiveItemId(auth.id);
-    onSelectAuthenticator(auth);
-  };
-
-  const items = isEnrollMode
-    ? factors.map((factor) => ({
-        key: factor.type,
-        label: t(`mfa.authenticator_type.${normalizeFactorType(factor.type)}`),
-        buttonLabel: t('mfa.enroll_button'),
-        onSelect: () => handleSelectFactor(factor),
-      }))
-    : authenticators.map((auth) => ({
-        key: auth.id,
-        label: auth.type
-          ? t(`mfa.authenticator_type.${normalizeFactorType(auth.type)}`)
-          : auth.name,
-        buttonLabel: t('mfa.verify_button'),
-        onSelect: () => handleSelectAuthenticator(auth),
-      }));
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (!items.length) {
-    return (
-      <div className="space-y-6">
-        <p className="text-sm text-muted-foreground">{t('mfa.no_authenticators')}</p>
-        <Separator />
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={onCancel} aria-label={t('mfa.cancel')}>
-            {t('mfa.cancel')}
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const items = snapshot.options.map((option) => ({
+    key: option.id,
+    label:
+      option.factor === UNKNOWN_FACTOR
+        ? option.authenticator?.name
+        : t(`mfa.authenticator_type.${option.factor}`),
+    buttonLabel: option.kind === 'enroll' ? t('mfa.enroll_button') : t('mfa.verify_button'),
+    onSelect: () => handleSelect(option.id),
+  }));
 
   return (
     <div className="space-y-6">
@@ -99,7 +66,7 @@ export function AuthenticatorsList({
               <CardHeader>
                 <CardTitle className="text-base font-semibold text-left">{item.label}</CardTitle>
                 <CardAction>
-                  <Button
+                  <MfaButton
                     variant="primary"
                     onClick={item.onSelect}
                     disabled={activeItemId !== null}
@@ -110,7 +77,7 @@ export function AuthenticatorsList({
                     ) : (
                       item.buttonLabel
                     )}
-                  </Button>
+                  </MfaButton>
                 </CardAction>
               </CardHeader>
             </Card>
@@ -118,16 +85,112 @@ export function AuthenticatorsList({
         ))}
       </List>
       <Separator />
-      <div className="flex justify-end">
-        <Button
+      <ActionRow>
+        <MfaButton
           variant="outline"
-          onClick={onCancel}
+          onClick={machine.cancel}
           disabled={activeItemId !== null}
           aria-label={t('mfa.cancel')}
         >
           {t('mfa.cancel')}
-        </Button>
-      </div>
+        </MfaButton>
+      </ActionRow>
     </div>
+  );
+}
+
+/**
+ * @param props - Component props.
+ * @param props.snapshot - The flow's snapshot. Its options are the authenticators to choose from.
+ * @param props.machine - The flow's machine. Continuing and cancelling go through it.
+ * @returns Authenticators grouped by method, to pick one from.
+ * @internal
+ */
+function ChallengeList({ snapshot, machine }: AuthenticatorsListProps) {
+  const { t } = useTranslator('gate_keeper');
+  const classes = useGateKeeperContext().mfaStepUp?.classes;
+  const [selectedId, setSelectedId] = useState(snapshot.options[0]?.id);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const groups = [...METHOD_GROUPS, OTHER_GROUP]
+    .map((group) => ({
+      ...group,
+      options: snapshot.options.filter((option) => getMethodGroup(option) === group),
+    }))
+    .filter(({ options }) => options.length > 0);
+
+  const handleContinue = async () => {
+    if (!selectedId) return;
+    setIsSubmitting(true);
+    try {
+      await machine.next(selectedId);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <RadioGroup
+        value={selectedId}
+        onValueChange={setSelectedId}
+        disabled={isSubmitting}
+        aria-label={t('mfa.verify_title')}
+        className="space-y-3"
+      >
+        {groups.map((group) => (
+          <section
+            key={group.key}
+            className={cn('space-y-2 rounded-xl bg-muted p-3', classes?.['MfaStepUp-methodGroup'])}
+          >
+            <h3
+              className={cn(
+                'flex items-center gap-2 px-1 text-sm font-medium',
+                classes?.['MfaStepUp-methodGroupTitle'],
+              )}
+            >
+              <group.icon className="size-4" />
+              {t(`mfa.method.${group.key}`)}
+            </h3>
+            {group.options.map((option) => (
+              <AuthenticatorCard key={option.id} option={option} />
+            ))}
+          </section>
+        ))}
+      </RadioGroup>
+      <ActionRow>
+        <MfaButton
+          variant="primary"
+          onClick={handleContinue}
+          disabled={!selectedId || isSubmitting}
+          aria-label={t('mfa.continue')}
+        >
+          {isSubmitting ? <Spinner size="sm" colorScheme="foreground" /> : t('mfa.continue')}
+        </MfaButton>
+        <MfaButton
+          variant="outline"
+          onClick={machine.cancel}
+          disabled={isSubmitting}
+          aria-label={t('mfa.cancel')}
+        >
+          {t('mfa.cancel')}
+        </MfaButton>
+      </ActionRow>
+    </div>
+  );
+}
+
+/**
+ * @param props - Component props.
+ * @param props.snapshot - The flow's snapshot. Its options are listed.
+ * @param props.machine - The flow's machine. Picking an option and cancelling go through it.
+ * @returns Authenticator list element.
+ * @internal
+ */
+export function AuthenticatorsList({ snapshot, machine }: AuthenticatorsListProps) {
+  return snapshot.options[0]?.kind === 'challenge' ? (
+    <ChallengeList snapshot={snapshot} machine={machine} />
+  ) : (
+    <EnrollList snapshot={snapshot} machine={machine} />
   );
 }

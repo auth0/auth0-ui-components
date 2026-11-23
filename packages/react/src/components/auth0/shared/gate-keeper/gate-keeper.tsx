@@ -9,8 +9,6 @@ import {
   getComponentStyles,
   getStatusCode,
   isMfaRequiredError,
-  type MfaRequiredError,
-  normalizeMfaRequiredError,
 } from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
@@ -67,7 +65,7 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
  * @param props - Component props.
  * @param props.error - MFA error containing the token and challenge details.
  * @param props.onComplete - Callback when MFA is completed successfully; triggers a retry.
- * @param props.onClose - Callback when the dialog is dismissed without completing.
+ * @param props.onClose - Callback when the dialog is dismissed without completing; retries nothing.
  * @returns MFA dialog element.
  * @internal
  */
@@ -76,14 +74,23 @@ function MfaDialog({
   onComplete,
   onClose,
 }: {
-  error: MfaRequiredError;
+  error: unknown;
   onComplete: () => void;
   onClose: () => void;
 }) {
+  const { mfaStepUp } = useGateKeeperContext();
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
-        <MfaWizard error={error} onComplete={onComplete} onCancel={onClose} />
+      <DialogContent className={mfaStepUp?.classes?.['MfaStepUp-dialogContent']}>
+        <MfaWizard
+          error={error}
+          onComplete={onComplete}
+          onCancel={onClose}
+          flow={mfaStepUp?.flow}
+          screens={mfaStepUp?.screens}
+          actionsAlign={mfaStepUp?.actionsAlign}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -93,7 +100,8 @@ function MfaDialog({
  * Guards children from rendering during loading/error states. MFA step-up overlays
  * children without unmounting them, preserving any in-progress form state.
  * - Loading → spinner (blocks children)
- * - MFA required error → MFA step-up dialog overlaid on children
+ * - MFA required error → MFA step-up dialog overlaid on children; dismissing it shows the
+ *   error fallback with retry, and retries nothing
  * - 5xx error → blocking error fallback with retry
  * - No error → children
  *
@@ -108,10 +116,12 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   const { coreClient } = useCoreClient();
   const { isDarkMode } = useTheme();
   const [isRetrying, setIsRetrying] = useState(false);
+  const [dismissedError, setDismissedError] = useState<unknown>();
 
   const styles = useMemo(() => getComponentStyles(styling, isDarkMode), [styling, isDarkMode]);
 
   const handleRetry = useCallback(async () => {
+    setDismissedError(undefined);
     setIsRetrying(true);
     try {
       await onRetry?.();
@@ -121,9 +131,9 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   }, [onRetry]);
 
   const isMfaStepUp = isMfaRequiredError(error);
-  const mfaError = isMfaStepUp ? normalizeMfaRequiredError(error) : null;
   const statusCode = getStatusCode(error);
   const isSystemError = !!error && !!statusCode && (statusCode >= 500 || statusCode === 429);
+  const isMfaDismissed = isMfaStepUp && dismissedError === error;
 
   useEffect(() => {
     if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {
@@ -143,7 +153,7 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
     );
   }
 
-  if (isSystemError) {
+  if (isSystemError || isMfaDismissed) {
     return (
       <StyledScope style={styles.variables}>
         <ErrorFallback onRetry={handleRetry} />
@@ -154,7 +164,13 @@ export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
   return (
     <StyledScope style={styles.variables}>
       {children}
-      {mfaError && <MfaDialog error={mfaError} onComplete={handleRetry} onClose={handleRetry} />}
+      {isMfaStepUp && (
+        <MfaDialog
+          error={error}
+          onComplete={handleRetry}
+          onClose={() => setDismissedError(error)}
+        />
+      )}
     </StyledScope>
   );
 }

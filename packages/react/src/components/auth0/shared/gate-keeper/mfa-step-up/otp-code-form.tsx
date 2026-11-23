@@ -1,30 +1,27 @@
 /** @internal */
 
-import { FACTOR_TYPE_RECOVERY_CODE } from '@auth0/universal-components-core';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
+import { ActionRow } from './elements/action-row';
+import { MfaButton, MfaLink } from './elements/dialog-elements';
+
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Link } from '@/components/ui/link';
 import { OTPField } from '@/components/ui/otp-field';
-import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
-
-interface Authenticator {
-  authenticatorType?: string;
-  name?: string;
-}
+import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 
 interface OtpCodeFormProps {
   onSubmit: (code: string) => Promise<void>;
   onCancel: () => void;
+  cancelLabel?: string;
   isLoading: boolean;
-  authenticator?: Authenticator;
+  isRecoveryCode?: boolean;
   onResend?: () => Promise<void>;
+  footer?: ReactNode;
 }
 
 type CodeForm = { code: string };
@@ -33,27 +30,32 @@ type CodeForm = { code: string };
  * OTP / recovery-code input form for MFA step-up.
  *
  * Renders a 6-digit OTP field or a plain text field for recovery codes, with
- * Cancel and Verify buttons. Owns its own form state and auto-focuses on mount.
+ * Verify and Cancel buttons. Owns its own form state and auto-focuses on mount.
  *
  * @param props - Component props.
  * @param props.onSubmit - Called with the entered code on form submission.
  * @param props.onCancel - Called when the user cancels.
+ * @param props.cancelLabel - The cancel button's text. Defaults to Cancel.
  * @param props.isLoading - Whether a verification request is in flight.
+ * @param props.isRecoveryCode - Whether the code is a recovery code, entered as text.
+ * @param props.onResend - Asks for a new code. Without it there is no resend link.
+ * @param props.footer - Shown under the field, for example a link to another method.
  * @returns Code input form element.
  * @internal
  */
 export function OtpCodeForm({
   onSubmit,
   onCancel,
+  cancelLabel,
   isLoading,
-  authenticator,
+  isRecoveryCode = false,
   onResend,
+  footer,
 }: OtpCodeFormProps) {
   const { t } = useTranslator('gate_keeper');
+  const classes = useGateKeeperContext().mfaStepUp?.classes;
 
   const [isResending, setIsResending] = useState(false);
-
-  const isRecoveryCode = authenticator?.authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
 
   const form = useForm<CodeForm>({ mode: FORM_VALIDATION_MODE });
   const code = form.watch('code');
@@ -72,12 +74,6 @@ export function OtpCodeForm({
 
   const submitLabel = isLoading ? t('mfa.challenge.verifying') : t('mfa.verify_button');
 
-  const description = authenticator?.name
-    ? t('mfa.challenge.code_sent_description', { name: authenticator.name })
-    : isRecoveryCode
-      ? t('mfa.challenge.recovery_code_description')
-      : t('mfa.challenge.otp_description');
-
   return (
     <Form {...form}>
       <form
@@ -86,7 +82,6 @@ export function OtpCodeForm({
         className="space-y-6"
       >
         <div className="space-y-4">
-          {authenticator && <p className="text-paragraph">{description}</p>}
           <FormField
             control={form.control}
             name="code"
@@ -98,6 +93,7 @@ export function OtpCodeForm({
                       id="step-up-code"
                       {...field}
                       value={field.value || ''}
+                      className={classes?.['MfaStepUp-field']}
                       placeholder="XHPOWIHEFSDO23435pwe"
                       autoComplete="off"
                       ref={inputRef}
@@ -105,6 +101,7 @@ export function OtpCodeForm({
                   ) : (
                     <OTPField
                       id="step-up-code"
+                      className={classes?.['MfaStepUp-field']}
                       length={6}
                       separator={{ character: '-', afterEvery: 3 }}
                       onChange={field.onChange}
@@ -120,26 +117,16 @@ export function OtpCodeForm({
           {onResend && (
             <p className="text-sm text-muted-foreground text-center">
               {t('mfa.challenge.resend_prompt')}
-              <Link onClick={handleResend} aria-disabled={isResending} className="text-sm ms-1">
+              <MfaLink onClick={handleResend} aria-disabled={isResending} className="text-sm ms-1">
                 {t('mfa.challenge.resend')}
-              </Link>
+              </MfaLink>
             </p>
           )}
+          {footer}
         </div>
 
-        <Separator />
-
-        <div className="flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            disabled={isLoading}
-            aria-label={t('mfa.back')}
-          >
-            {t('mfa.back')}
-          </Button>
-          <Button
+        <ActionRow>
+          <MfaButton
             type="submit"
             variant="primary"
             disabled={(isRecoveryCode ? !code : code?.length !== 6) || isLoading}
@@ -147,8 +134,17 @@ export function OtpCodeForm({
           >
             {isLoading && <Spinner size="sm" colorScheme="foreground" />}
             {submitLabel}
-          </Button>
-        </div>
+          </MfaButton>
+          <MfaButton
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            aria-label={cancelLabel ?? t('mfa.cancel')}
+          >
+            {cancelLabel ?? t('mfa.cancel')}
+          </MfaButton>
+        </ActionRow>
       </form>
     </Form>
   );

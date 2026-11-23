@@ -1,4 +1,9 @@
-import type { CoreClientInterface, AuthDetails } from '@auth0/universal-components-core';
+import {
+  createMfaStepUpMachine,
+  type CoreClientInterface,
+  type AuthDetails,
+  type MfaApiClient,
+} from '@auth0/universal-components-core';
 import { vi } from 'vitest';
 
 import { createMockAuth } from '@/tests/utils/__mocks__/core/auth.mocks';
@@ -151,11 +156,20 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
   return service;
 };
 
-export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreClientInterface => {
+export const createMockMfaApiClient = (): MfaApiClient => ({
+  getAuthenticators: vi.fn().mockResolvedValue([]),
+  enroll: vi.fn().mockResolvedValue({}),
+  challenge: vi.fn().mockResolvedValue({ challengeType: 'oob', oobCode: 'oob-1' }),
+  verify: vi.fn().mockResolvedValue({}),
+});
+
+export const createMockCoreClient = (
+  authDetails?: Partial<AuthDetails>,
+  mfaStepUpApiClient: MfaApiClient = createMockMfaApiClient(),
+): CoreClientInterface => {
   const mockMyAccountApiService = createMockMyAccountApiService();
   const mockMyOrgApiService = createMockMyOrgApiService();
   const mockAuth = createMockAuth(authDetails);
-
   return {
     auth: mockAuth,
     i18nService: createMockI18nService(),
@@ -167,12 +181,9 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrgApiService,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
-    getMFAStepUpApiClient: vi.fn().mockReturnValue({
-      getAuthenticators: vi.fn().mockResolvedValue([]),
-      enroll: vi.fn().mockResolvedValue({}),
-      challenge: vi.fn().mockResolvedValue({}),
-      verify: vi.fn().mockResolvedValue({}),
-    }) as CoreClientInterface['getMFAStepUpApiClient'],
+    createMfaStepUpMachine: vi.fn((options) =>
+      createMfaStepUpMachine({ ...options, apiClient: mfaStepUpApiClient, isProxyMode: false }),
+    ) as CoreClientInterface['createMfaStepUpMachine'],
     getPermissionApiClient: vi.fn().mockReturnValue({
       getPermissions: vi.fn().mockResolvedValue([]),
     }) as CoreClientInterface['getPermissionApiClient'],

@@ -8,6 +8,7 @@ import type * as React from 'react';
 
 import type { QueryCacheConfig } from '@/types/cache-types';
 import type { I18nOptions } from '@/types/i18n-types';
+import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
 import type { QueryRetryConfig } from '@/types/retry-types';
 import type { ThemeSettings } from '@/types/theme-types';
 import type { ToastSettings } from '@/types/toast-types';
@@ -41,6 +42,8 @@ export type Auth0ComponentProviderProps = (
   cacheConfig?: QueryCacheConfig;
   /** TanStack Query retry config. Use `{ enabled: false }` to disable. */
   retryConfig?: QueryRetryConfig;
+  /** Hide or add steps of the MFA step-up flow, and bring the screens for them. */
+  mfaStepUp?: MfaStepUpSettings;
   previewMode?: boolean;
   telemetry?: boolean;
   /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */
