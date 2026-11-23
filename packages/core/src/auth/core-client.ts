@@ -4,7 +4,8 @@
  * @internal
  */
 
-import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
+import { createMfaStepUpMachine } from '@core/services/mfa-step-up/flow/mfa-step-up-machine';
+import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-client';
 import { initializePermissionClient } from '@core/services/permissions/permission-api-service';
 
 import type { TelemetryComponentGetter, TelemetryConfig } from '../api/telemetry';
@@ -52,7 +53,7 @@ export async function createCoreClient(
       getMyOrganizationApiClient: function () {
         throw new Error('Function not implemented.');
       },
-      getMFAStepUpApiClient: function () {
+      createMfaStepUpMachine: function () {
         throw new Error('Function not implemented.');
       },
       getPermissionApiClient: function () {
@@ -70,6 +71,7 @@ export async function createCoreClient(
   const myAccountApiClient = createMyAccountClient(authConfig, telemetry, getComponent);
 
   const mfaApiClient = initializeMfaStepUpClient(authConfig);
+  const isProxyMode = authConfig.mode === 'proxy';
   const permissionApiClient = initializePermissionClient(authConfig);
 
   return {
@@ -78,7 +80,7 @@ export async function createCoreClient(
     myAccountApiClient,
     myOrganizationApiClient,
 
-    isProxyMode: () => authConfig.mode === 'proxy',
+    isProxyMode: () => isProxyMode,
 
     getDomain: () => authConfig.domain,
 
@@ -98,7 +100,8 @@ export async function createCoreClient(
       return myOrganizationApiClient;
     },
 
-    getMFAStepUpApiClient: () => mfaApiClient,
+    createMfaStepUpMachine: (options) =>
+      createMfaStepUpMachine({ ...options, apiClient: mfaApiClient, isProxyMode }),
 
     getPermissionApiClient: () => permissionApiClient,
   };

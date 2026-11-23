@@ -1,15 +1,8 @@
 import { ContentType, HeaderName } from '../../api/http-constants';
-import type { ClientAuthConfig, TokenEndpointResponse } from '../../auth/auth-types';
+import type { ClientAuthConfig } from '../../auth/auth-types';
 
-import type {
-  MfaAuthenticator,
-  ChallengeMfaAuthenticatorParams,
-  ChallengeResponse,
-  EnrollmentResponse,
-  EnrollParams,
-  MfaApiClient,
-  VerifyParams,
-} from './mfa-step-up-api-types';
+import type { MfaApiClient, MfaVerifyResult } from './mfa-step-up-api-types';
+import type { EnrollmentResponse, EnrollParams, MfaAuthenticator } from './mfa-step-up-api-types';
 
 export const createMfaApiError = (status: number, data: unknown) =>
   Object.assign(new Error(`MFA API Request Failed (${status})`), { status, data });
@@ -27,15 +20,29 @@ export function initializeMfaStepUpClient(auth: ClientAuthConfig): MfaApiClient 
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
+  credentials?: RequestCredentials;
+};
+
+// What the proxy's associate route reads: the authenticator type, and the channel for out-of-band.
+const ENROLL_FIELDS: Record<EnrollParams['factorType'], Record<string, string[]>> = {
+  otp: { authenticator_types: ['otp'] },
+  sms: { authenticator_types: ['oob'], oob_channels: ['sms'] },
+  voice: { authenticator_types: ['oob'], oob_channels: ['voice'] },
+  email: { authenticator_types: ['oob'], oob_channels: ['email'] },
+  push: { authenticator_types: ['oob'], oob_channels: ['auth0'] },
 };
 
 /**
  * Creates a proxy-based MFA API client.
  *
  * @param authProxyUrl - Base URL for the auth proxy.
+ * @param customFetch - The `fetch` to send requests with. Defaults to the global one.
  * @returns Proxy-based MFA API client.
  */
-function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
+export function createProxyMfaClient(
+  authProxyUrl: string,
+  customFetch: typeof fetch = (...args) => fetch(...args),
+): MfaApiClient {
   const request = async <T>(
     path: string,
     mfaToken: string,
@@ -43,13 +50,14 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
   ): Promise<T> => {
     const method = options.method ?? (options.body !== undefined ? 'POST' : 'GET');
 
-    const res = await fetch(new URL(path, authProxyUrl).href, {
+    const res = await customFetch(new URL(path, authProxyUrl).href, {
       method,
       headers: {
         [HeaderName.ContentType]: ContentType.JSON,
         [HeaderName.Authorization]: `Bearer ${mfaToken}`,
       },
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      credentials: options.credentials,
     });
 
     if (!res.ok) throw createMfaApiError(res.status, await res.json().catch(() => null));
@@ -62,6 +70,8 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
       return raw.map((item) => ({
         ...item,
         authenticatorType: item.authenticatorType ?? item.authenticator_type,
+        createdAt: item.createdAt ?? item.created_at,
+        lastAuth: item.lastAuth ?? item.last_auth,
       })) as MfaAuthenticator[];
     },
 
@@ -69,7 +79,7 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
       const raw = await request<Record<string, unknown>>('/auth/mfa/associate', params.mfaToken, {
         method: 'POST',
         body: {
-          factor_type: params.factorType,
+          ...ENROLL_FIELDS[params.factorType],
           phone_number: 'phoneNumber' in params ? params.phoneNumber : undefined,
           email: 'email' in params ? params.email : undefined,
         },
@@ -80,35 +90,38 @@ function createProxyMfaClient(authProxyUrl: string): MfaApiClient {
         oobCode: raw.oobCode ?? raw.oob_code,
         oobChannel: raw.oobChannel ?? raw.oob_channel,
         barcodeUri: raw.barcodeUri ?? raw.barcode_uri,
+        bindingMethod: raw.bindingMethod ?? raw.binding_method,
+        recoveryCodes: raw.recoveryCodes ?? raw.recovery_codes,
       } as EnrollmentResponse;
     },
 
-    challenge: async (params: ChallengeMfaAuthenticatorParams) => {
-      const raw = await request<Record<string, unknown>>('/auth/mfa/challenge', params.mfaToken, {
+    challenge: async ({ mfaToken, challengeType, authenticatorId }) => {
+      const raw = await request<Record<string, unknown>>('/auth/mfa/challenge', mfaToken, {
         method: 'POST',
         body: {
-          mfa_token: params.mfaToken,
-          challenge_type: params.challengeType,
-          authenticator_id: params.authenticatorId,
+          mfa_token: mfaToken,
+          challenge_type: challengeType,
+          authenticator_id: authenticatorId,
         },
       });
-
       return {
-        ...raw,
-        challengeType: raw.challengeType ?? raw.challenge_type,
-        oobCode: raw.oobCode ?? raw.oob_code,
-      } as ChallengeResponse;
+        challengeType,
+        oobCode: (raw.oobCode ?? raw.oob_code) as string | undefined,
+        bindingMethod: (raw.bindingMethod ?? raw.binding_method) as string | undefined,
+      };
     },
 
-    verify: (params: VerifyParams) =>
-      request<TokenEndpointResponse>('/auth/mfa/verify', params.mfaToken, {
+    verify: ({ mfaToken, otp, oobCode, bindingCode, recoveryCode }) =>
+      request<MfaVerifyResult>('/auth/mfa/verify', mfaToken, {
         method: 'POST',
+        // Verifying stores the new token in the session, so the session cookie has to travel.
+        credentials: 'include',
         body: {
-          mfa_token: params.mfaToken,
-          otp: params.otp,
-          binding_code: 'bindingCode' in params ? params.bindingCode : undefined,
-          oob_code: 'oobCode' in params ? params.oobCode : undefined,
-          recovery_code: 'recoveryCode' in params ? params.recoveryCode : undefined,
+          mfa_token: mfaToken,
+          otp,
+          oob_code: oobCode,
+          binding_code: bindingCode,
+          recovery_code: recoveryCode,
         },
       }),
   };

@@ -1,6 +1,6 @@
 import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
-import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-service';
+import { initializeMfaStepUpClient } from '@core/services/mfa-step-up/mfa-step-up-api-client';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
@@ -16,7 +16,7 @@ import { createCoreClient } from '../core-client';
 
 // Mock the modules
 vi.mock('@core/i18n/i18n-service');
-vi.mock('@core/services/mfa-step-up/mfa-step-up-api-service');
+vi.mock('@core/services/mfa-step-up/mfa-step-up-api-client');
 vi.mock('../../services/my-account/my-account-client');
 vi.mock('../../services/my-organization/my-organization-client');
 
@@ -34,7 +34,7 @@ describe('createCoreClient', () => {
   const mockMfaApiClient = {
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({}),
-    challenge: vi.fn().mockResolvedValue({}),
+    challenge: vi.fn().mockResolvedValue({ challengeType: 'oob', oobCode: 'oob-1' }),
     verify: vi.fn().mockResolvedValue({}),
   };
 
@@ -255,16 +255,72 @@ describe('createCoreClient', () => {
       );
     });
 
-    it('returns mfaApiClient via getter', async () => {
-      const authDetails = createAuthDetails();
-      const client = await createCoreClient(
-        authDetails,
-        undefined,
-        defaultTelemetry,
-        mockGetComponent,
-      );
+    describe('createMfaStepUpMachine', () => {
+      const error = { error: 'mfa_required', mfa_token: 'tok' };
 
-      expect(client.getMFAStepUpApiClient()).toBe(mockMfaApiClient);
+      it('gives the flow the MFA API client, and resolves options the SPA way', async () => {
+        const mfa = {
+          ...mockMfaApiClient,
+          getEnrollmentFactors: vi.fn().mockResolvedValue([{ type: 'otp' }]),
+        };
+        initializeMfaStepUpClientMock.mockReturnValue(mfa);
+        const client = await createCoreClient(
+          createAuthDetails(),
+          undefined,
+          defaultTelemetry,
+          mockGetComponent,
+        );
+
+        const stepUp = client.createMfaStepUpMachine({ error });
+        await stepUp.start();
+
+        expect(mfa.getEnrollmentFactors).toHaveBeenCalledWith('tok');
+        expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual(['enroll:otp']);
+      });
+
+      it('resolves options the proxy way when the CoreClient is in proxy mode', async () => {
+        const mfa = {
+          ...mockMfaApiClient,
+          getEnrollmentFactors: vi.fn().mockResolvedValue([{ type: 'otp' }]),
+          getAuthenticators: vi.fn().mockResolvedValue([]),
+        };
+        initializeMfaStepUpClientMock.mockReturnValue(mfa);
+        const client = await createCoreClient(
+          createAuthDetails({ authProxyUrl: 'https://proxy.auth0.com' }),
+          undefined,
+          defaultTelemetry,
+          mockGetComponent,
+        );
+
+        const stepUp = client.createMfaStepUpMachine({
+          error: { ...error, mfa_requirements: { enroll: [{ type: 'push' }] } },
+        });
+        await stepUp.start();
+
+        expect(mfa.getEnrollmentFactors).not.toHaveBeenCalled();
+        expect(mfa.getAuthenticators).toHaveBeenCalledWith('tok');
+        expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual(['enroll:push']);
+      });
+
+      it("passes the caller's flow and error callback on", async () => {
+        const onError = vi.fn();
+        const boom = new Error('boom');
+        const mfa = {
+          ...mockMfaApiClient,
+          getEnrollmentFactors: vi.fn().mockRejectedValue(boom),
+        };
+        initializeMfaStepUpClientMock.mockReturnValue(mfa);
+        const client = await createCoreClient(
+          createAuthDetails(),
+          undefined,
+          defaultTelemetry,
+          mockGetComponent,
+        );
+
+        await client.createMfaStepUpMachine({ error, onError }).start();
+
+        expect(onError).toHaveBeenCalledWith(boom);
+      });
     });
   });
 
@@ -403,7 +459,7 @@ describe('createCoreClient', () => {
       expect(() => client.getMyOrganizationApiClient()).toThrow('Function not implemented.');
     });
 
-    it('getMFAStepUpApiClient throws in previewMode', async () => {
+    it('createMfaStepUpMachine throws in previewMode', async () => {
       const authDetails = { ...createAuthDetails(), previewMode: true };
       const client = await createCoreClient(
         authDetails,
@@ -412,7 +468,9 @@ describe('createCoreClient', () => {
         mockGetComponent,
       );
 
-      expect(() => client.getMFAStepUpApiClient()).toThrow('Function not implemented.');
+      expect(() =>
+        client.createMfaStepUpMachine({ error: { error: 'mfa_required', mfa_token: 'tok' } }),
+      ).toThrow('Function not implemented.');
     });
 
     it('getDomain returns the configured domain in previewMode', async () => {

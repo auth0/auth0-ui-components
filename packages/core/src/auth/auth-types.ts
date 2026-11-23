@@ -8,6 +8,10 @@ import type { MyAccountClient } from '@auth0/myaccount-js';
 import type { MyOrganizationClient } from '@auth0/myorganization-js';
 
 import type { I18nServiceInterface } from '../i18n/i18n-types';
+import type {
+  MfaStepUpMachine,
+  MfaStepUpOptions,
+} from '../services/mfa-step-up/flow/mfa-step-up-flow-types';
 import type { MfaApiClient } from '../services/mfa-step-up/mfa-step-up-api-types';
 import type { PermissionApiClient } from '../services/permissions/permission-api-types';
 
@@ -150,6 +154,8 @@ export interface BaseCoreClientInterface {
   getDomain: () => string | undefined;
 }
 
+export type CreateMfaStepUpMachineOptions = Omit<MfaStepUpOptions, 'apiClient' | 'isProxyMode'>;
+
 /**
  * Full CoreClient interface with API clients.
  * @internal
@@ -159,6 +165,6 @@ export interface CoreClientInterface extends BaseCoreClientInterface {
   myOrganizationApiClient: MyOrganizationClient | undefined;
   getMyAccountApiClient: () => MyAccountClient;
   getMyOrganizationApiClient: () => MyOrganizationClient;
-  getMFAStepUpApiClient: () => MfaApiClient;
+  createMfaStepUpMachine: (options: CreateMfaStepUpMachineOptions) => MfaStepUpMachine;
   getPermissionApiClient: () => PermissionApiClient;
 }

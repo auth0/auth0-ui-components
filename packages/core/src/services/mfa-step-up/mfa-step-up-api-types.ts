@@ -127,10 +127,15 @@ export interface MfaRequiredError extends Error {
   mfa_requirements?: MfaRequirements;
 }
 
+/** What a successful verification returns. Using a recovery code also returns the next one. */
+export interface MfaVerifyResult extends Partial<TokenEndpointResponse> {
+  recovery_code?: string;
+}
+
 export interface MfaApiClient {
   getAuthenticators(mfaToken: string): Promise<MfaAuthenticator[]>;
   enroll(params: EnrollParams): Promise<EnrollmentResponse>;
   challenge(params: ChallengeMfaAuthenticatorParams): Promise<ChallengeResponse>;
   getEnrollmentFactors?(mfaToken: string): Promise<EnrollmentFactor[]>;
-  verify(params: VerifyParams): Promise<TokenEndpointResponse>;
+  verify(params: VerifyParams): Promise<MfaVerifyResult>;
 }

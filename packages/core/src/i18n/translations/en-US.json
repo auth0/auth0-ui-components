@@ -49,6 +49,19 @@
     "mfa": {
       "title": "Verify your account",
       "subtitle": "You must provide a second factor from one of the options below to perform this action.",
+      "verify_title": "Verify it's you",
+      "choose_method": "Choose a method to continue.",
+      "method": {
+        "otp": "Authenticator app",
+        "push": "Guardian app",
+        "phone": "Text or call",
+        "email": "Email code",
+        "recovery": "Backup code",
+        "other": "Other methods"
+      },
+      "added_on": "Added ${date}",
+      "last_used_on": "Last used ${date}",
+      "ending_in": "Ending in ${digits}",
       "authenticator_type": {
         "otp": "Authenticator",
         "recovery-code": "Recovery Codes",
@@ -64,7 +77,7 @@
       "back": "Back",
       "continue": "Continue",
       "challenge": {
-        "otp_description": "Please enter the one-time code shown in your authenticator app.",
+        "otp_description": "Open your authenticator app to see the code.",
         "phone_title": "Verify your phone number",
         "code_sent_description": "Please enter the one-time code we just sent to ${name}.",
         "email_title": "Verify your email address",
@@ -74,7 +87,28 @@
         "recovery_code_description": "Enter your saved recovery codes.",
         "resend_prompt": "Didn't receive the code?",
         "resend": "Resend",
-        "verifying": "Verifying..."
+        "verifying": "Verifying...",
+        "otp_title": "Enter the 6-digit code",
+        "recovery_title": "Enter a backup code",
+        "guardian_code_title": "Enter the code from Guardian",
+        "guardian_code_description": "Open the Guardian app and enter the 6-digit code shown for this account.",
+        "use_push_instead": "Use push notification instead",
+        "use_another_method": "Use another method",
+        "push_waiting_title": "Check your Guardian app",
+        "push_waiting_description": "We sent a notification to ${device}. Approve it to continue.",
+        "push_waiting_description_generic": "We sent a notification to your Guardian app. Approve it to continue.",
+        "push_waiting_status": "Waiting for approval…",
+        "push_not_received": "Didn't get it?",
+        "push_resend": "Resend notification",
+        "push_enter_code": "Enter a code instead",
+        "push_approved_title": "Request approved",
+        "push_approved_description": "You're verified. Continuing…",
+        "push_denied_title": "Request denied",
+        "push_denied_description": "The request was denied on ${device}. If you didn't do this, choose another method.",
+        "push_denied_description_generic": "The request was denied. If you didn't do this, choose another method.",
+        "push_expired_title": "Request expired",
+        "push_expired_description": "The notification expired before it was approved.",
+        "push_try_again": "Try again"
       },
       "enroll": {
         "install_title": "Setup Authenticator",
@@ -92,11 +126,24 @@
         "scan_helper": "Complete the setup by scanning this code with your Authenticator App. If you can't scan the code, manually enter the code below.",
         "push_scan_description": "Scan this QR code with the Guardian app",
         "qr_alt": "Enrollment QR code",
-        "recovery_title": "Generate recovery codes",
-        "recovery_description": "Copy these recovery codes and store them somewhere safe. You will need them if you ever lose access to your authentication method.",
-        "recovery_confirmed": "I have safely recorded these codes",
         "invalid_email": "Please enter a valid email address.",
-        "invalid_phone_number": "Please enter a valid phone number."
+        "invalid_phone_number": "Please enter a valid phone number.",
+        "backup_code_title": "Create backup code",
+        "backup_code_description": "Copy this backup code and keep it somewhere safe. You'll need it if you ever need to sign in without your device",
+        "backup_code_confirmed": "I have safely recorded this code"
+      },
+      "confirm": {
+        "push_description": "A notification will be sent to the following device via the Auth0 Guardian App",
+        "verify_selected": "Verify using selected factor",
+        "send_push": "Send Push Notification",
+        "method": {
+          "otp": "Authenticator app",
+          "push": "Push Notification",
+          "phone": "Text or call",
+          "email": "Email OTP",
+          "recovery": "Backup code",
+          "other": "Other methods"
+        }
       }
     }
   },
