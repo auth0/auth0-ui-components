@@ -191,9 +191,12 @@ export type {
 } from './services/mfa-step-up/mfa-step-up-api-types';
 export {
   createMfaStepUpError,
+  isMfaStepUpError,
   type MfaStepUpError,
   type MfaStepUpErrorCode,
 } from './services/mfa-step-up/mfa-step-up-errors';
+export { handleMfaRequiredError } from './services/mfa-step-up/mfa-step-up-handler';
+export { mfaStepUpStore, type MfaStepUpRequest } from './services/mfa-step-up/mfa-step-up-store';
 export { createMfaStepUpMachine } from './services/mfa-step-up/flow/mfa-step-up-machine';
 export { createMfaFlow } from './services/mfa-step-up/flow/mfa-step-up-flow';
 export { MFA_STEP } from './services/mfa-step-up/flow/mfa-step-up-flow';

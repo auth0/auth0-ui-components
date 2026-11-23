@@ -91,6 +91,27 @@ describe('normalizeMfaRequiredError', () => {
   });
 });
 
+describe('an axios error', () => {
+  const axiosError = (data: unknown) => ({ isAxiosError: true, response: { status: 403, data } });
+  const body = { error: 'mfa_required', mfa_token: 'tok', mfa_requirements: { challenge: [] } };
+
+  it('is recognized by the body of its response', () => {
+    expect(isMfaRequiredError(axiosError(body))).toBe(true);
+    expect(isMfaRequiredError(axiosError({ error: 'forbidden' }))).toBe(false);
+  });
+
+  it('gives its token and requirements from the response body', () => {
+    const normalized = normalizeMfaRequiredError(axiosError(body) as never) as unknown as {
+      mfa_token: string;
+      mfa_requirements: unknown;
+    };
+
+    expect(normalized.mfa_token).toBe('tok');
+    expect(normalized.mfa_requirements).toEqual({ challenge: [] });
+    expect(getMfaToken(axiosError(body))).toBe('tok');
+  });
+});
+
 describe('getMfaToken', () => {
   it.each([
     ['the error itself', { error: 'mfa_required', mfa_token: 'tok' }],

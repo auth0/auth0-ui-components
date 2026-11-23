@@ -1,6 +1,26 @@
 import { describe, expect, it } from 'vitest';
 
-import { createMfaStepUpError, getFatalErrorCode, isUnavailableError } from '../mfa-step-up-errors';
+import {
+  createMfaStepUpError,
+  getFatalErrorCode,
+  isMfaStepUpError,
+  isUnavailableError,
+} from '../mfa-step-up-errors';
+
+describe('isMfaStepUpError', () => {
+  it('knows the failures of a step-up', () => {
+    expect(isMfaStepUpError(createMfaStepUpError('unavailable'))).toBe(true);
+  });
+
+  it.each([
+    ['another error with a code', Object.assign(new Error('x'), { code: 'unavailable' })],
+    ['a plain error', new Error('x')],
+    ['an object that looks like one', { name: 'MfaStepUpError', code: 'cancelled' }],
+    ['nothing', undefined],
+  ])('is false for %s', (_name, value) => {
+    expect(isMfaStepUpError(value)).toBe(false);
+  });
+});
 
 describe('createMfaStepUpError', () => {
   it('is an Error that carries its code', () => {

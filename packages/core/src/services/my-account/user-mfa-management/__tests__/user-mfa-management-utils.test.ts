@@ -117,24 +117,13 @@ describe('mfa-utils', () => {
       });
     });
 
-    describe('WEBAUTHN_ROAMING factor type', () => {
-      it('should return correct params', () => {
-        const result = buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-    });
-
-    describe('WEBAUTHN_PLATFORM factor type', () => {
-      it('should return correct params', () => {
-        const result = buildEnrollParams(FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-        });
-      });
+    describe('WebAuthn factor types', () => {
+      it.each([FACTOR_TYPE_WEBAUTHN_ROAMING, FACTOR_TYPE_WEBAUTHN_PLATFORM])(
+        'throws for %s, which My Account cannot create any more',
+        (factorType) => {
+          expect(() => buildEnrollParams(factorType as MFAType)).toThrow('Unsupported factor type');
+        },
+      );
     });
 
     describe('RECOVERY_CODE factor type', () => {

@@ -417,48 +417,15 @@ describe('MFAMappers', () => {
       });
     });
 
-    describe('WEBAUTHN_ROAMING factor type', () => {
-      it('should return correct params for WebAuthn roaming enrollment', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-
-      it('should ignore any provided options', () => {
-        const options: EnrollOptions = { email: 'ignored@example.com' };
-        const result = MFAMappers.buildEnrollParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-          options,
-        );
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_ROAMING,
-        });
-      });
-    });
-
-    describe('WEBAUTHN_PLATFORM factor type', () => {
-      it('should return correct params for WebAuthn platform enrollment', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType);
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-        });
-      });
-
-      it('should ignore any provided options', () => {
-        const options: EnrollOptions = { phone_number: '+1234567890' };
-        const result = MFAMappers.buildEnrollParams(
-          FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
-          options,
-        );
-
-        expect(result).toEqual({
-          type: FACTOR_TYPE_WEBAUTHN_PLATFORM,
-        });
-      });
+    describe('WebAuthn factor types', () => {
+      it.each([FACTOR_TYPE_WEBAUTHN_ROAMING, FACTOR_TYPE_WEBAUTHN_PLATFORM])(
+        'throws for %s, which My Account cannot create any more',
+        (factorType) => {
+          expect(() => MFAMappers.buildEnrollParams(factorType as MFAType)).toThrow(
+            'Unsupported factor type',
+          );
+        },
+      );
     });
 
     describe('RECOVERY_CODE factor type', () => {
@@ -536,7 +503,7 @@ describe('MFAMappers', () => {
       });
 
       it('should not add extra properties for factors that do not require options', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType, {
+        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_TOTP as MFAType, {
           email: 'should-be-ignored@test.com',
         });
 
@@ -977,17 +944,17 @@ describe('MFAMappers', () => {
       });
     });
 
-    it('should handle complete enrollment flow for WebAuthn', () => {
+    it('should handle complete enrollment flow for a factor that needs no extra data', () => {
       // Step 1: Build enroll params (no additional data needed)
-      const enrollParams = MFAMappers.buildEnrollParams(FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType);
+      const enrollParams = MFAMappers.buildEnrollParams(FACTOR_TYPE_PUSH_NOTIFICATION as MFAType);
 
       expect(enrollParams).toEqual({
-        type: FACTOR_TYPE_WEBAUTHN_ROAMING,
+        type: FACTOR_TYPE_PUSH_NOTIFICATION,
       });
 
       // Step 2: Build confirm enrollment params (no OTP needed)
       const confirmParams = MFAMappers.buildConfirmEnrollmentParams(
-        FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+        FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
         'auth_session_abc',
         {},
       );
