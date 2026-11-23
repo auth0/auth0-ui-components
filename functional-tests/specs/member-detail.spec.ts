@@ -23,7 +23,7 @@ import { MemberDetailPage } from '../pages/member-detail.page';
 import { MemberManagementPage } from '../pages/member-management.page';
 
 const org = requireRunState();
-const connectionName = process.env.FT_CONNECTION_NAME ?? 'Universal-Components-Demo';
+const connectionName = process.env.FT_CONNECTION_NAME || 'Universal-Components-Demo';
 
 function uniqueEmail(label: string): string {
   return `ft-${label}-${Date.now()}@example.com`;

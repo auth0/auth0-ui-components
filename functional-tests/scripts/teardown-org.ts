@@ -4,8 +4,15 @@ import { fileURLToPath } from 'node:url';
 
 import '../env';
 
-import { deleteOrganization, deleteSsoProvider, listConnections } from '../lib/management-api';
+import {
+  deleteOrganization,
+  deleteSsoProvider,
+  deleteUser,
+  findUserIdByEmail,
+  listConnections,
+} from '../lib/management-api';
 import { clearRunState, readRunState } from '../lib/run-state';
+import { stepUpUserEmail } from '../lib/step-up';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,11 +33,23 @@ async function sweepOrganizationConnections(orgId: string): Promise<void> {
   console.log(`· deleted ${orphans.length} connection(s) belonging to ${orgId}`);
 }
 
+// Deleting the org doesn't delete its users, and this one is an org admin with a known MFA secret.
+async function deleteStepUpUser(orgId: string): Promise<void> {
+  const userId = await findUserIdByEmail(stepUpUserEmail(orgId));
+  if (!userId) return;
+
+  await deleteUser(userId);
+  console.log(`· deleted step-up user for ${orgId}`);
+}
+
 if (!state) {
   console.log('· no ephemeral organization recorded, nothing to tear down');
 } else {
   await sweepOrganizationConnections(state.orgId).catch((error) => {
     console.warn(`· warning: could not sweep connections for ${state.orgId}: ${String(error)}`);
+  });
+  await deleteStepUpUser(state.orgId).catch((error) => {
+    console.warn(`· warning: could not delete step-up user for ${state.orgId}: ${String(error)}`);
   });
   await deleteOrganization(state.orgId);
   clearRunState();

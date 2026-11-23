@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { test as base, type Browser } from '@playwright/test';
+import { test as base, type Browser, type Page } from '@playwright/test';
 
 import { reactSpaNpmApp } from '../apps/react-spa-npm.app';
 import { env } from '../env';
@@ -27,23 +27,31 @@ const configFingerprint = crypto
   .digest('hex')
   .slice(0, 8);
 
-async function loginAndPersist(browser: Browser, stateFile: string): Promise<void> {
-  const email = env.FT_TEST_USER_EMAIL;
-  const password = env.FT_TEST_USER_PASSWORD;
+export async function loginWithPassword(
+  page: Page,
+  email: string,
+  password: string,
+): Promise<void> {
+  await page.goto(reactSpaNpmApp.baseURL);
+  await page.getByRole('button', { name: /sign in/i }).click();
 
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+  await page.getByRole('textbox', { name: /password/i }).fill(password);
+  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+
+  // The SDK strips ?code only after exchanging it; navigating before that aborts the exchange and logs out.
+  await page.waitForURL((url) => url.origin === appOrigin && !url.searchParams.has('code'), {
+    timeout: 30_000,
+  });
+}
+
+async function loginAndPersist(browser: Browser, stateFile: string): Promise<void> {
   const context = await browser.newContext();
   try {
     const page = await context.newPage();
-    await page.goto(reactSpaNpmApp.baseURL);
-    await page.getByRole('button', { name: /sign in/i }).click();
-
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByRole('button', { name: 'Continue', exact: true }).click();
-
-    await page.getByRole('textbox', { name: /password/i }).fill(password);
-    await page.getByRole('button', { name: 'Continue', exact: true }).click();
-
-    await page.waitForURL((url) => url.origin === appOrigin, { timeout: 30_000 });
+    await loginWithPassword(page, env.FT_TEST_USER_EMAIL, env.FT_TEST_USER_PASSWORD);
     await page.waitForLoadState('networkidle');
 
     await context.storageState({ path: stateFile });
