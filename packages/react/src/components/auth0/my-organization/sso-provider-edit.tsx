@@ -3,11 +3,12 @@
 'use client';
 
 import { PROVISIONING_METHODS, getComponentStyles } from '@auth0/universal-components-core';
-import { useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { SsoDomainTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-domain-tab';
 import { SsoProviderTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-tab';
 import { SsoProvisioningGoogleSyncPanel } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-google-sync/sso-provisioning-google-sync-panel';
+import { SsoProvisioningGuidedSetup } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-guided-setup';
 import { SsoProvisioningTab } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
@@ -102,6 +103,7 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         readOnly={readOnly}
         providerId={providerId}
         domains={domains}
+        provisioning={provisioning}
         hideHeader={hideHeader}
         hideProvisioningTab={hideProvisioningTab}
         hideDomainsTab={hideDomainsTab}
@@ -109,7 +111,6 @@ function SsoProviderEdit(props: SsoProviderEditProps) {
         hideRemoveFromOrganization={hideRemoveFromOrganization}
         hideTestProvider={hideTestProvider}
         hideAttributeMappings={hideAttributeMappings}
-        provisioning={provisioning}
         enableProviderAction={enableProviderAction}
         connectionNamePrefix={connectionNamePrefix}
         resolveSamlMetadata={resolveSamlMetadata}
@@ -133,6 +134,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     readOnly,
     providerId,
     domains,
+    provisioning,
     hideHeader,
     hideProvisioningTab,
     hideDeleteProvider,
@@ -140,8 +142,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     hideTestProvider,
     hideAttributeMappings,
     provider,
-    provisioning,
     organization,
+    provisioningConfig,
     isLoading,
     isUpdating,
     isEnabling,
@@ -192,6 +194,13 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
   const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('sso');
+  const [isProvisioningGuidedSetup, setProvisioningGuidedSetup] = useState(false);
+  const [hasLeftProvisioningGuidedSetup, setLeftProvisioningGuidedSetup] = useState(false);
+  const guidedSetupTitleRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    if (isProvisioningGuidedSetup) guidedSetupTitleRef.current?.focus();
+  }, [isProvisioningGuidedSetup]);
   const { t } = useTranslator('idp_management.edit_sso_provider', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
   const currentStyles = useMemo(
@@ -219,6 +228,50 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     return undefined;
   };
   const providerSwitchBlockedReason = getProviderSwitchBlockedReason();
+
+  if (isProvisioningGuidedSetup && provider) {
+    const closeGuidedSetup = () => {
+      setLeftProvisioningGuidedSetup(true);
+      setProvisioningGuidedSetup(false);
+    };
+    return (
+      <StyledScope style={currentStyles.variables}>
+        <div className="w-full overflow-y-auto space-y-6">
+          <Header
+            title={t('provisioning_setup.title')}
+            titleRef={guidedSetupTitleRef}
+            backButton={{
+              onClick: closeGuidedSetup,
+              text: t('provisioning_setup.back_button_text', {
+                providerName: provider.display_name || provider.name || '',
+              }),
+            }}
+            className={currentStyles?.classes?.['SsoProviderEdit-header']}
+          />
+          <SsoProvisioningGuidedSetup
+            provider={provider}
+            provisioningConfig={provisioningConfig}
+            idpConfig={idpConfig}
+            onComplete={closeGuidedSetup}
+            isScimTokensLoading={isScimTokensLoading}
+            isScimTokenCreating={isScimTokenCreating}
+            isScimTokenDeleting={isScimTokenDeleting}
+            onListScimTokens={listScimTokens}
+            onCreateScimToken={createScimToken}
+            onDeleteScimToken={deleteScimToken}
+            permissions={permissions}
+            readOnly={readOnly}
+            styling={styling}
+            customMessages={customMessages?.provisioning_setup?.guided_setup}
+            manageTokenMessages={
+              customMessages?.tabs?.provisioning?.content?.details?.manage_tokens
+            }
+            className={currentStyles?.classes?.['SsoProviderEdit-provisioningGuidedSetup']}
+          />
+        </div>
+      </StyledScope>
+    );
+  }
 
   return (
     <StyledScope style={currentStyles.variables}>
@@ -251,7 +304,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
 
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
+          onValueChange={(tab) => {
+            setActiveTab(tab);
+            setLeftProvisioningGuidedSetup(false);
+          }}
           className={cn('space-y-10', currentStyles?.classes?.['SsoProviderEdit-tabs'])}
         >
           <TabsList
@@ -353,6 +409,15 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
                   onListScimTokens={listScimTokens}
                   onCreateScimToken={createScimToken}
                   onDeleteScimToken={deleteScimToken}
+                  focusGuidedSetupButton={hasLeftProvisioningGuidedSetup}
+                  onStartGuidedSetup={
+                    provisioning?.guidedSetup?.enabled
+                      ? () => {
+                          setLeftProvisioningGuidedSetup(false);
+                          setProvisioningGuidedSetup(true);
+                        }
+                      : undefined
+                  }
                   customMessages={customMessages?.tabs?.provisioning?.content}
                   styling={styling}
                   permissions={permissions}

@@ -45,8 +45,9 @@ export interface SsoGuidedSetupConfigureForm {
   props: Omit<ProviderConfigureFieldsProps, 'strategy'>;
 }
 
-/** Content filled in by other features (test connection, Google Workspace setup). */
+/** Content filled in by the page that hosts the guided setup or by other features. */
 export interface SsoGuidedSetupSlots {
+  bearerToken?: React.ReactNode;
   testConnection?: React.ReactNode;
 }
 
