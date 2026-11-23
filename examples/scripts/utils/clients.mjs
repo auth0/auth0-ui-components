@@ -721,8 +721,7 @@ export async function applyMyAccountClientGrantChanges(
 // ============================================================================
 // ORGANIZATION TEMPLATE - the tenant's default Organization Template
 // ============================================================================
-// The name predates the "Organization Template" wording; it is kept so existing tenants still match.
-export const DEMO_ORGANIZATION_TEMPLATE_NAME = "Universal-Components-Org-Profile"
+export const DEMO_ORGANIZATION_TEMPLATE_NAME = "Universal-Components-Org-Template"
 // Members other than the caller block deletion; the UI shows the "has other members" error.
 const DEMO_ORGANIZATION_DELETION_BEHAVIOR = "allow_if_empty"
 // New domains start off, and admins may switch discovery on or off.
