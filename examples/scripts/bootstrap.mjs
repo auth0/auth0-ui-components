@@ -260,13 +260,14 @@ async function main() {
     const orgMember = await applyOrgMemberChanges(plan.orgMembers, org.id, connection.id, adminRole.id)
     console.log("")
 
-    // 8j. Default Organization Profile (required to create organizations from My Account)
-    console.log("Configuring Organization Profile...")
+    // 8j. Default Organization Template (required to create organizations from My Account)
+    console.log("Configuring Organization Template...")
     await applyOrganizationTemplateChanges(plan.organizationTemplate, {
       connectionProfileId: connectionProfile.id,
       userAttributeProfileId: userAttributeProfile.id,
       adminRoleId: adminRole.id,
       orgId: org.id,
+      dashboardClientId: dashboardClient.client_id,
     })
     console.log("")
   }
