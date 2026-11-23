@@ -6,8 +6,10 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 import { Navbar } from './components/nav-bar';
 import { Sidebar } from './components/side-bar';
+import { config } from './config/env';
 import DomainManagementPage from './views/domain-management-page';
 import HomePage from './views/home-page';
+import InvitationLoginPage from './views/invitation-login-page';
 import MemberDetailPage from './views/member-detail-page';
 import MemberManagementPage from './views/member-management-page';
 import MFAPage from './views/mfa-page';
@@ -48,6 +50,7 @@ function AppContent() {
       <main className={`pt-16 ${isAuthenticated ? 'ml-64' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/auth/login" element={<InvitationLoginPage />} />
           <Route
             path="/profile"
             element={
@@ -145,6 +148,9 @@ function App() {
         theme: 'default',
         mode: isDarkMode ? 'dark' : 'light',
       }}
+      cacheConfig={
+        config.queryStaleTimeMs === undefined ? undefined : { staleTime: config.queryStaleTimeMs }
+      }
     >
       <AppContent />
     </Auth0ComponentProvider>

@@ -267,6 +267,22 @@ export function createDiscoveryDomain(
   });
 }
 
+export async function discoveryDomainExists(
+  organizationId: string,
+  discoveryDomainId: string,
+): Promise<boolean> {
+  try {
+    await mgmt<DiscoveryDomain>(
+      'GET',
+      `organizations/${organizationId}/discovery-domains/${discoveryDomainId}`,
+    );
+    return true;
+  } catch (error) {
+    if (error instanceof ManagementApiError && error.status === 404) return false;
+    throw error;
+  }
+}
+
 // Tolerates 404 so cleanup after a test that already deleted the domain through the UI is a no-op.
 export async function deleteDiscoveryDomain(
   organizationId: string,
@@ -293,6 +309,16 @@ export interface SsoProvider {
 
 export function getConnection(connectionId: string): Promise<SsoProvider> {
   return mgmt<SsoProvider>('GET', `connections/${encodeURIComponent(connectionId)}`);
+}
+
+export async function connectionExists(connectionId: string): Promise<boolean> {
+  try {
+    await getConnection(connectionId);
+    return true;
+  } catch (error) {
+    if (error instanceof ManagementApiError && error.status === 404) return false;
+    throw error;
+  }
 }
 
 export function deleteSsoProvider(connectionId: string): Promise<void> {
@@ -568,6 +594,7 @@ export function createInvitation(
     clientId: string;
     roles?: string[];
     connectionId?: string;
+    sendInvitationEmail?: boolean;
   },
 ): Promise<Invitation> {
   return mgmt<Invitation>('POST', `organizations/${organizationId}/invitations`, {
@@ -576,6 +603,9 @@ export function createInvitation(
     client_id: input.clientId,
     ...(input.roles ? { roles: input.roles } : {}),
     ...(input.connectionId ? { connection_id: input.connectionId } : {}),
+    ...(input.sendInvitationEmail !== undefined
+      ? { send_invitation_email: input.sendInvitationEmail }
+      : {}),
   });
 }
 
