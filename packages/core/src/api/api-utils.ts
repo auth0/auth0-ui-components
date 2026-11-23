@@ -5,6 +5,8 @@
  */
 
 import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-utils';
+import { handleMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-handler';
 
 import { ContentType, HeaderName } from './http-constants';
 import {
@@ -14,6 +16,33 @@ import {
 } from './telemetry';
 
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
+
+/**
+ * `fetch` does not throw on a 403, so a 403 whose body is `mfa_required` is thrown here.
+ *
+ * @param response - The response of a request.
+ * @returns The same response.
+ * @throws The `mfa_required` body of a 403 response.
+ */
+async function throwIfMfaRequired(response: Response): Promise<Response> {
+  if (response instanceof Response && response.status === 403) {
+    const body = await response
+      .clone()
+      .json()
+      .catch(() => undefined);
+    if (isMfaRequiredError(body)) throw Object.assign(new Error('mfa_required'), body);
+  }
+  return response;
+}
+
+/**
+ * @param fetcher - Sends a request.
+ * @returns A fetcher that has the user pass MFA when the server asks for it, then sends the request again.
+ */
+function withMfaStepUp(fetcher: FetcherSupplier): FetcherSupplier {
+  return (url, init, authParams) =>
+    handleMfaRequiredError(async () => throwIfMfaRequired(await fetcher(url, init, authParams)));
+}
 
 /**
  * Configuration for proxy mode fetcher with telemetry.
@@ -38,7 +67,7 @@ export interface ProxyFetcherConfig {
  */
 export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier {
   const fetchFn = config.customFetcher;
-  return async (url, init, authParams) => {
+  return withMfaStepUp(async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);
@@ -60,7 +89,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
       return fetchFn(url, { ...init, headers }, authParams);
     }
     return fetch(url, { ...init, headers });
-  };
+  });
 }
 
 /**
@@ -80,7 +109,7 @@ export function createSpaFetcher(
   getComponent: TelemetryComponentGetter,
 ): FetcherSupplier {
   const sdkFetcher = config.contextInterface.createFetcher({ dpopNonceId });
-  return (url, init, authParams) => {
+  return withMfaStepUp((url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);
@@ -103,5 +132,5 @@ export function createSpaFetcher(
         audience: authParams?.audience,
       },
     );
-  };
+  });
 }
