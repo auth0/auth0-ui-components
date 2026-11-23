@@ -347,7 +347,7 @@ jobs:
 
       - name: Create GitHub Release for Core
         if: github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v2
         with:
           tag_name: core@${{ env.VERSION }}
           name: "@auth0/universal-components-core@${{ env.VERSION }}"
@@ -368,7 +368,7 @@ jobs:
 
       - name: Create GitHub Release for React
         if: github.event.inputs.dry_run != 'true'
-        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v2
         with:
           tag_name: react@${{ env.VERSION }}
           name: "@auth0/universal-components-react@${{ env.VERSION }}"
