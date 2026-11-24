@@ -589,6 +589,8 @@ Releases are published by `publish-public-npm.yml` when a version bump lands on 
 
 The publish workflow fails before publishing if a package has no changelog section for the version, and uses that section as the GitHub Release notes.
 
+If a version bump is merged without the changelog sections, the publish run fails before publishing. Merging a changelog-only fix does not retrigger auto-publish, which watches only `packages/*/package.json`, so after the fix is merged run `publish-public-npm.yml` manually with `dry_run` set to false.
+
 ### Validation Pipeline
 
 ```bash

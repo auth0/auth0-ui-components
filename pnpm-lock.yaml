@@ -71,6 +71,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      semver:
+        specifier: ^7.7.3
+        version: 7.7.3
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(@swc/core@1.15.3(@swc/helpers@0.5.23))(jiti@2.6.1)(postcss@8.5.23)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.3)

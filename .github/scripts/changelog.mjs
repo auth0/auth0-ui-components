@@ -3,7 +3,9 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import semver from 'semver';
 import { fileURLToPath } from 'url';
+import { parseArgs as parseCliArgs } from 'util';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const PACKAGES = ['core', 'react'];
@@ -17,7 +19,7 @@ const SECTION_BY_TYPE = {
 const HIDE_LABEL = 'self-bump';
 const SECTION_ORDER = [...Object.values(SECTION_BY_TYPE), 'Other'];
 const VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
-const REF_PATTERN = /^[\w./@^~-]+$/;
+const REF_PATTERN = /^[\w./@^~][\w./@^~-]*$/;
 const NPM_TAG_PATTERN = /^[a-zA-Z0-9._-]+$/;
 
 function fail(message) {
@@ -42,32 +44,41 @@ function changelogPath(name) {
   return path.join(ROOT, 'packages', name, 'CHANGELOG.md');
 }
 
-function operand(value, flag) {
-  if (value === undefined || value.startsWith('-')) fail(`${flag} expects a value`);
-  return value;
-}
-
 function parseArgs(argv) {
-  const args = { exclude: [], dryRun: false, to: 'HEAD' };
-  for (let i = 0; i < argv.length; i++) {
-    const arg = argv[i];
-    if (arg === '--exclude') {
-      const value = argv[++i];
-      if (!/^\d+$/.test(value ?? '')) fail(`--exclude expects a PR number, got "${value}"`);
-      args.exclude.push(Number(value));
-    } else if (arg === '--version') {
-      args.version = operand(argv[++i], arg);
-    } else if (arg === '--from') {
-      args.from = operand(argv[++i], arg);
-    } else if (arg === '--to') {
-      args.to = operand(argv[++i], arg);
-    } else if (arg === '--dry-run') {
-      args.dryRun = true;
-    } else if (arg === '--release-body') {
-      args.releaseBody = { pkg: argv[++i], version: argv[++i], npmTag: argv[++i] };
-    } else {
-      fail(`Unknown argument: ${arg}`);
-    }
+  let parsed;
+  try {
+    parsed = parseCliArgs({
+      args: argv,
+      allowPositionals: true,
+      options: {
+        exclude: { type: 'string', multiple: true },
+        version: { type: 'string' },
+        from: { type: 'string' },
+        to: { type: 'string' },
+        'dry-run': { type: 'boolean' },
+        'release-body': { type: 'boolean' },
+      },
+    });
+  } catch (error) {
+    fail(error.message.split('\n')[0]);
+  }
+  const { values, positionals } = parsed;
+  const args = {
+    exclude: (values.exclude ?? []).map((value) => {
+      if (!/^\d+$/.test(value)) fail(`--exclude expects a PR number, got "${value}"`);
+      return Number(value);
+    }),
+    version: values.version,
+    from: values.from,
+    to: values.to ?? 'HEAD',
+    dryRun: values['dry-run'] ?? false,
+  };
+  if (values['release-body']) {
+    if (positionals.length !== 3) fail('--release-body expects <core|react> <version> <npm-tag>');
+    const [pkg, version, npmTag] = positionals;
+    args.releaseBody = { pkg, version, npmTag };
+  } else if (positionals.length) {
+    fail(`Unknown argument: ${positionals[0]}`);
   }
   for (const ref of [args.from, args.to]) {
     if (ref !== undefined && !REF_PATTERN.test(ref)) fail(`Invalid git ref: ${ref}`);
@@ -78,56 +89,22 @@ function parseArgs(argv) {
   if (args.releaseBody) {
     const { pkg, version, npmTag } = args.releaseBody;
     if (!PACKAGES.includes(pkg)) fail(`--release-body package must be one of ${PACKAGES}`);
-    if (!VERSION_PATTERN.test(version ?? '')) fail(`Invalid version: ${version}`);
-    if (!NPM_TAG_PATTERN.test(npmTag ?? '')) fail(`Invalid npm tag: ${npmTag}`);
+    if (!VERSION_PATTERN.test(version)) fail(`Invalid version: ${version}`);
+    if (!NPM_TAG_PATTERN.test(npmTag)) fail(`Invalid npm tag: ${npmTag}`);
   }
   return args;
 }
 
-function parseVersion(text) {
-  const match = VERSION_PATTERN.exec(text);
-  if (!match) return null;
-  return {
-    core: [Number(match[1]), Number(match[2]), Number(match[3])],
-    pre: match[4] ? match[4].split('.') : [],
-  };
-}
-
-function compareVersions(a, b) {
-  for (let i = 0; i < 3; i++) {
-    if (a.core[i] !== b.core[i]) return a.core[i] - b.core[i];
-  }
-  if (!a.pre.length || !b.pre.length) return b.pre.length - a.pre.length;
-  for (let i = 0; i < Math.max(a.pre.length, b.pre.length); i++) {
-    const x = a.pre[i];
-    const y = b.pre[i];
-    if (x === undefined) return -1;
-    if (y === undefined) return 1;
-    const xNumeric = /^\d+$/.test(x);
-    const yNumeric = /^\d+$/.test(y);
-    if (xNumeric && yNumeric) {
-      if (Number(x) !== Number(y)) return Number(x) - Number(y);
-    } else if (xNumeric) {
-      return -1;
-    } else if (yNumeric) {
-      return 1;
-    } else if (x !== y) {
-      return x < y ? -1 : 1;
-    }
-  }
-  return 0;
-}
-
 function findPreviousTag(version) {
-  const current = parseVersion(version);
+  const stable = !semver.prerelease(version);
   const candidates = run('git', ['tag', '--list', 'v*'])
     .split('\n')
-    .filter(Boolean)
-    .map((tag) => ({ tag, parsed: parseVersion(tag.slice(1)) }))
-    .filter((candidate) => candidate.parsed && compareVersions(candidate.parsed, current) < 0)
-    .sort((a, b) => compareVersions(b.parsed, a.parsed));
+    .map((tag) => tag.trim())
+    .filter((tag) => semver.valid(tag.slice(1)) && semver.lt(tag.slice(1), version))
+    .filter((tag) => !stable || !semver.prerelease(tag.slice(1)))
+    .sort((a, b) => semver.rcompare(a.slice(1), b.slice(1)));
   if (!candidates.length) fail(`No v* tag found below ${version}. Pass --from <tag>.`);
-  return candidates[0].tag;
+  return candidates[0];
 }
 
 function collectPullRequestNumbers(from, to) {
