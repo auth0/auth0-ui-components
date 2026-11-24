@@ -220,12 +220,12 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
   // Loads what the user can pick from, and shows the first step. Also used for each additional
   // factor, once `roundStarted` has given the machine its new token.
   const loadFirstStep = async () => {
-    const result = await requests.resolveOptions();
+    const loaded = await requests.resolveOptions();
     if (isFinal(getState())) return;
-    if (!result.ok) return blockFlow('unavailable');
-    if (result.value.length === 0) return blockFlow('no_authenticators');
+    if (!loaded) return blockFlow('unavailable');
+    if (loaded.length === 0) return blockFlow('no_authenticators');
 
-    dispatch({ type: 'optionsLoaded', options: result.value });
+    dispatch({ type: 'optionsLoaded', options: loaded });
     await goToNextStep(undefined);
   };
 
