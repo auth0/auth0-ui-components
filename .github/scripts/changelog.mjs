@@ -42,6 +42,11 @@ function changelogPath(name) {
   return path.join(ROOT, 'packages', name, 'CHANGELOG.md');
 }
 
+function operand(value, flag) {
+  if (value === undefined || value.startsWith('-')) fail(`${flag} expects a value`);
+  return value;
+}
+
 function parseArgs(argv) {
   const args = { exclude: [], dryRun: false, to: 'HEAD' };
   for (let i = 0; i < argv.length; i++) {
@@ -51,11 +56,11 @@ function parseArgs(argv) {
       if (!/^\d+$/.test(value ?? '')) fail(`--exclude expects a PR number, got "${value}"`);
       args.exclude.push(Number(value));
     } else if (arg === '--version') {
-      args.version = argv[++i];
+      args.version = operand(argv[++i], arg);
     } else if (arg === '--from') {
-      args.from = argv[++i];
+      args.from = operand(argv[++i], arg);
     } else if (arg === '--to') {
-      args.to = argv[++i];
+      args.to = operand(argv[++i], arg);
     } else if (arg === '--dry-run') {
       args.dryRun = true;
     } else if (arg === '--release-body') {
