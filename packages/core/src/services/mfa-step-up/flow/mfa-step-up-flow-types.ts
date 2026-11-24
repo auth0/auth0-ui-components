@@ -5,7 +5,10 @@
 import type { MfaStepUpError, MfaStepUpErrorCode } from '../mfa-step-up-api-error';
 import type { MfaApiClient, MfaAuthenticator } from '../mfa-step-up-api-types';
 
-import type { MfaBuiltInStepPath, MfaOptionalStepPath } from './mfa-step-up-flow';
+import type { MFA_STEP, OPTIONAL_STEPS } from './mfa-step-up-flow-constants';
+
+export type MfaBuiltInStepPath = (typeof MFA_STEP)[keyof typeof MFA_STEP];
+export type MfaOptionalStepPath = (typeof OPTIONAL_STEPS)[number];
 
 export type MfaFlowStatus = 'loading' | 'active' | 'done' | 'blocked' | 'cancelled';
 
@@ -25,6 +28,8 @@ export interface MfaFlowFacts {
 
 export type MfaFlowCondition = (facts: MfaFlowFacts) => boolean;
 
+export type HideRules = Record<string, boolean | MfaFlowCondition | undefined>;
+
 export type MfaStepPath = MfaBuiltInStepPath | (string & {});
 
 export interface MfaCustomStep {
@@ -42,6 +47,17 @@ export interface MfaFlowConfig {
   add?: MfaCustomStep[];
   hide?: { [P in MfaOptionalStepPath]?: boolean | MfaFlowCondition };
   skipListForSingleOption?: boolean;
+}
+
+export interface BuiltInStep {
+  path: MfaBuiltInStepPath;
+  appliesWhen: MfaFlowCondition;
+}
+
+export interface AddedStep {
+  step: MfaFlowStep;
+  before?: string;
+  after?: string;
 }
 
 export interface MfaFlowStep {

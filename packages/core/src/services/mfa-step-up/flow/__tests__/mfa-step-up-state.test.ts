@@ -11,7 +11,7 @@ import {
   type StepUpEvent,
   type StepUpState,
 } from '../mfa-step-up-state';
-import { createStepUpStore } from '../mfa-step-up-state';
+import { createFlowStore } from '../mfa-step-up-state';
 
 const run = (events: StepUpEvent[], state: StepUpState = createInitialState({ mfaToken: 'tok' })) =>
   events.reduce(reduce, state);
@@ -427,9 +427,9 @@ describe('canGoBack', () => {
   });
 });
 
-describe('createStepUpStore', () => {
+describe('createFlowStore', () => {
   it('rebuilds the snapshot and notifies when an event changes the state', () => {
-    const store = createStepUpStore({ mfaToken: 'tok' });
+    const store = createFlowStore({ mfaToken: 'tok' });
     const listener = vi.fn();
     store.subscribe(listener);
     const before = store.getSnapshot();
@@ -442,7 +442,7 @@ describe('createStepUpStore', () => {
   });
 
   it('notifies nobody when a push event leaves the state as it was', () => {
-    const store = createStepUpStore({ mfaToken: 'tok', pushSupported: false });
+    const store = createFlowStore({ mfaToken: 'tok', pushSupported: false });
     const listener = vi.fn();
     store.subscribe(listener);
 
@@ -453,7 +453,7 @@ describe('createStepUpStore', () => {
   });
 
   it('stops notifying a subscriber that unsubscribed', () => {
-    const store = createStepUpStore({ mfaToken: 'tok' });
+    const store = createFlowStore({ mfaToken: 'tok' });
     const listener = vi.fn();
     store.subscribe(listener)();
 
@@ -463,7 +463,7 @@ describe('createStepUpStore', () => {
   });
 
   it('does not call a subscriber that another one removed during the same notification', () => {
-    const store = createStepUpStore({ mfaToken: 'tok' });
+    const store = createFlowStore({ mfaToken: 'tok' });
     const removed = vi.fn();
     let unsubscribeSecond = () => {};
     store.subscribe(() => unsubscribeSecond());
@@ -476,7 +476,7 @@ describe('createStepUpStore', () => {
 
   it('tells the other subscribers when one throws', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const store = createStepUpStore({ mfaToken: 'tok' });
+    const store = createFlowStore({ mfaToken: 'tok' });
     const heard = vi.fn();
     store.subscribe(() => {
       throw new Error('subscriber bug');
@@ -491,7 +491,7 @@ describe('createStepUpStore', () => {
   });
 
   it('keeps the same snapshot and notifies nobody when nothing changes', () => {
-    const store = createStepUpStore({ mfaToken: 'tok' });
+    const store = createFlowStore({ mfaToken: 'tok' });
     store.dispatch({ type: 'flowEnded', status: 'cancelled', reason: 'user' });
     const listener = vi.fn();
     store.subscribe(listener);

@@ -6,7 +6,7 @@ import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-api-er
 import type { EnrollmentResponse, MfaRequirements } from '../mfa-step-up-api-types';
 import { requiresContactInput } from '../mfa-step-up-api-utils';
 
-import { MFA_STEP } from './mfa-step-up-flow';
+import { MFA_STEP } from './mfa-step-up-flow-constants';
 import type {
   MfaBlockReason,
   MfaCancelReason,
@@ -336,7 +336,7 @@ export function toSnapshot(state: StepUpState): MfaStepUpSnapshot {
  * @param initial.pushSupported - Whether a push can be approved here. Defaults to true.
  * @returns A store. An event that leaves the state as it was notifies nobody.
  */
-export function createStepUpStore(initial: InitialStepUp) {
+export function createFlowStore(initial: InitialStepUp) {
   let state = createInitialState(initial);
   let snapshot = toSnapshot(state);
   const subscribers = createSubscribers();
@@ -360,4 +360,4 @@ export function createStepUpStore(initial: InitialStepUp) {
   };
 }
 
-export type StepUpStore = ReturnType<typeof createStepUpStore>;
+export type FlowStore = ReturnType<typeof createFlowStore>;
