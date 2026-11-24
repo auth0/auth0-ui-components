@@ -1,5 +1,6 @@
-import type { MfaRequiredError } from './mfa-step-up-api-types';
-import { createMfaStepUpError, type MfaStepUpError } from './mfa-step-up-errors';
+import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-api-error';
+import type { MfaRequiredError } from '../mfa-step-up-api-types';
+
 import { createSubscribers } from './mfa-step-up-subscribers';
 
 export interface MfaStepUpRequest {

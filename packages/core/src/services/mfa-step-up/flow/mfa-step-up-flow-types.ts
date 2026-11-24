@@ -2,8 +2,8 @@
  * Types for the headless MFA step-up flow.
  * @module mfa-step-up-flow-types
  */
+import type { MfaStepUpError, MfaStepUpErrorCode } from '../mfa-step-up-api-error';
 import type { MfaApiClient, MfaAuthenticator } from '../mfa-step-up-api-types';
-import type { MfaStepUpError, MfaStepUpErrorCode } from '../mfa-step-up-errors';
 
 import type { MfaBuiltInStepPath, MfaOptionalStepPath } from './mfa-step-up-flow';
 

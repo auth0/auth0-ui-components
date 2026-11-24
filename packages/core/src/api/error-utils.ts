@@ -3,8 +3,8 @@
  * @module error-utils
  */
 
+import { isMfaStepUpError } from '../services/mfa-step-up/mfa-step-up-api-error';
 import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-utils';
-import { isMfaStepUpError } from '../services/mfa-step-up/mfa-step-up-errors';
 
 import { hasApiErrorBody, getStatusCode } from './api-error';
 

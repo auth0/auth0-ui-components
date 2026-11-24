@@ -12,14 +12,14 @@ import {
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_VOICE,
 } from '../mfa-step-up-api-constants';
-import type { EnrollParams, MfaRequiredError, VerifyParams } from '../mfa-step-up-api-types';
-import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 import {
   createMfaStepUpError,
   getApiErrorCode,
   getFatalErrorCode,
   isUnavailableError,
-} from '../mfa-step-up-errors';
+} from '../mfa-step-up-api-error';
+import type { EnrollParams, MfaRequiredError, VerifyParams } from '../mfa-step-up-api-types';
+import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 
 import { MFA_STEP } from './mfa-step-up-flow';
 import type { MfaBlockReason, MfaRequestName, MfaStepUpOptions } from './mfa-step-up-flow-types';

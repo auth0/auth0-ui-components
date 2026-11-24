@@ -5,13 +5,7 @@
  */
 
 import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
-import type { MfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-types';
-import {
-  isMfaRequiredError,
-  normalizeMfaRequiredError,
-} from '../services/mfa-step-up/mfa-step-up-api-utils';
-import { isMfaStepUpError } from '../services/mfa-step-up/mfa-step-up-errors';
-import { mfaStepUpStore } from '../services/mfa-step-up/mfa-step-up-store';
+import { withMfaStepUp } from '../services/mfa-step-up/mfa-step-up-interceptor';
 
 import { ContentType, HeaderName } from './http-constants';
 import {
@@ -24,56 +18,11 @@ import { coordinateProxyRequest, createCoordinatedTokenGetter } from './token-co
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 
 /**
- * Runs `call`. If it fails with `mfa_required`, prompts the user to pass MFA and runs `call`
- * again.
- *
- * Concurrent calls that hit `mfa_required` share the same open dialog instead of opening
- * multiple prompts.
- *
- * @param call - Async function to run. It runs again after MFA, so it must be safe to repeat.
- * @returns What `call` returns.
- * @throws {MfaStepUpError} With a `code` (such as `'cancelled'`, `'token_expired'`, or
- *   `'unavailable'`) if the user cancels or MFA cannot be completed.
- * @throws Re-throws any other error from `call`.
- */
-export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
-  try {
-    return await call();
-  } catch (error) {
-    if (isMfaStepUpError(error) || !isMfaRequiredError(error)) throw error;
-    await mfaStepUpStore.request(normalizeMfaRequiredError(error));
-    return withMfaStepUp(call);
-  }
-}
-
-/**
- * `fetch` does not throw on a 403, so a 403 whose body is `mfa_required` is thrown here.
- *
- * @param response - The response of a request.
- * @returns The same response.
- * @throws {Error & MfaRequiredError} When `response` is a 403 whose body is `mfa_required`.
- */
-async function throwIfMfaRequired(response: Response): Promise<Response> {
-  if (response instanceof Response && response.status === 403 && !response.bodyUsed) {
-    const body = await response
-      .clone()
-      .json()
-      .catch(() => undefined);
-    if (isMfaRequiredError(body)) {
-      const error: Error & MfaRequiredError = Object.assign(new Error('mfa_required'), body);
-      throw error;
-    }
-  }
-  return response;
-}
-
-/**
  * @param fetcher - Sends a request.
  * @returns A fetcher that has the user pass MFA when the server asks for it, then sends the request again.
  */
 function fetcherWithStepUp(fetcher: FetcherSupplier): FetcherSupplier {
-  return (url, init, authParams) =>
-    withMfaStepUp(async () => throwIfMfaRequired(await fetcher(url, init, authParams)));
+  return (url, init, authParams) => withMfaStepUp(() => fetcher(url, init, authParams));
 }
 
 /**
