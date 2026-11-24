@@ -10,6 +10,7 @@ import {
   isMfaRequiredError,
   normalizeMfaRequiredError,
 } from '../services/mfa-step-up/mfa-step-up-api-utils';
+import { isMfaStepUpError } from '../services/mfa-step-up/mfa-step-up-errors';
 import { mfaStepUpStore } from '../services/mfa-step-up/mfa-step-up-store';
 
 import { ContentType, HeaderName } from './http-constants';
@@ -39,7 +40,7 @@ export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
   try {
     return await call();
   } catch (error) {
-    if (!isMfaRequiredError(error)) throw error;
+    if (isMfaStepUpError(error) || !isMfaRequiredError(error)) throw error;
     await mfaStepUpStore.request(normalizeMfaRequiredError(error));
     return withMfaStepUp(call);
   }
@@ -53,7 +54,7 @@ export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
  * @throws {Error & MfaRequiredError} When `response` is a 403 whose body is `mfa_required`.
  */
 async function throwIfMfaRequired(response: Response): Promise<Response> {
-  if (response instanceof Response && response.status === 403) {
+  if (response instanceof Response && response.status === 403 && !response.bodyUsed) {
     const body = await response
       .clone()
       .json()

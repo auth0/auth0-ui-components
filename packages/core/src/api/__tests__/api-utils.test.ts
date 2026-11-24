@@ -820,6 +820,20 @@ describe('withMfaStepUp', () => {
     expect(call).toHaveBeenCalledTimes(1);
   });
 
+  it('does not ask again when a wrapped call was already cancelled', async () => {
+    let opened = 0;
+    stopAnswering = mfaStepUpStore.subscribe(() => {
+      const request = mfaStepUpStore.getSnapshot();
+      if (!request) return;
+      opened += 1;
+      queueMicrotask(() => request.cancel());
+    });
+    const inner = () => withMfaStepUp(() => Promise.reject(mfaRequired));
+
+    await expect(withMfaStepUp(inner)).rejects.toMatchObject({ code: 'cancelled' });
+    expect(opened).toBe(1);
+  });
+
   it('shares one dialog between calls that fail together, and runs each again', async () => {
     let opened = 0;
     stopAnswering = mfaStepUpStore.subscribe(() => {
