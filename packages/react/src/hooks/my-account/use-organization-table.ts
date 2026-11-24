@@ -16,6 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useOrganizationTableService } from '@/hooks/my-account/shared/services/use-organization-table-service';
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useOrganizationDeleteMutation } from '@/hooks/my-organization/shared/services/use-organization-delete-mutation';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
@@ -117,10 +118,9 @@ export function useOrganizationTable({
     [createPermissionResolver, readOnly],
   );
 
-  // The API deletes the organization of the session's token, and the permissions belong to that
-  // session too, so only the signed-in organization can be deleted here. Another one is deleted by
-  // signing in to it first, when the host supports that.
+  // The API deletes the session's organization, so only the signed-in one can be deleted here.
   const hasSwitch = !!deleteAction?.onSwitchOrganization;
+  const { isLoadingConfig, shouldAllowOrganizationDeletion } = useConfig();
   const getDeleteState = useCallback(
     (organization: UserOrganization): OrganizationTableDeleteState => {
       if (deleteAction?.disabled) return 'disabled';
@@ -128,9 +128,17 @@ export function useOrganizationTable({
         return hasSwitch ? 'switch_required' : 'other_organization';
       }
       if (!permissions.canDeleteOrganization) return 'forbidden';
+      if (isLoadingConfig || !shouldAllowOrganizationDeletion) return 'disabled';
       return 'enabled';
     },
-    [currentOrganizationId, permissions.canDeleteOrganization, deleteAction?.disabled, hasSwitch],
+    [
+      currentOrganizationId,
+      permissions.canDeleteOrganization,
+      deleteAction?.disabled,
+      hasSwitch,
+      isLoadingConfig,
+      shouldAllowOrganizationDeletion,
+    ],
   );
 
   const [deleteTarget, setDeleteTarget] = useState<UserOrganization | null>(null);
@@ -155,8 +163,7 @@ export function useOrganizationTable({
     [getDeleteState, deleteAction],
   );
 
-  // After the host signed the user in to the organization to delete, open its confirmation once.
-  // The name comes from the loaded rows, or from the organization's details when it is on another page.
+  // Open the confirmation once the host has signed the user in to the organization to delete.
   const pendingId =
     deleteConfirmationOrganizationId && deleteConfirmationOrganizationId === currentOrganizationId
       ? deleteConfirmationOrganizationId
@@ -170,13 +177,13 @@ export function useOrganizationTable({
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
-    enabled: !!coreClient && !!pendingId && !service.isFetching && !pendingRow,
+    enabled: !!coreClient && !!pendingId && !service.isLoading && !pendingRow,
   });
   const handledPendingIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!pendingId || handledPendingIdRef.current === pendingId) return;
-    if (service.isFetching || isPermissionsLoading) return;
+    if (service.isLoading || isPermissionsLoading) return;
 
     const details = pendingDetailsQuery.data;
     const organization =
@@ -202,7 +209,7 @@ export function useOrganizationTable({
     pendingRow,
     pendingDetailsQuery.data,
     pendingDetailsQuery.isError,
-    service.isFetching,
+    service.isLoading,
     isPermissionsLoading,
     getDeleteState,
     tCommon,

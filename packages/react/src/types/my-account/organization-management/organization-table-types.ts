@@ -11,33 +11,26 @@ import type {
   UserOrganization,
 } from '@auth0/universal-components-core';
 
-/** CSS classes for OrganizationTable. */
-export interface OrganizationTableClasses {
+import type { OrganizationDeleteClasses } from '@/types/my-organization/organization-management/organization-delete-types';
+
+/** CSS classes for OrganizationTable, including its delete dialog. */
+export interface OrganizationTableClasses extends OrganizationDeleteClasses {
   'OrganizationTable-header'?: string;
   'OrganizationTable-tableActions'?: string;
   'OrganizationTable-table'?: string;
   'OrganizationTable-errorState'?: string;
 }
 
-/**
- * Lifecycle hooks for deleting the signed-in organization from the table. Deleting it invalidates
- * the session's organization-scoped token, so `onAfter` should sign the user in to another
- * organization or out.
- */
+/** Lifecycle hooks for deleting the signed-in organization. `onAfter` should sign the user in elsewhere or out. */
 export interface OrganizationTableDeleteAction extends ComponentAction<UserOrganization> {
   /**
-   * Enables Delete on organizations other than the signed-in one. The API only deletes the
-   * organization of the session, so this is called to sign the user in to that organization;
-   * bring them back to the table with its ID in `deleteConfirmationOrganizationId` to open the
-   * confirmation dialog. Without it, Delete on those rows is disabled with a hint to switch first.
+   * Enables Delete on other organizations: called to sign the user in to that organization.
+   * Bring them back with its ID in `deleteConfirmationOrganizationId` to open the confirmation.
    */
   onSwitchOrganization?: (organization: UserOrganization) => void;
 }
 
-/**
- * Whether a row's Delete action is available, and why not. `switch_required` is available too: it
- * signs the user in to that organization first.
- */
+/** Whether a row's Delete action is available. `switch_required` signs the user in to it first. */
 export type OrganizationTableDeleteState =
   | 'enabled'
   | 'switch_required'
@@ -57,23 +50,11 @@ export interface OrganizationTableProps
   onEditOrganization?: (organization: UserOrganization) => void;
   /** Shows a "Create Organization" header button that calls this. */
   onCreateOrganization?: () => void;
-  /**
-   * ID of the organization the user is signed in to (the token's `org_id`). Only that organization
-   * can be deleted from the table, because the API deletes the organization of the session's
-   * token. Other rows show Delete disabled with a hint to switch to them first.
-   */
+  /** ID of the signed-in organization (the token's `org_id`). Only this one can be deleted. */
   currentOrganizationId?: string;
-  /**
-   * Shows a "Delete" row action that asks the user to confirm by typing the organization name.
-   * Requires `currentOrganizationId` and the `delete:my_org:organizations` permission.
-   */
+  /** Shows a "Delete" row action. Requires `currentOrganizationId` and `delete:my_org:organizations`. */
   deleteAction?: OrganizationTableDeleteAction;
-  /**
-   * Opens the delete confirmation for this organization once it is the signed-in organization,
-   * e.g. after `deleteAction.onSwitchOrganization` signed the user in to it. It only opens the
-   * dialog; the user still confirms by typing the name. Clear it once passed, so that a reload
-   * does not open the dialog again.
-   */
+  /** Opens the delete confirmation for this organization once it is signed in. Clear it once passed. */
   deleteConfirmationOrganizationId?: string;
 }
 

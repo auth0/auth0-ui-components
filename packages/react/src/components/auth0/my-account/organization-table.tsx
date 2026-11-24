@@ -254,6 +254,7 @@ function OrganizationTableView({
       )}
       {hasDeleteAction && (
         <OrganizationDeleteModal
+          styling={styling}
           isOpen={!!organizationDelete.target}
           onClose={organizationDelete.close}
           organizationName={organizationDelete.target?.name ?? ''}

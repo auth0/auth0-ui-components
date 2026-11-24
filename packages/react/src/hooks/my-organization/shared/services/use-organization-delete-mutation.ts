@@ -1,6 +1,5 @@
 /**
- * Internal organization delete mutation, shared by OrganizationDelete and OrganizationTable.
- * Deletes the organization of the session's token, reports the result and cleans the cache.
+ * Internal organization delete mutation, shared by OrganizationDetailsEdit and OrganizationTable.
  * @module use-organization-delete-mutation
  * @internal
  */

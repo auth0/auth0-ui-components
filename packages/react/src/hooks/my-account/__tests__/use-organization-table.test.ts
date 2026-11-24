@@ -10,6 +10,7 @@ import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
 import { PermissionContext } from '@/providers/permission-provider';
 import { createMockUserOrganizations } from '@/tests/utils/__mocks__/my-account/organization-management/organization-table.mocks';
+import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 import { mockCore, mockToast } from '@/tests/utils/test-setup';
 import type {
@@ -19,6 +20,11 @@ import type {
 
 vi.mock('@/hooks/my-account/shared/services/use-organization-table-service', () => ({
   useOrganizationTableService: vi.fn(),
+}));
+
+const mockUseConfig = vi.fn(() => createMockUseConfig());
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: () => mockUseConfig(),
 }));
 
 const mockUseOrganizationTableService = vi.mocked(useOrganizationTableService);
@@ -214,6 +220,33 @@ describe('useOrganizationTable', () => {
       expect(queryClient.getQueryData(switcherKey)).toMatchObject({
         pages: [{ organizations: [fabrikam] }],
       });
+    });
+
+    it('disables delete while the configuration loads', () => {
+      mockUseConfig.mockReturnValueOnce(createMockUseConfig({ isLoadingConfig: true }));
+      const [acme] = createMockUserOrganizations();
+
+      const { result } = renderTableHook(
+        { currentOrganizationId: acme!.id, deleteAction: {} },
+        { permissions: ['delete:my_org:organizations'] },
+      );
+
+      expect(result.current.organizationDelete.getState(acme!)).toBe('disabled');
+    });
+
+    it('disables delete when the deletion behavior does not permit it', () => {
+      mockUseConfig.mockReturnValue(
+        createMockUseConfig({ shouldAllowOrganizationDeletion: false }),
+      );
+      const [acme] = createMockUserOrganizations();
+
+      const { result } = renderTableHook(
+        { currentOrganizationId: acme!.id, deleteAction: {} },
+        { permissions: ['delete:my_org:organizations'] },
+      );
+
+      expect(result.current.organizationDelete.getState(acme!)).toBe('disabled');
+      mockUseConfig.mockImplementation(() => createMockUseConfig());
     });
 
     it('does not delete another organization even when asked directly', async () => {
