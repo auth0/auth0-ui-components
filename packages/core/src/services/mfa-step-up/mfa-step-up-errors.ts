@@ -8,7 +8,6 @@ export type MfaStepUpErrorCode =
   | 'cancelled'
   | 'token_expired'
   | 'token_invalid'
-  | 'max_challenges_exceeded'
   | 'rate_limited'
   | 'no_authenticators'
   | 'unavailable'

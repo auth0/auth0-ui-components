@@ -1,5 +1,6 @@
 import type { MfaRequiredError } from './mfa-step-up-api-types';
 import { createMfaStepUpError, type MfaStepUpError } from './mfa-step-up-errors';
+import { createSubscribers } from './mfa-step-up-subscribers';
 
 export interface MfaStepUpRequest {
   error: MfaRequiredError;
@@ -25,22 +26,11 @@ function createDeferred() {
  */
 export function createMfaStepUpStore() {
   let open: { request: MfaStepUpRequest; done: Promise<void> } | undefined;
-  const listeners = new Set<() => void>();
-
-  const notify = () => {
-    for (const listener of [...listeners]) {
-      if (!listeners.has(listener)) continue;
-      try {
-        listener();
-      } catch (listenerError) {
-        console.warn('MFA step-up store: a subscriber threw', listenerError);
-      }
-    }
-  };
+  const subscribers = createSubscribers();
 
   const close = () => {
     open = undefined;
-    notify();
+    subscribers.notify();
   };
 
   const openStepUp = (error: MfaRequiredError) => {
@@ -57,7 +47,7 @@ export function createMfaStepUpStore() {
         settle(() => reject(failure ?? createMfaStepUpError('cancelled', { cause: error }))),
     };
     open = { request, done };
-    notify();
+    subscribers.notify();
     return done;
   };
 
@@ -68,16 +58,13 @@ export function createMfaStepUpStore() {
      */
     request: (error: MfaRequiredError): Promise<void> => {
       if (open) return open.done;
-      if (listeners.size === 0) {
+      if (subscribers.isEmpty()) {
         return Promise.reject(createMfaStepUpError('unavailable', { cause: error }));
       }
       return openStepUp(error);
     },
     getSnapshot: () => open?.request,
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
-    },
+    subscribe: subscribers.subscribe,
   };
 }
 

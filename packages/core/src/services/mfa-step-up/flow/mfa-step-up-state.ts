@@ -1,11 +1,11 @@
 /**
- * The state of one step-up flow. Every change goes through `reduce`, which has no side effects.
  * @module mfa-step-up-state
  */
 import { FACTOR_TYPE_PUSH } from '../mfa-step-up-api-constants';
 import type { EnrollmentResponse, MfaRequirements } from '../mfa-step-up-api-types';
 import { requiresContactInput } from '../mfa-step-up-api-utils';
 import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-errors';
+import { createSubscribers } from '../mfa-step-up-subscribers';
 
 import { MFA_STEP } from './mfa-step-up-flow';
 import type {
@@ -20,11 +20,7 @@ import type {
   MfaStepUpSnapshot,
 } from './mfa-step-up-flow-types';
 
-/** How many factors the user may be asked for in one step-up. */
-export const MAX_ROUNDS = 3;
-
 export interface StepUpState {
-  /** The token of the current round. Each additional factor comes with a new one. */
   mfaToken: string;
   mfaRequirements?: MfaRequirements;
   round: number;
@@ -35,20 +31,15 @@ export interface StepUpState {
   options: MfaOption[];
   selected?: MfaOption;
   contact: string;
-  /** How many steps had been entered when the user was verified. Steps before it are locked. */
   verifiedAtDepth?: number;
   newRecoveryCode?: string;
   request: MfaStepUpSnapshot['request'];
-  /** A user action is running, so further actions are ignored. */
   isBusy: boolean;
-  // Results are kept until their input changes, so going back and forward repeats no call.
   enrollments: Record<string, EnrollmentResponse>;
   challenges: Record<string, { oobCode: string }>;
   resendAvailableAt?: number;
   pushMode: 'push' | 'code';
   pushPhase: MfaPushPhase;
-  // False when the backend cannot tell whether a push was approved: no push is sent then, and
-  // the user answers with the code from the Guardian app.
   pushSupported: boolean;
 }
 
@@ -78,7 +69,6 @@ export type StepUpEvent =
       error?: unknown;
     };
 
-// Keyed by every status, so adding one is a compile error until it is placed here.
 const IS_FINAL_STATUS: Record<MfaFlowStatus, boolean> = {
   loading: false,
   active: false,
@@ -91,20 +81,25 @@ export const isFinal = (state: StepUpState) => IS_FINAL_STATUS[state.status];
 
 export const isVerified = (state: StepUpState) => state.verifiedAtDepth !== undefined;
 
-// A step entered before the user was verified cannot be gone back to. Steps after it can.
 export const canGoBack = (state: StepUpState) => {
   const previousIndex = state.history.length - 1;
   const isUnlocked = state.verifiedAtDepth === undefined || previousIndex >= state.verifiedAtDepth;
   return previousIndex >= 0 && isUnlocked && !state.isBusy && !isFinal(state);
 };
 
-// "Verify another way": only while there is another way, and before the user is verified.
 export const canChooseAnotherFactor = (state: StepUpState) =>
   state.options.length > 1 &&
   state.history.includes(MFA_STEP.list) &&
   !isVerified(state) &&
   !state.isBusy &&
   !isFinal(state);
+
+const moveTo = (state: StepUpState, next: Partial<StepUpState>): StepUpState => ({
+  ...state,
+  ...resetPush(state),
+  request: { isLoading: false },
+  ...next,
+});
 
 const resetPush = ({ pushSupported }: Pick<StepUpState, 'pushSupported'>) =>
   ({ pushMode: pushSupported ? 'push' : 'code', pushPhase: 'waiting' }) as const;
@@ -121,6 +116,7 @@ export function createInitialState(initial: {
   mfaRequirements?: MfaRequirements;
   pushSupported?: boolean;
 }): StepUpState {
+  const pushSupported = initial.pushSupported ?? true;
   return {
     mfaToken: initial.mfaToken,
     mfaRequirements: initial.mfaRequirements,
@@ -133,8 +129,8 @@ export function createInitialState(initial: {
     isBusy: false,
     enrollments: {},
     challenges: {},
-    ...resetPush({ pushSupported: initial.pushSupported ?? true }),
-    pushSupported: initial.pushSupported ?? true,
+    ...resetPush({ pushSupported }),
+    pushSupported,
   };
 }
 
@@ -164,7 +160,6 @@ export function reduce(state: StepUpState, event: StepUpEvent): StepUpState {
     case 'optionSelected': {
       const isKnown = !event.option || state.options.some(({ id }) => id === event.option?.id);
       if (!isKnown || event.option?.id === state.selected?.id) return state;
-      // A contact belongs to the factor it was entered for.
       return { ...state, selected: event.option, contact: '' };
     }
     case 'contactEntered':
@@ -186,7 +181,6 @@ export function reduce(state: StepUpState, event: StepUpEvent): StepUpState {
             newRecoveryCode: event.recoveryCode,
           };
     case 'roundStarted':
-      // The server wants another factor. Everything about the last one is behind the user.
       return {
         ...createInitialState({
           mfaToken: event.mfaToken,
@@ -203,40 +197,31 @@ export function reduce(state: StepUpState, event: StepUpEvent): StepUpState {
     case 'pushUnsupported':
       return { ...state, pushSupported: false, pushMode: 'code', pushPhase: 'waiting' };
     case 'stepEntered':
-      return {
-        ...state,
-        ...resetPush(state),
+      return moveTo(state, {
         history: state.current === undefined ? state.history : [...state.history, state.current],
         current: event.path,
         status: 'active',
-        request: { isLoading: false },
-      };
+      });
     case 'wentBack': {
-      if (state.isBusy || !canGoBack(state)) return state;
+      if (!canGoBack(state)) return state;
       const previous = state.history.at(-1);
       const goesToList = previous === MFA_STEP.list;
-      return {
-        ...state,
+      return moveTo(state, {
         history: state.history.slice(0, -1),
         current: previous,
         selected: goesToList ? undefined : state.selected,
         contact: goesToList ? '' : state.contact,
-        ...resetPush(state),
-        request: { isLoading: false },
-      };
+      });
     }
     case 'wentToList': {
       const listIndex = state.history.indexOf(MFA_STEP.list);
-      if (state.isBusy || listIndex === -1 || !canChooseAnotherFactor(state)) return state;
-      return {
-        ...state,
+      if (listIndex === -1 || !canChooseAnotherFactor(state)) return state;
+      return moveTo(state, {
         history: state.history.slice(0, listIndex),
         current: MFA_STEP.list,
         selected: undefined,
         contact: '',
-        ...resetPush(state),
-        request: { isLoading: false },
-      };
+      });
     }
     case 'flowEnded':
       return {
@@ -260,7 +245,6 @@ export const getEnrollKey = ({ selected, contact }: StepUpState) =>
     ? `${selected.factor}|${requiresContactInput(selected.factor) ? contact : ''}`
     : undefined;
 
-// A challenge is tied to one enrollment, so a new contact gets a new key and a new challenge.
 export const getChallengeKey = (state: StepUpState) =>
   state.selected?.kind === 'enroll' ? getEnrollKey(state) : state.selected?.authenticator?.id;
 
@@ -269,11 +253,9 @@ export const getCurrentEnrollment = (state: StepUpState) => {
   return key ? state.enrollments[key] : undefined;
 };
 
-// Only out-of-band authenticators (SMS, voice, email, push) are challenged.
 export const isChallenged = (state: StepUpState, path: string | undefined): boolean => {
   if (path === MFA_STEP.verify) return getCurrentEnrollment(state)?.authenticatorType === 'oob';
   if (path === MFA_STEP.challenge) {
-    // A push that cannot be approved here is not sent: the user reads the code from the app.
     if (isPush(state) && !state.pushSupported) return false;
     return state.selected?.authenticator?.authenticatorType === 'oob';
   }
@@ -360,7 +342,7 @@ export function createStepUpStore(initial: {
 }) {
   let state = createInitialState(initial);
   let snapshot = toSnapshot(state);
-  const listeners = new Set<() => void>();
+  const subscribers = createSubscribers();
 
   return {
     getState: (): StepUpState => state,
@@ -370,26 +352,14 @@ export function createStepUpStore(initial: {
       if (nextState === state) return;
       state = nextState;
       snapshot = toSnapshot(state);
-      // Listeners only learn that something changed and then read the latest snapshot. One that
-      // throws must not stop the others, and one that was removed is not called.
-      for (const listener of [...listeners]) {
-        if (!listeners.has(listener)) continue;
-        try {
-          listener();
-        } catch (listenerError) {
-          console.warn('MFA step-up: a subscriber threw', listenerError);
-        }
-      }
+      subscribers.notify();
     },
 
     getSnapshot: () => snapshot,
 
-    subscribe: (listener: () => void) => {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
-    },
+    subscribe: subscribers.subscribe,
 
-    clearListeners: () => listeners.clear(),
+    clearListeners: subscribers.clear,
   };
 }
 
