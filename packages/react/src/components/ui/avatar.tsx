@@ -29,11 +29,19 @@ function AvatarImage({ className, ...props }: React.ComponentProps<'img'>) {
   );
 }
 
-function AvatarFallback({ className, ...props }: React.ComponentProps<'span'>) {
+function AvatarFallback({ className, style, ...props }: React.ComponentProps<'span'>) {
   return (
     <span
       data-slot="avatar-fallback"
-      className={cn('bg-muted flex size-full items-center justify-center rounded-full', className)}
+      className={cn(
+        'flex size-full items-center justify-center rounded-full text-primary-foreground font-semibold',
+        className,
+      )}
+      style={{
+        background:
+          'linear-gradient(195deg, oklch(from var(--color-neutral-max) l c h) -15%, oklch(from var(--color-neutral-12) l c h) 65%, oklch(from var(--color-primary) l c h) 95%, oklch(from var(--color-primary) l c h) 120%)',
+        ...style,
+      }}
       {...props}
     />
   );

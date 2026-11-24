@@ -21,6 +21,7 @@ const mockProvider = createMockSsoProvider();
 const { mockServiceReturn, mockHandleError } = vi.hoisted(() => ({
   mockServiceReturn: {
     domainsList: [] as unknown[],
+    availableDomains: [] as unknown[],
     isLoading: false,
     isRefetchingDomains: false,
     isDomainsStale: false,
@@ -31,6 +32,7 @@ const { mockServiceReturn, mockHandleError } = vi.hoisted(() => ({
     isCreating: false,
     isVerifying: false,
     isDeleting: false,
+    isAssociating: false,
     createDomain: vi.fn(),
     verifyDomain: vi.fn(),
     deleteDomain: vi.fn(),
@@ -392,83 +394,321 @@ describe('useSsoDomainTab', () => {
   });
 
   describe('pagination', () => {
-    it('should initialize with default pagination state', () => {
+    it('should report a single page because every assigned domain is shown', () => {
+      mockServiceReturn.domainsList = [mockDomain, mockVerifiedDomain];
       const { result } = renderUseSsoDomainTab();
 
       expect(result.current.pagination).toEqual({
-        pageSize: 10,
+        pageSize: 2,
         currentPage: 1,
         hasNextPage: false,
         hasPreviousPage: false,
       });
     });
 
-    it('should reflect hasNextPage from the service next token', () => {
-      mockServiceReturn.nextToken = 'next-cursor-token';
-
-      const { result } = renderUseSsoDomainTab();
-
-      expect(result.current.pagination.hasNextPage).toBe(true);
-    });
-
-    it('should advance to the next page when a next token exists', () => {
-      mockServiceReturn.nextToken = 'next-cursor-token';
-
+    it('should keep the paging handlers as no-ops', () => {
       const { result } = renderUseSsoDomainTab();
 
       act(() => {
         result.current.handleNextPage();
-      });
-
-      expect(result.current.pagination.currentPage).toBe(2);
-      expect(result.current.pagination.hasPreviousPage).toBe(true);
-    });
-
-    it('should not advance to the next page when there is no next token', () => {
-      mockServiceReturn.nextToken = null;
-
-      const { result } = renderUseSsoDomainTab();
-
-      act(() => {
-        result.current.handleNextPage();
-      });
-
-      expect(result.current.pagination.currentPage).toBe(1);
-    });
-
-    it('should navigate back to the previous page', () => {
-      mockServiceReturn.nextToken = 'next-cursor-token';
-
-      const { result } = renderUseSsoDomainTab();
-
-      act(() => {
-        result.current.handleNextPage();
-      });
-      expect(result.current.pagination.currentPage).toBe(2);
-
-      act(() => {
         result.current.handlePreviousPage();
+        result.current.handlePageSizeChange(50);
       });
+
       expect(result.current.pagination.currentPage).toBe(1);
-      expect(result.current.pagination.hasPreviousPage).toBe(false);
     });
+  });
 
-    it('should reset to the first page when the page size changes', () => {
-      mockServiceReturn.nextToken = 'next-cursor-token';
+  describe('assigning domains', () => {
+    const domainA = createMockVerifiedSsoDomain({ id: 'domain-a', domain: 'a.com' });
+    const domainB = createMockVerifiedSsoDomain({ id: 'domain-b', domain: 'b.com' });
 
+    it('should expose the available domains from the service', () => {
+      mockServiceReturn.availableDomains = [domainA];
       const { result } = renderUseSsoDomainTab();
 
-      act(() => {
-        result.current.handleNextPage();
-      });
-      expect(result.current.pagination.currentPage).toBe(2);
+      expect(result.current.availableDomains).toEqual([domainA]);
+    });
 
-      act(() => {
-        result.current.handlePageSizeChange(25);
+    it('should open and close the assign modal', () => {
+      const { result } = renderUseSsoDomainTab();
+
+      expect(result.current.showAssignModal).toBe(false);
+      act(() => result.current.setShowAssignModal(true));
+      expect(result.current.showAssignModal).toBe(true);
+      act(() => result.current.setShowAssignModal(false));
+      expect(result.current.showAssignModal).toBe(false);
+    });
+
+    it('should associate every selected domain, one at a time, and report success', async () => {
+      const calls: string[] = [];
+      (mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>).mockImplementation(
+        async (domain: { domain: string }) => void calls.push(domain.domain),
+      );
+      const { result } = renderUseSsoDomainTab();
+
+      let assignedAll = false;
+      await act(async () => {
+        assignedAll = await result.current.handleAssign([domainA, domainB]);
       });
-      expect(result.current.pagination.pageSize).toBe(25);
-      expect(result.current.pagination.currentPage).toBe(1);
-      expect(result.current.pagination.hasPreviousPage).toBe(false);
+
+      expect(calls).toEqual(['a.com', 'b.com']);
+      expect(assignedAll).toBe(true);
+      expect(result.current.isAssigning).toBe(false);
+      expect(mockedShowToast).toHaveBeenCalledTimes(1);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_assign.success',
+      });
+      expect(mockHandleError).not.toHaveBeenCalled();
+    });
+
+    it('should keep going after a failure and report which domains failed', async () => {
+      const error = new Error('Domain Already Associated');
+      (mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>)
+        .mockRejectedValueOnce(error)
+        .mockResolvedValueOnce(domainB);
+      const { result } = renderUseSsoDomainTab();
+
+      let assignedAll = true;
+      await act(async () => {
+        assignedAll = await result.current.handleAssign([domainA, domainB]);
+      });
+
+      expect(mockServiceReturn.associateToProvider).toHaveBeenCalledTimes(2);
+      expect(assignedAll).toBe(false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_assign.success',
+      });
+      expect(mockHandleError).toHaveBeenCalledTimes(1);
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        messagePrefix: 'domain_assign.error',
+      });
+      expect(result.current.isAssigning).toBe(false);
+    });
+
+    it('should not show a success toast when every domain fails', async () => {
+      (mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('boom'),
+      );
+      const { result } = renderUseSsoDomainTab();
+
+      await act(async () => {
+        await result.current.handleAssign([domainA]);
+      });
+
+      expect(mockedShowToast).not.toHaveBeenCalled();
+      expect(mockHandleError).toHaveBeenCalledTimes(1);
+    });
+
+    it('should do nothing when no domain is selected', async () => {
+      const { result } = renderUseSsoDomainTab();
+
+      let assignedAll = true;
+      await act(async () => {
+        assignedAll = await result.current.handleAssign([]);
+      });
+
+      expect(assignedAll).toBe(false);
+      expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to assign without the create provider-domain scope', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, [
+        'read:my_org:domains',
+        'read:my_org:identity_providers',
+        'delete:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleAssign([domainA]);
+      });
+
+      expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+    });
+
+    it('should refuse to assign when readOnly is set', async () => {
+      const { result } = renderUseSsoDomainTab({ readOnly: true });
+
+      await act(async () => {
+        await result.current.handleAssign([domainA]);
+      });
+
+      expect(mockServiceReturn.associateToProvider).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('removing a domain', () => {
+    it('should dissociate the domain with the same success toast as the old toggle', async () => {
+      const { result } = renderUseSsoDomainTab();
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(mockServiceReturn.deleteFromProvider).toHaveBeenCalledWith(mockDomain);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_delete_provider.success',
+      });
+      expect(result.current.isUpdating).toBe(false);
+    });
+
+    it('should report errors through the error handler', async () => {
+      const error = new Error('Delete failed');
+      (mockServiceReturn.deleteFromProvider as ReturnType<typeof vi.fn>).mockRejectedValue(error);
+      const { result } = renderUseSsoDomainTab();
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, { fallbackMessage: 'general_error' });
+    });
+
+    it('should refuse to remove without the delete provider-domain scope', async () => {
+      const { result } = renderUseSsoDomainTab(undefined, [
+        'read:my_org:domains',
+        'read:my_org:identity_providers',
+        'create:my_org:identity_providers_domains',
+      ]);
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(mockServiceReturn.deleteFromProvider).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('domain verification mode and access level', () => {
+    const associate = () => mockServiceReturn.associateToProvider as ReturnType<typeof vi.fn>;
+    const dissociate = () => mockServiceReturn.deleteFromProvider as ReturnType<typeof vi.fn>;
+
+    it.each(['optional', 'required'] as const)('should assign in %s mode', async (mode) => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: mode });
+
+      let assigned = false;
+      await act(async () => {
+        assigned = await result.current.handleAssign([mockVerifiedDomain]);
+      });
+
+      expect(assigned).toBe(true);
+      expect(associate()).toHaveBeenCalledWith(mockVerifiedDomain);
+    });
+
+    it('should not assign in none mode', async () => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: 'none' });
+
+      let assigned = true;
+      await act(async () => {
+        assigned = await result.current.handleAssign([mockVerifiedDomain]);
+      });
+
+      expect(assigned).toBe(false);
+      expect(associate()).not.toHaveBeenCalled();
+    });
+
+    it('should still remove a domain in none mode', async () => {
+      const { result } = renderUseSsoDomainTab({ domainVerificationMode: 'none' });
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(dissociate()).toHaveBeenCalledWith(mockDomain);
+    });
+
+    it.each(['limited', 'readonly'] as const)(
+      'should not assign or remove with %s access',
+      async (access_level) => {
+        const { result } = renderUseSsoDomainTab({
+          provider: createMockSsoProvider({ access_level }),
+        });
+
+        await act(async () => {
+          await result.current.handleAssign([mockVerifiedDomain]);
+          await result.current.handleRemove(mockDomain);
+        });
+
+        expect(associate()).not.toHaveBeenCalled();
+        expect(dissociate()).not.toHaveBeenCalled();
+      },
+    );
+
+    it('should assign and remove with full access', async () => {
+      const { result } = renderUseSsoDomainTab({
+        provider: createMockSsoProvider({ access_level: 'full' }),
+      });
+
+      await act(async () => {
+        await result.current.handleAssign([mockVerifiedDomain]);
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(associate()).toHaveBeenCalledWith(mockVerifiedDomain);
+      expect(dissociate()).toHaveBeenCalledWith(mockDomain);
+    });
+
+    it.each([
+      ['none mode', { domainVerificationMode: 'none' as const }],
+      ['limited access', { provider: createMockSsoProvider({ access_level: 'limited' }) }],
+    ])('should verify without associating in %s', async (_label, options) => {
+      const { result } = renderUseSsoDomainTab(options);
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+        await result.current.handleVerifyActionColumn(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).toHaveBeenCalledTimes(2);
+      expect(associate()).not.toHaveBeenCalled();
+    });
+
+    it('should not remove the last verified domain of an enabled provider in required mode', async () => {
+      mockServiceReturn.domainsList = [mockDomain];
+      const { result } = renderUseSsoDomainTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({ is_enabled: true, domains: [mockDomain.domain] }),
+      });
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(dissociate()).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['another verified domain is listed', { listed: 2, enabled: true }],
+      ['the provider is disabled', { listed: 1, enabled: false }],
+    ])('should remove a domain in required mode when %s', async (_label, { listed, enabled }) => {
+      mockServiceReturn.domainsList = [mockDomain, mockVerifiedDomain].slice(0, listed);
+      const { result } = renderUseSsoDomainTab({
+        domainVerificationMode: 'required',
+        provider: createMockSsoProvider({ is_enabled: enabled }),
+      });
+
+      await act(async () => {
+        await result.current.handleRemove(mockDomain);
+      });
+
+      expect(dissociate()).toHaveBeenCalledWith(mockDomain);
+    });
+
+    it('should verify without associating when the associate scope is missing', async () => {
+      const { result } = renderUseSsoDomainTab(
+        undefined,
+        ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'create:my_org:identity_providers_domains'),
+      );
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(mockServiceReturn.verifyDomain).toHaveBeenCalled();
+      expect(associate()).not.toHaveBeenCalled();
     });
   });
 

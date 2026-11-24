@@ -11,6 +11,8 @@ import {
   type CreateOrganizationDomainRequestContent,
   BusinessError,
   domainQueryKeys,
+  ssoDomainQueryKeys,
+  ssoProviderQueryKeys,
 } from '@auth0/universal-components-core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -125,6 +127,35 @@ export function useDomainTableService({
     },
   });
 
+  const updateDiscoveryMutation = useMutation({
+    mutationFn: async ({
+      domain,
+      useForDiscovery,
+    }: {
+      domain: Domain;
+      useForDiscovery: boolean;
+    }): Promise<Domain> =>
+      coreClient!.getMyOrganizationApiClient().organization.domains.update(domain.id, {
+        use_for_organization_discovery: useForDiscovery,
+      }),
+    onSuccess: (updatedDomain, { domain, useForDiscovery }) => {
+      const discoveryValue = updatedDomain?.use_for_organization_discovery ?? useForDiscovery;
+
+      const patchRow = (row: Domain): Domain => {
+        if (row.id !== domain.id) return row;
+        return { ...row, ...updatedDomain, use_for_organization_discovery: discoveryValue };
+      };
+
+      [domainQueryKeys.lists(), ssoDomainQueryKeys.lists()].forEach((queryKey) => {
+        queryClient.setQueriesData<{ domains: Domain[]; next: string | null }>(
+          { queryKey },
+          (oldData) => oldData && { ...oldData, domains: oldData.domains.map(patchRow) },
+        );
+        queryClient.invalidateQueries({ queryKey });
+      });
+    },
+  });
+
   const deleteDomainMutation = useMutation({
     mutationFn: async (domain: Domain): Promise<void> => {
       if (deleteAction?.onBefore && !deleteAction.onBefore(domain)) {
@@ -153,7 +184,11 @@ export function useDomainTableService({
     },
     onSuccess: (_, { domain, provider }) => {
       associateToProviderAction?.onAfter?.(domain, provider);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.allProviders() }),
+        provider.id &&
+          queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
+      ]);
     },
   });
 
@@ -171,7 +206,11 @@ export function useDomainTableService({
     },
     onSuccess: (_, { domain, provider }) => {
       deleteFromProviderAction?.onAfter?.(domain, provider);
-      queryClient.invalidateQueries({ queryKey: domainQueryKeys.providers(domain.id) });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.allProviders() }),
+        provider.id &&
+          queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.detail(provider.id) }),
+      ]);
     },
   });
 
@@ -183,6 +222,12 @@ export function useDomainTableService({
   const onVerifyDomain = useCallback(
     (domain: Domain) => verifyDomainMutation.mutateAsync(domain),
     [verifyDomainMutation],
+  );
+
+  const onUpdateDomainDiscovery = useCallback(
+    (domain: Domain, useForDiscovery: boolean) =>
+      updateDiscoveryMutation.mutateAsync({ domain, useForDiscovery }),
+    [updateDiscoveryMutation],
   );
 
   const onDeleteDomain = useCallback(
@@ -206,9 +251,10 @@ export function useDomainTableService({
     async (domain: Domain) => {
       setSelectedDomainId(domain.id);
       setSelectedDomainName(domain.domain);
-      await queryClient.ensureQueryData({
+      await queryClient.fetchQuery({
         queryKey: domainQueryKeys.providers(domain.id),
         queryFn: () => fetchProvidersForDomain(domain.domain),
+        staleTime: Infinity,
       });
     },
     [queryClient, coreClient],
@@ -229,6 +275,7 @@ export function useDomainTableService({
     isCreating: isMutationLoading(createDomainMutation),
     isDeleting: isMutationLoading(deleteDomainMutation),
     isVerifying: isMutationLoading(verifyDomainMutation),
+    isUpdatingDiscovery: isMutationLoading(updateDiscoveryMutation),
     isLoadingProviders: providersQuery.isLoading,
 
     refetchDomains: domainsQuery.refetch,
@@ -236,6 +283,7 @@ export function useDomainTableService({
     fetchDomains,
     onCreateDomain,
     onVerifyDomain,
+    onUpdateDomainDiscovery,
     onDeleteDomain,
     onAssociateToProvider,
     onDeleteFromProvider,

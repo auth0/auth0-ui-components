@@ -98,7 +98,11 @@ export function SsoCrossAppAccessSection(props: CrossAppAccessSectionProps): Rea
             className="w-full"
           />
           {discoveryUrlError ? (
-            <p id={urlErrorId} role="alert" className="text-sm text-destructive text-left">
+            <p
+              id={urlErrorId}
+              role="alert"
+              className="text-sm text-destructive-foreground text-left"
+            >
               {discoveryUrlError}
             </p>
           ) : (

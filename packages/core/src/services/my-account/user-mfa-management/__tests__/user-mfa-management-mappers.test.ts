@@ -14,8 +14,6 @@ import {
   FACTOR_TYPE_PHONE,
   FACTOR_TYPE_TOTP,
   FACTOR_TYPE_RECOVERY_CODE,
-  FACTOR_TYPE_WEBAUTHN_ROAMING,
-  FACTOR_TYPE_WEBAUTHN_PLATFORM,
   FACTOR_TYPE_PUSH_NOTIFICATION,
 } from '../user-mfa-management-constants';
 import { MFAMappers } from '../user-mfa-management-mappers';
@@ -188,8 +186,6 @@ describe('MFAMappers', () => {
         expect(result[FACTOR_TYPE_EMAIL as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_PHONE as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_RECOVERY_CODE as MFAType]).toBeDefined();
-        expect(result[FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType]).toBeDefined();
-        expect(result[FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType]).toBeDefined();
         expect(result[FACTOR_TYPE_PUSH_NOTIFICATION as MFAType]).toBeDefined();
       });
 
@@ -418,7 +414,7 @@ describe('MFAMappers', () => {
     });
 
     describe('WebAuthn factor types', () => {
-      it.each([FACTOR_TYPE_WEBAUTHN_ROAMING, FACTOR_TYPE_WEBAUTHN_PLATFORM])(
+      it.each(['webauthn-roaming', 'webauthn-platform'])(
         'throws for %s, which My Account cannot create any more',
         (factorType) => {
           expect(() => MFAMappers.buildEnrollParams(factorType as MFAType)).toThrow(
@@ -516,7 +512,7 @@ describe('MFAMappers', () => {
     describe('basic functionality', () => {
       it('should return base params with auth_session', () => {
         const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+          FACTOR_TYPE_RECOVERY_CODE as MFAType,
           mockAuthSession,
           mockConfirmEnrollmentNoOtpOptions,
         );
@@ -608,28 +604,6 @@ describe('MFAMappers', () => {
     });
 
     describe('factor type handling', () => {
-      it('should not include otp_code for WEBAUTHN_ROAMING even if userOtpCode is provided', () => {
-        const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-          mockAuthSession,
-          mockConfirmEnrollmentWithOtpOptions,
-        );
-
-        expect(result).toEqual(mockBaseVerifyRequest);
-        expect(result).not.toHaveProperty('otp_code');
-      });
-
-      it('should not include otp_code for WEBAUTHN_PLATFORM even if userOtpCode is provided', () => {
-        const result = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
-          mockAuthSession,
-          mockConfirmEnrollmentWithOtpOptions,
-        );
-
-        expect(result).toEqual(mockBaseVerifyRequest);
-        expect(result).not.toHaveProperty('otp_code');
-      });
-
       it('should not include otp_code for RECOVERY_CODE even if userOtpCode is provided', () => {
         const result = MFAMappers.buildConfirmEnrollmentParams(
           FACTOR_TYPE_RECOVERY_CODE as MFAType,
@@ -776,7 +750,7 @@ describe('MFAMappers', () => {
         expect(keysWithOtp.length).toBe(2);
 
         const resultWithoutOtp = MFAMappers.buildConfirmEnrollmentParams(
-          FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
+          FACTOR_TYPE_RECOVERY_CODE as MFAType,
           mockAuthSession,
           mockConfirmEnrollmentNoOtpOptions,
         );
@@ -845,8 +819,6 @@ describe('MFAMappers', () => {
       ];
 
       const factorTypesNotRequiringOtp: MFAType[] = [
-        FACTOR_TYPE_WEBAUTHN_ROAMING as MFAType,
-        FACTOR_TYPE_WEBAUTHN_PLATFORM as MFAType,
         FACTOR_TYPE_RECOVERY_CODE as MFAType,
         FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
       ];

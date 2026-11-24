@@ -6,6 +6,7 @@
 import type {
   SharedComponentProps,
   SsoProvisioningTabMessages,
+  SsoGuidedSetupMessages,
   IdpKnownResponse,
   CreateIdpProvisioningScimTokenRequestContent,
   ListIdpProvisioningScimTokensResponseContent,
@@ -17,6 +18,7 @@ import type {
   CreateIdPProvisioningConfigResponseContent,
   DirectoryProvisioningConfig,
   IdpManagementPermissions,
+  IdpScimTokenConfig,
 } from '@auth0/universal-components-core';
 
 import type { SsoProvisioningGoogleSyncPanelClasses } from '@/types/my-organization/idp-management/sso-provisioning/google-workspace-provisioning-types';
@@ -28,17 +30,42 @@ export interface SsoProvisioningTabEditProps {
     IdpKnownResponse,
     CreateIdPProvisioningConfigResponseContent | DirectoryProvisioningConfig
   >;
+  createGuidedSetupAction?: Pick<
+    ComponentAction<
+      IdpKnownResponse,
+      CreateIdPProvisioningConfigResponseContent | DirectoryProvisioningConfig
+    >,
+    'onAfter'
+  >;
+  completeGuidedSetupAction?: Pick<
+    ComponentAction<IdpKnownResponse, GetIdPProvisioningConfigResponseContent>,
+    'onAfter'
+  >;
   deleteAction?: ComponentAction<IdpKnownResponse, void>;
   createScimTokenAction?: ComponentAction<
     IdpKnownResponse,
     CreateIdpProvisioningScimTokenResponseContent
   >;
   deleteScimTokenAction?: ComponentAction<IdpKnownResponse, void>;
+  guidedSetup?: SsoProvisioningGuidedSetup;
+}
+
+/** Options for turning provisioning on. */
+export interface CreateProvisioningOptions {
+  guided?: boolean;
+}
+
+/** Guided provisioning setup options for `SsoProviderEdit`. */
+export interface SsoProvisioningGuidedSetup {
+  hideLifecycleWarnings?: boolean;
 }
 
 /** CSS classes for SsoProvisioningTab. */
-export interface SsoProvisioningTabClasses extends SsoProvisioningGoogleSyncPanelClasses {
+export interface SsoProvisioningTabClasses
+  extends ProvisioningManageTokenClasses,
+    SsoProvisioningGoogleSyncPanelClasses {
   'SsoProvisioningTab-root'?: string;
+  'SsoProvisioningTab-guidedSetupButton'?: string;
   'SsoProvisioningDetails-root'?: string;
   'SsoProvisioning-attributeMapping'?: string;
   'SsoProvisioningDetails-formActions'?: string;
@@ -57,7 +84,7 @@ export interface SsoProvisioningTabProps
   isScimTokenCreating: boolean;
   isScimTokenDeleting: boolean;
   hideAttributeMappings?: boolean;
-  onCreateProvisioning: () => Promise<void>;
+  onCreateProvisioning: (options?: CreateProvisioningOptions) => Promise<void>;
   onDeleteProvisioning: () => Promise<void>;
   onListScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   onCreateScimToken: (
@@ -67,6 +94,11 @@ export interface SsoProvisioningTabProps
   hasProvisioningAttributeSyncWarning?: boolean;
   onAttributeSync?: () => void | Promise<void>;
   isSyncingAttributes?: boolean;
+  onStartGuidedSetup?: () => void;
+  hideGuidedSetupLifecycleWarnings?: boolean;
+  organizationDisplayName?: string;
+  guidedSetupMessages?: Partial<SsoGuidedSetupMessages>;
+  focusGuidedSetupButton?: boolean;
 }
 
 export interface SsoProvisioningTabSchemas {}
@@ -104,4 +136,5 @@ export interface SsoProvisioningDetailsProps
     data: CreateIdpProvisioningScimTokenRequestContent,
   ) => Promise<CreateIdpProvisioningScimTokenResponseContent | undefined>;
   onDeleteScimToken: (idpScimTokenId: string) => Promise<void>;
+  scimTokenConfig?: IdpScimTokenConfig;
 }

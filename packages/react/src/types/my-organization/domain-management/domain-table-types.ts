@@ -9,14 +9,17 @@ import type {
   IdpKnownResponse,
   DomainCreateMessages,
   DomainCreateSchemas,
+  IdpDomainVerificationMode,
   ComponentAction,
   Domain,
   DomainDeleteMessages,
   DomainConfigureMessages,
   DomainVerifyMessages,
+  DomainDiscoveryMessages,
   DomainTableMessages,
   CreateOrganizationDomainRequestContent,
   IdentityProviderAssociatedWithDomain,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { UseQueryResult } from '@tanstack/react-query';
 import type React from 'react';
@@ -37,6 +40,7 @@ export interface DomainTableClasses {
   'DomainTable-createModal'?: string;
   'DomainTable-configureModal'?: string;
   'DomainTable-deleteModal'?: string;
+  'DomainTable-discoveryModal'?: string;
   'DomainTableConfigureModal-dialogContent'?: string;
   'DomainTableVerifyModal-dialogContent'?: string;
 }
@@ -55,6 +59,7 @@ export interface DomainTableMainMessages extends DomainTableMessages {
   configure: DomainConfigureMessages;
   verify: DomainVerifyMessages;
   delete: DomainDeleteMessages;
+  discovery: DomainDiscoveryMessages;
 }
 
 /** DomainTable validation schemas. */
@@ -83,6 +88,19 @@ export interface DomainTableActionsColumnProps {
   onConfigure: (domain: Domain) => void;
   onVerify: (domain: Domain) => void;
   onDelete: (domain: Domain) => void;
+}
+
+/** Props for the "Use for discovery" switch in a domain table row. */
+export interface DomainDiscoverySwitchProps {
+  customMessages?: Partial<DomainTableMainMessages>;
+  domain: Domain;
+  checked: boolean;
+  /** The discovery policy allows a single value, so the switch can't change. */
+  isLocked: boolean;
+  /** The user has permission to change discovery. */
+  canChange: boolean;
+  isUpdating: boolean;
+  onToggle: (domain: Domain, checked: boolean) => void | Promise<void>;
 }
 
 /** Parameters for domain pagination API calls. */
@@ -120,11 +138,13 @@ export interface UseDomainTableServiceReturn {
   isCreating: boolean;
   isDeleting: boolean;
   isVerifying: boolean;
+  isUpdatingDiscovery: boolean;
   refetchDomains: RefetchDomains;
   fetchProviders: (domain: Domain) => Promise<void>;
   fetchDomains: () => Promise<void>;
   onCreateDomain: (data: CreateOrganizationDomainRequestContent) => Promise<Domain>;
   onVerifyDomain: (domain: Domain) => Promise<boolean>;
+  onUpdateDomainDiscovery: (domain: Domain, useForDiscovery: boolean) => Promise<Domain>;
   onDeleteDomain: (domain: Domain) => Promise<void>;
   onAssociateToProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
   onDeleteFromProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
@@ -147,14 +167,26 @@ export interface UseDomainTableReturn {
   isDeleting: boolean;
   isVerifying: boolean;
   isLoadingProviders: boolean;
+  isSavingProvider: boolean;
+  isUpdatingDiscovery: boolean;
+  updatingDiscoveryId: string | null;
   // Pagination
   pagination: DomainTablePaginationState;
+
+  domainVerificationMode: IdpDomainVerificationMode;
+
+  // Discovery policy
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
+  showDiscovery: boolean;
+  isDiscoveryReadOnly: boolean;
+  discoveryDefaultValue: boolean;
 
   // Modal state
   showCreateModal: boolean;
   showConfigureModal: boolean;
   showVerifyModal: boolean;
   showDeleteModal: boolean;
+  showDiscoveryModal: boolean;
   verifyError: string | undefined;
   selectedDomain: Domain | null;
 
@@ -166,14 +198,22 @@ export interface UseDomainTableReturn {
 
   // Handlers
   refetchDomains: RefetchDomains;
-  handleCreate: (domainUrl: string) => Promise<void>;
+  handleCreate: (domainUrl: string, useForDiscovery?: boolean) => Promise<void>;
   handleVerify: (domain: Domain) => Promise<void>;
+  handleToggleDiscovery: (domain: Domain, checked: boolean) => Promise<void>;
+  handleEnableDiscovery: (domain: Domain) => Promise<void>;
+  handleCloseDiscoveryModal: () => void;
   handleDelete: (domain: Domain) => Promise<void>;
+  /** @deprecated Use `handleAssignProvider` and `handleRemoveProvider`, which keep a domain on a single provider. */
   handleToggleSwitch: (
     domain: Domain,
     provider: IdpKnownResponse,
     checked: boolean,
   ) => Promise<void>;
+  /** Assigns the domain to a provider. Does nothing while the domain is on another provider. */
+  handleAssignProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
+  /** Removes the domain from a provider. */
+  handleRemoveProvider: (domain: Domain, provider: IdpKnownResponse) => Promise<void>;
   handleCloseVerifyModal: () => void;
   handleCreateClick: () => void;
   handleConfigureClick: (domain: Domain) => void;

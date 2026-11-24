@@ -59,14 +59,6 @@ export const createMockEmailAuthenticator = (): Authenticator =>
     enrolled: true,
   });
 
-export const createMockWebAuthnAuthenticator = (): Authenticator =>
-  createMockAuthenticator({
-    id: 'auth_webauthn_123',
-    type: 'webauthn-roaming',
-    name: 'YubiKey 5',
-    enrolled: true,
-  });
-
 export const createMockAuthenticationMethodsResponse = (
   authenticators: Authenticator[] = [createMockAuthenticator()],
 ) => ({
@@ -146,11 +138,11 @@ export const createMockUserMFAManagementViewProps = (
     phone: [],
     'push-notification': [],
     totp: [],
-    'webauthn-roaming': [],
-    'webauthn-platform': [],
     'recovery-code': [],
     password: [],
     passkey: [],
+    'webauthn-roaming': [],
+    'webauthn-platform': [],
   },
   visibleFactorTypes: ['email'],
   hasNoActiveFactors: false,

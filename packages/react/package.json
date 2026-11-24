@@ -1,6 +1,6 @@
 {
   "name": "@auth0/universal-components-react",
-  "version": "3.5.5",
+  "version": "3.6.0",
   "description": "Auth0 Universal Components for React - pre-built UI components for organization management, SSO configuration, and MFA enrollment",
   "private": false,
   "keywords": [
@@ -87,6 +87,8 @@
     "lucide-react": "^1.16.0",
     "postcss-prefix-selector": "^2.1.1",
     "qrcode": "^1.5.4",
+    "react-markdown": "^8.0.7",
+    "remark-gfm": "^3.0.1",
     "sonner": "^2.0.5",
     "tailwind-merge": "^3.3.0",
     "zod": "^3.25.56"

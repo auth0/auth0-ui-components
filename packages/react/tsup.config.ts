@@ -7,6 +7,7 @@ export default defineConfig({
     rwa: 'src/rwa.ts',
   },
   format: ['esm', 'cjs'],
+  platform: 'browser',
   dts: true,
   sourcemap: true,
   clean: true,
@@ -18,6 +19,7 @@ export default defineConfig({
     '@auth0/auth0-react',
     '@tanstack/react-query',
   ],
+  noExternal: ['react-markdown', 'remark-gfm'],
   banner: {
     js: '"use client";',
   },

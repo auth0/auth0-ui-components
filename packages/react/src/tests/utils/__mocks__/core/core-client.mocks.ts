@@ -10,6 +10,10 @@ import {
 } from '@/tests/utils/__mocks__/my-account/user-mfa-management/user-mfa-management.mocks';
 import { createMockIdentityProvider } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import {
+  createMockIdpInstructions,
+  createMockIdpProvisioningInstructions,
+} from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
+import {
   createMockInvitation,
   createMockListUserStoresResponse,
   createMockRoles,
@@ -60,6 +64,21 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
         domains: {
           create: vi.fn().mockResolvedValue(undefined),
           delete: vi.fn().mockResolvedValue(undefined),
+        },
+        tests: {
+          create: vi.fn().mockResolvedValue({
+            id: 'cnt_1111111111111111111111',
+            status: 'in_progress',
+            test_url: 'https://example.auth0.com/try-connection?token=test',
+            created_at: '2026-11-03T00:00:00.000Z',
+            expires_at: '2026-11-03T05:00:00.000Z',
+          }),
+          get: vi.fn().mockResolvedValue({
+            id: 'cnt_1111111111111111111111',
+            status: 'in_progress',
+            created_at: '2026-11-03T00:00:00.000Z',
+            expires_at: '2026-11-03T05:00:00.000Z',
+          }),
         },
         provisioning: {
           get: vi.fn().mockRejectedValue({ status: 404 }),
@@ -126,6 +145,16 @@ const createMockMyOrgApiService = (): CoreClientInterface['myOrganizationApiClie
               },
             },
           }),
+        },
+        identityProviderInstructions: {
+          get: vi.fn().mockImplementation(async (strategy) => createMockIdpInstructions(strategy)),
+        },
+        identityProviderProvisioningInstructions: {
+          get: vi
+            .fn()
+            .mockImplementation(async (strategy) =>
+              createMockIdpProvisioningInstructions(strategy),
+            ),
         },
       },
       members: {

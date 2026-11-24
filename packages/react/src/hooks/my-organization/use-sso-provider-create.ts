@@ -4,17 +4,25 @@
  * @module use-sso-provider-create
  */
 
-import { getIdpManagementPermissions } from '@auth0/universal-components-core';
+import {
+  getIdpManagementPermissions,
+  type CreateIdentityProviderRequestContentPrivate,
+  type IdpKnownResponse,
+  type ProviderConfigureFormValues,
+} from '@auth0/universal-components-core';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
+import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/services/use-sso-provider-create-service';
 import { usePermissions } from '@/hooks/shared/use-permissions';
+import { pickConnectionAccess } from '@/lib/utils/my-organization/idp-management/idp-management-utils';
 import type {
   FormState,
   ProviderConfigureHandle,
   ProviderDetailsFormHandle,
+  SsoProviderCreateGuidedSetupState,
   UseSsoProviderCreateHookOptions,
   UseSsoProviderCreateResult,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
@@ -33,16 +41,49 @@ export function useSsoProviderCreate({
   readOnly = false,
   onNext,
   onPrevious,
+  hideGuidedSetup = false,
+  guidedSetup: guidedSetupOptions,
+  createGuidedSetupAction,
+  completeGuidedSetupAction,
 }: UseSsoProviderCreateHookOptions = {}): UseSsoProviderCreateResult {
-  const { createProvider, isCreating, isOrganizationBlocked } = useSsoProviderCreateService({
-    createAction,
+  const [isGuidedSetup, setGuidedSetup] = useState(false);
+  const [guidedProvider, setGuidedProvider] = useState<IdpKnownResponse | null>(null);
+  const isGuidedSetupRef = useRef(false);
+  const pendingCompletionRef = useRef<{
+    data: CreateIdentityProviderRequestContentPrivate;
+    result: IdpKnownResponse;
+  } | null>(null);
+
+  const serviceCreateAction = useMemo(
+    () => ({
+      ...createAction,
+      onAfter: (data: CreateIdentityProviderRequestContentPrivate, result?: IdpKnownResponse) => {
+        if (!isGuidedSetupRef.current) return createAction?.onAfter?.(data, result);
+        return result ? createGuidedSetupAction?.onAfter?.(data, result) : undefined;
+      },
+    }),
+    [createAction, createGuidedSetupAction],
+  );
+
+  const {
+    createProvider,
+    isCreating,
+    isOrganizationBlocked,
+    organizationDisplayName,
+    notifyCreated,
+  } = useSsoProviderCreateService({
+    createAction: serviceCreateAction,
     customMessages,
+    shouldDeferSuccessToast: () => isGuidedSetupRef.current,
   });
 
   const [formData, setFormData] = useState<FormState>({});
   const { strategy, details } = formData;
   const detailsRef = useRef<ProviderDetailsFormHandle>(null);
   const configureRef = useRef<ProviderConfigureHandle>(null);
+  const guidedConfigureRef = useRef<ProviderConfigureFormHandle>(null);
+  const advancedConnectionAccessRef = useRef<ReturnType<typeof pickConnectionAccess>>({});
+  const guidedConfigureDataRef = useRef<ProviderConfigureFormValues | null>(null);
   const { createPermissionResolver } = usePermissions();
 
   const permissions = useMemo(
@@ -58,6 +99,8 @@ export function useSsoProviderCreate({
   } = useConfig();
   const {
     isLoadingIdpConfig,
+    isIdpConfigError,
+    refetchIdpConfig,
     idpConfig,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
@@ -102,6 +145,83 @@ export function useSsoProviderCreate({
     });
   }, [permissions, strategy, details, createProvider]);
 
+  const guidedSetupEnabled =
+    !hideGuidedSetup && permissions.canReadConfiguration && permissions.canCreateProvider;
+
+  const saveGuidedConfigure = useCallback(() => {
+    const form = guidedConfigureRef.current;
+    if (!form) return;
+    guidedConfigureDataRef.current = form.getData();
+    setFormData((prev) => ({ ...prev, configure: form.getValues() }));
+  }, []);
+
+  const guidedSetup = useMemo<SsoProviderCreateGuidedSetupState>(
+    () => ({
+      isAvailable: guidedSetupEnabled,
+      isActive: isGuidedSetup,
+      provider: guidedProvider,
+      organizationDisplayName,
+      hideLifecycleWarnings: guidedSetupOptions?.hideLifecycleWarnings,
+      configureRef: guidedConfigureRef,
+      start: () => {
+        const form = configureRef.current;
+        const data = form?.getData();
+        advancedConnectionAccessRef.current = pickConnectionAccess(data);
+        guidedConfigureDataRef.current = data ?? null;
+        if (form) setFormData((prev) => ({ ...prev, configure: form.getValues() }));
+        isGuidedSetupRef.current = true;
+        setGuidedSetup(true);
+      },
+      saveConfigure: saveGuidedConfigure,
+      validate: async () => {
+        const isValid = (await guidedConfigureRef.current?.validate()) ?? false;
+        if (isValid) saveGuidedConfigure();
+        return isValid;
+      },
+      create: async () => {
+        if (!permissions.canCreateProvider || !strategy || !details) return false;
+        const configureData =
+          guidedConfigureRef.current?.getData() ?? guidedConfigureDataRef.current;
+        const data = {
+          strategy,
+          ...details,
+          ...advancedConnectionAccessRef.current,
+          ...configureData,
+        };
+        try {
+          const created = await createProvider(data);
+          if (!created) return false;
+          pendingCompletionRef.current = { data, result: created };
+          setGuidedProvider(created);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      complete: () => {
+        const pending = pendingCompletionRef.current;
+        if (!pending) return;
+        pendingCompletionRef.current = null;
+        notifyCreated(pending.result.name);
+        completeGuidedSetupAction?.onAfter?.(pending.data, pending.result);
+      },
+    }),
+    [
+      guidedSetupEnabled,
+      permissions.canCreateProvider,
+      isGuidedSetup,
+      guidedProvider,
+      organizationDisplayName,
+      guidedSetupOptions?.hideLifecycleWarnings,
+      saveGuidedConfigure,
+      strategy,
+      details,
+      createProvider,
+      completeGuidedSetupAction,
+      notifyCreated,
+    ],
+  );
+
   return {
     permissions,
     formData,
@@ -114,6 +234,8 @@ export function useSsoProviderCreate({
     isLoadingConfig,
     filteredStrategies,
     isLoadingIdpConfig,
+    isIdpConfigError,
+    refetchIdpConfig,
     idpConfig,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
@@ -122,5 +244,6 @@ export function useSsoProviderCreate({
     isCrossAppAccessReadOnly: isCrossAppAccessReadOnly(strategy),
     getCrossAppAccessDefaultValue: () => getCrossAppAccessDefaultValue(strategy),
     isOrganizationBlocked,
+    guidedSetup,
   };
 }
