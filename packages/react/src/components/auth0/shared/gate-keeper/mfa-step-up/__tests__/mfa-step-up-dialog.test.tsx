@@ -2,6 +2,7 @@ import {
   withMfaStepUp,
   mfaStepUpStore,
   type MfaAuthenticator,
+  type MfaRequiredError,
 } from '@auth0/universal-components-core';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -44,7 +45,7 @@ describe('MfaStepUpDialog', () => {
       { coreClient: createMockCoreClient(undefined, apiClient) },
     );
 
-  const open = (error: unknown = mockMfaRequiredError) => {
+  const open = (error: MfaRequiredError = mockMfaRequiredError) => {
     let outcome: Promise<unknown>;
     act(() => {
       outcome = mfaStepUpStore.request(error).then(
