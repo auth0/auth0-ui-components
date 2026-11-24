@@ -21,30 +21,6 @@ import {
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
 
 /**
- * Throws an `MfaRequiredError` if `response` is a 403 `mfa_required` response, so
- * `withMfaStepUp` can catch it and retry the request after MFA. `fetch` does not throw on a 403.
- *
- * @param response - What the call returned. Only a `fetch` response is inspected.
- * @returns The untouched `response` if it is not a 403 `mfa_required` error.
- * @throws When `response` is a 403 containing `mfa_required`.
- */
-async function throwIfMfaRequired<T>(response: T): Promise<T> {
-  if (!(response instanceof Response) || response.status !== 403 || response.bodyUsed) {
-    return response;
-  }
-
-  const body = await response
-    .clone()
-    .json()
-    .catch(() => undefined);
-
-  if (!isMfaRequiredError(body)) return response;
-
-  const normalized = normalizeMfaRequiredError(body);
-  throw Object.assign(new Error(normalized.error_description ?? 'mfa_required'), normalized);
-}
-
-/**
  * Runs `call`. If it fails with `mfa_required`, prompts the user to pass MFA and runs `call`
  * again.
  *
@@ -53,13 +29,13 @@ async function throwIfMfaRequired<T>(response: T): Promise<T> {
  *
  * @param call - Async function to run. It runs again after MFA, so it must be safe to repeat.
  * @returns What `call` returns.
- * @throws An error with a `code` (such as `'cancelled'`, `'token_expired'`, or `'unavailable'`)
- *   if the user cancels or MFA cannot be completed.
+ * @throws {MfaStepUpError} With a `code` (such as `'cancelled'`, `'token_expired'`, or
+ *   `'unavailable'`) if the user cancels or MFA cannot be completed.
  * @throws Re-throws any other error from `call`.
  */
 export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
   try {
-    return await throwIfMfaRequired(await call());
+    return await call();
   } catch (error) {
     if (!isMfaRequiredError(error)) throw error;
     await mfaStepUpStore.request(normalizeMfaRequiredError(error));
@@ -68,11 +44,30 @@ export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
 }
 
 /**
+ * `fetch` does not throw on a 403, so a 403 whose body is `mfa_required` is thrown here.
+ *
+ * @param response - The response of a request.
+ * @returns The same response.
+ * @throws The `mfa_required` body of a 403 response.
+ */
+async function throwIfMfaRequired(response: Response): Promise<Response> {
+  if (response instanceof Response && response.status === 403) {
+    const body = await response
+      .clone()
+      .json()
+      .catch(() => undefined);
+    if (isMfaRequiredError(body)) throw Object.assign(new Error('mfa_required'), body);
+  }
+  return response;
+}
+
+/**
  * @param fetcher - Sends a request.
  * @returns A fetcher that has the user pass MFA when the server asks for it, then sends the request again.
  */
 function fetcherWithStepUp(fetcher: FetcherSupplier): FetcherSupplier {
-  return (url, init, authParams) => withMfaStepUp(() => fetcher(url, init, authParams));
+  return (url, init, authParams) =>
+    withMfaStepUp(async () => throwIfMfaRequired(await fetcher(url, init, authParams)));
 }
 
 /**

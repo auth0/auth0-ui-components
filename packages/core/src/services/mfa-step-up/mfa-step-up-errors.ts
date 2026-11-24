@@ -32,11 +32,10 @@ export const createMfaStepUpError = (
 
 /**
  * @param err - Anything that was thrown or rejected.
- * @returns Whether it is a failure of an MFA step-up, made by `createMfaStepUpError`, or an error
- * that was caused by one. The SDK clients wrap what their fetcher throws.
+ * @returns Whether it is a failure of an MFA step-up, made by `createMfaStepUpError`.
  */
-export const isMfaStepUpError = (err: unknown): boolean =>
-  err instanceof Error && (err.name === STEP_UP_ERROR_NAME || isMfaStepUpError(err.cause));
+export const isMfaStepUpError = (err: unknown): err is MfaStepUpError =>
+  err instanceof Error && err.name === STEP_UP_ERROR_NAME;
 
 interface RawApiError {
   status?: number;

@@ -12,12 +12,6 @@ describe('isMfaStepUpError', () => {
     expect(isMfaStepUpError(createMfaStepUpError('unavailable'))).toBe(true);
   });
 
-  it('knows an error that an SDK client made from one', () => {
-    const wrapped = new Error('request failed', { cause: createMfaStepUpError('cancelled') });
-
-    expect(isMfaStepUpError(wrapped)).toBe(true);
-  });
-
   it.each([
     ['another error with a code', Object.assign(new Error('x'), { code: 'unavailable' })],
     ['a plain error', new Error('x')],
