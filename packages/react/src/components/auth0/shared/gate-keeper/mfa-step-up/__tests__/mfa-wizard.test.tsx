@@ -417,14 +417,11 @@ describe('MfaWizard', () => {
   });
 
   describe('when it cannot continue', () => {
-    it('tells the user there is nothing to choose from, and cancels', async () => {
-      const user = userEvent.setup();
+    it('ends the step-up with the failure, so the page tells the user', async () => {
       renderWizard();
 
-      expect(await screen.findByText('mfa.no_authenticators')).toBeInTheDocument();
-      await user.click(screen.getByRole('button', { name: 'mfa.cancel' }));
-
-      expect(onCancel).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(onCancel).toHaveBeenCalledTimes(1));
+      expect(onCancel).toHaveBeenCalledWith(expect.objectContaining({ code: 'no_authenticators' }));
     });
 
     it('cancels when the user cancels on the list', async () => {

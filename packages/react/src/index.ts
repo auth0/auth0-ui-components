@@ -3,7 +3,6 @@
  */
 
 // Components
-export { GateKeeper } from './components/auth0/shared/gate-keeper/gate-keeper';
 export {
   UserMFAManagement,
   UserMFAManagementView,
@@ -52,6 +51,9 @@ export {
 
 // Providers
 export { PermissionProvider } from './providers/permission-provider';
+
+// MFA step-up for calls made outside the library's components
+export { withMfaStepUp } from '@auth0/universal-components-core';
 
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';

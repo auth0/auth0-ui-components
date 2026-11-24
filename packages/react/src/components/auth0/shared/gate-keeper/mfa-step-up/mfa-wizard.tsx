@@ -3,7 +3,11 @@
  * @module mfa-wizard
  * @internal
  */
-import { MFA_STEP, type MfaFlowConfig } from '@auth0/universal-components-core';
+import {
+  MFA_STEP,
+  type MfaFlowConfig,
+  type MfaStepUpError,
+} from '@auth0/universal-components-core';
 import { useEffect, useRef } from 'react';
 
 import { AuthenticatorsList } from './authenticators-list';
@@ -30,7 +34,7 @@ interface MfaWizardProps {
   error: unknown;
   actionsAlign?: MfaActionsAlign;
   onComplete: () => void;
-  onCancel: () => void;
+  onCancel: (failure?: MfaStepUpError) => void;
   flow?: MfaFlowConfig;
   screens?: Partial<Record<string, MfaStepScreen>>;
 }
@@ -130,11 +134,14 @@ function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWiz
 
   const status = snapshot?.status;
   const reason = snapshot?.reason;
+  const failure = snapshot?.failure;
   useEffect(() => {
     if (status === 'done') callbacks.current.onComplete();
-    if (status === 'cancelled' && reason !== 'disposed') callbacks.current.onCancel();
-    if (status === 'blocked' && reason === 'unavailable') callbacks.current.onCancel();
-  }, [status, reason]);
+    const isCancelled = status === 'cancelled' && reason !== 'disposed';
+    if (isCancelled || status === 'blocked') {
+      callbacks.current.onCancel(failure);
+    }
+  }, [status, reason, failure]);
 
   if (!machine || !snapshot || snapshot.status === 'loading') {
     return (
@@ -162,7 +169,7 @@ function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWiz
             ? t('mfa.no_authenticators')
             : t('fallback.description')
         }
-        onCancel={onCancel}
+        onCancel={() => onCancel(failure)}
       />
     );
   }

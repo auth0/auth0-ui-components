@@ -1,47 +1,45 @@
 /**
- * GateKeeper component for guarding content during loading, MFA step-up, and 5xx error states.
+ * What a component shows in place of its content: a spinner while its data loads, or a message
+ * with Retry when the request failed on the server's side or an MFA step-up did not finish.
  * @module gate-keeper
  * @internal
  */
 
-import {
-  type ComponentStyling,
-  getComponentStyles,
-  getStatusCode,
-  isMfaRequiredError,
-} from '@auth0/universal-components-core';
+import { getComponentStyles, type ComponentStyling } from '@auth0/universal-components-core';
 import { RefreshCcw } from 'lucide-react';
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-
-import { MfaWizard } from './mfa-step-up/mfa-wizard';
+import { useMemo, useState, type ReactNode } from 'react';
 
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
-import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import { useGateKeeperContext, useLoadFailed } from '@/providers/gate-keeper-context';
 
 interface GateKeeperProps {
   styling?: ComponentStyling<Record<string, string>>;
   isLoading?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 /**
- * Blocking error fallback with retry button.
- * Shown for 5xx errors.
- *
- * @param props - Component props.
- * @param props.onRetry - Retry handler.
- * @returns Error fallback element.
+ * @returns The "we couldn't load this" card. Retry fetches again.
  * @internal
  */
-function ErrorFallback({ onRetry }: { onRetry: () => void }) {
+function ErrorFallback() {
   const { t } = useTranslator('gate_keeper');
+  const { onRetry } = useGateKeeperContext();
+  const [isRetrying, setIsRetrying] = useState(false);
+
+  const retry = async () => {
+    setIsRetrying(true);
+    try {
+      await onRetry?.();
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   return (
     <Card className="text-center">
@@ -50,8 +48,12 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
         <CardDescription>{t('fallback.description')}</CardDescription>
       </CardContent>
       <CardFooter className="justify-center">
-        <Button variant="primary" size="default" onClick={onRetry}>
-          <RefreshCcw className="size-4" />
+        <Button variant="primary" onClick={retry} disabled={isRetrying}>
+          {isRetrying ? (
+            <Spinner size="sm" colorScheme="foreground" />
+          ) : (
+            <RefreshCcw className="size-4" />
+          )}
           {t('fallback.retry')}
         </Button>
       </CardFooter>
@@ -60,117 +62,29 @@ function ErrorFallback({ onRetry }: { onRetry: () => void }) {
 }
 
 /**
- * MFA step-up dialog.
+ * Shows a spinner while its content loads, and the failure card when the load failed.
  *
  * @param props - Component props.
- * @param props.error - MFA error containing the token and challenge details.
- * @param props.onComplete - Callback when MFA is completed successfully; triggers a retry.
- * @param props.onClose - Callback when the dialog is dismissed without completing; retries nothing.
- * @returns MFA dialog element.
+ * @param props.styling - The block's styling, whose variables apply to its scope.
+ * @param props.isLoading - Whether the content is loading.
+ * @param props.children - The content, shown once it loaded.
+ * @returns The spinner, the failure card or the content.
  * @internal
  */
-function MfaDialog({
-  error,
-  onComplete,
-  onClose,
-}: {
-  error: unknown;
-  onComplete: () => void;
-  onClose: () => void;
-}) {
-  const { mfaStepUp } = useGateKeeperContext();
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className={mfaStepUp?.classes?.['MfaStepUp-dialogContent']}>
-        <MfaWizard
-          error={error}
-          onComplete={onComplete}
-          onCancel={onClose}
-          flow={mfaStepUp?.flow}
-          screens={mfaStepUp?.screens}
-          actionsAlign={mfaStepUp?.actionsAlign}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-/**
- * Guards children from rendering during loading/error states. MFA step-up overlays
- * children without unmounting them, preserving any in-progress form state.
- * - Loading → spinner (blocks children)
- * - MFA required error → MFA step-up dialog overlaid on children; dismissing it shows the
- *   error fallback with retry, and retries nothing
- * - 5xx error → blocking error fallback with retry
- * - No error → children
- *
- * @param props - Component props.
- * @param props.styling - Styling configuration forwarded to the styled scope.
- * @param props.isLoading - Whether content is loading.
- * @param props.children - Child elements to render on success.
- * @returns GateKeeper element.
- */
 export function GateKeeper({ styling, isLoading, children }: GateKeeperProps) {
-  const { error, onRetry } = useGateKeeperContext();
-  const { coreClient } = useCoreClient();
   const { isDarkMode } = useTheme();
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [dismissedError, setDismissedError] = useState<unknown>();
-
+  const hasLoadFailed = useLoadFailed();
   const styles = useMemo(() => getComponentStyles(styling, isDarkMode), [styling, isDarkMode]);
 
-  const handleRetry = useCallback(async () => {
-    setDismissedError(undefined);
-    setIsRetrying(true);
-    try {
-      await onRetry?.();
-    } finally {
-      setIsRetrying(false);
-    }
-  }, [onRetry]);
-
-  const isMfaStepUp = isMfaRequiredError(error);
-  const statusCode = getStatusCode(error);
-  const isSystemError = !!error && !!statusCode && (statusCode >= 500 || statusCode === 429);
-  const isMfaDismissed = isMfaStepUp && dismissedError === error;
-
-  useEffect(() => {
-    if (isMfaStepUp && coreClient && !coreClient.isProxyMode()) {
-      console.warn(
-        `🚨 [Auth0 Components Warning]: A step-up authentication (MFA) was triggered, but the interactiveErrorHandler is not configured.\n\nTo enable Universal Login redirects for MFA step-up, login required, or consent errors, please update your configuration:\n\n<Auth0Provider\n  ...\n  interactiveErrorHandler="popup"\n>\n\nFor more details, refer to the Auth0 Documentation.`,
-      );
-    }
-  }, [isMfaStepUp, coreClient]);
-
-  if (isLoading || isRetrying) {
-    return (
-      <StyledScope style={styles.variables}>
-        <div className="flex items-center justify-center p-8">
-          <Spinner />
-        </div>
-      </StyledScope>
-    );
-  }
-
-  if (isSystemError || isMfaDismissed) {
-    return (
-      <StyledScope style={styles.variables}>
-        <ErrorFallback onRetry={handleRetry} />
-      </StyledScope>
-    );
-  }
-
-  return (
-    <StyledScope style={styles.variables}>
-      {children}
-      {isMfaStepUp && (
-        <MfaDialog
-          error={error}
-          onComplete={handleRetry}
-          onClose={() => setDismissedError(error)}
-        />
-      )}
-    </StyledScope>
+  const content = hasLoadFailed ? (
+    <ErrorFallback />
+  ) : isLoading ? (
+    <div className="flex items-center justify-center p-8">
+      <Spinner />
+    </div>
+  ) : (
+    children
   );
+
+  return <StyledScope style={styles.variables}>{content}</StyledScope>;
 }

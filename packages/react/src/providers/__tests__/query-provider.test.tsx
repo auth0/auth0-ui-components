@@ -1,7 +1,8 @@
+import { createMfaStepUpError as coreFailure } from '@auth0/universal-components-core';
 import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 import {
@@ -222,8 +223,7 @@ describe('QueryProvider', () => {
     expect(typeof retryFn).toBe('function');
     expect((retryFn as Function)(0, new Error('server error'))).toBe(true);
     expect((retryFn as Function)(1, new Error('server error'))).toBe(false);
-    const mfaError = Object.assign(new Error('mfa'), { error: 'mfa_required' });
-    expect((retryFn as Function)(0, mfaError)).toBe(false);
+    expect((retryFn as Function)(0, coreFailure('cancelled'))).toBe(false);
   });
 
   it('should disable query and mutation retries when retryConfig is disabled', () => {
@@ -280,7 +280,7 @@ describe('QueryProvider GateKeeper integration', () => {
     <QueryProvider>{children}</QueryProvider>
   );
   const serverError = Object.assign(new Error('Server Error'), { status: 500 });
-  const mfaError = Object.assign(new Error('MFA Required'), { error: 'mfa_required' });
+  const stepUpFailure = coreFailure('unavailable');
 
   it('should provide initial gate keeper state with no error', () => {
     const { result } = renderHook(() => useGateKeeperContext(), { wrapper });
@@ -318,13 +318,13 @@ describe('QueryProvider GateKeeper integration', () => {
     expect(result.current.mfaStepUp).toBe(mfaStepUp);
   });
 
-  it('should set gate keeper error when a query fails with MFA required', async () => {
+  it('should set gate keeper error when a query fails because the step-up failed', async () => {
     const { result } = renderHook(
       () => {
         const gkCtx = useGateKeeperContext();
         useQuery({
           queryKey: ['gk-mfa-query'],
-          queryFn: () => Promise.reject(mfaError),
+          queryFn: () => Promise.reject(stepUpFailure),
           retry: false,
         });
         return { gkCtx };
@@ -332,7 +332,24 @@ describe('QueryProvider GateKeeper integration', () => {
       { wrapper },
     );
 
-    await waitFor(() => expect(result.current.gkCtx.error).toBe(mfaError));
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(stepUpFailure));
+  });
+
+  it('shows the failure, and fetches once, when an SDK client wrapped the failed step-up', async () => {
+    const wrapped = new Error('request failed', { cause: stepUpFailure });
+    const queryFn = vi.fn<() => Promise<string>>().mockRejectedValue(wrapped);
+    const { result } = renderHook(
+      () => {
+        const gkCtx = useGateKeeperContext();
+        useQuery({ queryKey: ['gk-wrapped-step-up'], queryFn });
+        return { gkCtx };
+      },
+      { wrapper },
+    );
+
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(wrapped));
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(queryFn).toHaveBeenCalledTimes(1);
   });
 
   it('should not set gate keeper error for notifiable errors (4xx)', async () => {
@@ -402,12 +419,12 @@ describe('QueryProvider GateKeeper integration', () => {
     expect(result.current.gkCtx.error).not.toBeNull();
   });
 
-  it('should set gate keeper error when a mutation fails with MFA required', async () => {
+  it('should set gate keeper error when a mutation fails because the step-up failed', async () => {
     const { result } = renderHook(
       () => {
         const gkCtx = useGateKeeperContext();
         const mutation = useMutation({
-          mutationFn: () => Promise.reject(mfaError),
+          mutationFn: () => Promise.reject(stepUpFailure),
         });
         return { gkCtx, mutation };
       },
@@ -416,7 +433,7 @@ describe('QueryProvider GateKeeper integration', () => {
 
     act(() => result.current.mutation.mutate());
 
-    await waitFor(() => expect(result.current.gkCtx.error).toBe(mfaError));
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(stepUpFailure));
     expect(result.current.gkCtx.onRetry).toBeDefined();
   });
 
@@ -446,7 +463,7 @@ describe('QueryProvider GateKeeper integration', () => {
       () => {
         const gkCtx = useGateKeeperContext();
         const mutation = useMutation({
-          mutationFn: () => (fail ? Promise.reject(mfaError) : Promise.resolve('ok')),
+          mutationFn: () => (fail ? Promise.reject(stepUpFailure) : Promise.resolve('ok')),
           retry: false,
         });
         return { gkCtx, mutation };
@@ -455,7 +472,7 @@ describe('QueryProvider GateKeeper integration', () => {
     );
 
     act(() => result.current.mutation.mutate());
-    await waitFor(() => expect(result.current.gkCtx.error).toBe(mfaError));
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(stepUpFailure));
 
     fail = false;
     const success = await act(() => result.current.gkCtx.onRetry?.());
@@ -469,7 +486,7 @@ describe('QueryProvider GateKeeper integration', () => {
       () => {
         const gkCtx = useGateKeeperContext();
         const mutation = useMutation({
-          mutationFn: () => Promise.reject(mfaError),
+          mutationFn: () => Promise.reject(stepUpFailure),
           retry: false,
         });
         return { gkCtx, mutation };

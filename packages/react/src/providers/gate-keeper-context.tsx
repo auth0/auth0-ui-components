@@ -1,5 +1,6 @@
 'use client';
 
+import { getStatusCode, isMfaStepUpError } from '@auth0/universal-components-core';
 import { createContext, useContext } from 'react';
 
 import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
@@ -26,4 +27,17 @@ export function useGateKeeperContext(): GateKeeperContextValue {
   }
 
   return context;
+}
+
+/**
+ * @internal
+ * @returns Whether a request failed on the server's side (5xx or 429), or an MFA step-up did not finish.
+ */
+export function useLoadFailed(): boolean {
+  const { error } = useGateKeeperContext();
+  const statusCode = getStatusCode(error);
+  return (
+    !!error &&
+    (isMfaStepUpError(error) || (!!statusCode && (statusCode >= 500 || statusCode === 429)))
+  );
 }
