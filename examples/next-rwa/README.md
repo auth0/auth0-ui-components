@@ -130,6 +130,14 @@ Run `auth0 tenants list` to verify your session is active. Re-authenticate with 
 
 Ensure your Auth0 application is configured as a "Regular Web Application" (not SPA) for the RWA mode to work correctly.
 
+### 431 Request Header Fields Too Large
+
+The session is stored on the server (`src/lib/session-store.ts`), so the browser only keeps a small session id cookie. Cookie sessions grow with every audience's tokens and can exceed the dev server's header limit. See [database sessions](https://github.com/auth0/nextjs-auth0/blob/main/EXAMPLES.md#database-sessions).
+
+The example's store is in memory, so restarting the server signs everyone out, and it needs every request to run in one Node process. That is why the auth routes run from `src/proxy.ts`: on Next.js 16, `middleware.ts` runs on the Edge runtime, which has its own memory, so sessions it created or refreshed would not be visible to the rest of the app. In production, back `SessionDataStore` with Redis or a database, and expire sessions there.
+
+After switching between cookie sessions and a store, clear the `localhost` cookies once. A cookie from one setup cannot be read by the other and makes every request fail.
+
 ## License
 
 Copyright 2026 Okta, Inc.
