@@ -208,9 +208,12 @@ export {
   isMfaStepUpError,
   type MfaStepUpError,
   type MfaStepUpErrorCode,
-} from './services/mfa-step-up/mfa-step-up-errors';
-export { withMfaStepUp } from './api/api-utils';
-export { mfaStepUpStore, type MfaStepUpRequest } from './services/mfa-step-up/mfa-step-up-store';
+} from './services/mfa-step-up/mfa-step-up-api-error';
+export { withMfaStepUp } from './services/mfa-step-up/mfa-step-up-interceptor';
+export {
+  mfaStepUpStore,
+  type MfaStepUpRequest,
+} from './services/mfa-step-up/flow/mfa-step-up-store';
 export { createMfaStepUpMachine } from './services/mfa-step-up/flow/mfa-step-up-machine';
 export { createMfaFlow } from './services/mfa-step-up/flow/mfa-step-up-flow';
 export { MFA_STEP } from './services/mfa-step-up/flow/mfa-step-up-flow';

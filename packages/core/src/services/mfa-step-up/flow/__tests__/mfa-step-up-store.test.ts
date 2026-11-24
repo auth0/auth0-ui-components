@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import type { MfaRequiredError } from '../mfa-step-up-api-types';
-import { createMfaStepUpError } from '../mfa-step-up-errors';
+import { createMfaStepUpError } from '../../mfa-step-up-api-error';
+import type { MfaRequiredError } from '../../mfa-step-up-api-types';
 import { createMfaStepUpStore } from '../mfa-step-up-store';
 
 const mfaRequired = (mfaToken = 'a'): MfaRequiredError =>

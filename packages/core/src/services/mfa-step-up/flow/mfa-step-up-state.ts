@@ -2,10 +2,9 @@
  * @module mfa-step-up-state
  */
 import { FACTOR_TYPE_PUSH } from '../mfa-step-up-api-constants';
+import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-api-error';
 import type { EnrollmentResponse, MfaRequirements } from '../mfa-step-up-api-types';
 import { requiresContactInput } from '../mfa-step-up-api-utils';
-import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-errors';
-import { createSubscribers } from '../mfa-step-up-subscribers';
 
 import { MFA_STEP } from './mfa-step-up-flow';
 import type {
@@ -19,6 +18,7 @@ import type {
   MfaRequestName,
   MfaStepUpSnapshot,
 } from './mfa-step-up-flow-types';
+import { createSubscribers } from './mfa-step-up-subscribers';
 
 export interface StepUpState {
   mfaToken: string;

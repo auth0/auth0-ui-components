@@ -1,5 +1,5 @@
 /**
- * @module mfa-step-up-errors
+ * @module mfa-step-up-api-error
  */
 import { isNetworkError } from '../../api/error-utils';
 
