@@ -502,6 +502,35 @@ describe('MfaWizard', () => {
       expect(apiClient.verify).toHaveBeenCalledTimes(1);
     });
 
+    it('shows the screen of a step placed between built-in steps, and goes back to the list', async () => {
+      withAuthenticators(authenticator({ authenticatorType: 'recovery-code' }));
+      const DetailsScreen = ({ machine }: MfaStepScreenProps) => (
+        <>
+          <button onClick={() => machine.next()}>details next</button>
+          <button onClick={() => machine.back()}>details back</button>
+        </>
+      );
+      const user = userEvent.setup();
+      const pickRecovery = async (u: typeof user) => {
+        await u.click(await screen.findByRole('radio', { name: /mfa.method.recovery/ }));
+        await u.click(screen.getByRole('button', { name: 'mfa.continue' }));
+      };
+      renderWizard({
+        flow: { add: [{ id: 'details', after: 'list' }] },
+        screens: { details: DetailsScreen },
+      });
+
+      await pickRecovery(user);
+      await user.click(await screen.findByRole('button', { name: 'details back' }));
+      expect(await screen.findByRole('radio', { name: /mfa.method.recovery/ })).toBeInTheDocument();
+
+      await pickRecovery(user);
+      await user.click(await screen.findByRole('button', { name: 'details next' }));
+      expect(
+        await screen.findByRole('button', { name: 'mfa.confirm.verify_selected' }),
+      ).toBeInTheDocument();
+    });
+
     it('keeps a built-in screen when a replacement is undefined', async () => {
       withAuthenticators(authenticator({ authenticatorType: 'recovery-code' }));
       renderWizard({ screens: { list: undefined } });
