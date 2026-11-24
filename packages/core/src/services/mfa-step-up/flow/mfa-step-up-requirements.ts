@@ -1,5 +1,4 @@
 /**
- * Resolves which factors can be enrolled and which authenticators challenged.
  * @module mfa-step-up-requirements
  */
 import {
@@ -12,9 +11,9 @@ import {
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_VOICE,
 } from '../mfa-step-up-api-constants';
-import type { MfaApiClient } from '../mfa-step-up-api-types';
 import type {
   EnrollmentFactor,
+  MfaApiClient,
   MfaAuthenticator,
   MfaRequiredError,
 } from '../mfa-step-up-api-types';
@@ -24,7 +23,6 @@ import type { MfaOption } from './mfa-step-up-flow-types';
 
 type RequirementsError = Pick<MfaRequiredError, 'mfa_token' | 'mfa_requirements'>;
 
-// The factors the flow knows how to enroll. Others, like recovery codes or WebAuthn, are not offered.
 const ENROLLABLE_FACTORS: readonly string[] = [
   FACTOR_TYPE_OTP,
   FACTOR_TYPE_PUSH,
@@ -33,40 +31,21 @@ const ENROLLABLE_FACTORS: readonly string[] = [
   FACTOR_TYPE_EMAIL,
 ];
 
-// Authenticator app first, then SMS, voice, email and push. A recovery code is always last.
-const FACTOR_ORDER: readonly string[] = [
-  FACTOR_TYPE_OTP,
-  FACTOR_TYPE_SMS,
-  FACTOR_TYPE_VOICE,
-  FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_PUSH,
-];
-
-const getFactorRank = (factor: string) => {
-  if (factor === FACTOR_TYPE_RECOVERY_CODE) return Number.MAX_SAFE_INTEGER;
-  const rank = FACTOR_ORDER.indexOf(factor);
-  return rank === -1 ? FACTOR_ORDER.length : rank;
-};
+const CHALLENGEABLE_FACTORS: readonly string[] = [...ENROLLABLE_FACTORS, FACTOR_TYPE_RECOVERY_CODE];
 
 /**
- * @param options - Options in the order the API gave them.
- * @returns The options in the order the user sees them. Equal factors keep the API's order.
- */
-const sortByFactor = (options: MfaOption[]): MfaOption[] =>
-  [...options].sort((a, b) => getFactorRank(a.factor) - getFactorRank(b.factor));
-
-/**
- * Offers only factors the flow can enroll, and merges factors that normalize to the same type.
- *
  * @param factors - Raw factors from the API or from `mfa_requirements.enroll`.
  * @returns One enroll option per factor.
  */
 function toEnrollOptions(factors: EnrollmentFactor[]): MfaOption[] {
-  const options = factors
-    .map((enrollmentFactor) => normalizeFactorType(enrollmentFactor.type))
-    .filter((factor) => ENROLLABLE_FACTORS.includes(factor))
-    .map((factor): MfaOption => ({ id: `enroll:${factor}`, kind: 'enroll', factor }));
-  return sortByFactor([...new Map(options.map((option) => [option.id, option])).values()]);
+  const enrollable = new Set(
+    factors
+      .map(({ type }) => normalizeFactorType(type))
+      .filter((factor) => ENROLLABLE_FACTORS.includes(factor)),
+  );
+  return [...enrollable].map(
+    (factor): MfaOption => ({ id: `enroll:${factor}`, kind: 'enroll', factor }),
+  );
 }
 
 /**
@@ -75,17 +54,19 @@ function toEnrollOptions(factors: EnrollmentFactor[]): MfaOption[] {
  */
 function getAuthenticatorFactor(authenticator: MfaAuthenticator): string {
   const { authenticatorType, type } = authenticator;
-  if (authenticatorType === 'oob' && type) return normalizeFactorType(type);
-  return authenticatorType === 'otp' ? FACTOR_TYPE_OTP : authenticatorType;
+  return normalizeFactorType(authenticatorType === 'oob' && type ? type : authenticatorType);
 }
 
 /**
  * @param authenticators - Authenticators from the API.
- * @returns One challenge option per active authenticator.
+ * @returns One challenge option per active authenticator the flow can challenge.
  */
 function toChallengeOptions(authenticators: MfaAuthenticator[]): MfaOption[] {
-  const options = authenticators
+  return authenticators
     .filter((authenticator) => authenticator.active)
+    .filter((authenticator) =>
+      CHALLENGEABLE_FACTORS.includes(getAuthenticatorFactor(authenticator)),
+    )
     .map(
       (authenticator): MfaOption => ({
         id: `challenge:${authenticator.id}`,
@@ -101,7 +82,6 @@ function toChallengeOptions(authenticators: MfaAuthenticator[]): MfaOption[] {
         },
       }),
     );
-  return sortByFactor(options);
 }
 
 /**
