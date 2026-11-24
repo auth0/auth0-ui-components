@@ -14,6 +14,8 @@ export type MfaStepUpErrorCode =
   | 'unavailable'
   | 'unexpected';
 
+const STEP_UP_ERROR_NAME = 'MfaStepUpError';
+
 /** Any failure of an MFA step-up. `code` says which. */
 export type MfaStepUpError = Error & { code: MfaStepUpErrorCode };
 
@@ -25,7 +27,16 @@ export type MfaStepUpError = Error & { code: MfaStepUpErrorCode };
 export const createMfaStepUpError = (
   code: MfaStepUpErrorCode,
   { message = code, cause }: { message?: string; cause?: unknown } = {},
-): MfaStepUpError => Object.assign(new Error(message, { cause }), { code });
+): MfaStepUpError =>
+  Object.assign(new Error(message, { cause }), { code, name: STEP_UP_ERROR_NAME });
+
+/**
+ * @param err - Anything that was thrown or rejected.
+ * @returns Whether it is a failure of an MFA step-up, made by `createMfaStepUpError`, or an error
+ * that was caused by one. The SDK clients wrap what their fetcher throws.
+ */
+export const isMfaStepUpError = (err: unknown): boolean =>
+  err instanceof Error && (err.name === STEP_UP_ERROR_NAME || isMfaStepUpError(err.cause));
 
 interface RawApiError {
   status?: number;

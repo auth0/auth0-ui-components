@@ -8,46 +8,48 @@ import {
 } from './mfa-step-up-api-constants';
 import type { MfaRequiredError } from './mfa-step-up-api-types';
 
+type MfaPayload = Partial<MfaRequiredError>;
+
+const isMfaPayload = (value: unknown): value is MfaPayload =>
+  typeof value === 'object' &&
+  value !== null &&
+  'error' in value &&
+  value.error === MFA_REQUIRED_ERROR;
+
 /**
- * Validates if a data object matches the MFA requirement schema.
- * @param v - The value to check.
- * @returns True if the value matches the MFA payload shape.
+ * Fetch-based SDKs put the response body in `body`, `cause` or `data`. Axios puts it in `response.data`.
+ *
+ * @param err - Whatever a request failed with.
+ * @returns The error itself and every place its body may be.
  */
-function isMfaPayload(v: unknown): v is MfaRequiredError {
-  if (!v || typeof v !== 'object') return false;
-  const p = v as Record<string, unknown>;
-  return p.error === MFA_REQUIRED_ERROR;
+function getPayloads(err: unknown): MfaPayload[] {
+  const { body, cause, data, response } = (err ?? {}) as {
+    body?: MfaPayload;
+    cause?: MfaPayload;
+    data?: MfaPayload;
+    response?: { data?: MfaPayload };
+  };
+  return [err as MfaPayload, body, cause, data, response?.data].filter(Boolean) as MfaPayload[];
 }
+
 /**
- * Type guard for Auth0 `mfa_required` errors.
  * @param err - The error to check.
- * @returns True if the error is an MFA required error.
+ * @returns Whether it is an Auth0 `mfa_required` error, wherever its body sits.
  */
 export function isMfaRequiredError(err: unknown): err is MfaRequiredError {
-  const e = err && typeof err === 'object' ? (err as Record<string, unknown>) : null;
-  return [e, e?.body, e?.cause, e?.data].some(isMfaPayload);
+  return getPayloads(err).some(isMfaPayload);
 }
 
 /**
- * Flattens MFA metadata to the root of the error object. It may be in `body`, `cause` or `data`.
  * @param err - The error to normalize.
- * @returns The error with MFA metadata lifted to the top level.
+ * @returns The error with `mfa_token` and `mfa_requirements` lifted to the top level.
  */
 export function normalizeMfaRequiredError<T extends MfaRequiredError>(err: T): T {
-  const { body, cause, data } = err as unknown as {
-    body?: Partial<MfaRequiredError>;
-    cause?: Partial<MfaRequiredError>;
-    data?: Partial<MfaRequiredError>;
-  };
-
+  const payloads = getPayloads(err);
   return {
     ...err,
-    mfa_token: err.mfa_token ?? body?.mfa_token ?? cause?.mfa_token ?? data?.mfa_token,
-    mfa_requirements:
-      err.mfa_requirements ??
-      body?.mfa_requirements ??
-      cause?.mfa_requirements ??
-      data?.mfa_requirements,
+    mfa_token: payloads.find(({ mfa_token }) => mfa_token)?.mfa_token,
+    mfa_requirements: payloads.find(({ mfa_requirements }) => mfa_requirements)?.mfa_requirements,
   };
 }
 
