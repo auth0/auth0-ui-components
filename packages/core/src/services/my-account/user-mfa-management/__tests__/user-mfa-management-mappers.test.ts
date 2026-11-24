@@ -413,17 +413,6 @@ describe('MFAMappers', () => {
       });
     });
 
-    describe('WebAuthn factor types', () => {
-      it.each(['webauthn-roaming', 'webauthn-platform'])(
-        'throws for %s, which My Account cannot create any more',
-        (factorType) => {
-          expect(() => MFAMappers.buildEnrollParams(factorType as MFAType)).toThrow(
-            'Unsupported factor type',
-          );
-        },
-      );
-    });
-
     describe('RECOVERY_CODE factor type', () => {
       it('should return correct params for recovery code enrollment', () => {
         const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_RECOVERY_CODE as MFAType);

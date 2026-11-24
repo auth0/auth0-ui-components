@@ -56,8 +56,6 @@ export function buildEnrollParams(
       return { type: FACTOR_TYPE_RECOVERY_CODE };
     case FACTOR_TYPE_PUSH_NOTIFICATION:
       return { type: FACTOR_TYPE_PUSH_NOTIFICATION };
-    // WebAuthn security keys cannot be created through My Account any more. Passkeys have their
-    // own component and service.
     default:
       throw new Error(`Unsupported factor type: ${factorType}`);
   }
