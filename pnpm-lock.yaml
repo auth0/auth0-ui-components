@@ -737,7 +737,7 @@ packages:
     engines: {node: '>=20.0.0'}
 
   '@auth0/myorganization-js@file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz':
-    resolution: {integrity: sha512-83e2SGZg9W/xl8lgEsW5wijRyuDQLI1OPMYtH9wANX9IQbXIR+m6yVHmJrZxDYRQFHkxqJFIuexJm/JcwMV4VA==, tarball: file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz}
+    resolution: {integrity: sha512-eEIg/PvM9wnc+VyZ9jnPtizVQL5JDiHpDw+6ClRucQ1S0TcYW2Cc4Z9ET1OB3pJVsYCrZC4QxFy9xEsGlkgFow==, tarball: file:vendor/sdk-preview/auth0-myorganization-js-2.2.0.tgz}
     version: 2.2.0
     engines: {node: '>=20.0.0'}
 
