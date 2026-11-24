@@ -53,7 +53,16 @@ export {
 export { PermissionProvider } from './providers/permission-provider';
 
 // MFA step-up for calls made outside the library's components
-export { withMfaStepUp } from '@auth0/universal-components-core';
+export {
+  withMfaStepUp,
+  MFA_STEP,
+  type MfaBuiltInStepPath,
+  type MfaCustomStep,
+  type MfaFlowConfig,
+  type MfaFlowFacts,
+  type MfaStepUpMachine,
+  type MfaStepUpSnapshot,
+} from '@auth0/universal-components-core';
 
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';

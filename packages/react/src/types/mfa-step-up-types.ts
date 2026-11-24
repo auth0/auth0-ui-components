@@ -5,6 +5,7 @@
 
 import type {
   MfaFlowConfig,
+  MfaStepPath,
   MfaStepUpMachine,
   MfaStepUpSnapshot,
 } from '@auth0/universal-components-core';
@@ -45,7 +46,7 @@ export type MfaActionsAlign = 'left' | 'center' | 'right';
 export interface MfaStepUpSettings {
   flow?: MfaFlowConfig;
   /** Screens for added steps by id, or replacements for built-in steps by path. */
-  screens?: Partial<Record<string, MfaStepScreen>>;
+  screens?: Partial<Record<MfaStepPath, MfaStepScreen>>;
   /** Where the buttons at the bottom of the built-in screens sit. Defaults to `right`. */
   actionsAlign?: MfaActionsAlign;
   classes?: MfaStepUpClasses;
