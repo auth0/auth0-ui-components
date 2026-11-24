@@ -256,8 +256,17 @@ describe('OrganizationTable', () => {
     it('keeps the row and reports it when other members block the delete', async () => {
       const user = userEvent.setup();
       const onAfter = vi.fn();
+      // The API reports "other members" with the forbidden error type in the body.
       deleteOrganization.mockRejectedValueOnce(
-        Object.assign(new Error('Forbidden'), { statusCode: 403 }),
+        Object.assign(new Error('Forbidden'), {
+          statusCode: 403,
+          body: {
+            type: 'https://auth0.com/api-errors#A0E-403-0001',
+            title: 'Forbidden',
+            status: 403,
+            detail: 'Forbidden',
+          },
+        }),
       );
 
       renderWithProviders(
