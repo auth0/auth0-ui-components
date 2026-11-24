@@ -5,7 +5,7 @@ import {
   getFatalErrorCode,
   isMfaStepUpError,
   isUnavailableError,
-} from '../mfa-step-up-errors';
+} from '../mfa-step-up-api-error';
 
 describe('isMfaStepUpError', () => {
   it('knows the failures of a step-up', () => {

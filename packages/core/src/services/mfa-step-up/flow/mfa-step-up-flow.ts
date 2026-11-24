@@ -66,7 +66,10 @@ interface FlowConfigToCheck {
  * @throws When a step cannot be hidden, or an added step has no id or a repeated one.
  */
 export function assertValidFlowConfig(config: FlowConfigToCheck): void {
-  assertOptionalSteps(Object.keys(config.hide));
+  const hiddenPaths = Object.entries(config.hide)
+    .filter(([, rule]) => rule !== false && rule !== undefined)
+    .map(([path]) => path);
+  assertOptionalSteps(hiddenPaths);
   assertUniqueIds(config.add);
 }
 

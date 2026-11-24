@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { createMfaStepUpError } from '../../services/mfa-step-up/mfa-step-up-errors';
+import { createMfaStepUpError } from '../../services/mfa-step-up/mfa-step-up-api-error';
 import { isNetworkError, isNotifiableError, resolveErrorMessage } from '../error-utils';
 
 describe('isNotifiableError', () => {

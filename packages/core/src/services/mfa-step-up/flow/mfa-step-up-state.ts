@@ -2,10 +2,9 @@
  * @module mfa-step-up-state
  */
 import { FACTOR_TYPE_PUSH } from '../mfa-step-up-api-constants';
+import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-api-error';
 import type { EnrollmentResponse, MfaRequirements } from '../mfa-step-up-api-types';
 import { requiresContactInput } from '../mfa-step-up-api-utils';
-import { createMfaStepUpError, type MfaStepUpError } from '../mfa-step-up-errors';
-import { createSubscribers } from '../mfa-step-up-subscribers';
 
 import { MFA_STEP } from './mfa-step-up-flow';
 import type {
@@ -19,6 +18,7 @@ import type {
   MfaRequestName,
   MfaStepUpSnapshot,
 } from './mfa-step-up-flow-types';
+import { createSubscribers } from './mfa-step-up-subscribers';
 
 export interface StepUpState {
   mfaToken: string;
@@ -42,6 +42,10 @@ export interface StepUpState {
   pushPhase: MfaPushPhase;
   pushSupported: boolean;
 }
+
+export type InitialStepUp = Pick<StepUpState, 'mfaToken' | 'mfaRequirements'> & {
+  pushSupported?: boolean;
+};
 
 export type StepUpEvent =
   | { type: 'actionStarted' }
@@ -81,11 +85,8 @@ export const isFinal = (state: StepUpState) => IS_FINAL_STATUS[state.status];
 
 export const isVerified = (state: StepUpState) => state.verifiedAtDepth !== undefined;
 
-export const canGoBack = (state: StepUpState) => {
-  const previousIndex = state.history.length - 1;
-  const isUnlocked = state.verifiedAtDepth === undefined || previousIndex >= state.verifiedAtDepth;
-  return previousIndex >= 0 && isUnlocked && !state.isBusy && !isFinal(state);
-};
+export const canGoBack = (state: StepUpState) =>
+  state.history.length > (state.verifiedAtDepth ?? 0) && !state.isBusy && !isFinal(state);
 
 export const canChooseAnotherFactor = (state: StepUpState) =>
   state.options.length > 1 &&
@@ -94,15 +95,15 @@ export const canChooseAnotherFactor = (state: StepUpState) =>
   !state.isBusy &&
   !isFinal(state);
 
+const resetPush = ({ pushSupported }: Pick<StepUpState, 'pushSupported'>) =>
+  ({ pushMode: pushSupported ? 'push' : 'code', pushPhase: 'waiting' }) as const;
+
 const moveTo = (state: StepUpState, next: Partial<StepUpState>): StepUpState => ({
   ...state,
   ...resetPush(state),
   request: { isLoading: false },
   ...next,
 });
-
-const resetPush = ({ pushSupported }: Pick<StepUpState, 'pushSupported'>) =>
-  ({ pushMode: pushSupported ? 'push' : 'code', pushPhase: 'waiting' }) as const;
 
 /**
  * @param initial - The token and requirements of the `mfa_required` error that opened step-up.
@@ -111,11 +112,7 @@ const resetPush = ({ pushSupported }: Pick<StepUpState, 'pushSupported'>) =>
  * @param initial.pushSupported - Whether a push can be approved here. Defaults to true.
  * @returns The state before anything has happened.
  */
-export function createInitialState(initial: {
-  mfaToken: string;
-  mfaRequirements?: MfaRequirements;
-  pushSupported?: boolean;
-}): StepUpState {
+export function createInitialState(initial: InitialStepUp): StepUpState {
   const pushSupported = initial.pushSupported ?? true;
   return {
     mfaToken: initial.mfaToken,
@@ -193,9 +190,13 @@ export function reduce(state: StepUpState, event: StepUpEvent): StepUpState {
     case 'pushPhaseChanged':
       return state.pushPhase === event.phase ? state : { ...state, pushPhase: event.phase };
     case 'pushModeChanged':
-      return { ...state, pushMode: event.mode, pushPhase: 'waiting' };
+      return state.pushMode === event.mode && state.pushPhase === 'waiting'
+        ? state
+        : { ...state, pushMode: event.mode, pushPhase: 'waiting' };
     case 'pushUnsupported':
-      return { ...state, pushSupported: false, pushMode: 'code', pushPhase: 'waiting' };
+      return state.pushSupported
+        ? { ...state, pushSupported: false, pushMode: 'code', pushPhase: 'waiting' }
+        : state;
     case 'stepEntered':
       return moveTo(state, {
         history: state.current === undefined ? state.history : [...state.history, state.current],
@@ -294,7 +295,7 @@ const getEnrollmentView = (state: StepUpState): MfaEnrollmentView => {
  * @param state - The current state.
  * @returns Why the flow ended without the user passing MFA, as the error a caller receives.
  */
-export function getFailure(state: StepUpState): MfaStepUpError | undefined {
+function getFailure(state: StepUpState): MfaStepUpError | undefined {
   if (state.status === 'cancelled') return createMfaStepUpError('cancelled');
   if (state.status === 'blocked' && state.reason) {
     return createMfaStepUpError(state.reason as MfaBlockReason, { cause: state.request.error });
@@ -333,13 +334,9 @@ export function toSnapshot(state: StepUpState): MfaStepUpSnapshot {
  * @param initial.mfaToken - The `mfa_token`.
  * @param initial.mfaRequirements - What the error says is required.
  * @param initial.pushSupported - Whether a push can be approved here. Defaults to true.
- * @returns A store. Dispatching an event that changes nothing notifies nobody.
+ * @returns A store. An event that leaves the state as it was notifies nobody.
  */
-export function createStepUpStore(initial: {
-  mfaToken: string;
-  mfaRequirements?: MfaRequirements;
-  pushSupported?: boolean;
-}) {
+export function createStepUpStore(initial: InitialStepUp) {
   let state = createInitialState(initial);
   let snapshot = toSnapshot(state);
   const subscribers = createSubscribers();

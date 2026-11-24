@@ -4,8 +4,7 @@
  */
 import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 
-import { createMfaFlow } from './mfa-step-up-flow';
-import { MFA_STEP } from './mfa-step-up-flow';
+import { createMfaFlow, MFA_STEP } from './mfa-step-up-flow';
 import type {
   MfaBlockReason,
   MfaFlowStep,
@@ -13,14 +12,38 @@ import type {
   MfaStepUpOptions,
 } from './mfa-step-up-flow-types';
 import { createStepUpRequests } from './mfa-step-up-requests';
-import { getFacts, isChallenged, isFinal, isPush } from './mfa-step-up-state';
-import { createStepUpStore } from './mfa-step-up-state';
+import {
+  canChooseAnotherFactor,
+  canGoBack,
+  createStepUpStore,
+  getFacts,
+  isChallenged,
+  isFinal,
+  isPush,
+  isVerified,
+} from './mfa-step-up-state';
 
 const DEFAULT_PUSH_POLL_INTERVAL_MS = 3000;
 const DEFAULT_PUSH_TIMEOUT_MS = 120_000;
 const DEFAULT_PUSH_APPROVED_DELAY_MS = 1200;
 const SLOW_DOWN_STEP_MS = 5000;
 const MAX_PUSH_CHECK_FAILURES = 3;
+
+type StepExit = 'leave' | 'stay' | 'start-over';
+
+const wait = (ms: number, signal: AbortSignal) =>
+  new Promise<void>((resolve) => {
+    if (signal.aborted) return resolve();
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        resolve();
+      },
+      { once: true },
+    );
+  });
 
 /**
  * Creates the machine. Nothing runs until `start()`.
@@ -34,7 +57,6 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
   const mfaError = isMfaRequiredError(options.error)
     ? normalizeMfaRequiredError(options.error)
     : undefined;
-  // A proxy built on the Next.js SDK cannot ask whether a push was approved, so no push is sent.
   const pushApproval = options.pushApproval ?? (options.isProxyMode ? 'code' : 'poll');
   const store = createStepUpStore({
     mfaToken: mfaError?.mfa_token ?? '',
@@ -52,29 +74,19 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
   } = options;
 
   let startPromise: Promise<void> | undefined;
-  let pollGeneration = 0;
-  let cancelWait: (() => void) | undefined;
-
-  const wait = (ms: number) =>
-    new Promise<void>((resolve) => {
-      const timer = setTimeout(resolve, ms);
-      cancelWait = () => {
-        clearTimeout(timer);
-        resolve();
-      };
-    });
+  let polling: AbortController | undefined;
 
   const stopPolling = () => {
-    pollGeneration += 1;
-    cancelWait?.();
+    polling?.abort();
+    polling = undefined;
   };
 
   const blockFlow = (reason: MfaBlockReason, error?: unknown) =>
     dispatch({ type: 'flowEnded', status: 'blocked', reason, error });
 
-  // Work a step does when the user leaves it, given what they entered: go on to the next step,
-  // stay on this one, or start over because the server wants another factor.
-  type StepExit = 'leave' | 'stay' | 'start-over';
+  const isPushChallenge = () => getState().current === MFA_STEP.challenge && isPush(getState());
+
+  const canPollPush = () => isPushChallenge() && getState().pushSupported && !isFinal(getState());
 
   const leaveByCode = async (input: string): Promise<StepExit> => {
     const outcome = await requests.verifyCode(input);
@@ -114,7 +126,6 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     }
   };
 
-  // Reads the flow without changing it. A `when` or `hide` function that throws propagates.
   const findNextStep = (fromStep: string | undefined): MfaFlowStep | undefined => {
     const fromIndex =
       fromStep === undefined ? -1 : steps.findIndex((step) => step.path === fromStep);
@@ -122,22 +133,18 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     return steps.slice(fromIndex + 1).find((step) => step.isVisible(facts));
   };
 
-  const findNextStepOrBlock = (fromStep: string | undefined) => {
-    try {
-      return { target: findNextStep(fromStep) };
-    } catch (err) {
-      blockFlow('unexpected', err);
-      return undefined;
-    }
-  };
-
   const goToNextStep = async (fromStep: string | undefined): Promise<boolean> => {
     selectOnlyOption();
 
-    const found = findNextStepOrBlock(fromStep);
-    if (!found || isFinal(getState())) return false;
+    let target: MfaFlowStep | undefined;
+    try {
+      target = findNextStep(fromStep);
+    } catch (err) {
+      blockFlow('unexpected', err);
+      return false;
+    }
+    if (isFinal(getState())) return false;
 
-    const { target } = found;
     if (!target) {
       dispatch({ type: 'flowEnded', status: 'done' });
       return true;
@@ -148,17 +155,14 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
       return false;
     }
     dispatch({ type: 'stepEntered', path: target.path });
-    if (isPushChallenge() && getState().pushSupported) pollPush();
+    if (canPollPush()) void pollPush();
     return true;
   };
 
-  const isPushChallenge = () => getState().current === MFA_STEP.challenge && isPush(getState());
-
-  // Asks the server whether the push was approved, until it was, was denied, or has expired.
   const pollPush = async () => {
     stopPolling();
-    const generation = pollGeneration;
-    const isCurrent = () => generation === pollGeneration && !isFinal(getState());
+    const { signal } = (polling = new AbortController());
+    const isCurrent = () => !signal.aborted && !isFinal(getState());
     const deadline = now() + pushTimeoutMs;
     let interval = pushPollIntervalMs;
     let failures = 0;
@@ -166,44 +170,60 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     dispatch({ type: 'pushPhaseChanged', phase: 'waiting' });
     try {
       while (isCurrent()) {
-        await wait(interval);
+        await wait(interval, signal);
         if (!isCurrent()) return;
         if (now() >= deadline) return dispatch({ type: 'pushPhaseChanged', phase: 'expired' });
 
         const check = await requests.checkPush();
         if (!isCurrent()) return;
 
-        if (check === 'denied' || check === 'expired') {
-          return dispatch({ type: 'pushPhaseChanged', phase: check });
+        switch (check) {
+          case 'approved':
+            dispatch({ type: 'pushPhaseChanged', phase: 'approved' });
+            await wait(pushApprovedDelayMs, signal);
+            if (isCurrent()) await withBusy(() => goToNextStep(MFA_STEP.challenge));
+            return;
+          case 'denied':
+          case 'expired':
+            return dispatch({ type: 'pushPhaseChanged', phase: check });
+          case 'another-factor':
+            await withBusy(loadFirstStep);
+            return;
+          case 'unsupported':
+            return dispatch({ type: 'pushUnsupported' });
+          case 'stopped':
+            return;
+          case 'slow-down':
+            interval += SLOW_DOWN_STEP_MS;
+            failures = 0;
+            break;
+          case 'failed':
+            failures += 1;
+            if (failures >= MAX_PUSH_CHECK_FAILURES) return blockFlow('unavailable');
+            break;
+          case 'pending':
+            failures = 0;
+            break;
         }
-        if (check === 'approved') {
-          dispatch({ type: 'pushPhaseChanged', phase: 'approved' });
-          await wait(pushApprovedDelayMs);
-          if (isCurrent()) await goToNextStep(MFA_STEP.challenge);
-          return;
-        }
-        if (check === 'another-factor') return await loadFirstStep();
-        if (check === 'unsupported') return dispatch({ type: 'pushUnsupported' });
-        if (check === 'stopped') return;
-        if (check === 'slow-down') interval += SLOW_DOWN_STEP_MS;
-        failures = check === 'failed' ? failures + 1 : 0;
-        if (failures >= MAX_PUSH_CHECK_FAILURES) return blockFlow('unavailable');
       }
     } catch (err) {
       if (isCurrent()) blockFlow('unexpected', err);
     }
   };
 
-  const runUserAction = async (action: () => Promise<void>) => {
-    const { isBusy, status } = getState();
-    if (isBusy || status !== 'active') return;
-
+  const withBusy = async (action: () => Promise<unknown>) => {
     dispatch({ type: 'actionStarted' });
     try {
       await action();
     } finally {
       dispatch({ type: 'actionEnded' });
     }
+  };
+
+  const runUserAction = async (action: () => Promise<void>) => {
+    const { isBusy, status } = getState();
+    if (isBusy || status !== 'active') return;
+    await withBusy(action);
   };
 
   const next = (input = '') =>
@@ -217,8 +237,6 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
       if (!moved && leavingStep === MFA_STEP.list) dispatch({ type: 'optionSelected' });
     });
 
-  // Loads what the user can pick from, and shows the first step. Also used for each additional
-  // factor, once `roundStarted` has given the machine its new token.
   const loadFirstStep = async () => {
     const loaded = await requests.resolveOptions();
     if (isFinal(getState())) return;
@@ -230,18 +248,12 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
   };
 
   const start = async () => {
-    // A flow that has ended sends nothing.
     if (isFinal(getState())) return;
     if (!mfaError?.mfa_token) {
       return blockFlow('unexpected', new Error('MFA step-up: the error carries no mfa_token'));
     }
 
-    dispatch({ type: 'actionStarted' });
-    try {
-      await loadFirstStep();
-    } finally {
-      dispatch({ type: 'actionEnded' });
-    }
+    await withBusy(loadFirstStep);
   };
 
   return {
@@ -253,11 +265,13 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     next,
 
     back: () => {
+      if (!canGoBack(getState())) return;
       stopPolling();
       dispatch({ type: 'wentBack' });
     },
 
     chooseAnotherFactor: () => {
+      if (!canChooseAnotherFactor(getState())) return;
       stopPolling();
       dispatch({ type: 'wentToList' });
     },
@@ -267,11 +281,12 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
         const state = getState();
         if (!isChallenged(state, state.current)) return;
         const sent = await requests.ensureChallenge(true);
-        if (sent && isPushChallenge() && getState().pushSupported) pollPush();
+        if (sent && canPollPush()) void pollPush();
       }),
 
     switchToCode: () => {
-      if (!isPushChallenge() || isFinal(getState())) return;
+      const state = getState();
+      if (!isPushChallenge() || isFinal(state) || state.isBusy || isVerified(state)) return;
       stopPolling();
       dispatch({ type: 'pushModeChanged', mode: 'code' });
     },
@@ -281,7 +296,7 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
         if (!isPushChallenge() || !getState().pushSupported) return;
         dispatch({ type: 'pushModeChanged', mode: 'push' });
         await requests.ensureChallenge(true);
-        if (!isFinal(getState()) && getState().pushSupported) pollPush();
+        if (canPollPush()) void pollPush();
       }),
 
     cancel: () => {

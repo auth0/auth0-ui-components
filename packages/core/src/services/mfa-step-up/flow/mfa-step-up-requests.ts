@@ -12,14 +12,14 @@ import {
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_VOICE,
 } from '../mfa-step-up-api-constants';
-import type { EnrollParams, MfaRequiredError, VerifyParams } from '../mfa-step-up-api-types';
-import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 import {
   createMfaStepUpError,
   getApiErrorCode,
   getFatalErrorCode,
   isUnavailableError,
-} from '../mfa-step-up-errors';
+} from '../mfa-step-up-api-error';
+import type { EnrollParams, MfaRequiredError, VerifyParams } from '../mfa-step-up-api-types';
+import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 
 import { MFA_STEP } from './mfa-step-up-flow';
 import type { MfaBlockReason, MfaRequestName, MfaStepUpOptions } from './mfa-step-up-flow-types';
@@ -56,6 +56,7 @@ const PUSH_ANSWERS: Record<string, PushCheck> = {
   slow_down: 'slow-down',
   access_denied: 'denied',
   expired_token: 'expired',
+  invalid_request: 'unsupported',
 };
 
 const toEnrollParams = ({ mfaToken, contact, selected }: StepUpState): EnrollParams => {
@@ -83,7 +84,10 @@ const toVerifyParams = (state: StepUpState, code: string): VerifyParams => {
   if (type === 'oob') {
     const key = getChallengeKey(state);
     const oobCode = key ? state.challenges[key]?.oobCode : undefined;
-    return { mfaToken, oobCode: oobCode ?? '', bindingCode: code };
+    if (!oobCode) {
+      throw createMfaStepUpError('unexpected', { message: 'There is no challenge to verify.' });
+    }
+    return { mfaToken, oobCode, bindingCode: code };
   }
   if (type === FACTOR_TYPE_RECOVERY_CODE) return { mfaToken, recoveryCode: code };
   return { mfaToken, otp: code };
@@ -115,15 +119,17 @@ export function createStepUpRequests(
   const block = (reason: MfaBlockReason) =>
     dispatch({ type: 'flowEnded', status: 'blocked', reason });
 
+  const isSettled = () => isFinal(getState()) || isVerified(getState());
+
   const sendRequest = async <T>(name: MfaRequestName, call: () => Promise<T>) => {
     dispatch({ type: 'requestStarted', name });
     try {
       const value = await call();
-      if (isFinal(getState())) return undefined;
+      if (isSettled()) return undefined;
       dispatch({ type: 'requestSucceeded' });
       return value;
     } catch (err) {
-      if (isFinal(getState())) return undefined;
+      if (isSettled()) return undefined;
       dispatch({ type: 'requestFailed', name, error: err });
       const endingCode =
         getFatalErrorCode(err) ?? (isUnavailableError(err) ? 'unavailable' : undefined);
@@ -216,22 +222,20 @@ export function createStepUpRequests(
     try {
       await apiClient.verify({ mfaToken: state.mfaToken, oobCode });
     } catch (err) {
-      if (isFinal(getState())) return 'stopped';
+      if (isSettled()) return 'stopped';
       if (isMfaRequiredError(err)) {
         return startNextRound(err) === 'another-factor' ? 'another-factor' : 'stopped';
       }
       const code = getApiErrorCode(err);
       const answer = PUSH_ANSWERS[code ?? ''];
       if (answer) return answer;
-      if (code === 'invalid_request') return 'unsupported';
 
-      onError?.(err);
       const fatalCode = getFatalErrorCode(err);
-      if (!fatalCode) return 'failed';
-      block(fatalCode);
-      return 'stopped';
+      if (fatalCode) block(fatalCode);
+      onError?.(err);
+      return fatalCode ? 'stopped' : 'failed';
     }
-    if (isFinal(getState())) return 'stopped';
+    if (isSettled()) return 'stopped';
     dispatch({ type: 'verified' });
     return 'approved';
   };
