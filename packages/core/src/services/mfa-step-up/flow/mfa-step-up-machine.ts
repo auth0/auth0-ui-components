@@ -4,7 +4,8 @@
  */
 import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 
-import { createMfaFlow, MFA_STEP } from './mfa-step-up-flow';
+import { createMfaFlow } from './mfa-step-up-flow';
+import { MFA_STEP } from './mfa-step-up-flow-constants';
 import type {
   MfaBlockReason,
   MfaFlowStep,
@@ -15,7 +16,7 @@ import { createStepUpRequests } from './mfa-step-up-requests';
 import {
   canChooseAnotherFactor,
   canGoBack,
-  createStepUpStore,
+  createFlowStore,
   getFacts,
   isChallenged,
   isFinal,
@@ -58,7 +59,7 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     ? normalizeMfaRequiredError(options.error)
     : undefined;
   const pushApproval = options.pushApproval ?? (options.isProxyMode ? 'code' : 'poll');
-  const store = createStepUpStore({
+  const store = createFlowStore({
     mfaToken: mfaError?.mfa_token ?? '',
     mfaRequirements: mfaError?.mfa_requirements,
     pushSupported: pushApproval === 'poll',

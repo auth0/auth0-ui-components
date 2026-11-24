@@ -216,11 +216,7 @@ export {
 } from './services/mfa-step-up/flow/mfa-step-up-store';
 export { createMfaStepUpMachine } from './services/mfa-step-up/flow/mfa-step-up-machine';
 export { createMfaFlow } from './services/mfa-step-up/flow/mfa-step-up-flow';
-export {
-  MFA_STEP,
-  type MfaBuiltInStepPath,
-  type MfaOptionalStepPath,
-} from './services/mfa-step-up/flow/mfa-step-up-flow';
+export { MFA_STEP } from './services/mfa-step-up/flow/mfa-step-up-flow-constants';
 export type * from './services/mfa-step-up/flow/mfa-step-up-flow-types';
 
 // Icons
