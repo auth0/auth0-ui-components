@@ -1310,6 +1310,34 @@ describe('createMfaStepUpMachine', () => {
       expect(stepUp.getSnapshot().status).toBe('done');
     });
 
+    it('runs a custom step in between built-in steps, and goes back and forward through it', async () => {
+      const { apiClient } = otpClient();
+      const { stepUp } = await setup(apiClient, {
+        flow: { add: [{ id: 'details', after: 'list' }] },
+      });
+      await pick(stepUp, 'enroll:otp');
+      expect(stepOf(stepUp)).toBe('details');
+
+      stepUp.back();
+      expect(stepOf(stepUp)).toBe('list');
+
+      await pick(stepUp, 'enroll:otp');
+      await stepUp.next();
+      expect(stepOf(stepUp)).toBe('enroll.qr');
+      expect(apiClient.enroll).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs a custom step before the list, and goes on to the list', async () => {
+      const { apiClient } = otpClient();
+      const { stepUp } = await setup(apiClient, {
+        flow: { add: [{ id: 'intro', before: 'list' }] },
+      });
+      expect(stepOf(stepUp)).toBe('intro');
+
+      await stepUp.next();
+      expect(stepOf(stepUp)).toBe('list');
+    });
+
     it('lets the user go back between steps added after verification, but not before it', async () => {
       const { apiClient } = createClient(
         { getEnrollmentFactors: vi.fn(async () => [{ type: 'otp' }]) },

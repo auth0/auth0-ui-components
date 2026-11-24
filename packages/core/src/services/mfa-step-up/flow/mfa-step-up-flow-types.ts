@@ -25,9 +25,17 @@ export interface MfaFlowFacts {
 
 export type MfaFlowCondition = (facts: MfaFlowFacts) => boolean;
 
+export type MfaStepPath = MfaBuiltInStepPath | (string & {});
+
 export interface MfaCustomStep {
+  /** The name of the step. The key of its screen in `screens`. Must not be a built-in step. */
   id: string;
+  /** Narrow when the step shows. It never shows where the step it is placed next to does not. */
   when?: MfaFlowCondition;
+  /** Place the step right before this step: a built-in one, or an added one listed earlier. */
+  before?: MfaStepPath;
+  /** Place the step right after this step: a built-in one, or an added one listed earlier. */
+  after?: MfaStepPath;
 }
 
 export interface MfaFlowConfig {
@@ -72,7 +80,7 @@ export interface MfaEnrollmentView {
 
 export interface MfaStepUpSnapshot {
   status: MfaFlowStatus;
-  step?: MfaBuiltInStepPath | (string & {});
+  step?: MfaStepPath;
   canBack: boolean;
   canChooseAnotherFactor: boolean;
   canResend: boolean;

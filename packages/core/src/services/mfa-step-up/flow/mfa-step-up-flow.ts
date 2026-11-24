@@ -3,7 +3,8 @@
  *
  * A flow is an ordered list of steps. Each step knows when it applies: the QR step, for example,
  * applies when the user enrolls OTP or push. After a step the machine shows the next step in the
- * list that is visible, so hiding a step skips it. Added steps run last.
+ * list that is visible, so hiding a step skips it. Added steps run last, unless placed `before`
+ * or `after` another step.
  * @module mfa-step-up-flow
  */
 import { FACTOR_TYPE_OTP, FACTOR_TYPE_PUSH } from '../mfa-step-up-api-constants';
@@ -40,38 +41,29 @@ const BUILT_IN_PATHS: readonly string[] = Object.values(MFA_STEP);
 
 const flowError = (message: string) => new Error(`MFA flow: ${message}`);
 
-// Only optional steps can be hidden; the others are needed for the flow to work.
 const assertOptionalSteps = (paths: readonly string[]) => {
-  const requiredPath = paths.find((path) => !OPTIONAL_PATHS.includes(path));
-  if (requiredPath) throw flowError(`"${requiredPath}" cannot be hidden`);
+  const required = paths.find((path) => !OPTIONAL_PATHS.includes(path));
+  if (required) throw flowError(`"${required}" cannot be hidden`);
 };
 
-// Every added step needs an id that no other step uses.
-const assertUniqueIds = (add: MfaCustomStep[]) => {
-  const usedIds = new Set(BUILT_IN_PATHS);
-  for (const { id } of add) {
+const assertValidAddedSteps = (steps: MfaCustomStep[]) => {
+  const seen = new Set(BUILT_IN_PATHS);
+
+  for (const { id, before, after } of steps) {
     if (!id) throw flowError('an added step needs an id');
-    if (usedIds.has(id)) throw flowError(`duplicate step id "${id}"`);
-    usedIds.add(id);
+    if (seen.has(id)) throw flowError(`duplicate step id "${id}"`);
+    if (before !== undefined && after !== undefined) {
+      throw flowError(`"${id}" cannot set both "before" and "after"`);
+    }
+
+    const anchor = before ?? after;
+    if (anchor !== undefined && !seen.has(anchor)) {
+      throw flowError(`"${id}" references unknown step "${anchor}"`);
+    }
+
+    seen.add(id);
   }
 };
-
-interface FlowConfigToCheck {
-  add: MfaCustomStep[];
-  hide: Record<string, unknown>;
-}
-
-/**
- * @param config - What the integrator asked for, with `add` and `hide` both present.
- * @throws When a step cannot be hidden, or an added step has no id or a repeated one.
- */
-export function assertValidFlowConfig(config: FlowConfigToCheck): void {
-  const hiddenPaths = Object.entries(config.hide)
-    .filter(([, rule]) => rule !== false && rule !== undefined)
-    .map(([path]) => path);
-  assertOptionalSteps(hiddenPaths);
-  assertUniqueIds(config.add);
-}
 
 const whenEnrolling =
   (appliesWhen: MfaFlowCondition): MfaFlowCondition =>
@@ -111,8 +103,31 @@ const BUILT_IN_STEPS: Array<{ path: MfaBuiltInStepPath; appliesWhen: MfaFlowCond
   },
 ];
 
+const hasPickedOption: MfaFlowCondition = (facts) => facts.mode !== undefined;
+
 const toHiddenWhen = (hide: boolean | MfaFlowCondition | undefined): MfaFlowCondition =>
   typeof hide === 'function' ? hide : () => hide === true;
+
+interface FlowEntry {
+  appliesWhen: MfaFlowCondition;
+  isVisible: MfaFlowCondition;
+}
+
+const orderPaths = (builtInPaths: string[], addedSteps: MfaCustomStep[]): string[] => {
+  const idsPlacedNextTo = (path: string, side: 'before' | 'after') =>
+    addedSteps.filter((step) => step[side] === path).map((step) => step.id);
+
+  const withPlacedSteps = (path: string): string[] => [
+    ...idsPlacedNextTo(path, 'before').flatMap(withPlacedSteps),
+    path,
+    ...idsPlacedNextTo(path, 'after').flatMap(withPlacedSteps),
+  ];
+
+  const unplacedIds = addedSteps
+    .filter((step) => !step.before && !step.after)
+    .map((step) => step.id);
+  return [...builtInPaths, ...unplacedIds].flatMap(withPlacedSteps);
+};
 
 /**
  * Builds the ordered list of steps from the default flow and the configuration.
@@ -126,27 +141,38 @@ export function createMfaFlow({
   hide = {},
   skipListForSingleOption = false,
 }: MfaFlowConfig = {}): MfaFlowStep[] {
-  assertValidFlowConfig({ add, hide });
+  assertOptionalSteps(
+    Object.entries(hide)
+      .filter(([, rule]) => rule)
+      .map(([path]) => path),
+  );
+  assertValidAddedSteps(add);
 
-  const hideRules: Partial<Record<string, boolean | MfaFlowCondition>> = hide;
-
+  const hideRules: Partial<Record<MfaBuiltInStepPath, boolean | MfaFlowCondition>> = hide;
   const isHiddenWhen = (path: MfaBuiltInStepPath): MfaFlowCondition =>
     path === MFA_STEP.list
       ? (facts) => skipListForSingleOption && facts.optionCount === 1
       : toHiddenWhen(hideRules[path]);
 
-  const builtInSteps = BUILT_IN_STEPS.map(({ path, appliesWhen }): MfaFlowStep => {
+  const entries = new Map<string, FlowEntry>();
+
+  for (const { path, appliesWhen } of BUILT_IN_STEPS) {
     const isHidden = isHiddenWhen(path);
-    return { path, isVisible: (facts) => appliesWhen(facts) && !isHidden(facts) };
-  });
+    entries.set(path, {
+      appliesWhen,
+      isVisible: (facts) => appliesWhen(facts) && !isHidden(facts),
+    });
+  }
 
-  // An added step runs once the user has picked an option.
-  const addedSteps = add.map(
-    ({ id, when = () => true }): MfaFlowStep => ({
-      path: id,
-      isVisible: (facts) => facts.mode !== undefined && when(facts),
-    }),
-  );
+  for (const { id, when = () => true, before, after } of add) {
+    const anchor = before ?? after;
+    const appliesWhen = anchor === undefined ? hasPickedOption : entries.get(anchor)!.appliesWhen;
+    entries.set(id, { appliesWhen, isVisible: (facts) => appliesWhen(facts) && when(facts) });
+  }
 
-  return [...builtInSteps, ...addedSteps];
+  const builtInPaths = BUILT_IN_STEPS.map(({ path }) => path);
+  return orderPaths(builtInPaths, add).map((path) => ({
+    path,
+    isVisible: entries.get(path)!.isVisible,
+  }));
 }
