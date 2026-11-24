@@ -181,11 +181,18 @@ export function useOrganizationTable({
   });
   const handledPendingIdRef = useRef<string | undefined>(undefined);
 
+  // Once the host clears the request, the same organization may be requested again.
+  useEffect(() => {
+    if (!deleteConfirmationOrganizationId) handledPendingIdRef.current = undefined;
+  }, [deleteConfirmationOrganizationId]);
+
   useEffect(() => {
     if (!pendingId || handledPendingIdRef.current === pendingId) return;
-    if (service.isLoading || isPermissionsLoading) return;
+    if (service.isLoading || isPermissionsLoading || isLoadingConfig) return;
 
-    const details = pendingDetailsQuery.data;
+    // The details query isn't keyed by organization, so only use details for this one.
+    const details =
+      pendingDetailsQuery.data?.id === pendingId ? pendingDetailsQuery.data : undefined;
     const organization =
       pendingRow ??
       (details?.name
@@ -211,6 +218,7 @@ export function useOrganizationTable({
     pendingDetailsQuery.isError,
     service.isLoading,
     isPermissionsLoading,
+    isLoadingConfig,
     getDeleteState,
     tCommon,
   ]);
