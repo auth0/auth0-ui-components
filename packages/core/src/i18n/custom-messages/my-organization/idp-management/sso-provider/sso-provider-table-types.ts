@@ -30,6 +30,7 @@ export interface SsoProviderTableMessages extends SharedMessages {
       remove_button_text?: string;
       enabled_tooltip?: string;
       disabled_tooltip?: string;
+      access_restricted_tooltip?: string;
     };
   };
   create_consent_modal?: {

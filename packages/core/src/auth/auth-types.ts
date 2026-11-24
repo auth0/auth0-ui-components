@@ -38,11 +38,34 @@ export type FetcherSupplier = (
 ) => Promise<Response>;
 
 /**
+ * Detailed access token response returned by the SDK.
+ *
+ * Intentionally minimal: `@auth0/auth0-spa-js` exports the full type but is not a dependency
+ * of this package.
+ * @internal
+ */
+export interface AccessTokenDetails {
+  access_token: string;
+  token_type: string;
+}
+
+/**
+ * Token function exposed by the Auth0 context.
+ * @internal
+ */
+export type GetAccessTokenSilentlyFunction = (options: {
+  authorizationParams?: { audience?: string; scope?: string };
+  detailedResponse: true;
+  cacheMode?: 'on' | 'off' | 'cache-only';
+}) => Promise<AccessTokenDetails | undefined>;
+
+/**
  * Options for creating a fetcher.
  * @internal
  */
 export interface CreateFetcherOptions {
   dpopNonceId?: string;
+  getAccessToken?: (authParams?: FetcherAuthParams) => Promise<AccessTokenDetails>;
 }
 
 /**
@@ -101,6 +124,7 @@ export interface BasicAuth0ContextInterface {
   getConfiguration: () => Readonly<ClientConfiguration>;
   mfa: MfaApiClient;
   createFetcher: CreateFetcherFunction;
+  getAccessTokenSilently?: GetAccessTokenSilentlyFunction;
   getIdTokenClaims?: () => Promise<Record<string, unknown> | undefined>;
 }
 
@@ -113,6 +137,7 @@ export type ProxyAuthConfig = {
   proxyUrl: string;
   domain?: string;
   fetcher?: (url: string, init?: RequestInit) => Promise<Response>;
+  disableTokenRequestQueue?: boolean;
 };
 
 /**
@@ -123,6 +148,7 @@ export type SpaAuthConfig = {
   mode: 'spa';
   contextInterface: BasicAuth0ContextInterface;
   domain: string;
+  disableTokenRequestQueue?: boolean;
 };
 
 /**
@@ -140,6 +166,7 @@ export interface AuthDetails {
   authProxyUrl?: string | undefined;
   contextInterface?: BasicAuth0ContextInterface | undefined;
   fetcher?: (url: string, init?: RequestInit, authParams?: FetcherAuthParams) => Promise<Response>;
+  disableTokenRequestQueue?: boolean;
   previewMode?: boolean; // For docs - skip API client initialization
 }
 

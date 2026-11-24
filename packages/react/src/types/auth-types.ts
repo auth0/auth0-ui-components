@@ -48,4 +48,6 @@ export type Auth0ComponentProviderProps = (
   telemetry?: boolean;
   /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */
   disablePermissionEnforcement?: boolean;
+  /** Turns off the components' token request queue. Set it if your app queues its own token requests. */
+  disableTokenRequestQueue?: boolean;
 };

@@ -91,7 +91,7 @@ export async function discoverExistingResources() {
     const { stdout: orgsStdout } = await $({ timeout: CLI_TIMEOUT })`auth0 orgs list --json --no-input`
     resources.orgs = JSON.parse(orgsStdout) || []
 
-    // Get Organization Profiles (null when the feature or scope is unavailable)
+    // Get Organization Templates (null when the feature or scope is unavailable)
     resources.organizationTemplates = await fetchOrganizationTemplates()
 
     // Get Org Members (if Demo Org exists)
@@ -290,7 +290,7 @@ export async function buildChangePlan(resources, domain, exampleType, featureCon
       })
     }
 
-    // Default Organization Profile - needed to create organizations from My Account
+    // Default Organization Template - needed to create organizations from My Account
     // IDs are undefined for resources this run will create
     plan.organizationTemplate = featureConfig.enableMyOrg
       ? await checkOrganizationTemplateChanges(resources.organizationTemplates, {
@@ -298,9 +298,10 @@ export async function buildChangePlan(resources, domain, exampleType, featureCon
           userAttributeProfileId: plan.userAttributeProfile.existing?.id,
           adminRoleId: plan.roles.admin.existing?.id,
           orgId: plan.orgs.existing?.id,
+          dashboardClientId: plan.clients.dashboard.existing?.client_id,
         })
       : createChangeItem(ChangeAction.SKIP, {
-          resource: "Organization Profile",
+          resource: "Organization Template",
           name: "Default",
           reason: "Organization Management feature disabled",
         })
@@ -560,7 +561,7 @@ export function displayChangePlan(plan) {
     showDetails(plan.roles.member, "Member Role")
     showDetails(plan.orgs, "Organization")
     showDetails(plan.orgMembers, "Organization Members")
-    showDetails(plan.organizationTemplate, "Organization Profile")
+    showDetails(plan.organizationTemplate, "Organization Template")
     console.log("\n" + "=".repeat(80))
   }
 

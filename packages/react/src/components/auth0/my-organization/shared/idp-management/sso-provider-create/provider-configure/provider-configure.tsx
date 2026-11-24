@@ -5,6 +5,7 @@
  */
 
 import type { ProviderConfigureFormValues } from '@auth0/universal-components-core';
+import { ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
 import {
@@ -31,6 +32,7 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       isLoading,
       styling,
       schema,
+      guidedSetupAction,
       ...rest
     },
     ref,
@@ -49,6 +51,9 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
       getData: () => {
         return formRef.current?.getData() as ProviderConfigureFormValues;
       },
+      getValues: () => {
+        return formRef.current?.getValues() as ProviderConfigureFormValues;
+      },
     }));
 
     if (isLoading) {
@@ -61,7 +66,28 @@ export const ProviderConfigure = React.forwardRef<ProviderConfigureHandle, Provi
 
     return (
       <div className={className}>
-        <Section title={t('title')} description={t('description')}>
+        <Section
+          title={t('title')}
+          description={t('description')}
+          actions={
+            guidedSetupAction
+              ? [
+                  {
+                    type: 'button',
+                    label: t('guided_setup_button_text'),
+                    variant: 'outline',
+                    size: 'sm',
+                    icon: ChevronRight,
+                    iconPosition: 'end',
+                    onClick: guidedSetupAction.onClick,
+                    className: guidedSetupAction.className,
+                    disabled: guidedSetupAction.disabled,
+                    tooltip: guidedSetupAction.tooltip,
+                  },
+                ]
+              : undefined
+          }
+        >
           <ProviderConfigureFields
             ref={formRef}
             strategy={strategy}

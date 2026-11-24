@@ -22,14 +22,26 @@ import type {
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
   GetIdpConfigurationResponseContent,
+  SamlpConfigureFormValues,
+  AdfsConfigureFormValues,
+  PingFederateConfigureFormValues,
+  OktaConfigureFormValues,
+  OidcConfigureFormValues,
+  WaadConfigureFormValues,
+  GoogleAppsConfigureFormValues,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
+import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
+import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
+import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
+
 export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
+  getValues: () => ProviderConfigureFormValues;
 }
 
 export interface ProviderDetailsFormHandle {
@@ -46,6 +58,8 @@ export type FormMode = 'create' | 'edit';
 export interface SsoProviderCreateClasses {
   'SsoProviderCreate-header'?: string;
   'SsoProviderCreate-wizard'?: string;
+  'SsoProviderCreate-guidedSetup'?: string;
+  'SsoProviderCreate-guidedSetupButton'?: string;
   'ProviderSelect-root'?: string;
   'ProviderDetails-root'?: string;
   'ProviderConfigure-root'?: string;
@@ -84,22 +98,20 @@ export interface ProviderConfigureProps
   idpConfig: GetIdpConfigurationResponseContent | null;
   connectionName?: string;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  guidedSetupAction?: {
+    onClick: () => void;
+    className?: string;
+    disabled?: boolean;
+    tooltip?: string;
+  };
 }
 
 export interface ProviderConfigureFieldsProps
@@ -112,28 +124,124 @@ export interface ProviderConfigureFieldsProps
   connectionName?: string;
   connectionNamePrefix?: string;
   mode?: FormMode;
+  /** Locks the login button and auto-membership fields; defaults to `readOnly`. */
+  isLoginSettingsReadOnly?: boolean;
   /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
+  /** Connection source selector for SAML and ADFS forms: radio group (default) or tabs. */
+  connectionSourceSelector?: 'radio' | 'tabs';
+  showServiceProviderFields?: boolean;
   showThirdPartyAccess?: boolean;
   isThirdPartyAccessReadOnly?: boolean;
   showCrossAppAccess?: boolean;
   isCrossAppAccessReadOnly?: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
   isOrganizationBlocked?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
+  /** Optional resolver for SAML Service Provider metadata. */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
+
+export type SamlpConfigureFormHandle = StrategyConfigureFormHandle<SamlpConfigureFormValues>;
+
+export type SamlpConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type AdfsConfigureFormHandle = StrategyConfigureFormHandle<AdfsConfigureFormValues>;
+
+export type AdfsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type PingFederateConfigureFormHandle =
+  StrategyConfigureFormHandle<PingFederateConfigureFormValues>;
+
+export type PingFederateConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type OktaConfigureFormHandle = StrategyConfigureFormHandle<OktaConfigureFormValues>;
+
+export type OktaConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type OidcConfigureFormHandle = StrategyConfigureFormHandle<OidcConfigureFormValues>;
+
+export type OidcConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type WaadConfigureFormHandle = StrategyConfigureFormHandle<WaadConfigureFormValues>;
+
+export type WaadConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+export type GoogleAppsConfigureFormHandle =
+  StrategyConfigureFormHandle<GoogleAppsConfigureFormValues>;
+
+export type GoogleAppsConfigureFormProps = Omit<ProviderConfigureFieldsProps, 'strategy'>;
+
+/** Cross App Access status of a connection. */
+export type CrossAppAccessStatus = 'enabled' | 'disabled';
+
+/** Existing provider values used to seed the connection-level access fields. */
+export interface ConnectionAccessInitialData {
+  use_for_third_party_client_access?: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Default form values for the connection-level access fields. */
+export interface ConnectionAccessDefaults {
+  use_for_third_party_client_access: boolean;
+  cross_app_access_resource_app?: { status: CrossAppAccessStatus };
+}
+
+/** Form values read and written by the connection-level access fields. */
+export interface ConnectionAccessFormValues extends ConnectionAccessDefaults {
+  discovery_url?: string;
+}
+
+/** Props for ConnectionAccessFields component. */
+export interface ConnectionAccessFieldsProps
+  extends Pick<
+    ProviderConfigureFieldsProps,
+    | 'strategy'
+    | 'showThirdPartyAccess'
+    | 'isThirdPartyAccessReadOnly'
+    | 'showCrossAppAccess'
+    | 'isCrossAppAccessReadOnly'
+    | 'isOrganizationBlocked'
+  > {
+  readOnly?: boolean;
+  classes?: Pick<
+    SsoProviderCreateClasses,
+    'ProviderConfigure-ThirdPartyAccess' | 'ProviderConfigure-CrossAppAccess'
+  >;
+}
+
+export type SamlCrossAppAccessProps = Omit<
+  CrossAppAccessSectionProps,
+  'strategy' | 'discoveryUrl' | 'onDiscoveryUrlChange' | 'discoveryUrlError'
+>;
 
 export interface SsoProviderCreateBackButton extends Omit<BackButton, 'onClick'> {
   icon?: LucideIcon;
   onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+export interface SsoProviderCreateGuidedSetup {
+  hideLifecycleWarnings?: boolean;
+}
+
+export type SsoProviderCreateGuidedSetupAction = Pick<
+  ComponentAction<CreateIdentityProviderRequestContentPrivate, IdpKnownResponse>,
+  'onAfter'
+>;
+
+export interface SsoProviderCreateGuidedSetupState {
+  isAvailable: boolean;
+  isActive: boolean;
+  provider: IdpKnownResponse | null;
+  organizationDisplayName?: string;
+  hideLifecycleWarnings?: boolean;
+  configureRef: React.RefObject<ProviderConfigureFormHandle | null>;
+  start: () => void;
+  saveConfigure: () => void;
+  validate: () => Promise<boolean>;
+  create: () => Promise<boolean>;
+  complete: () => void;
+}
+
 export interface SsoProviderCreateProps
   extends SharedComponentProps<
     SsoProviderCreateMessages,
@@ -145,16 +253,12 @@ export interface SsoProviderCreateProps
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   onNext?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
-  /**
-   * Optional resolver for SAML Service Provider metadata.
-   *
-   * @param params - Resolver parameters.
-   * @param params.connectionName - The SAML connection name.
-   * @returns An object containing `entityId` for the SP Issuer URN.
-   */
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
+  hideGuidedSetup?: boolean;
+  guidedSetup?: SsoProviderCreateGuidedSetup;
+  createGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
+  completeGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
 }
 
 export interface UseSsoProviderCreateOptions {
@@ -163,15 +267,27 @@ export interface UseSsoProviderCreateOptions {
   readOnly?: SsoProviderCreateProps['readOnly'];
 }
 
+export interface UseSsoProviderCreateServiceOptions extends UseSsoProviderCreateOptions {
+  shouldDeferSuccessToast?: () => boolean;
+}
+
 export interface UseSsoProviderCreateServiceReturn {
-  createProvider: (data: CreateIdentityProviderRequestContentPrivate) => Promise<void>;
+  createProvider: (
+    data: CreateIdentityProviderRequestContentPrivate,
+  ) => Promise<IdpKnownResponse | undefined>;
   isCreating: boolean;
   isOrganizationBlocked: boolean;
+  organizationDisplayName?: string;
+  notifyCreated: (providerName?: string | null) => void;
 }
 
 export interface UseSsoProviderCreateHookOptions extends UseSsoProviderCreateOptions {
   onNext?: (stepId: string, values: Partial<FormState>) => boolean;
   onPrevious?: (stepId: string, values: Partial<FormState>) => boolean;
+  hideGuidedSetup?: boolean;
+  guidedSetup?: SsoProviderCreateGuidedSetup;
+  createGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
+  completeGuidedSetupAction?: SsoProviderCreateGuidedSetupAction;
 }
 
 export interface UseSsoProviderCreateResult {
@@ -185,15 +301,18 @@ export interface UseSsoProviderCreateResult {
   isLoadingConfig: boolean;
   filteredStrategies: IdpStrategy[];
   isLoadingIdpConfig: boolean;
+  isIdpConfigError: boolean;
+  refetchIdpConfig: () => Promise<unknown>;
   idpConfig?: GetIdpConfigurationResponseContent | null;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   thirdPartyAccessDefaultValue?: 'allow' | 'block';
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
-  getCrossAppAccessDefaultValue: () => 'enabled' | 'disabled' | undefined;
+  getCrossAppAccessDefaultValue: () => CrossAppAccessStatus | undefined;
   isOrganizationBlocked: boolean;
-  crossAppAccessDefaultValue?: 'enabled' | 'disabled';
+  crossAppAccessDefaultValue?: CrossAppAccessStatus;
+  guidedSetup?: SsoProviderCreateGuidedSetupState;
   createStepActions: (
     stepId: 'provider_details' | 'provider_configure',
     ref: React.RefObject<ProviderDetailsFormHandle | ProviderConfigureHandle | null>,

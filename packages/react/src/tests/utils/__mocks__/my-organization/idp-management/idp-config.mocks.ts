@@ -5,6 +5,19 @@ import type { UseConfigIdpResult } from '@/types/my-organization/config/config-i
 
 type MockUseIdpConfig = UseConfigIdpResult;
 
+/** A complete `GET /config/identity-providers` response, with any field overridden. */
+export const createMockIdpConfiguration = (
+  overrides: Partial<GetIdpConfigurationResponseContent> = {},
+): GetIdpConfigurationResponseContent => ({
+  organization: {
+    can_set_assign_membership_on_login: true,
+    can_set_show_as_button: true,
+  },
+  strategies: {},
+  domain_aliases_config: { domain_verification: 'optional' },
+  ...overrides,
+});
+
 export const createMockUseIdpConfig = (
   overrides?: Partial<MockUseIdpConfig>,
 ): MockUseIdpConfig => ({
@@ -22,11 +35,15 @@ export const createMockUseIdpConfig = (
       can_set_assign_membership_on_login: true,
       can_set_show_as_button: true,
     },
-  } as GetIdpConfigurationResponseContent,
+    domain_aliases_config: { domain_verification: 'optional' },
+  } satisfies GetIdpConfigurationResponseContent,
   isLoadingIdpConfig: false,
+  isIdpConfigError: false,
+  refetchIdpConfig: vi.fn(async () => undefined),
   isIdpConfigValid: true,
   fetchIdpConfig: vi.fn(async () => undefined),
   isProvisioningEnabled: vi.fn(() => false),
+  getScimTokenConfig: vi.fn(() => undefined),
   showCrossAppAccess: vi.fn(() => false),
   isCrossAppAccessReadOnly: vi.fn(() => true),
   getCrossAppAccessDefaultValue: vi.fn(() => undefined),

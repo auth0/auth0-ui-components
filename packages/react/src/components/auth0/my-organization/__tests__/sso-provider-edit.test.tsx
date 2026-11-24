@@ -1,5 +1,5 @@
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
@@ -9,6 +9,7 @@ import {
   createMockIdentityProvider,
   createMockIdentityProviderWithoutProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
+import { createMockIdpConfiguration } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import {
   createMockBackButton,
   createMockEnableProviderAction,
@@ -483,6 +484,273 @@ describe('SsoProviderEdit', () => {
     });
   });
 
+  describe('domains tab', () => {
+    const verified = (id: string, domain: string, extra = {}) => ({
+      id,
+      org_id: 'org_1',
+      domain,
+      status: 'verified' as const,
+      verification_txt: 'txt',
+      verification_host: 'host',
+      ...extra,
+    });
+    const orgDomains = [
+      verified('d_assigned', 'assigned.com', { identity_provider_association: 'associated' }),
+      verified('d_free1', 'free1.com', { identity_provider_association: 'unassociated' }),
+      verified('d_free2', 'free2.com', { identity_provider_association: 'unassociated' }),
+      verified('d_taken', 'taken.com', { identity_provider_association: 'associated' }),
+      { ...verified('d_pending', 'pending.com'), status: 'pending' as const },
+    ];
+    const providerWithDomain = createMockIdentityProvider({
+      domains: ['assigned.com'],
+    } as Partial<IdpKnownResponse>);
+
+    const editProps = createMockSsoProviderEditProps();
+
+    const openDomainsTab = async (user: ReturnType<typeof userEvent.setup>) => {
+      renderWithProviders(<SsoProviderEdit {...editProps} />);
+      await waitForComponentToLoad();
+      await user.click(await screen.findByRole('tab', { name: /tabs.domains.name/i }));
+    };
+
+    const openAssignModal = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(await screen.findByRole('button', { name: 'create_button_text' }));
+      await user.click(await screen.findByLabelText('field.label'));
+    };
+
+    beforeEach(() => {
+      const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(providerWithDomain);
+      Object.assign(organizationApi.domains, {
+        list: vi.fn().mockResolvedValue({ response: { organization_domains: orgDomains } }),
+      });
+      (organizationApi.identityProviders.domains.create as ReturnType<typeof vi.fn>)
+        .mockReset()
+        .mockResolvedValue({});
+    });
+
+    it('should list only the domains assigned to this provider, without toggles', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+
+      expect(await screen.findByText('assigned.com')).toBeInTheDocument();
+      expect(screen.queryByText('free1.com')).not.toBeInTheDocument();
+      expect(screen.queryByText('taken.com')).not.toBeInTheDocument();
+      expect(screen.queryByText('pending.com')).not.toBeInTheDocument();
+      expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+    });
+
+    describe('use for discovery column', () => {
+      const withPolicy = (policy?: { default_value: boolean; allowed_values: boolean[] }) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.get).mockResolvedValue({
+          allowed_strategies: ['okta'],
+          connection_deletion_behavior: 'allow',
+          ...(policy ? { use_for_organization_discovery: policy } : {}),
+        });
+        Object.assign(organizationApi.domains, {
+          list: vi.fn().mockResolvedValue({
+            response: {
+              organization_domains: [{ ...orgDomains[0], use_for_organization_discovery: true }],
+            },
+          }),
+        });
+      };
+
+      it('should show the discovery value of each assigned domain when the organization has a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy({ default_value: false, allowed_values: [true, false] });
+        await openDomainsTab(user);
+
+        expect(await screen.findByText('table.columns.use_for_discovery')).toBeInTheDocument();
+        const row = screen.getByRole('row', { name: /assigned\.com/i });
+        expect(within(row).getByText('table.discovery_values.yes')).toBeInTheDocument();
+        expect(within(screen.getByRole('tabpanel')).queryByRole('switch')).not.toBeInTheDocument();
+      });
+
+      it('should not show the column without a policy', async () => {
+        const user = userEvent.setup();
+        withPolicy();
+        await openDomainsTab(user);
+
+        await screen.findByText('assigned.com');
+        expect(screen.queryByText('table.columns.use_for_discovery')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('domain_aliases_config', () => {
+      const withMode = (
+        mode: 'none' | 'optional' | 'required',
+        provider: Partial<IdpKnownResponse>,
+      ) => {
+        const organizationApi = mockCoreClient.getMyOrganizationApiClient().organization;
+        vi.mocked(organizationApi.configuration.identityProviders.get).mockResolvedValue(
+          createMockIdpConfiguration({ domain_aliases_config: { domain_verification: mode } }),
+        );
+        vi.mocked(organizationApi.identityProviders.get).mockResolvedValue(
+          createMockIdentityProvider(provider),
+        );
+      };
+      const removeButtons = () =>
+        screen.findAllByRole('button', { name: 'table.actions.remove_domain_aria_label' });
+      const removeButton = async () => (await removeButtons())[0]!;
+
+      it('should keep the only domain of an enabled provider in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+        expect(within(screen.getByRole('tabpanel')).getByRole('alert')).toHaveTextContent(
+          'table.actions.last_verified_domain_tooltip',
+        );
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeEnabled();
+      });
+
+      it('should let an enabled provider with two domains drop one in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'taken.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(2);
+        expect(within(screen.getByRole('tabpanel')).queryByRole('alert')).not.toBeInTheDocument();
+        (await removeButtons()).forEach((button) => expect(button).toBeEnabled());
+      });
+
+      it('should count only the verified domains it lists when locking the last one', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: true, domains: ['assigned.com', 'pending.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButtons()).toHaveLength(1);
+        expect(await removeButton()).toHaveAttribute('aria-disabled', 'true');
+      });
+
+      it('should let a disabled provider drop its only domain in required mode', async () => {
+        const user = userEvent.setup();
+        withMode('required', { is_enabled: false, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+      });
+
+      it('should disable Assign but keep Remove in none mode', async () => {
+        const user = userEvent.setup();
+        withMode('none', { is_enabled: true, domains: ['assigned.com'] });
+        await openDomainsTab(user);
+
+        expect(await removeButton()).toBeEnabled();
+        expect(screen.getByRole('button', { name: 'create_button_text' })).toBeDisabled();
+      });
+    });
+
+    it('should remove a domain from the provider with the existing dissociate call', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+
+      await user.click(
+        await screen.findByRole('button', { name: 'table.actions.remove_domain_aria_label' }),
+      );
+
+      await waitFor(() => {
+        expect(
+          mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.delete,
+        ).toHaveBeenCalledWith(providerWithDomain.id, 'assigned.com');
+      });
+    });
+
+    it('should offer only verified, unassigned domains and assign the selection', async () => {
+      const user = userEvent.setup();
+      await openDomainsTab(user);
+      await openAssignModal(user);
+
+      expect(await screen.findByRole('button', { name: 'free1.com' })).toBeInTheDocument();
+      expect(
+        mockCoreClient.getMyOrganizationApiClient().organization.domains.list,
+      ).toHaveBeenCalledWith({ take: 100 });
+      expect(screen.getByRole('button', { name: 'free2.com' })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'taken.com' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'pending.com' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'assigned.com' })).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'free1.com' }));
+      await user.click(screen.getByRole('button', { name: 'free2.com' }));
+      await user.click(screen.getByRole('button', { name: 'actions.assign_button_text' }));
+
+      const create =
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.domains.create;
+      await waitFor(() => {
+        expect(create).toHaveBeenCalledTimes(2);
+      });
+      expect(create).toHaveBeenNthCalledWith(1, editProps.providerId, { domain: 'free1.com' });
+      expect(create).toHaveBeenNthCalledWith(2, editProps.providerId, { domain: 'free2.com' });
+    });
+
+    it('should keep the modal open when a domain is rejected as already associated', async () => {
+      const user = userEvent.setup();
+      const create = mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+        .domains.create as ReturnType<typeof vi.fn>;
+      create.mockResolvedValueOnce({}).mockRejectedValueOnce(
+        Object.assign(new Error('Domain Already Associated'), {
+          statusCode: 409,
+          body: { type: 'https://auth0.com/api-errors#A0E-409-0004', status: 409 },
+        }),
+      );
+      await openDomainsTab(user);
+      await openAssignModal(user);
+
+      await user.click(await screen.findByRole('button', { name: 'free1.com' }));
+      await user.click(screen.getByRole('button', { name: 'free2.com' }));
+      await user.click(screen.getByRole('button', { name: 'actions.assign_button_text' }));
+
+      await waitFor(() => {
+        expect(create).toHaveBeenCalledTimes(2);
+      });
+      expect(
+        await screen.findByRole('button', { name: 'actions.assign_button_text' }),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('hideDomainsTab', () => {
+    describe('when not set', () => {
+      it('should display the domains tab', async () => {
+        renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+        await waitForComponentToLoad();
+
+        expect(screen.getByRole('tab', { name: /tabs.domains.name/i })).toBeInTheDocument();
+      });
+    });
+
+    describe('when is true', () => {
+      it('should not display the domains tab', async () => {
+        renderWithProviders(
+          <SsoProviderEdit {...createMockSsoProviderEditProps({ hideDomainsTab: true })} />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.queryByRole('tab', { name: /tabs.domains.name/i })).not.toBeInTheDocument();
+        expect(screen.getByRole('tab', { name: /tabs.sso.name/i })).toBeInTheDocument();
+        expect(screen.getByRole('tablist')).toHaveClass('grid-cols-2');
+      });
+
+      it('should leave only the SSO tab when provisioning is hidden too', async () => {
+        renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({ hideDomainsTab: true, hideProvisioningTab: true })}
+          />,
+        );
+
+        await waitForComponentToLoad();
+
+        expect(screen.getAllByRole('tab')).toHaveLength(1);
+        expect(screen.getByRole('tablist')).toHaveClass('grid-cols-1');
+      });
+    });
+  });
+
   describe('hideDeleteProvider', () => {
     describe('when is true', () => {
       it('should not display delete provider button', async () => {
@@ -736,6 +1004,246 @@ describe('SsoProviderEdit', () => {
         });
         expect(removeButtons.length).toBeGreaterThan(0);
       });
+    });
+  });
+
+  describe('provisioning guided setup', () => {
+    const turnProvisioningOn = () => {
+      const { provisioning } = mockCoreClient.getMyOrganizationApiClient().organization
+        .identityProviders as unknown as { provisioning: { get: ReturnType<typeof vi.fn> } };
+      provisioning.get = vi.fn().mockResolvedValue({
+        strategy: 'samlp',
+        user_id_attribute: 'externalId',
+        attributes: [],
+      });
+    };
+
+    const openGuidedSetup = async (user: ReturnType<typeof userEvent.setup>) => {
+      await waitForComponentToLoad();
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+      await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+      await waitFor(() =>
+        expect(
+          document.querySelector('[data-slot="sso-guided-setup-page-title"]'),
+        ).toHaveTextContent('Configure Provisioning'),
+      );
+    };
+
+    it('is offered by default', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+      expect(
+        await screen.findByRole('button', { name: /guided_setup_button_label/ }),
+      ).toBeVisible();
+    });
+
+    it('is not offered when disabled', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <SsoProviderEdit {...createMockSsoProviderEditProps({ hideGuidedSetup: true })} />,
+      );
+      await waitForComponentToLoad();
+
+      await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+      await waitFor(() =>
+        expect(screen.getByRole('switch', { checked: true })).toBeInTheDocument(),
+      );
+      expect(
+        screen.queryByRole('button', { name: /guided_setup_button_label/ }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('replaces the tabs with the provisioning instructions', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+
+      await openGuidedSetup(user);
+
+      expect(screen.getByRole('heading', { name: 'provisioning_setup.title' })).toHaveFocus();
+      expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(/\/scim\/v2\/connections\/con_abc123xyz456\/$/),
+      ).toBeInTheDocument();
+    });
+
+    describe('when provisioning is off and the host has a createAction', () => {
+      const provisioningApi = () =>
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders
+          .provisioning as unknown as {
+          create: ReturnType<typeof vi.fn>;
+          get: ReturnType<typeof vi.fn>;
+        };
+
+      const renderWithCreateAction = (
+        createAction: {
+          onBefore: ReturnType<typeof vi.fn>;
+          onAfter?: ReturnType<typeof vi.fn>;
+        },
+        guidedActions: Record<string, { onAfter: ReturnType<typeof vi.fn> }> = {},
+      ) => {
+        mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.get = vi
+          .fn()
+          .mockResolvedValue(createMockIdentityProvider({ is_enabled: true }));
+        return renderWithProviders(
+          <SsoProviderEdit
+            {...createMockSsoProviderEditProps({
+              provisioning: { createAction, ...guidedActions },
+            })}
+          />,
+        );
+      };
+
+      it('does not turn provisioning on or open guided setup when onBefore returns false', async () => {
+        const createAction = { onBefore: vi.fn(() => false), onAfter: vi.fn() };
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction);
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+
+        await waitFor(() => expect(createAction.onBefore).toHaveBeenCalledTimes(1));
+        expect(provisioningApi().create).not.toHaveBeenCalled();
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+        expect(document.querySelector('[data-slot="sso-guided-setup-page-title"]')).toBeNull();
+      });
+
+      it('does not turn provisioning on from the switch when onBefore returns false', async () => {
+        const createAction = { onBefore: vi.fn(() => false), onAfter: vi.fn() };
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction);
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await within(screen.getByRole('tabpanel')).findByRole('switch'));
+
+        await waitFor(() => expect(createAction.onBefore).toHaveBeenCalledTimes(1));
+        expect(provisioningApi().create).not.toHaveBeenCalled();
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs onBefore, then createGuidedSetupAction.onAfter when guided setup turns provisioning on', async () => {
+        const createAction = { onBefore: vi.fn(() => true), onAfter: vi.fn() };
+        const createGuidedSetupAction = { onAfter: vi.fn() };
+        const config = { strategy: 'samlp', user_id_attribute: 'externalId', attributes: [] };
+        let isCreated = false;
+        provisioningApi().get = vi.fn(() =>
+          isCreated ? Promise.resolve(config) : Promise.reject({ status: 404 }),
+        );
+        provisioningApi().create = vi.fn(async () => {
+          isCreated = true;
+          return config;
+        });
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction, { createGuidedSetupAction });
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await screen.findByRole('button', { name: /guided_setup_button_label/ }));
+
+        await waitFor(() =>
+          expect(
+            document.querySelector('[data-slot="sso-guided-setup-page-title"]'),
+          ).toBeInTheDocument(),
+        );
+        expect(createAction.onBefore).toHaveBeenCalledTimes(1);
+        expect(provisioningApi().create).toHaveBeenCalledTimes(1);
+        await waitFor(() => expect(createGuidedSetupAction.onAfter).toHaveBeenCalledTimes(1));
+        expect(createAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs createAction.onAfter, not the guided one, when the switch turns provisioning on', async () => {
+        const createAction = { onBefore: vi.fn(() => true), onAfter: vi.fn() };
+        const createGuidedSetupAction = { onAfter: vi.fn() };
+        provisioningApi().create = vi.fn(async () => ({ strategy: 'samlp', attributes: [] }));
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction, { createGuidedSetupAction });
+        await waitForComponentToLoad();
+        await user.click(screen.getByText(/tabs.provisioning.name/i));
+
+        await user.click(await within(screen.getByRole('tabpanel')).findByRole('switch'));
+
+        await waitFor(() => expect(createAction.onAfter).toHaveBeenCalledTimes(1));
+        expect(createGuidedSetupAction.onAfter).not.toHaveBeenCalled();
+      });
+
+      it('runs completeGuidedSetupAction.onAfter on Done', async () => {
+        const createAction = { onBefore: vi.fn(() => true) };
+        const completeGuidedSetupAction = { onAfter: vi.fn() };
+        const config = { strategy: 'samlp', user_id_attribute: 'externalId', attributes: [] };
+        provisioningApi().get = vi.fn().mockResolvedValue(config);
+        const user = userEvent.setup();
+        renderWithCreateAction(createAction, { completeGuidedSetupAction });
+        await openGuidedSetup(user);
+
+        await user.click(screen.getByRole('button', { name: /^done$/ }));
+
+        expect(completeGuidedSetupAction.onAfter).toHaveBeenCalledTimes(1);
+        expect(completeGuidedSetupAction.onAfter).toHaveBeenCalledWith(
+          expect.objectContaining({ is_enabled: true }),
+          expect.objectContaining({ strategy: 'samlp' }),
+        );
+      });
+    });
+
+    it('returns to the Provisioning tab on Done', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await openGuidedSetup(user);
+
+      await user.click(screen.getByRole('button', { name: /^done$/ }));
+
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
+      );
+    });
+
+    it('leaves focus on the tab when the Provisioning tab is revisited after Done', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await openGuidedSetup(user);
+      await user.click(screen.getByRole('button', { name: /^done$/ }));
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
+      );
+
+      await user.click(screen.getByRole('tab', { name: /tabs.sso.name/i }));
+      await user.click(screen.getByRole('tab', { name: /tabs.provisioning.name/i }));
+
+      await screen.findByRole('button', { name: /guided_setup_button_label/ });
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveFocus();
+    });
+
+    it('returns to the Provisioning tab with the back button', async () => {
+      turnProvisioningOn();
+      const user = userEvent.setup();
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await openGuidedSetup(user);
+
+      await user.click(screen.getByRole('button', { name: /provisioning_setup.back_button_text/ }));
+
+      expect(screen.getByRole('tab', { name: /tabs.provisioning.name/i })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      expect(document.querySelector('[data-slot="sso-guided-setup-page-title"]')).toBeNull();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /guided_setup_button_label/ })).toHaveFocus(),
+      );
     });
   });
 
@@ -1017,6 +1525,90 @@ describe('SsoProviderEdit', () => {
           ).toHaveBeenCalled();
         });
       });
+    });
+  });
+
+  describe('domain verification', () => {
+    const arrange = (
+      domainVerification: 'none' | 'optional' | 'required',
+      provider: Partial<IdpKnownResponse>,
+    ) => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.configuration.identityProviders.get).mockResolvedValue(
+        createMockIdpConfiguration({
+          strategies: {
+            samlp: { enabled_features: ['provisioning'], provisioning_methods: ['scim'] },
+          },
+          domain_aliases_config: { domain_verification: domainVerification },
+        }),
+      );
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        ...provider,
+      } as IdpKnownResponse);
+    };
+
+    it('blocks enabling the provider while it has no verified domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('names the enable switch and describes why it is blocked', async () => {
+      arrange('required', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      const toggle = screen.getAllByRole('switch')[0]!;
+      expect(toggle).toHaveAccessibleName('header.enable_provider_tooltip_text');
+      expect(toggle).toHaveAccessibleDescription(
+        'header.enable_provider_blocked_domains_tooltip_text',
+      );
+    });
+
+    it('lets the provider be enabled once it has a domain in required mode', async () => {
+      arrange('required', { is_enabled: false, domains: ['example.com'] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+
+    it('does not block enabling in optional mode', async () => {
+      arrange('optional', { is_enabled: false, domains: [] });
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
+    });
+  });
+
+  describe('provider access level', () => {
+    const arrange = (access_level: 'readonly' | 'limited') => {
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      vi.mocked(organization.identityProviders.get).mockResolvedValue({
+        ...mockProvider,
+        is_enabled: true,
+        access_level,
+      } as IdpKnownResponse);
+    };
+
+    it('disables the enable switch with read-only access', async () => {
+      arrange('readonly');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeDisabled();
+    });
+
+    it('keeps the enable switch available with limited access', async () => {
+      arrange('limited');
+      renderWithProviders(<SsoProviderEdit {...createMockSsoProviderEditProps()} />);
+      await waitForComponentToLoad();
+
+      expect(screen.getAllByRole('switch')[0]).toBeEnabled();
     });
   });
 });

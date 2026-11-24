@@ -4,35 +4,21 @@
  */
 
 import {
-  hasApiErrorBody,
   idpConfigQueryKeys,
+  STRATEGY_TO_CONFIG_KEY,
   type GetIdpConfigurationResponseContent,
   type IdentityProvidersConfigProvisioningMethod,
   type IdentityProvidersConfigStrategyBase,
   type IdpStrategy,
+  type IdpScimTokenConfig,
   type CrossAppAccessResourceAppConfig,
   type StrategyWithCrossAppAccess,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { createRetryUnlessNotFound, nullOnNotFound } from '@/lib/utils/shared/query-utils';
 import type { UseConfigIdpResult } from '@/types/my-organization/config/config-idp-types';
-
-/**
- * Mapping from IdpStrategy values to the SDK's strategy config keys.
- */
-const STRATEGY_TO_CONFIG_KEY: Record<
-  IdpStrategy,
-  keyof NonNullable<GetIdpConfigurationResponseContent['strategies']>
-> = {
-  adfs: 'adfs',
-  'google-apps': 'googleapps',
-  oidc: 'oidc',
-  okta: 'okta',
-  pingfederate: 'pingfederate',
-  samlp: 'samlp',
-  waad: 'waad',
-};
 
 /**
  * Hook for fetching IDP configuration and provisioning settings.
@@ -44,26 +30,12 @@ export function useIdpConfig(): UseConfigIdpResult {
 
   const idpConfigQuery = useQuery<GetIdpConfigurationResponseContent | null>({
     queryKey: idpConfigQueryKeys.config(),
-    queryFn: async () => {
-      try {
-        const response = await coreClient!
-          .getMyOrganizationApiClient()
-          .organization.configuration.identityProviders.get();
-        return response;
-      } catch (error) {
-        if (hasApiErrorBody(error) && error.body?.status === 404) {
-          return null;
-        }
-        throw error;
-      }
-    },
+    queryFn: () =>
+      nullOnNotFound(
+        coreClient!.getMyOrganizationApiClient().organization.configuration.identityProviders.get(),
+      ),
     enabled: !!coreClient,
-    retry: (failureCount, error) => {
-      if (hasApiErrorBody(error) && error.body?.status === 404) return false;
-      // Defer the retry count to the provider-level retryConfig baked into the client.
-      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
-      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
-    },
+    retry: createRetryUnlessNotFound(queryClient),
   });
 
   const idpConfig = idpConfigQuery.data ?? null;
@@ -87,6 +59,9 @@ export function useIdpConfig(): UseConfigIdpResult {
       strategyConfig.provisioning_methods.includes(method)
     );
   };
+
+  const getScimTokenConfig = (strategy: IdpStrategy | undefined): IdpScimTokenConfig | undefined =>
+    getStrategyFor(strategy)?.provisioning?.scim?.tokens ?? undefined;
 
   const getCrossAppAccessConfig = (
     strategy: IdpStrategy | undefined,
@@ -112,15 +87,20 @@ export function useIdpConfig(): UseConfigIdpResult {
     const config = getCrossAppAccessConfig(strategy);
     if (!config) return undefined;
     const isReadOnly = (config.status.allowed_values?.length ?? 0) <= 1;
-    return isReadOnly ? config.status.allowed_values?.[0] : config.status.default_value;
+    return isReadOnly
+      ? (config.status.allowed_values?.[0] ?? config.status.default_value)
+      : config.status.default_value;
   };
 
   return {
     idpConfig,
     isIdpConfigValid: !!strategies && Object.keys(strategies).length > 0,
     isLoadingIdpConfig: idpConfigQuery.isLoading,
+    isIdpConfigError: idpConfigQuery.isError,
+    refetchIdpConfig: () => idpConfigQuery.refetch(),
     fetchIdpConfig: async () => await queryClient.getQueryData(idpConfigQueryKeys.config()),
     isProvisioningEnabled,
+    getScimTokenConfig,
     showCrossAppAccess,
     isCrossAppAccessReadOnly,
     getCrossAppAccessDefaultValue,

@@ -39,6 +39,12 @@ export const getIdpManagementPermissions = createPermissionResolver({
   canCreateScimToken: ['create:my_org:identity_providers_scim_tokens'],
   canDeleteScimToken: ['delete:my_org:identity_providers_scim_tokens'],
 
+  canReadConfiguration: ['read:my_org:configuration'],
+  canTestProvider: [
+    'create:my_org:identity_providers_tests',
+    'read:my_org:identity_providers_tests',
+  ],
+
   canConfigureProvider: { any: CONFIGURE_ONLY_SCOPES },
 
   canShowProviderMenu: {

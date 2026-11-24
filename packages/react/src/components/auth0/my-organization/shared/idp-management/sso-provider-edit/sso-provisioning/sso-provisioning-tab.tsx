@@ -4,12 +4,15 @@
  * @internal
  */
 
-import { getComponentStyles } from '@auth0/universal-components-core';
+import { getComponentStyles, type IdpStrategy } from '@auth0/universal-components-core';
+import { ChevronRight } from 'lucide-react';
 import * as React from 'react';
 
 import { SsoProviderAttributeSyncAlert } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-sync-alert';
 import { SsoProvisioningDeleteModal } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-delete-modal';
 import { SsoProvisioningDetails } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-details';
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -21,6 +24,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
 import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
@@ -39,6 +43,11 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.isSyncingAttributes - Whether attribute sync is in progress.
  * @param props.permissions - What the current user is allowed to do.
  * @param props.readOnly - Whether the component is in read-only mode
+ * @param props.onStartGuidedSetup - Shows "Guided Setup" and opens it, turning provisioning on first when it's off.
+ * @param props.guidedSetupMessages - Custom messages for the guided setup texts shown on this tab.
+ * @param props.focusGuidedSetupButton - Moves focus to the Guided Setup button once it shows, after returning from guided setup.
+ * @param props.onCreateProvisioning - Turns provisioning on through the host's provisioning actions.
+ * @param props.isProvisioningUpdating - Whether the host is turning provisioning on.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -52,6 +61,13 @@ export function SsoProvisioningTab({
   isSyncingAttributes = false,
   permissions,
   readOnly = false,
+  onStartGuidedSetup,
+  onCreateProvisioning,
+  focusGuidedSetupButton = false,
+  isProvisioningUpdating: isHostProvisioningUpdating,
+  hideGuidedSetupLifecycleWarnings = false,
+  organizationDisplayName,
+  guidedSetupMessages,
 }: SsoProvisioningTabProps): React.JSX.Element {
   const { t } = useTranslator(
     'idp_management.edit_sso_provider.tabs.provisioning.content',
@@ -62,17 +78,16 @@ export function SsoProvisioningTab({
   const {
     provisioningConfig,
     isProvisioningLoading,
-    isProvisioningUpdating,
     isProvisioningDeleting,
     isScimTokensLoading,
     isScimTokenCreating,
     isScimTokenDeleting,
     fetchProvisioning,
-    createProvisioning,
     deleteProvisioning,
     listScimTokens,
     createScimToken,
     deleteScimToken,
+    scimTokenConfig,
   } = useSsoProviderEdit(provider?.id || '');
 
   const { isDarkMode } = useTheme();
@@ -93,7 +108,7 @@ export function SsoProvisioningTab({
     if (!provider?.id) return;
 
     if (enabled) {
-      await createProvisioning();
+      await onCreateProvisioning();
       await fetchProvisioning();
     } else {
       setDeleteModalOpen(true);
@@ -105,13 +120,62 @@ export function SsoProvisioningTab({
     setDeleteModalOpen(false);
   };
 
-  const isLoading = isProvisioningLoading || isProvisioningUpdating || isProvisioningDeleting;
+  const isLoading = isProvisioningLoading || isHostProvisioningUpdating || isProvisioningDeleting;
   const isProvisioningEnabled = !!provisioningConfig;
   const canToggleProvisioning = isProvisioningEnabled
     ? permissions.canDeleteProvisioning
     : permissions.canCreateProvisioning;
   const enableProvisioningToggle =
     isLoading || !provider?.id || !provider.is_enabled || !canToggleProvisioning;
+
+  const strategy = provider?.strategy as IdpStrategy | undefined;
+  const canTurnProvisioningOn =
+    Boolean(provider?.id) && Boolean(provider?.is_enabled) && permissions.canCreateProvisioning;
+  const canOfferGuidedSetup =
+    Boolean(onStartGuidedSetup) &&
+    !readOnly &&
+    permissions.canReadConfiguration &&
+    (isProvisioningEnabled || canTurnProvisioningOn);
+  const { instructions: provisioningInstructions } = useGuidedSetupInstructions(
+    'provisioning',
+    strategy,
+    canOfferGuidedSetup,
+  );
+  const showGuidedSetup = canOfferGuidedSetup && Boolean(provisioningInstructions?.pages.length);
+  const isGuidedSetupDeprecated =
+    provisioningInstructions?.version_info?.lifecycle_status === 'deprecated';
+  const { t: tGuided } = useTranslator('idp_management.sso_guided_setup', guidedSetupMessages);
+
+  const [isStartingGuidedSetup, setStartingGuidedSetup] = React.useState(false);
+
+  const guidedSetupButtonRef = React.useRef<HTMLButtonElement>(null);
+  const hasFocusedGuidedSetupButton = React.useRef(false);
+  const isGuidedSetupButtonDisabled = isStartingGuidedSetup || isLoading || isGuidedSetupDeprecated;
+  React.useEffect(() => {
+    if (
+      !focusGuidedSetupButton ||
+      !showGuidedSetup ||
+      isGuidedSetupButtonDisabled ||
+      hasFocusedGuidedSetupButton.current
+    ) {
+      return;
+    }
+    hasFocusedGuidedSetupButton.current = true;
+    guidedSetupButtonRef.current?.focus();
+  }, [focusGuidedSetupButton, showGuidedSetup, isGuidedSetupButtonDisabled]);
+  const handleStartGuidedSetup = async () => {
+    if (!onStartGuidedSetup) return;
+    if (isProvisioningEnabled) {
+      onStartGuidedSetup();
+      return;
+    }
+    setStartingGuidedSetup(true);
+    const config = await onCreateProvisioning({ guided: true })
+      .then(() => fetchProvisioning())
+      .catch(() => null);
+    setStartingGuidedSetup(false);
+    if (config) onStartGuidedSetup();
+  };
 
   const provisioningToggle = (
     <span>
@@ -151,6 +215,30 @@ export function SsoProvisioningTab({
           </CardDescription>
           <CardAction>
             <div className="flex items-center gap-3">
+              {showGuidedSetup && (
+                <PermissionDeniedTooltip
+                  enabled={isGuidedSetupDeprecated && !hideGuidedSetupLifecycleWarnings}
+                  customMessage={tGuided('lifecycle.deprecated', {
+                    organizationDisplayName: organizationDisplayName || tGuided('company_fallback'),
+                  })}
+                >
+                  <Button
+                    ref={guidedSetupButtonRef}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleStartGuidedSetup}
+                    disabled={isGuidedSetupButtonDisabled}
+                    className={cn(
+                      'flex items-center gap-2',
+                      currentStyles.classes?.['SsoProvisioningTab-guidedSetupButton'],
+                    )}
+                  >
+                    {t('header.guided_setup_button_label')}
+                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </PermissionDeniedTooltip>
+              )}
               <div className="flex items-center gap-2">
                 {isLoading ? (
                   <Spinner className="w-4 h-4" />
@@ -186,6 +274,7 @@ export function SsoProvisioningTab({
               onListScimTokens={listScimTokens}
               onCreateScimToken={createScimToken}
               onDeleteScimToken={deleteScimToken}
+              scimTokenConfig={scimTokenConfig}
               customMessages={customMessages.details}
               styling={styling}
               permissions={permissions}

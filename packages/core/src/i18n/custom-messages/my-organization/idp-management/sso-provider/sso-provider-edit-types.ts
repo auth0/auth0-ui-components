@@ -6,6 +6,7 @@
 
 import type { SharedMessages } from '../../../shared/shared-types';
 import type { SsoDomainTabMessages } from '../sso-domain/sso-domain-tab-types';
+import type { SsoProvisioningSetupMessages } from '../sso-guided-setup/sso-guided-setup-types';
 import type { GoogleWorkspaceProvisioningNotificationMessages } from '../sso-provisioning/google-workspace-provisioning-types';
 import type { SsoProvisioningTabMessages } from '../sso-provisioning/sso-provisioning-tab-types';
 
@@ -17,12 +18,15 @@ import type {
   SsoProvideDeleteMessages,
   SsoProvideRemoveMessages,
 } from './sso-provider-delete-types';
+import type { SsoProviderTestMessages } from './sso-provider-test-types';
 
 export interface SsoProviderEditMessages extends SharedMessages {
   header?: {
     back_button_text?: string;
     enable_provider_tooltip_text?: string;
     disable_provider_tooltip_text?: string;
+    enable_provider_blocked_domains_tooltip_text?: string;
+    enable_provider_access_restricted_tooltip_text?: string;
   };
   tabs?: {
     sso?: {
@@ -38,12 +42,18 @@ export interface SsoProviderEditMessages extends SharedMessages {
       content?: SsoDomainTabMessages;
     };
   };
+  provisioning_setup?: SsoProvisioningSetupMessages;
 }
 
 export interface SsoProviderTabMessages {
+  access_alerts?: {
+    limited?: string;
+    readonly?: string;
+  };
   attribute_sync_alert?: AttributeSyncAlertMessages;
   delete?: SsoProvideDeleteMessages;
   remove?: SsoProvideRemoveMessages;
+  test_provider?: SsoProviderTestMessages;
   details?: SsoProviderDetailsMessages;
   description?: string;
 }
@@ -52,6 +62,7 @@ export interface AttributeSyncAlertMessages extends SharedMessages {
   title?: string;
   description?: string;
   sync_button_label?: string;
+  access_restricted_tooltip_text?: string;
   sync_modal?: {
     title?: string;
     description?: string;
@@ -102,6 +113,7 @@ export interface SsoProviderNotificationMessages {
   sso_attributes_sync_success?: string;
   provisioning_attributes_sync_success?: string;
   google_workspace_provisioning?: GoogleWorkspaceProvisioningNotificationMessages;
+  test_provider_start_error?: string;
 }
 
 interface AttributeMappingSectionMessages {

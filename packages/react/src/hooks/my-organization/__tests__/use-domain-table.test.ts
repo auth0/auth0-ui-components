@@ -4,7 +4,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useDomainTable } from '../use-domain-table';
 
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
 import { useDomainTableService } from '@/hooks/my-organization/shared/services/use-domain-table-service';
+import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { PermissionContext } from '@/providers/permission-provider';
 import { createMockDomainTableServiceReturn } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -21,13 +23,47 @@ vi.mock('@/hooks/shared/use-error-handler', () => ({
   useErrorHandler: () => mockHandleError,
 }));
 
-mockToast();
+const { mockedShowToast } = mockToast();
 
 vi.mock('@/hooks/my-organization/shared/services/use-domain-table-service', () => ({
   useDomainTableService: vi.fn(),
 }));
 
+vi.mock('@/hooks/my-organization/shared/services/use-config-service', () => ({
+  useConfig: vi.fn(),
+}));
+
+vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => ({
+  useIdpConfig: vi.fn(),
+}));
+
 const mockUseDomainTableService = vi.mocked(useDomainTableService);
+const mockUseConfig = vi.mocked(useConfig);
+const mockUseIdpConfig = vi.mocked(useIdpConfig);
+
+const mockIdpConfig = (domainVerification?: 'none' | 'optional' | 'required') =>
+  mockUseIdpConfig.mockReturnValue({
+    idpConfig: domainVerification
+      ? { domain_aliases_config: { domain_verification: domainVerification } }
+      : null,
+  } as ReturnType<typeof useIdpConfig>);
+
+const createMockConfig = (overrides: Partial<ReturnType<typeof useConfig>> = {}) =>
+  ({
+    discoveryPolicy: null,
+    showDiscovery: false,
+    isDiscoveryReadOnly: true,
+    discoveryDefaultValue: false,
+    ...overrides,
+  }) as ReturnType<typeof useConfig>;
+
+const editableDiscoveryConfig = () =>
+  createMockConfig({
+    discoveryPolicy: { default_value: false, allowed_values: [true, false] },
+    showDiscovery: true,
+    isDiscoveryReadOnly: false,
+    discoveryDefaultValue: false,
+  });
 
 describe('useDomainTable', () => {
   const mockDomain = {
@@ -61,6 +97,8 @@ describe('useDomainTable', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseDomainTableService.mockReturnValue(createMockDomainTableServiceReturn());
+    mockUseConfig.mockReturnValue(createMockConfig());
+    mockIdpConfig();
   });
 
   const renderWithGranted = (permissions: string[], options: UseDomainTableOptions) => {
@@ -222,6 +260,347 @@ describe('useDomainTable', () => {
 
     expect(mockHandleError).toHaveBeenCalledWith(error, {
       fallbackMessage: 'domain_table.notifications.domain_delete.error',
+    });
+  });
+
+  describe('domain verification mode', () => {
+    it.each(['none', 'optional', 'required'] as const)('exposes the configured %s mode', (mode) => {
+      mockIdpConfig(mode);
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe(mode);
+    });
+
+    it('defaults to optional when the IdP configuration is unavailable', () => {
+      mockIdpConfig();
+      const { result } = render();
+
+      expect(result.current.domainVerificationMode).toBe('optional');
+    });
+
+    it('keeps the providers loading until the IdP configuration resolves', () => {
+      mockUseIdpConfig.mockReturnValue({
+        idpConfig: null,
+        isLoadingIdpConfig: true,
+      } as ReturnType<typeof useIdpConfig>);
+      const { result } = render();
+
+      expect(result.current.isLoadingProviders).toBe(true);
+    });
+  });
+
+  describe('single-provider assignment', () => {
+    const providerA = { ...mockProvider, id: 'con_a', name: 'idp-a', is_associated: true };
+    const providerB = { ...mockProvider, id: 'con_b', name: 'idp-b', is_associated: false };
+
+    const renderWithServiceProviders = (
+      providers: Array<typeof providerA>,
+      overrides: Partial<ReturnType<typeof createMockDomainTableServiceReturn>> = {},
+      permissions: string[] = ALL_MY_ORG_PERMISSIONS,
+    ) => {
+      mockUseDomainTableService.mockReturnValue(
+        createMockDomainTableServiceReturn({
+          providers,
+          onAssociateToProvider: vi.fn().mockResolvedValue(undefined),
+          onDeleteFromProvider: vi.fn().mockResolvedValue(undefined),
+          ...overrides,
+        }),
+      );
+      return renderWithGranted(permissions, defaultOptions);
+    };
+
+    describe('handleAssignProvider', () => {
+      it('should associate the domain when it has no provider', async () => {
+        const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not associate while the domain is on another provider', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should not associate without the create scope', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'create:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when associating fails', async () => {
+        const error = new Error('Associate failed');
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }], {
+          onAssociateToProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_associate_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should close the configure modal after assigning', async () => {
+        const { result } = renderWithServiceProviders([{ ...providerA, is_associated: false }]);
+
+        act(() => result.current.setShowConfigureModal(true));
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerA);
+        });
+
+        expect(result.current.showConfigureModal).toBe(false);
+      });
+    });
+
+    describe('association gating', () => {
+      const limitedProvider = { ...providerB, access_level: 'limited' as const };
+
+      it('should not associate in none mode', async () => {
+        mockIdpConfig('none');
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it.each(['optional', 'required'] as const)('should associate in %s mode', async (mode) => {
+        mockIdpConfig(mode);
+        const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, providerB],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, providerB);
+        });
+
+        expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+      });
+
+      it('should not associate with a provider the organization cannot fully manage', async () => {
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [{ ...providerA, is_associated: false }, limitedProvider],
+          { onAssociateToProvider },
+        );
+
+        await act(async () => {
+          await result.current.handleAssignProvider(verifiedDomain, limitedProvider);
+        });
+
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+      });
+
+      it('should still remove in none mode', async () => {
+        mockIdpConfig('none');
+        const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+        const { result } = renderWithServiceProviders([providerA], { onDeleteFromProvider });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
+      });
+
+      describe('the last domain of an enabled provider in required mode', () => {
+        const enabledProvider = {
+          ...providerA,
+          is_enabled: true,
+          domains: [verifiedDomain.domain],
+        };
+
+        it('should not remove it', async () => {
+          mockIdpConfig('required');
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([enabledProvider], {
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleRemoveProvider(verifiedDomain, enabledProvider);
+          });
+
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it('should not remove it through the legacy toggle either', async () => {
+          mockIdpConfig('required');
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([enabledProvider], {
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, enabledProvider, false);
+          });
+
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it.each([
+          ['a second domain', { domains: [verifiedDomain.domain, 'other.com'] }],
+          ['a disabled provider', { is_enabled: false }],
+        ])('should remove it with %s', async (_label, override) => {
+          mockIdpConfig('required');
+          const provider = { ...enabledProvider, ...override };
+          const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+          const { result } = renderWithServiceProviders([provider], { onDeleteFromProvider });
+
+          await act(async () => {
+            await result.current.handleRemoveProvider(verifiedDomain, provider);
+          });
+
+          expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, provider);
+        });
+      });
+
+      describe('the legacy toggle', () => {
+        it('should not associate in none mode', async () => {
+          mockIdpConfig('none');
+          const onAssociateToProvider = vi.fn();
+          const { result } = renderWithServiceProviders([providerB], { onAssociateToProvider });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, true);
+          });
+
+          expect(onAssociateToProvider).not.toHaveBeenCalled();
+        });
+
+        it('should not associate with, or remove from, a provider below full access', async () => {
+          const onAssociateToProvider = vi.fn();
+          const onDeleteFromProvider = vi.fn();
+          const { result } = renderWithServiceProviders([limitedProvider], {
+            onAssociateToProvider,
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, limitedProvider, true);
+            await result.current.handleToggleSwitch(verifiedDomain, limitedProvider, false);
+          });
+
+          expect(onAssociateToProvider).not.toHaveBeenCalled();
+          expect(onDeleteFromProvider).not.toHaveBeenCalled();
+        });
+
+        it('should still associate and remove with full access', async () => {
+          const onAssociateToProvider = vi.fn().mockResolvedValue(undefined);
+          const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+          const { result } = renderWithServiceProviders([providerB], {
+            onAssociateToProvider,
+            onDeleteFromProvider,
+          });
+
+          await act(async () => {
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, true);
+            await result.current.handleToggleSwitch(verifiedDomain, providerB, false);
+          });
+
+          expect(onAssociateToProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+          expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerB);
+        });
+      });
+
+      it('should not remove from a provider the organization cannot fully manage', async () => {
+        const onDeleteFromProvider = vi.fn();
+        const limitedAssigned = { ...providerA, access_level: 'limited' as const };
+        const { result } = renderWithServiceProviders([limitedAssigned], { onDeleteFromProvider });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, limitedAssigned);
+        });
+
+        expect(onDeleteFromProvider).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('handleRemoveProvider', () => {
+      it('should dissociate the domain from the provider', async () => {
+        const onDeleteFromProvider = vi.fn().mockResolvedValue(undefined);
+        const onAssociateToProvider = vi.fn();
+        const { result } = renderWithServiceProviders([providerA, providerB], {
+          onDeleteFromProvider,
+          onAssociateToProvider,
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).toHaveBeenCalledWith(verifiedDomain, providerA);
+        expect(onAssociateToProvider).not.toHaveBeenCalled();
+        expect(result.current.isSavingProvider).toBe(false);
+      });
+
+      it('should not dissociate without the delete scope', async () => {
+        const onDeleteFromProvider = vi.fn();
+        const { result } = renderWithServiceProviders(
+          [providerA],
+          { onDeleteFromProvider },
+          ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'delete:my_org:identity_providers_domains'),
+        );
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(onDeleteFromProvider).not.toHaveBeenCalled();
+      });
+
+      it('should report the error when dissociating fails', async () => {
+        const error = new Error('Delete failed');
+        const { result } = renderWithServiceProviders([providerA], {
+          onDeleteFromProvider: vi.fn().mockRejectedValue(error),
+        });
+
+        await act(async () => {
+          await result.current.handleRemoveProvider(verifiedDomain, providerA);
+        });
+
+        expect(mockHandleError).toHaveBeenCalledWith(error, {
+          fallbackMessage: 'domain_table.notifications.domain_delete_provider.error',
+        });
+        expect(result.current.isSavingProvider).toBe(false);
+      });
     });
   });
 
@@ -687,6 +1066,326 @@ describe('useDomainTable', () => {
 
       expect(result.current.showCreateModal).toBe(false);
       expect(result.current.showDeleteModal).toBe(false);
+    });
+  });
+
+  describe('domain discovery', () => {
+    const mockServiceWith = (overrides = {}) => {
+      const service = createMockDomainTableServiceReturn({
+        onVerifyDomain: vi.fn().mockResolvedValue(true),
+        onUpdateDomainDiscovery: vi.fn().mockResolvedValue(verifiedDomain),
+        onCreateDomain: vi.fn().mockResolvedValue(mockDomain),
+        fetchProviders: vi.fn().mockResolvedValue(undefined),
+        ...overrides,
+      });
+      mockUseDomainTableService.mockReturnValue(service);
+      return service;
+    };
+
+    it('exposes the discovery policy from the configuration', () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const { result } = render();
+
+      expect(result.current.showDiscovery).toBe(true);
+      expect(result.current.isDiscoveryReadOnly).toBe(false);
+      expect(result.current.discoveryDefaultValue).toBe(false);
+    });
+
+    it('omits use_for_organization_discovery on create when discovery is not available', async () => {
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('sends use_for_organization_discovery on create when discovery is available', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({
+        domain: 'test.com',
+        use_for_organization_discovery: true,
+      });
+    });
+
+    it('opens the discovery modal after verify when discovery is still off', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify({ ...mockDomain, use_for_organization_discovery: false });
+      });
+
+      expect(result.current.showVerifyModal).toBe(false);
+      expect(result.current.showDiscoveryModal).toBe(true);
+    });
+
+    it('announces that discovery is on, without the modal, when it was already chosen', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify({ ...mockDomain, use_for_organization_discovery: true });
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_table.notifications.domain_verify.success_discovery_on',
+      });
+    });
+
+    it('does not open the discovery modal when the policy locks discovery', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: false, allowed_values: [false] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+        }),
+      );
+      mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+    });
+
+    it('turns discovery on from the modal and closes it', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+
+      expect(service.onUpdateDomainDiscovery).toHaveBeenCalledWith(mockDomain, true);
+      expect(result.current.showDiscoveryModal).toBe(false);
+    });
+
+    it('reports an error and keeps the modal open when turning discovery on fails', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const error = new Error('update failed');
+      mockServiceWith({ onUpdateDomainDiscovery: vi.fn().mockRejectedValue(error) });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerify(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'domain_table.notifications.domain_discovery_update.error',
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+    });
+
+    it('omits use_for_organization_discovery on create without the update permission', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = renderWithPermissions(['create:my_org:domains', 'read:my_org:domains']);
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('omits a discovery value the policy does not allow', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+          discoveryDefaultValue: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', false);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({ domain: 'test.com' });
+    });
+
+    it('still sends the one value a locked policy allows', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+          discoveryDefaultValue: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleCreate('test.com', true);
+      });
+
+      expect(service.onCreateDomain).toHaveBeenCalledWith({
+        domain: 'test.com',
+        use_for_organization_discovery: true,
+      });
+    });
+
+    it('keeps the discovery modal open while turning discovery on, and configures once', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      let finishUpdate: (domain: typeof verifiedDomain) => void = () => {};
+      const pendingUpdate = new Promise<typeof verifiedDomain>((resolve) => {
+        finishUpdate = resolve;
+      });
+      const service = mockServiceWith({
+        onUpdateDomainDiscovery: vi.fn().mockReturnValue(pendingUpdate),
+        isUpdatingDiscovery: true,
+      });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+
+      let enable: Promise<void> = Promise.resolve();
+      act(() => {
+        enable = result.current.handleEnableDiscovery(mockDomain);
+      });
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(true);
+      expect(service.fetchProviders).not.toHaveBeenCalled();
+
+      await act(async () => {
+        finishUpdate(verifiedDomain);
+        await enable;
+      });
+
+      expect(service.fetchProviders).toHaveBeenCalledTimes(1);
+      expect(result.current.showConfigureModal).toBe(true);
+    });
+
+    it('configures only once when the discovery modal is dismissed after turning discovery on', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      await act(async () => {
+        await result.current.handleEnableDiscovery(mockDomain);
+      });
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(service.fetchProviders).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens the configure step after "Not now" when verify started from a row', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleVerifyClick(mockDomain);
+      });
+      expect(result.current.showDiscoveryModal).toBe(true);
+      expect(result.current.showConfigureModal).toBe(false);
+
+      await act(async () => {
+        result.current.handleCloseDiscoveryModal();
+      });
+
+      expect(result.current.showDiscoveryModal).toBe(false);
+      expect(service.fetchProviders).toHaveBeenCalledWith(mockDomain);
+      expect(result.current.showConfigureModal).toBe(true);
+    });
+
+    it('toggles discovery for a verified domain and confirms with a toast', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, false);
+      });
+
+      expect(service.onUpdateDomainDiscovery).toHaveBeenCalledWith(verifiedDomain, false);
+      expect(mockedShowToast).toHaveBeenCalledWith({
+        type: 'success',
+        message: 'domain_table.notifications.domain_discovery_update.success_off',
+      });
+    });
+
+    it('does not toggle discovery for an unverified domain', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(mockDomain, true);
+      });
+
+      expect(service.onUpdateDomainDiscovery).not.toHaveBeenCalled();
+    });
+
+    it('does not toggle discovery when the policy locks it', async () => {
+      mockUseConfig.mockReturnValue(
+        createMockConfig({
+          discoveryPolicy: { default_value: true, allowed_values: [true] },
+          showDiscovery: true,
+          isDiscoveryReadOnly: true,
+        }),
+      );
+      const service = mockServiceWith();
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, false);
+      });
+
+      expect(service.onUpdateDomainDiscovery).not.toHaveBeenCalled();
+    });
+
+    it('reports an error when toggling discovery fails', async () => {
+      mockUseConfig.mockReturnValue(editableDiscoveryConfig());
+      const error = new Error('toggle failed');
+      mockServiceWith({ onUpdateDomainDiscovery: vi.fn().mockRejectedValue(error) });
+      const { result } = render();
+
+      await act(async () => {
+        await result.current.handleToggleDiscovery(verifiedDomain, true);
+      });
+
+      expect(mockHandleError).toHaveBeenCalledWith(error, {
+        fallbackMessage: 'domain_table.notifications.domain_discovery_update.error',
+      });
     });
   });
 });

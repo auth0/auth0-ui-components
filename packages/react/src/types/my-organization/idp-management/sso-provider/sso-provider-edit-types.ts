@@ -21,9 +21,12 @@ import type {
   IdpProvisioningUserAttributeMapItem,
   IdpUserAttributeMapItem,
   IdpStrategy,
+  IdpScimTokenConfig,
   AttributeSyncAlertMessages,
   GetIdpConfigurationResponseContent,
+  IdpDomainVerificationMode,
   IdpManagementPermissions,
+  OrganizationDiscoveryConfig,
 } from '@auth0/universal-components-core';
 import type { LucideIcon } from 'lucide-react';
 import type React from 'react';
@@ -33,12 +36,14 @@ import type {
   SsoDomainTabClasses,
   SsoProviderEditDomainsTabSchema,
 } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
+import type { ProviderAccess } from '@/types/my-organization/idp-management/sso-provider/sso-provider-access-types';
 import type {
   SsoProviderTabClasses,
   SsoProviderTabEditProps,
   SsoProviderTabSchemas,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 import type {
+  CreateProvisioningOptions,
   SsoProvisioningTabClasses,
   SsoProvisioningTabEditProps,
   SsoProvisioningTabSchemas,
@@ -64,6 +69,7 @@ export interface SsoProviderEditClasses
     SsoProviderAttributeSyncAlertClasses {
   'SsoProviderEdit-header'?: string;
   'SsoProviderEdit-tabs'?: string;
+  'SsoProviderEdit-provisioningGuidedSetup'?: string;
 }
 
 /** SSO provider edit schemas. */
@@ -82,8 +88,11 @@ export interface SsoProviderEditProps
   > {
   hideHeader?: boolean;
   hideProvisioningTab?: boolean;
+  hideGuidedSetup?: boolean;
+  hideDomainsTab?: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
+  hideTestProvider?: boolean;
   hideAttributeMappings?: boolean;
   providerId: IdpId;
   sso?: SsoProviderTabEditProps;
@@ -92,7 +101,6 @@ export interface SsoProviderEditProps
   backButton?: SsoProviderEditBackButton;
   enableProviderAction?: ComponentAction<IdpKnownResponse>;
   connectionNamePrefix?: string;
-  /** Show the SAML "Sign request" option; hiding it keeps the existing value. Defaults to `true`. */
   showSignRequest?: boolean;
   resolveSamlMetadata?: (params: { connectionName: string }) => { entityId: string };
 }
@@ -131,7 +139,7 @@ export interface UseSsoProviderEditServiceReturn {
   fetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
   updateProvider: (data: UpdateIdentityProviderRequestContentPrivate) => Promise<void>;
   enableProvider: (enabled: boolean) => Promise<void>;
-  createProvisioning: () => Promise<void>;
+  createProvisioning: (options?: CreateProvisioningOptions) => Promise<void>;
   deleteProvisioning: () => Promise<void>;
   listScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   createScimToken: (
@@ -153,8 +161,13 @@ export interface UseSsoProviderEditReturn extends UseSsoProviderEditServiceRetur
   provisioningMethod: IdentityProvidersConfigProvisioningMethod | undefined;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
+  discoveryPolicy: OrganizationDiscoveryConfig | null;
+  domainVerificationMode: IdpDomainVerificationMode;
+  isEnableBlockedByDomains: boolean;
+  providerAccess: ProviderAccess;
   showCrossAppAccess: boolean;
   isCrossAppAccessReadOnly: boolean;
+  scimTokenConfig?: IdpScimTokenConfig;
   handleToggleProvider: (enabled: boolean) => Promise<void>;
 }
 
@@ -163,6 +176,8 @@ export interface SsoProviderAttributeMappingsProps
   userAttributeMap: IdpProvisioningUserAttributeMapItem[] | IdpUserAttributeMapItem[] | null;
   strategy: IdpStrategy | null;
   isProvisioning?: boolean;
+  hideExternalNamespace?: boolean;
+  hideHeader?: boolean;
   className?: string;
 }
 
@@ -175,6 +190,8 @@ export interface SsoProviderAttributeSyncAlertProps {
   customMessages?: Partial<AttributeSyncAlertMessages>;
   canSync?: boolean;
   permissionDenied?: boolean;
+  /** The organization's access level doesn't allow this action. */
+  isAccessRestricted?: boolean;
 }
 
 export interface SsoProviderEditViewProps
@@ -188,10 +205,14 @@ export interface SsoProviderEditViewProps
       | 'readOnly'
       | 'providerId'
       | 'domains'
+      | 'provisioning'
       | 'hideHeader'
       | 'hideProvisioningTab'
+      | 'hideGuidedSetup'
+      | 'hideDomainsTab'
       | 'hideDeleteProvider'
       | 'hideRemoveFromOrganization'
+      | 'hideTestProvider'
       | 'hideAttributeMappings'
       | 'provisioning'
       | 'enableProviderAction'

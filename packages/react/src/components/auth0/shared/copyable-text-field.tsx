@@ -4,13 +4,10 @@
  * @internal
  */
 
-import { Copy } from 'lucide-react';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
+import { CopyButton } from '@/components/auth0/shared/copy-button';
 import { TextField, type TextFieldProps } from '@/components/ui/text-field';
-import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 
 export interface CopyableTextFieldProps extends TextFieldProps {
@@ -35,41 +32,14 @@ const CopyableTextField = React.forwardRef<HTMLInputElement, CopyableTextFieldPr
     },
     ref,
   ) => {
-    const { t } = useTranslator('common');
-    const [tooltipText, setTooltipText] = React.useState(t('copy'));
-    const [tooltipOpen, setTooltipOpen] = React.useState(false);
-
-    const handleCopy = async () => {
-      if (props.value) {
-        await navigator.clipboard.writeText(String(props.value));
-        setTooltipText(t('copied'));
-        setTooltipOpen(true);
-        setTimeout(() => {
-          setTooltipText(t('copy'));
-          setTooltipOpen(false);
-        }, 1000);
-        onCopy?.();
-      }
-    };
-
     const copyButton = (
-      <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className={cn('h-8 w-8', copyButtonClassName)}
-            onClick={handleCopy}
-            aria-label={t('copy')}
-          >
-            <Copy className="h-4 w-4" aria-hidden="true" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side={tooltipSide} align={tooltipAlign} sideOffset={5}>
-          {tooltipText}
-        </TooltipContent>
-      </Tooltip>
+      <CopyButton
+        value={props.value === undefined || props.value === null ? '' : String(props.value)}
+        onCopy={onCopy}
+        className={cn('h-8 w-8', copyButtonClassName)}
+        tooltipSide={tooltipSide}
+        tooltipAlign={tooltipAlign}
+      />
     );
 
     return (

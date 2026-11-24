@@ -53,6 +53,14 @@ describe('SsoProviderAttributeMappings', () => {
       expect(screen.getByText('mappings.title')).toBeInTheDocument();
     });
 
+    it('should hide the section title and description when hideHeader is set', () => {
+      renderWithProviders(<SsoProviderAttributeMappings {...defaultProps} hideHeader />);
+
+      expect(screen.queryByText('mappings.title')).not.toBeInTheDocument();
+      expect(screen.queryByText('mappings.description_provider_tab')).not.toBeInTheDocument();
+      expect(screen.getByText('mappings.required.title')).toBeInTheDocument();
+    });
+
     it('should render required attributes section', () => {
       renderWithProviders(<SsoProviderAttributeMappings {...defaultProps} />);
 

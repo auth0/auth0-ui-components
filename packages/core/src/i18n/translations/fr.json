@@ -3,6 +3,7 @@
     "copy": "Copier",
     "copied": "Copié!",
     "copy_failed": "Échec de la copie",
+    "your_domain_placeholder": "VOTRE_DOMAINE",
     "last_updated": "Dernière mise à jour",
     "refresh": "Rafraîchir",
     "time": {
@@ -387,6 +388,7 @@
       "provider_configure": {
         "title": "Configurer le fournisseur",
         "description": "Établissez une connexion entre votre fournisseur d'identité et Auth0.",
+        "guided_setup_button_text": "Configuration guidée",
         "fields": {
           "common": {
             "show_as_button": {
@@ -396,6 +398,10 @@
             "assign_membership_on_login": {
               "label": "Attribuer l'appartenance lors de la connexion",
               "helper_text": "Accordez automatiquement l'appartenance à l'organisation aux utilisateurs qui se connectent via cette connexion"
+            },
+            "connection_method": {
+              "automatic": "Automatique",
+              "manual": "Manuelle"
             }
           },
           "okta": {
@@ -792,6 +798,9 @@
                 "token_item": {
                   "token_prefix": "Jeton",
                   "never_expire": "Ce jeton n'expirera jamais.",
+                  "expires_on": "Expire le : ${date}",
+                  "scopes": "Portées : ${scopes}",
+                  "created_at": "Créé le : ${date}",
                   "last_used": "Dernière utilisation : Jamais",
                   "status_active": "Actif",
                   "status_expired": "Expiré",
@@ -800,6 +809,37 @@
                 "create_modal": {
                   "title": "Informations sur le jeton Bearer",
                   "copy_and_close_button_label": "Copier et fermer",
+                  "next_button_label": "Suivant",
+                  "steps": {
+                    "configure": "Configurer le jeton",
+                    "review": "Vérifier et copier"
+                  },
+                  "fields": {
+                    "no_expiration": {
+                      "label": "Aucune date d'expiration",
+                      "helper_text": "Ce jeton n'expirera pas."
+                    },
+                    "token_lifetime": {
+                      "label": "Durée de vie",
+                      "suffix": "secondes",
+                      "helper_default": "Par défaut : ${seconds} secondes selon votre profil de connexion.",
+                      "helper_max": "Maximum autorisé : ${seconds} secondes.",
+                      "helper_min": "Doit être supérieur à ${seconds} secondes.",
+                      "errors": {
+                        "required": "Saisissez une durée de vie pour le jeton.",
+                        "integer": "Saisissez un nombre entier de secondes.",
+                        "min": "Saisissez plus de ${seconds} secondes.",
+                        "max": "Saisissez au plus ${seconds} secondes."
+                      }
+                    },
+                    "scopes": {
+                      "label": "Sélectionner les autorisations (portées)",
+                      "helper_text": "Les portées définissent l'accès des jetons Bearer.",
+                      "errors": {
+                        "required": "Sélectionnez au moins une portée."
+                      }
+                    }
+                  },
                   "content": {
                     "description": "Copiez le jeton bearer à fournir à votre fournisseur d'identité. Il ne sera plus affiché après la fermeture de cette boîte de dialogue.",
                     "field": {
@@ -965,6 +1005,10 @@
       },
       "provider_details": {
         "save_button_label": "Enregistrer"
+      },
+      "provisioning_setup": {
+        "title": "Configurer le provisionnement",
+        "back_button_text": "Retour à ${providerName}"
       }
     },
     "sso_provider_details": {
@@ -1011,6 +1055,28 @@
         }
       }
     },
+    "test_sso_provider": {
+      "title": "Tester le SSO",
+      "description": "Testez le fournisseur pour vérifier que la configuration SSO fonctionne.",
+      "test_button_label": "Tester le fournisseur",
+      "overlay": {
+        "title": "Test de votre fournisseur d'identité en cours",
+        "description": "Terminez la connexion dans la nouvelle fenêtre. Cette page se mettra à jour automatiquement une fois le test terminé.",
+        "trouble_text": "Vous rencontrez des difficultés avec votre fournisseur d'identité ?",
+        "retry_button_label": "Fermer et réessayer",
+        "popup_blocked_text": "Votre navigateur a bloqué la fenêtre de test.",
+        "open_window_link_label": "Ouvrir la fenêtre de test"
+      },
+      "result": {
+        "success_title": "Test réussi",
+        "success_description": "Vérifiez les informations utilisateur ci-dessous et confirmez que les bons attributs sont transmis.",
+        "copy_button_label": "Copier le JSON",
+        "try_again_text": "Veuillez réessayer.",
+        "expired_error": "Le test a expiré avant d'être terminé. Veuillez réessayer.",
+        "timeout_error": "Le délai du test a expiré avant la fin de la connexion. Veuillez réessayer.",
+        "provider_error": "${message} Veuillez réessayer."
+      }
+    },
     "notifications": {
       "delete_success": "${providerName} a été supprimé.",
       "remove_success": "${providerName} a été retiré de ${organizationName}",
@@ -1049,7 +1115,73 @@
         "connect_error": "L'autorisation Google n'a pas pu être finalisée. Veuillez réessayer.",
         "auto_sync_enabled_success": "La synchronisation automatique a été activée.",
         "auto_sync_disabled_success": "La synchronisation automatique a été désactivée."
-      }
+      },
+      "test_provider_start_error": "Un problème est survenu lors du démarrage du test du fournisseur."
+    },
+    "sso_guided_setup": {
+      "stepper_label": "Étapes de configuration",
+      "next": "Suivant",
+      "create_provider": "Créer le fournisseur",
+      "done": "Terminé",
+      "unavailable": "La configuration guidée n'est pas disponible pour ce fournisseur. Utilisez plutôt le formulaire.",
+      "load_error": "Impossible de charger les instructions de configuration. Réessayez plus tard ou utilisez plutôt le formulaire.",
+      "loading": "Chargement des instructions de configuration",
+      "company_fallback": "votre organisation",
+      "create_modal": {
+        "title": "Avant de créer le fournisseur, veuillez noter :",
+        "description": "La création de ce fournisseur activera l'accès SSO à ${companyName}. Pour des raisons de sécurité, attribuez les accès et testez le fournisseur dès qu'il est actif.",
+        "cancel": "Annuler",
+        "proceed": "Continuer"
+      },
+      "copy_values": {
+        "callback_url": {
+          "label": "URL de rappel"
+        },
+        "sso_url": {
+          "label": "URL d’authentification unique"
+        },
+        "service_provider_entity_id": {
+          "label": "ID d’entité du fournisseur de services"
+        },
+        "adfs_ws_federation_url": {
+          "label": "URL du protocole passif WS-Federation de la partie de confiance"
+        },
+        "adfs_relying_party_identifier": {
+          "label": "Identifiant d’approbation de la partie de confiance"
+        },
+        "google_javascript_origin": {
+          "label": "URI des origines JavaScript autorisées"
+        },
+        "google_redirect_uri": {
+          "label": "URI de redirection autorisé"
+        },
+        "pingfederate_partner_entity_id": {
+          "label": "ID d’entité du partenaire"
+        },
+        "pingfederate_endpoint_url": {
+          "label": "URL du point de terminaison"
+        },
+        "scim_endpoint_url": {
+          "label": "URL du point de terminaison SCIM"
+        },
+        "external_namespace": {
+          "label": "Espace de noms externe"
+        }
+      },
+      "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
+      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur.",
+      "attribute_mapping_load_failed": "Impossible de charger les mappages d’attributs. Réessayez, ou continuez et vérifiez-les plus tard.",
+      "attribute_mapping_retry": "Réessayer",
+      "lifecycle": {
+        "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${organizationDisplayName} si besoin.",
+        "dismiss": "Ignorer",
+        "deprecated": "La configuration guidée n’est pas disponible, car les instructions de ce fournisseur ne sont plus prises en charge. Contactez l’assistance de ${organizationDisplayName} pour obtenir de l’aide."
+      },
+      "test_connection": {
+        "instructions": "Sélectionnez **${testButton}** pour ouvrir une nouvelle fenêtre et vous connecter avec ${providerName}. Vous recevrez une réponse ${protocol} en retour.",
+        "keep_open": "Ne fermez pas cette fenêtre pendant le test."
+      },
+      "instruction_tabs_label": "Options de configuration"
     }
   },
   "user_mfa_management": {
@@ -1140,16 +1272,6 @@
       "duo": {
         "title": "Duo Security",
         "description": "Utilisez votre compte DUO pour l'authentification à facteurs multiples."
-      },
-      "webauthn-roaming": {
-        "title": "WebAuthn avec clés de sécurité FIDO",
-        "description": "Utilisez des clés de sécurité compatibles WebAuthn (par exemple, FIDO2) comme second facteur.",
-        "button_text": "Ajouter WebAuthn avec clés de sécurité FIDO"
-      },
-      "webauthn-platform": {
-        "title": "WebAuthn avec biométrie de l'appareil FIDO",
-        "description": "Utilisez la biométrie de l'appareil compatible WebAuthn comme second facteur.",
-        "button_text": "Ajouter WebAuthn avec biométrie de l'appareil FIDO"
       },
       "recovery-code": {
         "title": "Code de récupération",

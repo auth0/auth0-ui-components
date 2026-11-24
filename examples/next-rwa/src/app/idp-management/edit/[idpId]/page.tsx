@@ -17,6 +17,8 @@ export default function SsoProviderEditPage() {
     router.push('/idp-management/');
   }, [router]);
 
+  const backButtonAction = useMemo(() => ({ onClick: handleBack }), [handleBack]);
+
   const updateAction = useMemo(
     () => ({
       onAfter: handleUpdate,
@@ -41,7 +43,7 @@ export default function SsoProviderEditPage() {
             },
           },
         }}
-        backButton={{ onClick: handleBack }}
+        backButton={backButtonAction}
       />
     </div>
   );

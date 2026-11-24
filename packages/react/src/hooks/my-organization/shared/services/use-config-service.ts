@@ -6,12 +6,13 @@
 import {
   AVAILABLE_STRATEGY_LIST,
   configQueryKeys,
-  hasApiErrorBody,
   type IdpStrategy,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { getDiscoveryState } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import { createRetryUnlessNotFound } from '@/lib/utils/shared/query-utils';
 import type { UseConfigResult } from '@/types/my-organization/config/config-types';
 
 /**
@@ -26,14 +27,7 @@ export function useConfig(): UseConfigResult {
     queryKey: configQueryKeys.details(),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.configuration.get(),
     enabled: !!coreClient,
-    retry: (failureCount, error) => {
-      if (hasApiErrorBody(error) && error.body?.status === 404) {
-        return false;
-      }
-      // Defer the retry count to the provider-level retryConfig baked into the client.
-      const defaultRetry = queryClient.getDefaultOptions().queries?.retry;
-      return typeof defaultRetry === 'function' ? defaultRetry(failureCount, error) : false;
-    },
+    retry: createRetryUnlessNotFound(queryClient),
   });
 
   const config = configQuery.data;
@@ -63,8 +57,16 @@ export function useConfig(): UseConfigResult {
   const isThirdPartyAccessReadOnly =
     (config?.third_party_client_access?.allowed_values?.length ?? 0) <= 1;
   const thirdPartyAccessDefaultValue = isThirdPartyAccessReadOnly
-    ? config?.third_party_client_access?.allowed_values?.[0]
+    ? (config?.third_party_client_access?.allowed_values?.[0] ??
+      config?.third_party_client_access?.default_value)
     : config?.third_party_client_access?.default_value;
+
+  const discoveryPolicy = config?.use_for_organization_discovery ?? null;
+  const {
+    isAvailable: showDiscovery,
+    isReadOnly: isDiscoveryReadOnly,
+    defaultValue: discoveryDefaultValue,
+  } = getDiscoveryState(discoveryPolicy);
 
   return {
     config: config ?? null,
@@ -78,5 +80,9 @@ export function useConfig(): UseConfigResult {
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     thirdPartyAccessDefaultValue,
+    discoveryPolicy,
+    showDiscovery,
+    isDiscoveryReadOnly,
+    discoveryDefaultValue,
   };
 }

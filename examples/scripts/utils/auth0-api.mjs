@@ -97,6 +97,21 @@ export async function auth0ApiGetAll(endpoint, listKey) {
 }
 
 /**
+ * Older Auth0 CLI versions exit successfully while printing the API's error body, so an error
+ * can come back from auth0ApiCall as a normal response. Throws for a missing or error response.
+ * @param {object|null} response - Result of auth0ApiCall
+ * @param {string} fallbackMessage - Message used when the response has none
+ * @returns {object} The response, when it is not an error
+ */
+export function throwIfApiError(response, fallbackMessage) {
+  if (!response) throw new Error(fallbackMessage)
+  if (response.statusCode >= 400) {
+    throw new Error(response.message || response.error || fallbackMessage)
+  }
+  return response
+}
+
+/**
  * Check if the Auth0 CLI session is valid by making a simple API call
  * @param {number} timeout - Timeout in ms (default 10s for quick check)
  * @returns {Promise<boolean>} True if session is valid

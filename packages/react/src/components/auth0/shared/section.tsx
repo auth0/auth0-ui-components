@@ -8,12 +8,15 @@ import type { ActionButton as CoreActionButton } from '@auth0/universal-componen
 import type { LucideIcon } from 'lucide-react';
 import * as React from 'react';
 
+import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
 import { cn } from '@/lib/utils';
 
 export interface BaseActionProps extends Omit<CoreActionButton, 'icon' | 'onClick'> {
   icon?: LucideIcon;
+  iconPosition?: 'start' | 'end';
+  tooltip?: string;
   className?: string;
 }
 
@@ -41,6 +44,8 @@ interface SectionProps {
 
 const ButtonAction: React.FC<ButtonActionProps> = ({
   icon: Icon,
+  iconPosition = 'start',
+  tooltip,
   className,
   label,
   onClick,
@@ -48,17 +53,24 @@ const ButtonAction: React.FC<ButtonActionProps> = ({
   variant,
   size,
 }) => (
-  <Button
-    onClick={onClick}
-    disabled={disabled}
-    variant={variant}
-    size={size}
-    className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
-    aria-label={label}
-  >
-    {Icon && <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />}
-    <span className="truncate">{label}</span>
-  </Button>
+  <PermissionDeniedTooltip enabled={Boolean(tooltip)} customMessage={tooltip}>
+    <Button
+      onClick={onClick}
+      disabled={disabled}
+      variant={variant}
+      size={size}
+      className={cn('flex items-center gap-2 w-full sm:w-auto sm:min-w-fit', className)}
+      aria-label={label}
+    >
+      {Icon && iconPosition === 'start' && (
+        <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      )}
+      <span className="truncate">{label}</span>
+      {Icon && iconPosition === 'end' && (
+        <Icon className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+      )}
+    </Button>
+  </PermissionDeniedTooltip>
 );
 
 const ToggleAction: React.FC<ToggleActionProps> = ({
@@ -112,26 +124,31 @@ export function Section({
     );
   };
 
+  const hasActions = Boolean(actions && actions.length > 0);
+  const hasHeader = Boolean(title || description || hasActions);
+
   return (
     <div className={cn('space-y-6', className)}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col min-w-0 flex-1 space-y-2">
-          {title && (
-            <h3 className={cn('text-foreground text-subtitle font-semibold mb-1 text-left')}>
-              {title}
-            </h3>
-          )}
-          {description && (
-            <p className={cn('text-muted-foreground text-left text-paragraph')}>{description}</p>
+      {hasHeader && (
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col min-w-0 flex-1 space-y-2">
+            {title && (
+              <h3 className={cn('text-foreground text-subtitle font-semibold mb-1 text-left')}>
+                {title}
+              </h3>
+            )}
+            {description && (
+              <p className={cn('text-muted-foreground text-left text-paragraph')}>{description}</p>
+            )}
+          </div>
+
+          {hasActions && (
+            <div className="flex-shrink-0 flex items-start gap-2 mt-1">
+              {actions?.map(renderAction)}
+            </div>
           )}
         </div>
-
-        {actions && actions.length > 0 && (
-          <div className="flex-shrink-0 flex items-start gap-2 mt-1">
-            {actions.map(renderAction)}
-          </div>
-        )}
-      </div>
+      )}
 
       <div className="space-y-6">{children}</div>
     </div>

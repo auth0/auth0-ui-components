@@ -444,6 +444,12 @@ export default function MyOrganizationIntroduction() {
                     <div className="text-xs text-gray-600">
                       - delete:my_org:identity_providers_provisioning
                     </div>
+                    <div className="text-xs text-gray-600">
+                      - create:my_org:identity_providers_tests
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      - read:my_org:identity_providers_tests
+                    </div>
                     <div className="text-xs text-gray-600">- read:my_org:configuration</div>
                     <div className="text-xs text-gray-600 font-medium mt-2">
                       Member Management scopes:
@@ -456,7 +462,6 @@ export default function MyOrganizationIntroduction() {
                     <div className="text-xs text-gray-600">- read:my_org:member_roles</div>
                     <div className="text-xs text-gray-600">- create:my_org:member_roles</div>
                     <div className="text-xs text-gray-600">- delete:my_org:member_roles</div>
-                    <div className="text-xs text-gray-600">- read:my_org:permissions</div>
                     <div className="text-xs text-gray-600">- read:my_org:user_stores</div>
                   </div>
                 </div>

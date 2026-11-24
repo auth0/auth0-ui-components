@@ -52,6 +52,8 @@ const MY_ORG_SCOPES = [
   'update:my_org:identity_providers_provisioning',
   'read:my_org:identity_providers_provisioning',
   'delete:my_org:identity_providers_provisioning',
+  'create:my_org:identity_providers_tests',
+  'read:my_org:identity_providers_tests',
   'read:my_org:configuration',
   'read:my_org:member_invitations',
   'delete:my_org:member_invitations',
@@ -61,7 +63,6 @@ const MY_ORG_SCOPES = [
   'create:my_org:member_roles',
   'read:my_org:members',
   'delete:my_org:memberships',
-  'read:my_org:permissions',
   'read:my_org:user_stores',
 ];
 

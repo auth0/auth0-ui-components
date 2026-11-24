@@ -5,8 +5,10 @@
  */
 
 import type { SharedMessages } from '../../../shared/shared-types';
+import type { SsoGuidedSetupMessages } from '../sso-guided-setup/sso-guided-setup-types';
 
 import type { ThirdPartyAccessMessages, CrossAppAccessMessages } from './sso-provider-edit-types';
+import type { SsoProviderTestMessages } from './sso-provider-test-types';
 
 export interface ProviderSelectMessages {
   title?: string;
@@ -44,6 +46,10 @@ export interface ProviderFieldsMessages {
     assign_membership_on_login?: {
       label?: string;
       helper_text?: string;
+    };
+    connection_method?: {
+      automatic?: string;
+      manual?: string;
     };
   };
 
@@ -340,6 +346,8 @@ export interface SsoProviderCreateMessages extends SharedMessages {
   provider_select?: ProviderSelectMessages;
   provider_details?: ProviderDetailsMessages;
   provider_configure?: ProviderConfigureMessages;
+  guided_setup?: SsoGuidedSetupMessages;
+  test_provider?: SsoProviderTestMessages;
   notifications?: {
     general_error?: string;
     provider_create_success?: string;

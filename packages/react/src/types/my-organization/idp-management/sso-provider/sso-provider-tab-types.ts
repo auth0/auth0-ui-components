@@ -16,14 +16,17 @@ import type {
   GetIdpConfigurationResponseContent,
   ThirdPartyAccessMessages,
   CrossAppAccessMessages,
+  IdpStrategy,
 } from '@auth0/universal-components-core';
 
 import type { FormActionsProps } from '@/components/auth0/shared/form-actions';
+import type { ProviderAccess } from '@/types/my-organization/idp-management/sso-provider/sso-provider-access-types';
 import type { SsoProviderCreateClasses } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 import type {
   SsoProviderDeleteClasses,
   SsoProviderRemoveClasses,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-delete-types';
+import type { SsoProviderTestClasses } from '@/types/my-organization/idp-management/sso-provider/sso-provider-test-types';
 
 /** SSO provider tab edit action props. */
 export interface SsoProviderTabEditProps {
@@ -36,7 +39,8 @@ export interface SsoProviderTabEditProps {
 export interface SsoProviderTabClasses
   extends SsoProviderDetailsClasses,
     SsoProviderDeleteClasses,
-    SsoProviderRemoveClasses {
+    SsoProviderRemoveClasses,
+    SsoProviderTestClasses {
   'SsoProviderAttributeSyncAlert-root'?: string;
   'SsoProviderAttributeSyncAlert-dialogContent'?: string;
 }
@@ -61,10 +65,13 @@ export interface SsoProviderTabProps
   > {
   formActions: SsoProviderDetailsFormActions;
   permissions: IdpManagementPermissions;
+  /** Read from the provider when omitted. */
+  providerAccess?: ProviderAccess;
   idpConfig: GetIdpConfigurationResponseContent | null;
   shouldAllowDeletion: boolean;
   hideDeleteProvider?: boolean;
   hideRemoveFromOrganization?: boolean;
+  hideTestProvider?: boolean;
   hideAttributeMappings?: boolean;
   provider: IdpKnownResponse | null;
   onDelete: (provider: IdpKnownResponse) => Promise<void>;
@@ -112,6 +119,8 @@ export interface SsoProviderDetailsProps
   provider: IdpKnownResponse;
   idpConfig: GetIdpConfigurationResponseContent | null;
   readOnly?: boolean;
+  /** Locks the login button and auto-membership fields; defaults to `readOnly`. */
+  isLoginSettingsReadOnly?: boolean;
   hideAttributeMappings?: boolean;
   formActions?: SsoProviderDetailsFormActions;
   showThirdPartyAccess?: boolean;
@@ -150,7 +159,7 @@ interface CrossAppAccessSectionBaseProps {
 }
 
 type CrossAppAccessOidcProps = CrossAppAccessSectionBaseProps & {
-  strategy?: 'oidc' | 'okta';
+  strategy?: Exclude<IdpStrategy, 'samlp'>;
 };
 
 type CrossAppAccessSamlProps = CrossAppAccessSectionBaseProps & {

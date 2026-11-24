@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { SsoProviderAttributeMappingsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-edit-types';
 
 type AttributeItem = BaseUserAttributeMapItem & {
@@ -25,7 +26,7 @@ type AttributeItem = BaseUserAttributeMapItem & {
   sso_field?: string[];
 };
 
-const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
+export const SCIM_NAMESPACE = 'urn:ietf:params:scim:schemas:core:2.0:User';
 
 const CHANGE_STATUS = {
   UPDATED: 'updated',
@@ -107,7 +108,9 @@ const AttributeNameCell = ({
  * @param props.userAttributeMap - User attribute mapping configuration.
  * @param props.strategy - SSO strategy type.
  * @param props.isProvisioning - Whether provisioning is enabled.
+ * @param props.hideExternalNamespace - Leave out the External Namespace field.
  * @param props.customMessages - Custom i18n message overrides.
+ * @param props.hideHeader - Hides the section title and description.
  * @param props.className - Additional CSS class names.
  * @returns Attribute mappings component.
  * @internal
@@ -116,6 +119,8 @@ export function SsoProviderAttributeMappings({
   userAttributeMap = [],
   strategy,
   isProvisioning = false,
+  hideExternalNamespace = false,
+  hideHeader = false,
   customMessages,
   className,
 }: SsoProviderAttributeMappingsProps) {
@@ -163,12 +168,14 @@ export function SsoProviderAttributeMappings({
   );
 
   return (
-    <div className={className}>
+    <div className={cn('space-y-6', className)}>
       <Mapping
-        title={t('mappings.title')}
-        description={t(
-          isProvisioning ? 'mappings.description' : 'mappings.description_provider_tab',
-        )}
+        title={hideHeader ? undefined : t('mappings.title')}
+        description={
+          hideHeader
+            ? undefined
+            : t(isProvisioning ? 'mappings.description' : 'mappings.description_provider_tab')
+        }
         expanded
         card={{
           title: t('mappings.required.title'),
@@ -179,7 +186,7 @@ export function SsoProviderAttributeMappings({
           },
         }}
         content={
-          isProvisioning ? (
+          isProvisioning && !hideExternalNamespace ? (
             <div className="space-y-1.5 pt-2">
               <Label className="text-sm font-medium">
                 {t('mappings.external_namespace.label')}
