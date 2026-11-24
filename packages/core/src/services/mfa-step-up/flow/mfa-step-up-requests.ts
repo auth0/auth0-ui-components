@@ -21,7 +21,7 @@ import {
 import type { EnrollParams, MfaRequiredError, VerifyParams } from '../mfa-step-up-api-types';
 import { isMfaRequiredError, normalizeMfaRequiredError } from '../mfa-step-up-api-utils';
 
-import { MFA_STEP } from './mfa-step-up-flow';
+import { MFA_STEP } from './mfa-step-up-flow-constants';
 import type { MfaBlockReason, MfaRequestName, MfaStepUpOptions } from './mfa-step-up-flow-types';
 import { resolveMfaRequirements } from './mfa-step-up-requirements';
 import {
@@ -33,7 +33,7 @@ import {
   isPush,
   isVerified,
 } from './mfa-step-up-state';
-import type { StepUpState, StepUpStore } from './mfa-step-up-state';
+import type { StepUpState, FlowStore } from './mfa-step-up-state';
 
 const DEFAULT_RESEND_COOLDOWN_MS = 30_000;
 
@@ -105,7 +105,7 @@ const getChallengedAuthenticatorId = (state: StepUpState) =>
  * or `false`.
  */
 export function createStepUpRequests(
-  store: StepUpStore,
+  store: FlowStore,
   {
     apiClient,
     isProxyMode = false,
