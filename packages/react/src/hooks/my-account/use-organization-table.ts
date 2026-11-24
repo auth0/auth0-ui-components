@@ -12,12 +12,12 @@ import {
   type UserOrganization,
 } from '@auth0/universal-components-core';
 import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useOrganizationTableService } from '@/hooks/my-account/shared/services/use-organization-table-service';
 import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
-import { useOrganizationDeleteMutation } from '@/hooks/my-organization/shared/services/use-organization-delete-mutation';
+import { useOrganizationDeleteMutation } from '@/hooks/my-organization/shared/services/use-organization-delete-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { usePermissions } from '@/hooks/shared/use-permissions';
@@ -120,7 +120,10 @@ export function useOrganizationTable({
 
   // The API deletes the session's organization, so only the signed-in one can be deleted here.
   const hasSwitch = !!deleteAction?.onSwitchOrganization;
-  const { isLoadingConfig, shouldAllowOrganizationDeletion } = useConfig();
+  // Only a table that can delete needs the My Organization configuration.
+  const { isLoadingConfig, shouldAllowOrganizationDeletion } = useConfig({
+    enabled: !!deleteAction && !!currentOrganizationId,
+  });
   const getDeleteState = useCallback(
     (organization: UserOrganization): OrganizationTableDeleteState => {
       if (deleteAction?.disabled) return 'disabled';
@@ -171,23 +174,26 @@ export function useOrganizationTable({
   const pendingRow = pendingId
     ? service.organizations.find(({ id }) => id === pendingId)
     : undefined;
+  // In state, not a ref, so the details query stops once the request is handled (for example after
+  // the delete removed the row, when the session's organization no longer exists).
+  const [handledPendingId, setHandledPendingId] = useState<string | undefined>(undefined);
+  const isPendingHandled = !!pendingId && handledPendingId === pendingId;
   const pendingDetailsQuery = useQuery({
     queryKey: organizationDetailsQueryKeys.details(),
     queryFn: async () => {
       const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
       return OrganizationDetailsMappers.fromAPI(response);
     },
-    enabled: !!coreClient && !!pendingId && !service.isLoading && !pendingRow,
+    enabled: !!coreClient && !!pendingId && !isPendingHandled && !service.isLoading && !pendingRow,
   });
-  const handledPendingIdRef = useRef<string | undefined>(undefined);
 
   // Once the host clears the request, the same organization may be requested again.
   useEffect(() => {
-    if (!deleteConfirmationOrganizationId) handledPendingIdRef.current = undefined;
+    if (!deleteConfirmationOrganizationId) setHandledPendingId(undefined);
   }, [deleteConfirmationOrganizationId]);
 
   useEffect(() => {
-    if (!pendingId || handledPendingIdRef.current === pendingId) return;
+    if (!pendingId || isPendingHandled) return;
     if (service.isLoading || isPermissionsLoading || isLoadingConfig) return;
 
     // The details query isn't keyed by organization, so only use details for this one.
@@ -199,11 +205,11 @@ export function useOrganizationTable({
         ? { id: pendingId, name: details.name, display_name: details.display_name }
         : undefined);
     if (!organization) {
-      if (pendingDetailsQuery.isError) handledPendingIdRef.current = pendingId;
+      if (pendingDetailsQuery.isError) setHandledPendingId(pendingId);
       return;
     }
 
-    handledPendingIdRef.current = pendingId;
+    setHandledPendingId(pendingId);
     const state = getDeleteState(organization);
     if (state === 'enabled') {
       setDeleteTarget(organization);
@@ -213,6 +219,7 @@ export function useOrganizationTable({
     }
   }, [
     pendingId,
+    isPendingHandled,
     pendingRow,
     pendingDetailsQuery.data,
     pendingDetailsQuery.isError,

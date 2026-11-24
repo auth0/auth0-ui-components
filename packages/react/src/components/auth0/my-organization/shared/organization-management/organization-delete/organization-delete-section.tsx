@@ -6,7 +6,7 @@
 
 import * as React from 'react';
 
-import { OrganizationDeleteModal } from '@/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal';
+import { OrganizationDeleteModal } from '@/components/auth0/shared/organization-delete-modal';
 import { PermissionDeniedTooltip } from '@/components/auth0/shared/permission-denied-tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

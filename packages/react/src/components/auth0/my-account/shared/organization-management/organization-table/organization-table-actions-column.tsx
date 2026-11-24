@@ -5,6 +5,7 @@
  */
 
 import { MoreHorizontal, PencilLine, Trash2 } from 'lucide-react';
+import * as React from 'react';
 
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { OrganizationTableActionsColumnProps } from '@/types/my-account/organization-management/organization-table-types';
 
 /**
@@ -34,12 +36,15 @@ export function OrganizationTableActionsColumn({
 }: OrganizationTableActionsColumnProps) {
   const { t } = useTranslator('organization_management.organization_table', customMessages);
   const { t: tCommon } = useTranslator('common', customMessages?.common);
+  const deleteHintId = React.useId();
 
   if (!onEdit && !deleteState) {
     return null;
   }
 
-  // Disabled menu items ignore the pointer, so the reason is shown in the item instead of a tooltip.
+  // An unavailable Delete stays focusable (aria-disabled, not disabled) so keyboard and screen reader
+  // users reach the reason, and only its icon and label are dimmed so the reason stays readable.
+  const isDeleteUnavailable = deleteState !== 'enabled' && deleteState !== 'switch_required';
   const deleteHint =
     deleteState === 'other_organization'
       ? t('table.actions.delete_other_organization_hint')
@@ -69,15 +74,34 @@ export function OrganizationTableActionsColumn({
           )}
           {deleteState && (
             <DropdownMenuItem
-              disabled={deleteState !== 'enabled' && deleteState !== 'switch_required'}
-              onClick={() => onDelete?.(organization)}
-              className="items-start text-destructive-foreground focus:text-destructive-foreground"
+              aria-disabled={isDeleteUnavailable || undefined}
+              aria-describedby={deleteHint ? deleteHintId : undefined}
+              onSelect={(event) => {
+                if (isDeleteUnavailable) {
+                  event.preventDefault();
+                  return;
+                }
+                onDelete?.(organization);
+              }}
+              className={cn(
+                'items-start text-destructive-foreground focus:text-destructive-foreground',
+                isDeleteUnavailable && 'cursor-not-allowed',
+              )}
             >
-              <Trash2 className="mr-2 mt-0.5 h-4 w-4 shrink-0 text-destructive-foreground" />
+              <Trash2
+                className={cn(
+                  'mr-2 mt-0.5 h-4 w-4 shrink-0 text-destructive-foreground',
+                  isDeleteUnavailable && 'opacity-50',
+                )}
+              />
               <span className="flex flex-col">
-                {t('table.actions.delete_button_text')}
+                <span className={cn(isDeleteUnavailable && 'opacity-50')}>
+                  {t('table.actions.delete_button_text')}
+                </span>
                 {deleteHint && (
-                  <span className="max-w-56 text-xs text-muted-foreground">{deleteHint}</span>
+                  <span id={deleteHintId} className="max-w-56 text-xs text-muted-foreground">
+                    {deleteHint}
+                  </span>
                 )}
               </span>
             </DropdownMenuItem>

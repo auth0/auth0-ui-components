@@ -5,12 +5,12 @@ import { Plus, RefreshCcw } from 'lucide-react';
 import * as React from 'react';
 
 import { OrganizationTableActionsColumn } from '@/components/auth0/my-account/shared/organization-management/organization-table/organization-table-actions-column';
-import { OrganizationDeleteModal } from '@/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal';
 import { CopyableText } from '@/components/auth0/shared/copyable-text';
 import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { OrganizationDeleteModal } from '@/components/auth0/shared/organization-delete-modal';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';

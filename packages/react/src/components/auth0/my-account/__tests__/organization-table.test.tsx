@@ -39,6 +39,17 @@ describe('OrganizationTable', () => {
   });
 
   describe('when the user has organizations', () => {
+    it('does not request the My Organization configuration without deleteAction', async () => {
+      const { coreClient } = useCoreClientModule.useCoreClient();
+      const getConfiguration = coreClient!.getMyOrganizationApiClient().organization.configuration
+        .get as ReturnType<typeof vi.fn>;
+
+      renderWithProviders(<OrganizationTable currentOrganizationId="org_abc123" />);
+      await screen.findByText('Acme Corp.');
+
+      expect(getConfiguration).not.toHaveBeenCalled();
+    });
+
     it('renders a row per organization with name and identifier', async () => {
       renderWithProviders(<OrganizationTable />);
 
@@ -207,9 +218,16 @@ describe('OrganizationTable', () => {
 
       const deleteItem = await openRowMenu(user, 1);
 
-      expect(deleteItem).toHaveAttribute('data-disabled');
+      expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
       expect(deleteItem).toHaveTextContent('table.actions.delete_other_organization_hint');
+      expect(deleteItem).toHaveAccessibleDescription(
+        'table.actions.delete_other_organization_hint',
+      );
+
+      // It stays focusable so keyboard users reach the reason, but selecting it does nothing.
+      await user.click(deleteItem);
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(deleteOrganization).not.toHaveBeenCalled();
     });
 
     it('disables delete for every row when the signed-in organization is unknown', async () => {
@@ -219,7 +237,7 @@ describe('OrganizationTable', () => {
 
       const deleteItem = await openRowMenu(user, 0);
 
-      expect(deleteItem).toHaveAttribute('data-disabled');
+      expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
       expect(deleteItem).toHaveTextContent('table.actions.delete_other_organization_hint');
     });
 
@@ -233,7 +251,7 @@ describe('OrganizationTable', () => {
 
       const deleteItem = await openRowMenu(user, 0);
 
-      expect(deleteItem).toHaveAttribute('data-disabled');
+      expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
       expect(deleteItem).toHaveTextContent('error.forbidden');
     });
 
@@ -249,7 +267,7 @@ describe('OrganizationTable', () => {
 
       const deleteItem = await openRowMenu(user, 0);
 
-      expect(deleteItem).toHaveAttribute('data-disabled');
+      expect(deleteItem).toHaveAttribute('aria-disabled', 'true');
       expect(deleteItem).toHaveTextContent(/^table.actions.delete_button_text$/);
     });
 
@@ -332,7 +350,7 @@ describe('OrganizationTable', () => {
       );
 
       const deleteItem = await openRowMenu(user, 1);
-      expect(deleteItem).not.toHaveAttribute('data-disabled');
+      expect(deleteItem).not.toHaveAttribute('aria-disabled');
       expect(deleteItem).not.toHaveTextContent('delete_other_organization_hint');
       await user.click(deleteItem);
 
@@ -405,6 +423,25 @@ describe('OrganizationTable', () => {
       await screen.findByText('Fabrikam Inc.');
 
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('does not load the details again after the organization is deleted', async () => {
+      const user = userEvent.setup();
+
+      renderWithProviders(
+        <OrganizationTable
+          currentOrganizationId="org_def456"
+          deleteConfirmationOrganizationId="org_def456"
+          deleteAction={{ onSwitchOrganization: vi.fn() }}
+        />,
+      );
+
+      await confirmInDialog(user, 'fabrikam');
+      await waitFor(() => expect(screen.queryByText('Fabrikam Inc.')).not.toBeInTheDocument());
+      await act(() => new Promise((resolve) => setTimeout(resolve, 50)));
+
+      // The row came from the list, and the session's organization no longer exists.
+      expect(getOrganizationDetails).not.toHaveBeenCalled();
     });
 
     it('uses the organization details when it is not on the loaded page', async () => {
