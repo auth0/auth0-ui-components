@@ -1,42 +1,44 @@
+import type { MfaRequiredError } from './mfa-step-up-api-types';
 import { createMfaStepUpError, type MfaStepUpError } from './mfa-step-up-errors';
+import { createSubscribers } from './mfa-step-up-subscribers';
 
-/** The open step-up. The dialog completes or cancels it. */
 export interface MfaStepUpRequest {
-  error: unknown;
+  error: MfaRequiredError;
   complete(): void;
   cancel(failure?: MfaStepUpError): void;
 }
 
-export interface MfaStepUpStore {
-  /** Resolves once the user passed MFA. A request made while one is open joins it. */
-  request(error: unknown): Promise<void>;
-  getSnapshot(): MfaStepUpRequest | undefined;
-  subscribe(listener: () => void): () => void;
+/**
+ * @returns A promise together with the functions that settle it.
+ */
+function createDeferred() {
+  let resolve!: () => void;
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<void>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
 }
 
 /**
  * @returns A store with nothing open.
  */
-export function createMfaStepUpStore(): MfaStepUpStore {
+export function createMfaStepUpStore() {
   let open: { request: MfaStepUpRequest; done: Promise<void> } | undefined;
-  const listeners = new Set<() => void>();
+  const subscribers = createSubscribers();
 
-  const setOpen = (next: typeof open) => {
-    open = next;
-    listeners.forEach((listener) => listener());
+  const close = () => {
+    open = undefined;
+    subscribers.notify();
   };
 
-  const openStepUp = (error: unknown) => {
-    let resolve!: () => void;
-    let reject!: (reason: unknown) => void;
-    const done = new Promise<void>((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
+  const openStepUp = (error: MfaRequiredError) => {
+    const { promise: done, resolve, reject } = createDeferred();
     const settle = (act: () => void) => {
       if (open?.request !== request) return;
-      setOpen(undefined);
       act();
+      close();
     };
     const request: MfaStepUpRequest = {
       error,
@@ -44,17 +46,25 @@ export function createMfaStepUpStore(): MfaStepUpStore {
       cancel: (failure) =>
         settle(() => reject(failure ?? createMfaStepUpError('cancelled', { cause: error }))),
     };
-    setOpen({ request, done });
+    open = { request, done };
+    subscribers.notify();
     return done;
   };
 
   return {
-    request: (error) => (open ? open.done : openStepUp(error)),
-    getSnapshot: () => open?.request,
-    subscribe: (listener) => {
-      listeners.add(listener);
-      return () => listeners.delete(listener);
+    /**
+     * @param error - The `mfa_required` error that needs a step-up. Ignored when one is already open.
+     * @returns Resolves once the user passed MFA. A request made while one is open joins it.
+     */
+    request: (error: MfaRequiredError): Promise<void> => {
+      if (open) return open.done;
+      if (subscribers.isEmpty()) {
+        return Promise.reject(createMfaStepUpError('unavailable', { cause: error }));
+      }
+      return openStepUp(error);
     },
+    getSnapshot: () => open?.request,
+    subscribe: subscribers.subscribe,
   };
 }
 

@@ -37,6 +37,12 @@ export type OobChannel = 'sms' | 'voice' | 'auth0' | 'email';
 
 export type MfaFactorType = 'otp' | 'sms' | 'email' | 'push' | 'voice';
 
+// What the proxy's associate route reads: the authenticator type, and the channel for out-of-band.
+export type AssociateFields = {
+  authenticator_types: ('otp' | 'oob')[];
+  oob_channels?: OobChannel[];
+};
+
 export interface EnrollBaseParams {
   mfaToken: string;
 }

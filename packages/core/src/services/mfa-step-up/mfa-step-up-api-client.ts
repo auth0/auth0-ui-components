@@ -1,8 +1,14 @@
 import { ContentType, HeaderName } from '../../api/http-constants';
 import type { ClientAuthConfig } from '../../auth/auth-types';
 
-import type { MfaApiClient, MfaVerifyResult } from './mfa-step-up-api-types';
-import type { EnrollmentResponse, EnrollParams, MfaAuthenticator } from './mfa-step-up-api-types';
+import type {
+  AssociateFields,
+  EnrollmentResponse,
+  EnrollParams,
+  MfaApiClient,
+  MfaAuthenticator,
+  MfaVerifyResult,
+} from './mfa-step-up-api-types';
 
 export const createMfaApiError = (status: number, data: unknown) =>
   Object.assign(new Error(`MFA API Request Failed (${status})`), { status, data });
@@ -23,8 +29,7 @@ type RequestOptions = {
   credentials?: RequestCredentials;
 };
 
-// What the proxy's associate route reads: the authenticator type, and the channel for out-of-band.
-const ENROLL_FIELDS: Record<EnrollParams['factorType'], Record<string, string[]>> = {
+const ENROLL_FIELDS: Record<EnrollParams['factorType'], AssociateFields> = {
   otp: { authenticator_types: ['otp'] },
   sms: { authenticator_types: ['oob'], oob_channels: ['sms'] },
   voice: { authenticator_types: ['oob'], oob_channels: ['voice'] },
@@ -114,7 +119,6 @@ export function createProxyMfaClient(
     verify: ({ mfaToken, otp, oobCode, bindingCode, recoveryCode }) =>
       request<MfaVerifyResult>('/auth/mfa/verify', mfaToken, {
         method: 'POST',
-        // Verifying stores the new token in the session, so the session cookie has to travel.
         credentials: 'include',
         body: {
           mfa_token: mfaToken,

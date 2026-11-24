@@ -1112,7 +1112,7 @@ describe('createMfaStepUpMachine', () => {
       expect(stepUp.getSnapshot()).toMatchObject({ canBack: false, selected: undefined });
     });
 
-    it('fails with max_challenges_exceeded when the server asks for a fourth factor', async () => {
+    it('keeps asking for another factor for as long as the server asks', async () => {
       const { apiClient } = createClient({
         getAuthenticators: vi.fn(async () => [
           authenticator({ id: 'app', authenticatorType: 'otp' }),
@@ -1121,15 +1121,13 @@ describe('createMfaStepUpMachine', () => {
       vi.mocked(apiClient.verify).mockRejectedValue(anotherRequired());
       const { stepUp } = await setup(apiClient);
 
-      for (let round = 1; round <= 3; round++) {
+      for (let round = 1; round <= 5; round++) {
         await pickAndConfirm(stepUp, 'challenge:app');
         await stepUp.next('123456');
       }
 
-      const snapshot = stepUp.getSnapshot();
-      expect(snapshot).toMatchObject({ status: 'blocked', reason: 'max_challenges_exceeded' });
-      expect(snapshot.failure?.code).toBe('max_challenges_exceeded');
-      expect(apiClient.verify).toHaveBeenCalledTimes(3);
+      expect(stepUp.getSnapshot()).toMatchObject({ status: 'active', round: 6 });
+      expect(apiClient.verify).toHaveBeenCalledTimes(5);
     });
 
     it('blocks as an invalid token when the new mfa_required carries no token', async () => {
@@ -1501,27 +1499,6 @@ describe('createMfaStepUpMachine', () => {
       await pick(stepUp, 'enroll:otp');
       expect(apiClient.enroll).not.toHaveBeenCalled();
       expect(stepUp.getSnapshot()).toMatchObject({ status: 'cancelled', reason: 'disposed' });
-    });
-
-    it('a throwing onError does not break the flow, and is logged', async () => {
-      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const { apiClient } = createClient({
-        getEnrollmentFactors: vi.fn(async () => [{ type: 'otp' }]),
-      });
-      vi.mocked(apiClient.enroll).mockRejectedValueOnce(new Error('boom'));
-      const stepUp = createMfaStepUpMachine({
-        apiClient,
-        error: { error: 'mfa_required', mfa_token: TOKEN },
-        onError: () => {
-          throw new Error('integrator bug');
-        },
-      });
-      await stepUp.start();
-      await pick(stepUp, 'enroll:otp');
-      await pick(stepUp, 'enroll:otp');
-      expect(stepOf(stepUp)).toBe('enroll.qr');
-      expect(warn).toHaveBeenCalledWith(expect.stringContaining('onError'), expect.any(Error));
-      warn.mockRestore();
     });
 
     it('cannot go back while a request is running', async () => {

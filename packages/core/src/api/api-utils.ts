@@ -5,6 +5,7 @@
  */
 
 import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+import type { MfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-types';
 import {
   isMfaRequiredError,
   normalizeMfaRequiredError,
@@ -49,7 +50,7 @@ export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
  *
  * @param response - The response of a request.
  * @returns The same response.
- * @throws The `mfa_required` body of a 403 response.
+ * @throws {Error & MfaRequiredError} When `response` is a 403 whose body is `mfa_required`.
  */
 async function throwIfMfaRequired(response: Response): Promise<Response> {
   if (response instanceof Response && response.status === 403) {
@@ -57,7 +58,10 @@ async function throwIfMfaRequired(response: Response): Promise<Response> {
       .clone()
       .json()
       .catch(() => undefined);
-    if (isMfaRequiredError(body)) throw Object.assign(new Error('mfa_required'), body);
+    if (isMfaRequiredError(body)) {
+      const error: Error & MfaRequiredError = Object.assign(new Error('mfa_required'), body);
+      throw error;
+    }
   }
   return response;
 }

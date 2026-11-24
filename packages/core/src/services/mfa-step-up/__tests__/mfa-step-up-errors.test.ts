@@ -37,7 +37,7 @@ describe('createMfaStepUpError', () => {
   });
 
   it('uses the code as the message unless given another', () => {
-    expect(createMfaStepUpError('max_challenges_exceeded').message).toBe('max_challenges_exceeded');
+    expect(createMfaStepUpError('no_authenticators').message).toBe('no_authenticators');
     expect(createMfaStepUpError('unexpected', { message: 'custom' }).message).toBe('custom');
   });
 });
