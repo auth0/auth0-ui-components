@@ -211,8 +211,12 @@ function generate(args) {
     const touched = PACKAGES.filter((name) =>
       pr.files.some((file) => file.startsWith(`packages/${name}/`)),
     );
-    const section = touched.length ? sectionFor(pr.title) : 'Other';
-    for (const name of touched.length ? touched : PACKAGES) {
+    if (!touched.length) {
+      console.log(`Skipping #${number}: touches neither package: ${pr.title}`);
+      continue;
+    }
+    const section = sectionFor(pr.title);
+    for (const name of touched) {
       (grouped[name][section] ??= []).push(formatEntry(slug, pr));
     }
   }
