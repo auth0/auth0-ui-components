@@ -133,6 +133,90 @@ describe('createMfaFlow', () => {
       expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'sms' }))).toContain('extra');
     });
 
+    it('places a step right before or after another step', () => {
+      expect(
+        paths({
+          add: [
+            { id: 'before-confirm', before: 'challenge.confirm' },
+            { id: 'after-list', after: 'list' },
+          ],
+        }),
+      ).toEqual([
+        'list',
+        'after-list',
+        'enroll.install',
+        'enroll.contact',
+        'enroll.qr',
+        'enroll.verify',
+        'enroll.recovery',
+        'before-confirm',
+        'challenge.confirm',
+        'challenge',
+        'challenge.newRecoveryCode',
+      ]);
+    });
+
+    it('places a step next to an added step listed earlier', () => {
+      expect(
+        paths({
+          add: [
+            { id: 'a', after: 'list' },
+            { id: 'b', after: 'a' },
+          ],
+        }).slice(0, 3),
+      ).toEqual(['list', 'a', 'b']);
+    });
+
+    it('shows a placed step by its condition alone, even before an option is picked', () => {
+      const flow = createMfaFlow({ add: [{ id: 'intro', before: 'list' }] });
+      expect(visiblePaths(flow, facts())).toEqual(['intro', 'list']);
+    });
+
+    it('keeps the order of steps placed next to the same step', () => {
+      expect(
+        paths({
+          add: [
+            { id: 'a', after: 'enroll.qr' },
+            { id: 'b', after: 'enroll.qr' },
+            { id: 'c', before: 'enroll.qr' },
+            { id: 'd', before: 'enroll.qr' },
+          ],
+        }).slice(2, 8),
+      ).toEqual(['enroll.contact', 'c', 'd', 'enroll.qr', 'a', 'b']);
+    });
+
+    it('applies a placed step where the step it is placed next to applies', () => {
+      const flow = createMfaFlow({
+        add: [
+          { id: 'sms-note', before: 'enroll.contact' },
+          { id: 'trust', after: 'challenge' },
+        ],
+      });
+      const enrollSms = facts({ mode: 'enroll', factor: 'sms' });
+      const challengeSms = facts({ mode: 'challenge', factor: 'sms' });
+
+      expect(visiblePaths(flow, enrollSms)).toContain('sms-note');
+      expect(visiblePaths(flow, enrollSms)).not.toContain('trust');
+      expect(visiblePaths(flow, challengeSms)).toContain('trust');
+      expect(visiblePaths(flow, challengeSms)).not.toContain('sms-note');
+    });
+
+    it('narrows a placed step with its condition', () => {
+      const flow = createMfaFlow({
+        add: [{ id: 'sms-note', before: 'enroll.contact', when: (f) => f.factor === 'sms' }],
+      });
+      expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'voice' }))).not.toContain(
+        'sms-note',
+      );
+      expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'sms' }))).toContain('sms-note');
+    });
+
+    it('keeps a step placed next to a last step from showing before an option is picked', () => {
+      const flow = createMfaFlow({ add: [{ id: 'tail' }, { id: 'tail-2', after: 'tail' }] });
+      expect(visiblePaths(flow, facts())).not.toContain('tail-2');
+      expect(visiblePaths(flow, facts({ mode: 'challenge', factor: 'otp' }))).toContain('tail-2');
+    });
+
     it('accepts an id with a dot', () => {
       expect(paths({ add: [{ id: 'billing.consent' }] }).at(-1)).toBe('billing.consent');
     });
@@ -141,6 +225,9 @@ describe('createMfaFlow', () => {
       ['an empty id', { add: [{ id: '' }] }],
       ['a duplicate id', { add: [{ id: 'a' }, { id: 'a' }] }],
       ['the id of a built-in step', { add: [{ id: 'challenge' }] }],
+      ['both before and after', { add: [{ id: 'a', before: 'list', after: 'list' }] }],
+      ['an unknown step to be placed next to', { add: [{ id: 'a', after: 'nope' }] }],
+      ['a step placed next to one added later', { add: [{ id: 'a', after: 'b' }, { id: 'b' }] }],
     ])('throws for %s', (_name, config) => {
       expect(() => createMfaFlow(config)).toThrow(/MFA flow/);
     });
