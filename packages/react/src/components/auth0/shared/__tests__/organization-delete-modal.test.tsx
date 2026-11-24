@@ -2,7 +2,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import { OrganizationDeleteModal } from '@/components/auth0/my-organization/shared/organization-management/organization-delete/organization-delete-modal';
+import { OrganizationDeleteModal } from '@/components/auth0/shared/organization-delete-modal';
 import { createMockOrganization } from '@/tests/utils/__mocks__/my-organization/organization-management/organization-details.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 import type { OrganizationDeleteModalProps } from '@/types/my-organization/organization-management/organization-delete-types';
@@ -22,7 +22,7 @@ const renderModal = (overrides: Partial<OrganizationDeleteModalProps> = {}) => {
   const props: OrganizationDeleteModalProps = {
     isOpen: true,
     onClose: vi.fn(),
-    organization: mockOrganization,
+    organizationName: mockOrganization.name,
     isLoading: false,
     onDelete: vi.fn().mockResolvedValue(true),
     ...overrides,
@@ -107,17 +107,13 @@ describe('OrganizationDeleteModal', () => {
     });
   });
 
-  describe('when the organization has a display name', () => {
-    it('uses the name, not the display name, in the title and description', () => {
+  describe('when it opens', () => {
+    it('uses the organization name in the title and description', () => {
       mockTranslate.mockClear();
-      renderModal();
+      renderModal({ organizationName: 'acme' });
 
-      const { name, display_name: displayName } = mockOrganization;
-      expect(mockTranslate).toHaveBeenCalledWith('modal_title', { organizationName: name });
-      expect(mockTranslate).toHaveBeenCalledWith('modal_description', { organizationName: name });
-      expect(mockTranslate).not.toHaveBeenCalledWith('modal_title', {
-        organizationName: displayName,
-      });
+      expect(mockTranslate).toHaveBeenCalledWith('modal_title', { organizationName: 'acme' });
+      expect(mockTranslate).toHaveBeenCalledWith('modal_description', { organizationName: 'acme' });
     });
   });
 

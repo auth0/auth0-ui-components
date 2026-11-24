@@ -4,19 +4,88 @@
  * @module use-organization-table
  */
 
-import { useCallback } from 'react';
+import {
+  getOrganizationDetailsPermissions,
+  OrganizationDetailsMappers,
+  organizationDetailsQueryKeys,
+  userOrganizationQueryKeys,
+  type UserOrganization,
+} from '@auth0/universal-components-core';
+import { useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { showToast } from '@/components/auth0/shared/toast';
 import { useOrganizationTableService } from '@/hooks/my-account/shared/services/use-organization-table-service';
+import { useConfig } from '@/hooks/my-organization/shared/services/use-config-service';
+import { useOrganizationDeleteMutation } from '@/hooks/my-organization/shared/services/use-organization-delete-service';
 import { useCheckpointPagination } from '@/hooks/shared/use-checkpoint-pagination';
+import { useCoreClient } from '@/hooks/shared/use-core-client';
+import { usePermissions } from '@/hooks/shared/use-permissions';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import { DEFAULT_PAGE_SIZE_OPTIONS } from '@/lib/constants/shared/constants';
-import type { UseOrganizationTableResult } from '@/types/my-account/organization-management/organization-table-types';
+import type {
+  OrganizationTableDeleteState,
+  UseOrganizationTableOptions,
+  UseOrganizationTableResult,
+} from '@/types/my-account/organization-management/organization-table-types';
+
+interface OrganizationsPage {
+  organizations: UserOrganization[];
+}
+
+interface PagedOrganizations {
+  pages: OrganizationsPage[];
+}
+
+const isOrganizationsPage = (value: unknown): value is OrganizationsPage =>
+  !!value && Array.isArray((value as Partial<OrganizationsPage>).organizations);
+
+const isPagedOrganizations = (value: unknown): value is PagedOrganizations => {
+  const pages = (value as Partial<PagedOrganizations> | undefined)?.pages;
+  return Array.isArray(pages) && pages.every(isOrganizationsPage);
+};
+
+/**
+ * Removes a deleted organization from every cached list of the user's organizations
+ * (table pages and the switcher's pages), so it disappears without a refetch.
+ * @param queryClient - Query client holding the lists
+ * @param organizationId - ID of the deleted organization
+ */
+function removeOrganizationFromLists(queryClient: QueryClient, organizationId: string) {
+  const withoutOrganization = (page: OrganizationsPage) => ({
+    ...page,
+    organizations: page.organizations.filter(({ id }) => id !== organizationId),
+  });
+
+  queryClient.setQueriesData({ queryKey: userOrganizationQueryKeys.all }, (data: unknown) => {
+    if (isOrganizationsPage(data)) return withoutOrganization(data);
+    if (isPagedOrganizations(data)) return { ...data, pages: data.pages.map(withoutOrganization) };
+    return data;
+  });
+}
 
 /**
  * Hook for listing the organizations the authenticated user belongs to.
- * Manages checkpoint pagination and delegates fetching to the internal service hook.
+ * Manages checkpoint pagination, delegates fetching to the internal service hook, and deletes
+ * the signed-in organization when asked.
+ * @param options - Hook options.
+ * @param options.currentOrganizationId - ID of the organization the user is signed in to
+ * @param options.deleteAction - Lifecycle hooks for deleting the signed-in organization
+ * @param options.deleteConfirmationOrganizationId - Opens the delete confirmation for this organization
+ * @param options.readOnly - Whether the table is read-only
+ * @param options.customMessages - Custom translation messages to override defaults
  * @returns Hook state and methods
  */
-export function useOrganizationTable(): UseOrganizationTableResult {
+export function useOrganizationTable({
+  currentOrganizationId,
+  deleteAction,
+  deleteConfirmationOrganizationId,
+  readOnly = false,
+  customMessages = {},
+}: UseOrganizationTableOptions = {}): UseOrganizationTableResult {
+  const queryClient = useQueryClient();
+  const { coreClient } = useCoreClient();
+  const { t: tCommon } = useTranslator('common', customMessages.common);
   const {
     pageSize,
     fromToken,
@@ -43,6 +112,131 @@ export function useOrganizationTable(): UseOrganizationTableResult {
     }
   }, [nextToken, canGoNext, goToNextPage]);
 
+  const { createPermissionResolver, isLoading: isPermissionsLoading } = usePermissions();
+  const permissions = useMemo(
+    () => createPermissionResolver(getOrganizationDetailsPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
+
+  // The API deletes the session's organization, so only the signed-in one can be deleted here.
+  const hasSwitch = !!deleteAction?.onSwitchOrganization;
+  // Only a table that can delete needs the My Organization configuration.
+  const { isLoadingConfig, shouldAllowOrganizationDeletion } = useConfig({
+    enabled: !!deleteAction && !!currentOrganizationId,
+  });
+  const getDeleteState = useCallback(
+    (organization: UserOrganization): OrganizationTableDeleteState => {
+      if (deleteAction?.disabled) return 'disabled';
+      if (!currentOrganizationId || organization.id !== currentOrganizationId) {
+        return hasSwitch ? 'switch_required' : 'other_organization';
+      }
+      if (!permissions.canDeleteOrganization) return 'forbidden';
+      if (isLoadingConfig || !shouldAllowOrganizationDeletion) return 'disabled';
+      return 'enabled';
+    },
+    [
+      currentOrganizationId,
+      permissions.canDeleteOrganization,
+      deleteAction?.disabled,
+      hasSwitch,
+      isLoadingConfig,
+      shouldAllowOrganizationDeletion,
+    ],
+  );
+
+  const [deleteTarget, setDeleteTarget] = useState<UserOrganization | null>(null);
+
+  const { deleteOrganization, isDeleteLoading } = useOrganizationDeleteMutation({
+    item: deleteTarget,
+    organizationName: deleteTarget?.name ?? '',
+    deleteAction,
+    customMessages: customMessages.delete,
+    onDeleted: () => {
+      if (deleteTarget) removeOrganizationFromLists(queryClient, deleteTarget.id);
+    },
+    componentName: 'OrganizationTable',
+  });
+
+  const openDelete = useCallback(
+    (organization: UserOrganization) => {
+      const state = getDeleteState(organization);
+      if (state === 'enabled') setDeleteTarget(organization);
+      if (state === 'switch_required') deleteAction?.onSwitchOrganization?.(organization);
+    },
+    [getDeleteState, deleteAction],
+  );
+
+  // Open the confirmation once the host has signed the user in to the organization to delete.
+  const pendingId =
+    deleteConfirmationOrganizationId && deleteConfirmationOrganizationId === currentOrganizationId
+      ? deleteConfirmationOrganizationId
+      : undefined;
+  const pendingRow = pendingId
+    ? service.organizations.find(({ id }) => id === pendingId)
+    : undefined;
+  // In state, not a ref, so the details query stops once the request is handled (for example after
+  // the delete removed the row, when the session's organization no longer exists).
+  const [handledPendingId, setHandledPendingId] = useState<string | undefined>(undefined);
+  const isPendingHandled = !!pendingId && handledPendingId === pendingId;
+  const pendingDetailsQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient && !!pendingId && !isPendingHandled && !service.isLoading && !pendingRow,
+  });
+
+  // Once the host clears the request, the same organization may be requested again.
+  useEffect(() => {
+    if (!deleteConfirmationOrganizationId) setHandledPendingId(undefined);
+  }, [deleteConfirmationOrganizationId]);
+
+  useEffect(() => {
+    if (!pendingId || isPendingHandled) return;
+    if (service.isLoading || isPermissionsLoading || isLoadingConfig) return;
+
+    // The details query isn't keyed by organization, so only use details for this one.
+    const details =
+      pendingDetailsQuery.data?.id === pendingId ? pendingDetailsQuery.data : undefined;
+    const organization =
+      pendingRow ??
+      (details?.name
+        ? { id: pendingId, name: details.name, display_name: details.display_name }
+        : undefined);
+    if (!organization) {
+      if (pendingDetailsQuery.isError) setHandledPendingId(pendingId);
+      return;
+    }
+
+    setHandledPendingId(pendingId);
+    const state = getDeleteState(organization);
+    if (state === 'enabled') {
+      setDeleteTarget(organization);
+    } else if (state === 'forbidden') {
+      // The user came here to delete it, so say why the dialog does not open.
+      showToast({ type: 'error', message: tCommon('error.forbidden') });
+    }
+  }, [
+    pendingId,
+    isPendingHandled,
+    pendingRow,
+    pendingDetailsQuery.data,
+    pendingDetailsQuery.isError,
+    service.isLoading,
+    isPermissionsLoading,
+    isLoadingConfig,
+    getDeleteState,
+    tCommon,
+  ]);
+
+  const closeDelete = useCallback(() => setDeleteTarget(null), []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget || getDeleteState(deleteTarget) !== 'enabled') return false;
+    return deleteOrganization();
+  }, [deleteTarget, getDeleteState, deleteOrganization]);
+
   return {
     ...service,
     pagination: {
@@ -54,5 +248,13 @@ export function useOrganizationTable(): UseOrganizationTableResult {
     handleNextPage,
     handlePreviousPage: goToPreviousPage,
     handlePageSizeChange: changePageSize,
+    organizationDelete: {
+      target: deleteTarget,
+      getState: getDeleteState,
+      open: openDelete,
+      close: closeDelete,
+      confirm: confirmDelete,
+      isLoading: isDeleteLoading,
+    },
   };
 }

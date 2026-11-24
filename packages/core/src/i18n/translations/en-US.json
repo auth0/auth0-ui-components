@@ -381,7 +381,9 @@
         },
         "actions": {
           "menu_label": "Actions for ${organizationName}",
-          "edit_button_text": "Edit"
+          "edit_button_text": "Edit",
+          "delete_button_text": "Delete",
+          "delete_other_organization_hint": "Switch to this organization to delete it"
         }
       }
     },

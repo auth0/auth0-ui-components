@@ -1,6 +1,7 @@
 /**
- * Internal organization delete service hook.
- * Handles the organization fetch, the delete mutation, and cache cleanup.
+ * Internal organization delete service hooks.
+ * `useOrganizationDeleteMutation` deletes the session's organization and is shared by
+ * OrganizationDetailsEdit and OrganizationTable; `useOrganizationDeleteService` also loads it.
  * @module use-organization-delete-service
  * @internal
  */
@@ -21,9 +22,11 @@ import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
-import type { UseOrganizationDeleteServiceOptions } from '@/types/my-organization/organization-management/organization-delete-types';
-
-const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
+import type {
+  UseOrganizationDeleteMutationOptions,
+  UseOrganizationDeleteMutationResult,
+  UseOrganizationDeleteServiceOptions,
+} from '@/types/my-organization/organization-management/organization-delete-types';
 
 const ORGANIZATION_SCOPED_QUERY_KEYS = [organizationDetailsQueryKeys.all, configQueryKeys.all];
 
@@ -37,31 +40,29 @@ const isOrganizationNotEmptyError = (error: unknown): boolean =>
   hasApiErrorBody(error) && !!error.body?.type?.includes(ERROR_CODES.FORBIDDEN);
 
 /**
- * Internal service hook for organization delete API operations.
- * @param options - Service hook options.
- * @returns Service state and methods.
+ * Internal delete mutation for the organization the session belongs to.
+ * @param options - Mutation options.
+ * @param options.item - What `deleteAction` receives; nothing is deleted while it is null
+ * @param options.organizationName - Name used in the notifications
+ * @param options.deleteAction - Lifecycle hooks for the delete operation
+ * @param options.customMessages - Custom translation messages to override defaults
+ * @param options.onDeleted - Called after a successful delete, before `deleteAction.onAfter`
+ * @param options.componentName - Component name used in console messages
+ * @returns The delete handler and its loading state.
  * @internal
  */
-export function useOrganizationDeleteService({
+export function useOrganizationDeleteMutation<TItem>({
+  item,
+  organizationName,
   deleteAction,
   customMessages = {},
-}: UseOrganizationDeleteServiceOptions) {
+  onDeleted,
+  componentName,
+}: UseOrganizationDeleteMutationOptions<TItem>): UseOrganizationDeleteMutationResult {
   const { t } = useTranslator('organization_management.organization_delete', customMessages);
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
   const handleError = useErrorHandler();
-
-  const organizationQuery = useQuery({
-    queryKey: organizationDetailsQueryKeys.details(),
-    queryFn: async () => {
-      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
-      return OrganizationDetailsMappers.fromAPI(response);
-    },
-    enabled: !!coreClient,
-  });
-
-  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
-  const organizationName = organization.name;
 
   const deleteMutation = useMutation({
     mutationFn: () => coreClient!.getMyOrganizationApiClient().organization.delete(),
@@ -78,12 +79,13 @@ export function useOrganizationDeleteService({
           ORGANIZATION_SCOPED_QUERY_KEYS.some(([root]) => queryKey[0] === root),
         refetchType: 'none',
       });
+      onDeleted?.();
 
       try {
-        await deleteAction?.onAfter?.(organization);
+        if (item !== null) await deleteAction?.onAfter?.(item);
       } catch (error) {
         // The organization is already deleted, so a failing callback must not turn that into a failure.
-        console.error('OrganizationDelete: deleteAction.onAfter failed', error);
+        console.error(`${componentName}: deleteAction.onAfter failed`, error);
       }
     },
     onError: (error) => {
@@ -100,7 +102,8 @@ export function useOrganizationDeleteService({
   });
 
   const deleteOrganization = useCallback(async (): Promise<boolean> => {
-    if (deleteAction?.onBefore && !deleteAction.onBefore(organization)) {
+    if (item === null) return false;
+    if (deleteAction?.onBefore && !deleteAction.onBefore(item)) {
       return false;
     }
 
@@ -110,12 +113,51 @@ export function useOrganizationDeleteService({
     } catch {
       return false;
     }
-  }, [deleteAction, deleteMutation, organization]);
+  }, [deleteAction, deleteMutation, item]);
+
+  return {
+    deleteOrganization,
+    isDeleteLoading: isMutationLoading(deleteMutation),
+  };
+}
+
+const EMPTY_ORGANIZATION = OrganizationDetailsFactory.create();
+
+/**
+ * Internal service hook for organization delete API operations.
+ * @param options - Service hook options.
+ * @returns Service state and methods.
+ * @internal
+ */
+export function useOrganizationDeleteService({
+  deleteAction,
+  customMessages = {},
+}: UseOrganizationDeleteServiceOptions) {
+  const { coreClient } = useCoreClient();
+
+  const organizationQuery = useQuery({
+    queryKey: organizationDetailsQueryKeys.details(),
+    queryFn: async () => {
+      const response = await coreClient!.getMyOrganizationApiClient().organizationDetails.get();
+      return OrganizationDetailsMappers.fromAPI(response);
+    },
+    enabled: !!coreClient,
+  });
+
+  const organization = organizationQuery.data ?? EMPTY_ORGANIZATION;
+
+  const { deleteOrganization, isDeleteLoading } = useOrganizationDeleteMutation({
+    item: organization,
+    organizationName: organization.name ?? '',
+    deleteAction,
+    customMessages,
+    componentName: 'OrganizationDelete',
+  });
 
   return {
     organization,
     isLoading: organizationQuery.isLoading,
-    isDeleteLoading: isMutationLoading(deleteMutation),
+    isDeleteLoading,
     deleteOrganization,
   };
 }

@@ -10,6 +10,7 @@ import { DataPagination } from '@/components/auth0/shared/data-pagination';
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
 import { Header } from '@/components/auth0/shared/header';
+import { OrganizationDeleteModal } from '@/components/auth0/shared/organization-delete-modal';
 import { RefreshIndicator } from '@/components/auth0/shared/refresh-indicator';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Button } from '@/components/ui/button';
@@ -41,9 +42,18 @@ function OrganizationTable(props: OrganizationTableProps) {
     styling = { variables: { common: {}, light: {}, dark: {} }, classes: {} },
     onEditOrganization,
     onCreateOrganization,
+    currentOrganizationId,
+    deleteAction,
+    deleteConfirmationOrganizationId,
   } = props;
 
-  const organizationTable = useOrganizationTable();
+  const organizationTable = useOrganizationTable({
+    currentOrganizationId,
+    deleteAction,
+    deleteConfirmationOrganizationId,
+    readOnly,
+    customMessages,
+  });
 
   return (
     <GateKeeper isLoading={organizationTable.isLoading} styling={styling}>
@@ -55,6 +65,7 @@ function OrganizationTable(props: OrganizationTableProps) {
         customMessages={customMessages}
         onEditOrganization={onEditOrganization}
         onCreateOrganization={onCreateOrganization}
+        hasDeleteAction={!!deleteAction}
       />
     </GateKeeper>
   );
@@ -74,6 +85,7 @@ function OrganizationTableView({
   customMessages,
   onEditOrganization,
   onCreateOrganization,
+  hasDeleteAction,
 }: OrganizationTableViewProps) {
   const { isDarkMode } = useTheme();
   const { t } = useTranslator('organization_management.organization_table', customMessages);
@@ -91,14 +103,16 @@ function OrganizationTableView({
     handleNextPage,
     handlePreviousPage,
     handlePageSizeChange,
+    organizationDelete,
   } = organizationTable;
+  const { getState: getDeleteState, open: openDelete } = organizationDelete;
 
   const currentStyles = React.useMemo(
     () => getComponentStyles(styling, isDarkMode),
     [styling, isDarkMode],
   );
 
-  const hasRowActions = !readOnly && !!onEditOrganization;
+  const hasRowActions = !readOnly && (!!onEditOrganization || hasDeleteAction);
   // A failed refresh keeps the rows already loaded; only a load with nothing to show is an error.
   const showError = isError && organizations.length === 0;
 
@@ -141,13 +155,23 @@ function OrganizationTableView({
                   organization={organization}
                   customMessages={customMessages}
                   onEdit={onEditOrganization}
+                  deleteState={hasDeleteAction ? getDeleteState(organization) : undefined}
+                  onDelete={openDelete}
                 />
               ),
             },
           ]
         : []),
     ],
-    [t, customMessages, hasRowActions, onEditOrganization],
+    [
+      t,
+      customMessages,
+      hasRowActions,
+      onEditOrganization,
+      hasDeleteAction,
+      getDeleteState,
+      openDelete,
+    ],
   );
 
   return (
@@ -228,6 +252,17 @@ function OrganizationTableView({
           />
         </div>
       )}
+      {hasDeleteAction && (
+        <OrganizationDeleteModal
+          styling={styling}
+          isOpen={!!organizationDelete.target}
+          onClose={organizationDelete.close}
+          organizationName={organizationDelete.target?.name ?? ''}
+          customMessages={customMessages?.delete}
+          isLoading={organizationDelete.isLoading}
+          onDelete={organizationDelete.confirm}
+        />
+      )}
     </StyledScope>
   );
 }
@@ -245,6 +280,9 @@ function OrganizationTableView({
  * @param props.hideHeader - Hide the title and description
  * @param props.readOnly - Hide the create button and row actions
  * @param props.onEditOrganization - Shows an "Edit" row action; also handles row clicks
+ * @param props.currentOrganizationId - ID of the organization the user is signed in to
+ * @param props.deleteAction - Shows a "Delete" row action for the signed-in organization
+ * @param props.deleteConfirmationOrganizationId - Opens the delete confirmation for this organization
  * @param props.onCreateOrganization - Shows a "Create Organization" header button
  * @returns Organization table component
  *

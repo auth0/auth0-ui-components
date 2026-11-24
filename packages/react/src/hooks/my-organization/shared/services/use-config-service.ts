@@ -17,16 +17,18 @@ import type { UseConfigResult } from '@/types/my-organization/config/config-type
 
 /**
  * Hook for fetching organization configuration.
+ * @param options - Hook options.
+ * @param options.enabled - Whether to fetch the configuration. Defaults to `true`.
  * @returns Config data and allowed strategies.
  */
-export function useConfig(): UseConfigResult {
+export function useConfig({ enabled = true }: { enabled?: boolean } = {}): UseConfigResult {
   const { coreClient } = useCoreClient();
   const queryClient = useQueryClient();
 
   const configQuery = useQuery({
     queryKey: configQueryKeys.details(),
     queryFn: () => coreClient!.getMyOrganizationApiClient().organization.configuration.get(),
-    enabled: !!coreClient,
+    enabled: !!coreClient && enabled,
     retry: createRetryUnlessNotFound(queryClient),
   });
 

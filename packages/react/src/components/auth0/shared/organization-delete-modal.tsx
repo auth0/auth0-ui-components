@@ -22,7 +22,7 @@ const CONFIRMATION_ERROR_ID = 'organization-delete-confirmation-error';
  * @param props.styling - Custom styling configuration with variables and classes
  * @param props.isOpen - Whether the modal is open
  * @param props.onClose - Callback fired when the modal should close
- * @param props.organization - Organization to delete
+ * @param props.organizationName - Name of the organization to delete, which the user types to confirm
  * @param props.customMessages - Custom translation messages to override defaults
  * @param props.isLoading - Whether the delete request is in flight
  * @param props.onDelete - Callback fired when deletion is confirmed
@@ -32,7 +32,7 @@ export function OrganizationDeleteModal({
   styling,
   isOpen,
   onClose,
-  organization,
+  organizationName,
   customMessages = {},
   isLoading,
   onDelete,
@@ -40,7 +40,6 @@ export function OrganizationDeleteModal({
   const { t } = useTranslator('organization_management.organization_delete', customMessages);
   const [confirmationText, setConfirmationText] = React.useState('');
 
-  const organizationName = organization.name;
   const isConfirmed = confirmationText === organizationName;
   const showMismatchError = confirmationText !== '' && !isConfirmed;
 
