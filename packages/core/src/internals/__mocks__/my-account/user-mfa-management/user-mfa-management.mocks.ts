@@ -147,8 +147,6 @@ export const createMockAvailableFactors = (
     createMockAvailableFactor(FACTOR_TYPE_EMAIL as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_PHONE as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_TOTP as MFAType),
-    createMockAvailableFactor('webauthn-roaming'),
-    createMockAvailableFactor('webauthn-platform'),
     createMockAvailableFactor(FACTOR_TYPE_RECOVERY_CODE as MFAType),
     createMockAvailableFactor(FACTOR_TYPE_PUSH_NOTIFICATION as MFAType),
   ],
