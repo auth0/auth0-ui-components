@@ -122,7 +122,7 @@ const challengeSetup = (a: Partial<MfaAuthenticator>) => {
 
 describe('createMfaStepUpMachine', () => {
   describe('requirement resolution', () => {
-    it('SPA: a challenge-only requirement lists the authenticators the SDK allows, in order', async () => {
+    it('SPA: a challenge-only requirement lists the authenticators the SDK allows', async () => {
       // What auth0-spa-js does with `mfa_requirements: { challenge: [...] }`: no `enroll` list, so
       // no enrollment factors, and authenticators whose `type` is not in `challenge` are dropped.
       const challenge = ['otp', 'push-notification', 'recovery-code'];
@@ -144,9 +144,9 @@ describe('createMfaStepUpMachine', () => {
       });
 
       expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual([
-        'challenge:app',
-        'challenge:push',
         'challenge:code',
+        'challenge:push',
+        'challenge:app',
       ]);
       expect(apiClient.getEnrollmentFactors).toHaveBeenCalledWith(TOKEN);
       expect(apiClient.getAuthenticators).toHaveBeenCalledWith(TOKEN);
@@ -207,26 +207,7 @@ describe('createMfaStepUpMachine', () => {
       expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual(['enroll:otp']);
     });
 
-    it('lists authenticators as app, SMS, email, with the recovery code last', async () => {
-      const { apiClient } = createClient({
-        getAuthenticators: vi.fn(async () => [
-          authenticator({ id: 'rc', authenticatorType: 'recovery-code' }),
-          authenticator({ id: 'mail', authenticatorType: 'oob', type: 'email' }),
-          authenticator({ id: 'app', authenticatorType: 'otp' }),
-          authenticator({ id: 'sms', authenticatorType: 'oob', type: 'phone' }),
-        ]),
-      });
-      const { stepUp } = await setup(apiClient);
-
-      expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual([
-        'challenge:app',
-        'challenge:sms',
-        'challenge:mail',
-        'challenge:rc',
-      ]);
-    });
-
-    it('keeps the API order between authenticators of the same kind', async () => {
+    it('keeps the order the API gave', async () => {
       const { apiClient } = createClient({
         getAuthenticators: vi.fn(async () => [
           authenticator({ id: 'sms-b', authenticatorType: 'oob', type: 'phone' }),
@@ -252,7 +233,6 @@ describe('createMfaStepUpMachine', () => {
     it.each([
       [{ authenticatorType: 'oob' as const, type: 'email' as const }, 'email'],
       [{ authenticatorType: 'oob' as const, type: 'push-notification' as const }, 'push'],
-      [{ authenticatorType: 'oob' as const }, 'oob'],
       [{ authenticatorType: 'otp' as const }, 'otp'],
       [{ authenticatorType: 'recovery-code' as const }, 'recovery-code'],
     ])('names the factor of %j as %s', async (patch, factor) => {
@@ -261,6 +241,19 @@ describe('createMfaStepUpMachine', () => {
       });
       const { stepUp } = await setup(apiClient);
       expect(stepUp.getSnapshot().options[0]?.factor).toBe(factor);
+    });
+
+    it('does not offer authenticators the flow cannot challenge', async () => {
+      const { apiClient } = createClient({
+        getAuthenticators: vi.fn(async () => [
+          authenticator({ id: 'passkey', authenticatorType: 'webauthn-roaming' as never }),
+          authenticator({ id: 'no-channel', authenticatorType: 'oob' }),
+          authenticator({ id: 'app', authenticatorType: 'otp' }),
+        ]),
+      });
+      const { stepUp } = await setup(apiClient);
+
+      expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual(['challenge:app']);
     });
 
     it('SPA without getEnrollmentFactors lists authenticators', async () => {
@@ -921,7 +914,6 @@ describe('createMfaStepUpMachine', () => {
 
       it.each([
         ['going back', (stepUp: MfaStepUpMachine) => stepUp.back()],
-        ['choosing another factor', (stepUp: MfaStepUpMachine) => stepUp.chooseAnotherFactor()],
         ['cancelling', (stepUp: MfaStepUpMachine) => stepUp.cancel()],
         ['disposing', (stepUp: MfaStepUpMachine) => stepUp.dispose()],
       ])('stops asking when %s', async (_name, leave) => {
@@ -931,6 +923,28 @@ describe('createMfaStepUpMachine', () => {
         await tick(10_000);
 
         expect(apiClient.verify).not.toHaveBeenCalled();
+      });
+
+      it('still moves on after the approval when the user goes back during the short delay', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        vi.mocked(apiClient.verify).mockResolvedValue({ access_token: 'token' });
+        await tick(1000);
+        expect(stepUp.getSnapshot().push?.phase).toBe('approved');
+
+        stepUp.back();
+        await tick(5000);
+
+        expect(stepUp.getSnapshot().status).toBe('done');
+      });
+
+      it('keeps asking when there is no other factor to choose', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+
+        stepUp.chooseAnotherFactor();
+        await tick(3000);
+
+        expect(apiClient.verify).toHaveBeenCalled();
+        stepUp.dispose();
       });
 
       it('starts another round when the server asks for one after the approval', async () => {

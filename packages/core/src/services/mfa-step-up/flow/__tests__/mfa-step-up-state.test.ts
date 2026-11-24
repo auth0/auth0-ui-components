@@ -441,6 +441,17 @@ describe('createStepUpStore', () => {
     expect(store.getSnapshot().step).toBe('list');
   });
 
+  it('notifies nobody when a push event leaves the state as it was', () => {
+    const store = createStepUpStore({ mfaToken: 'tok', pushSupported: false });
+    const listener = vi.fn();
+    store.subscribe(listener);
+
+    store.dispatch({ type: 'pushUnsupported' });
+    store.dispatch({ type: 'pushModeChanged', mode: 'code' });
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
   it('stops notifying a subscriber that unsubscribed', () => {
     const store = createStepUpStore({ mfaToken: 'tok' });
     const listener = vi.fn();

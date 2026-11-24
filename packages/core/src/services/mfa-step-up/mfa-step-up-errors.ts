@@ -1,5 +1,4 @@
 /**
- * Errors a caller of an MFA step-up can receive.
  * @module mfa-step-up-errors
  */
 import { isNetworkError } from '../../api/error-utils';
@@ -15,7 +14,6 @@ export type MfaStepUpErrorCode =
 
 const STEP_UP_ERROR_NAME = 'MfaStepUpError';
 
-/** Any failure of an MFA step-up. `code` says which. */
 export type MfaStepUpError = Error & { code: MfaStepUpErrorCode };
 
 /**
@@ -53,49 +51,43 @@ export function getApiErrorCode(err: unknown): string | undefined {
   return error ?? data?.error;
 }
 
+const getApiErrorDescription = (err: unknown): string => {
+  const { error_description, data } = (err ?? {}) as RawApiError;
+  return error_description ?? data?.error_description ?? '';
+};
+
 /**
- * Tells whether a request failed because the service could not be reached or failed itself, so
- * trying again later may work and the user did nothing wrong. A proxy whose own call to Auth0
- * failed answers `unknown_error` with "fetch failed".
- *
  * @param err - What a request threw.
  * @returns Whether the failure is on the service's side.
  */
 export function isUnavailableError(err: unknown): boolean {
-  const { status, error_description, data } = (err ?? {}) as RawApiError;
-  const description = error_description ?? data?.error_description ?? '';
+  const { status } = (err ?? {}) as RawApiError;
   return (
     isNetworkError(err) ||
     (status !== undefined && status >= 500) ||
     getApiErrorCode(err) === 'unknown_error' ||
-    /fetch failed/i.test(description)
+    /fetch failed/i.test(getApiErrorDescription(err))
   );
 }
 
-export type MfaFatalErrorCode = 'rate_limited' | 'token_expired' | 'token_invalid';
+type MfaFatalErrorCode = 'rate_limited' | 'token_expired' | 'token_invalid';
+
+const TOKEN_EXPIRED_CODES = ['expired_token', 'mfa_token_expired', 'mfa_context_not_found'];
+const TOKEN_INVALID_CODES = ['invalid_token', 'mfa_token_invalid'];
 
 /**
- * Tells whether what an MFA request threw is a failure the flow cannot continue from. A wrong code
- * is not one: the user stays on the screen and tries again.
- *
  * @param err - What a request threw.
  * @returns Which failure it is, or `undefined` when the user can try again.
  */
 export function getFatalErrorCode(err: unknown): MfaFatalErrorCode | undefined {
-  const { status, error_description, data } = (err ?? {}) as RawApiError;
-  const code = getApiErrorCode(err);
-  const description = error_description ?? data?.error_description ?? '';
+  const { status } = (err ?? {}) as RawApiError;
+  const code = getApiErrorCode(err) ?? '';
+  const description = getApiErrorDescription(err);
 
   if (status === 429) return 'rate_limited';
-  if (
-    code === 'expired_token' ||
-    code === 'mfa_token_expired' ||
-    code === 'mfa_context_not_found'
-  ) {
-    return 'token_expired';
-  }
-  if (code === 'invalid_token' || code === 'mfa_token_invalid') return 'token_invalid';
-  // `invalid_grant` is also what a wrong code returns, so only a complaint about the token counts.
+  if (TOKEN_EXPIRED_CODES.includes(code)) return 'token_expired';
+  if (TOKEN_INVALID_CODES.includes(code)) return 'token_invalid';
+  // A wrong code is also `invalid_grant`, so only a complaint about the token ends the flow.
   if (code === 'invalid_grant' && /mfa_token/i.test(description)) {
     return /expired/i.test(description) ? 'token_expired' : 'token_invalid';
   }

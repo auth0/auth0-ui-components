@@ -105,6 +105,10 @@ describe('createMfaFlow', () => {
     });
   });
 
+  it.each([false, undefined])('accepts a required step that is not hidden (%s)', (rule) => {
+    expect(() => createMfaFlow({ hide: { 'enroll.qr': rule } as never })).not.toThrow();
+  });
+
   describe('add', () => {
     const paths = (config: Parameters<typeof createMfaFlow>[0]) =>
       createMfaFlow(config).map((s) => s.path);
