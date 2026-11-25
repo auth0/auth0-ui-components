@@ -152,7 +152,7 @@ describe('SsoGuidedSetup', () => {
       expect(screen.getByText('Email')).toBeInTheDocument();
     });
 
-    it('keeps the confirmation open when creating fails', async () => {
+    it('closes the confirmation and stays on the page when creating fails', async () => {
       const onCreateProvider = vi.fn().mockResolvedValue(false);
       renderSetup({ onCreateProvider });
       await goToConfigure();
@@ -160,8 +160,9 @@ describe('SsoGuidedSetup', () => {
       await userEvent.click(primary(/create_provider/));
       await userEvent.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
 
-      expect(screen.getByText('create_modal.title')).toBeInTheDocument();
+      await waitFor(() => expect(screen.queryByText('create_modal.title')).not.toBeInTheDocument());
       expect(pageTitle()).toHaveTextContent('Configure Connection');
+      expect(primary(/create_provider/)).toBeEnabled();
     });
 
     it('does not let the stepper skip past the configure page before creation', async () => {

@@ -980,6 +980,11 @@ describe('SsoProviderCreate', () => {
       await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
 
       await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: 'create_modal.proceed' }),
+        ).not.toBeInTheDocument(),
+      );
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(createAction.onAfter).not.toHaveBeenCalled();
     });
