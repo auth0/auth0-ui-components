@@ -517,6 +517,7 @@ export function listUsersOnConnection(connectionName: string): Promise<UserRecor
     q: `identities.connection:"${connectionName}"`,
     search_engine: 'v3',
     fields: 'user_id,email,created_at,identities',
+    sort: 'created_at:1',
     per_page: '100',
   });
   return mgmt<UserRecord[]>('GET', `users?${query}`);
