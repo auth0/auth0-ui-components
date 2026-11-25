@@ -12,14 +12,12 @@ import {
   deleteInvitation,
   deleteUser,
   findRoleIdByName,
-  findUserIdByEmail,
   listOrgInvitations,
   setTotpAuthenticator,
   waitForMemberRole,
   waitForPropagation,
 } from '../lib/management-api';
 import { requireRunState } from '../lib/run-state';
-import { STEP_UP_APP_METADATA, stepUpUserEmail } from '../lib/step-up';
 import { watchToasts } from '../lib/toast';
 import { generateTotpSecret, nextTotpCode } from '../lib/totp';
 import { MemberManagementPage } from '../pages/member-management.page';
@@ -36,7 +34,7 @@ const route = reactSpaNpmApp.routes.memberManagement;
 const connectionName = process.env.FT_CONNECTION_NAME || 'Universal-Components-Demo';
 const adminRoleName = process.env.FT_ADMIN_ROLE_NAME || 'admin';
 
-const stepUpEmail = stepUpUserEmail(org.orgId);
+const stepUpEmail = uniqueEmail('stepup-admin');
 const stepUpPassword = `Ft!${crypto.randomUUID()}A1`;
 const totpSecret = generateTotpSecret();
 
@@ -51,17 +49,13 @@ test.describe('Step-up MFA on invite', () => {
   let stepUpUserId: string | undefined;
 
   test.beforeAll(async () => {
-    // A retried worker gets a new password and secret, so drop any user an earlier attempt left.
-    const stale = await findUserIdByEmail(stepUpEmail).catch(() => undefined);
-    if (stale) await deleteUser(stale);
-
     const [user, adminRoleId] = await Promise.all([
       createUser({
         email: stepUpEmail,
         password: stepUpPassword,
         name: 'FT Step-up Admin',
         connectionName,
-        appMetadata: STEP_UP_APP_METADATA,
+        appMetadata: { ft_step_up: true },
       }),
       findRoleIdByName(adminRoleName),
     ]);

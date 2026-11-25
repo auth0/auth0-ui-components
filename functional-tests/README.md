@@ -70,7 +70,7 @@ When swapping to a new tenant later, repeat these steps, update the secrets belo
 
 Each one is read first and only written when missing or different, so this runs every time but costs a few GETs once the tenant is set up, and editing the Action file redeploys it on the next run. The tenant is the record of what's in place, so there is no marker file to go stale. Leave the MFA policy ("Require Multi-factor Auth") at its default, **Never**.
 
-Nothing is ever removed, and nothing needs to be. The Action only challenges users with `app_metadata.ft_step_up`, and only the step-up spec creates one: a throwaway org admin with a random password and TOTP secret, deleted by the spec and again by teardown. The CI user is never challenged, so the other specs are unaffected and run order doesn't matter.
+Nothing is ever removed, and nothing needs to be. The Action only challenges users with `app_metadata.ft_step_up`, and only the step-up spec creates one: a throwaway org admin with a random password and TOTP secret, deleted by the spec (the scheduled cleanup removes it if that fails). The CI user is never challenged, so the other specs are unaffected and run order doesn't matter.
 
 The test computes the code itself from the secret (`lib/totp.ts`), the same way an authenticator app does after scanning the QR code.
 
