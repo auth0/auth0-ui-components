@@ -6,6 +6,9 @@ import { ChangeAction, createChangeItem } from "./change-plan.mjs"
 
 // Constants
 export const APP_BASE_URL = "http://localhost:5173"
+// Application Login URI (initiate_login_uri) must be https and doesn't allow
+// localhost — required by Auth0 to generate organization invitation URLs.
+export const APP_LOGIN_URI = "https://127.0.0.1:5173"
 
 // My Organization settings shared by the dashboard client and the default Organization Template.
 // A template that applies to an organization is used as a whole, so it must carry these too.
@@ -140,6 +143,9 @@ export async function checkDashboardClientChanges(
     clientToCheck.organization_usage !== "require"
   )
 
+  const initiateLoginUriNeedsUpdate =
+    featureConfig.enableMyOrg && !clientToCheck.initiate_login_uri
+
   // Check refresh token policies based on enabled features
   let refreshTokenPoliciesNeedUpdate = false
 
@@ -182,6 +188,7 @@ export async function checkDashboardClientChanges(
     checkAppType.wrongAppType ||
     myOrgConfigNeedsUpdate ||
     organizationSettingsNeedUpdate ||
+    initiateLoginUriNeedsUpdate ||
     refreshTokenNeedsUpdate
 
   if (needsUpdate) {
@@ -196,6 +203,8 @@ export async function checkDashboardClientChanges(
     if (myOrgConfigNeedsUpdate) changes.push("Update My Org configuration")
     if (organizationSettingsNeedUpdate)
       changes.push("Update organization settings")
+    if (initiateLoginUriNeedsUpdate)
+      changes.push("Set Application Login URI")
     if (refreshTokenNeedsUpdate)
       changes.push("Update refresh token settings")
 
@@ -210,6 +219,7 @@ export async function checkDashboardClientChanges(
         checkAppType,
         myOrgConfigNeedsUpdate,
         organizationSettingsNeedUpdate,
+        initiateLoginUriNeedsUpdate,
         connectionProfileId,
         userAttributeProfileId,
         refreshTokenNeedsUpdate
@@ -429,6 +439,7 @@ export async function applyDashboardClientChanges(
       if (effectiveFeatureConfig.enableMyOrg) {
         clientData.organization_require_behavior = "post_login_prompt"
         clientData.organization_usage = "require"
+        clientData.initiate_login_uri = APP_LOGIN_URI
         clientData.my_organization_configuration = {
           connection_profile_id: connectionProfileId,
           user_attribute_profile_id: userAttributeProfileId,
@@ -510,6 +521,10 @@ export async function applyDashboardClientChanges(
       if (updates.organizationSettingsNeedUpdate) {
         updateData.organization_require_behavior = "post_login_prompt"
         updateData.organization_usage = "require"
+      }
+
+      if (updates.initiateLoginUriNeedsUpdate) {
+        updateData.initiate_login_uri = APP_LOGIN_URI
       }
 
       if (updates.myOrgConfigNeedsUpdate) {
