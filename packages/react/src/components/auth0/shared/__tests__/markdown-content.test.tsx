@@ -92,6 +92,32 @@ describe('MarkdownContent', () => {
       expect(screen.getByRole('img', { name: 'Okta apps' })).not.toHaveClass('opacity-0');
     });
 
+    it('shows the fallback note with the alt text when the image fails to load', () => {
+      const { container } = render(
+        <MarkdownContent text="![Okta apps](/img/okta/1.png)" baseUrl={BASE_URL} />,
+      );
+
+      fireEvent.error(screen.getByRole('img', { name: 'Okta apps' }));
+
+      expect(container.querySelector('img')).toBeNull();
+      expect(container.querySelector('[data-slot="instruction-image"]')).toBeNull();
+      expect(container.querySelector('[data-slot="instruction-image-fallback"]')).toHaveTextContent(
+        'image_unavailable: Okta apps',
+      );
+    });
+
+    it('shows only the fallback note when a failed image has no alt text', () => {
+      const { container } = render(
+        <MarkdownContent text="![](/img/okta/1.png)" baseUrl={BASE_URL} />,
+      );
+
+      fireEvent.error(container.querySelector('img')!);
+
+      expect(container.querySelector('[data-slot="instruction-image-fallback"]')).toHaveTextContent(
+        /^image_unavailable$/,
+      );
+    });
+
     it.each(['javascript:alert(1)', 'data:image/png;base64,AA', 'http://insecure.test/a.png'])(
       'does not render an image for %s',
       (src) => {

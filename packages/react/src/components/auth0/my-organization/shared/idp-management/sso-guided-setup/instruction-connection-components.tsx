@@ -6,11 +6,13 @@
  */
 
 import { RefreshCw } from 'lucide-react';
+import * as React from 'react';
 
 import { ProviderConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
@@ -54,6 +56,16 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
     customMessages,
   } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
+  const [isRetrying, setRetrying] = React.useState(false);
+
+  const retry = async () => {
+    setRetrying(true);
+    try {
+      await onRetryAttributeMappings?.();
+    } finally {
+      setRetrying(false);
+    }
+  };
 
   if (attributeMappingsError) {
     const key =
@@ -72,8 +84,15 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
           <p className="text-foreground text-sm">{t(key)}</p>
         </div>
         {onRetryAttributeMappings && (
-          <Button type="button" variant="outline" size="sm" onClick={onRetryAttributeMappings}>
-            <RefreshCw className="size-4" aria-hidden="true" />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={retry}
+            disabled={isRetrying}
+            aria-busy={isRetrying}
+          >
+            <RefreshCw className={cn('size-4', isRetrying && 'animate-spin')} aria-hidden="true" />
             {t('attribute_mapping_retry')}
           </Button>
         )}

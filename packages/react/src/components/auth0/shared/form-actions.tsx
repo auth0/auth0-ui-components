@@ -24,6 +24,7 @@ export interface FormActionsProps<T = void> {
   className?: string;
   unsavedChangesText?: string;
   nextActionTooltip?: React.ReactNode;
+  nextButtonRef?: React.Ref<HTMLButtonElement>;
 }
 
 const DEFAULT_NEXT_ACTION: ActionButton = {
@@ -51,6 +52,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
   align = 'right',
   unsavedChangesText = 'Unsaved changes',
   nextActionTooltip,
+  nextButtonRef,
 }) => {
   const nextButtonProps = React.useMemo(
     () => ({ ...DEFAULT_NEXT_ACTION, ...nextAction }),
@@ -136,6 +138,7 @@ export const FormActions: React.FC<FormActionsProps> = ({
       {showNext &&
         withNextTooltip(
           <Button
+            ref={nextButtonRef}
             type={nextButtonProps.type}
             variant={nextButtonProps.variant}
             size={nextButtonProps.size}

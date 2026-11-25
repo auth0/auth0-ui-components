@@ -96,6 +96,7 @@ export function SsoGuidedSetup({
   const lifecycleOrganization = organizationDisplayName || t('company_fallback');
   const pageTitleId = useId();
   const pageTitleRef = React.useRef<HTMLHeadingElement>(null);
+  const primaryButtonRef = React.useRef<HTMLButtonElement>(null);
   const shownPageKey = React.useRef(autoFocus ? undefined : currentPage?.key);
 
   React.useEffect(() => {
@@ -243,6 +244,7 @@ export function SsoGuidedSetup({
               isLoading={isSubmitting}
               showPrevious={false}
               showUnsavedChanges={false}
+              nextButtonRef={primaryButtonRef}
               nextAction={{
                 type: 'button',
                 label: t(creation.primaryLabelKey),
@@ -261,6 +263,10 @@ export function SsoGuidedSetup({
         onProceed={creation.handleProceed}
         isCreating={creation.isCreating || isSubmitting}
         companyName={companyName}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          primaryButtonRef.current?.focus();
+        }}
         customMessages={customMessages}
       />
     </Card>

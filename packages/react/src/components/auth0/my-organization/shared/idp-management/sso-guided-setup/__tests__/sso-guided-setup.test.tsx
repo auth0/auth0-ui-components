@@ -1,5 +1,5 @@
 import type { IdpKnownResponse } from '@auth0/universal-components-core';
-import { screen, waitFor } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -163,6 +163,19 @@ describe('SsoGuidedSetup', () => {
       await waitFor(() => expect(screen.queryByText('create_modal.title')).not.toBeInTheDocument());
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(primary(/create_provider/)).toBeEnabled();
+      expect(primary(/create_provider/)).toHaveFocus();
+    });
+
+    it('returns focus to Create Provider when the confirmation is cancelled', async () => {
+      const onCreateProvider = vi.fn().mockResolvedValue(true);
+      renderSetup({ onCreateProvider });
+      await goToConfigure();
+      await userEvent.click(primary(/create_provider/));
+
+      await userEvent.click(await screen.findByRole('button', { name: 'create_modal.cancel' }));
+
+      await waitFor(() => expect(primary(/create_provider/)).toHaveFocus());
+      expect(onCreateProvider).not.toHaveBeenCalled();
     });
 
     it('does not let the stepper skip past the configure page before creation', async () => {
@@ -216,6 +229,30 @@ describe('SsoGuidedSetup', () => {
 
       expect(await screen.findByText('attribute_mapping_unavailable')).toBeInTheDocument();
       expect(screen.queryByText('attribute_mapping_pending')).not.toBeInTheDocument();
+    });
+
+    it('disables Try Again and marks it busy while a retry is pending', async () => {
+      let finish: () => void = () => {};
+      const onRetryAttributeMappings = vi.fn(
+        () => new Promise<void>((resolve) => (finish = resolve)),
+      );
+      renderSetup({
+        initialPageKey: 'okta-claims-mapping',
+        attributeMappingsError: 'load_failed',
+        onRetryAttributeMappings,
+      });
+      const retry = await screen.findByRole('button', { name: 'attribute_mapping_retry' });
+
+      await userEvent.dblClick(retry);
+
+      expect(onRetryAttributeMappings).toHaveBeenCalledTimes(1);
+      expect(retry).toBeDisabled();
+      expect(retry).toHaveAttribute('aria-busy', 'true');
+
+      await act(async () => finish());
+
+      await waitFor(() => expect(retry).toBeEnabled());
+      expect(retry).toHaveAttribute('aria-busy', 'false');
     });
 
     it('fills the test connection slot', async () => {

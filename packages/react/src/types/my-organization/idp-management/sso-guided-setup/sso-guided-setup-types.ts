@@ -60,7 +60,7 @@ export interface InstructionSetup {
   configure?: SsoGuidedSetupConfigureForm;
   attributeMappings?: IdpUserAttributeMapItem[] | IdpProvisioningUserAttributeMapItem[] | null;
   attributeMappingsError?: AttributeMappingsError;
-  onRetryAttributeMappings?: () => void;
+  onRetryAttributeMappings?: () => void | Promise<unknown>;
   slots?: SsoGuidedSetupSlots;
   customMessages?: Partial<Record<string, unknown>>;
 }
@@ -149,6 +149,7 @@ export interface SsoGuidedSetupCreateModalProps {
   onProceed: () => void;
   isCreating?: boolean;
   companyName: string;
+  onCloseAutoFocus?: (event: Event) => void;
   customMessages?: Partial<SsoGuidedSetupMessages>;
 }
 

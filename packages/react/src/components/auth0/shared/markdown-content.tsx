@@ -19,6 +19,7 @@ import { CopyButton } from '@/components/auth0/shared/copy-button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Markdown } from '@/components/ui/markdown';
 import { spinnerVariants } from '@/components/ui/spinner';
+import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
 
 export type MarkdownContentVariant = 'default' | 'notice';
@@ -59,19 +60,29 @@ function CodeBlock({ children, ...props }: React.ComponentProps<'pre'>) {
 
 /**
  * Image that holds a fixed-ratio box with a spinner until it loads, so the text around it
- * doesn't shift. Renders nothing if the image fails to load.
+ * doesn't shift. Shows a short note with the alt text if the image fails to load.
  * @param props - `img` element props.
  * @param props.src - Image URL.
  * @param props.alt - Alternative text.
- * @returns JSX element, or `null` after a load error.
+ * @returns JSX element
  */
 function InstructionImage({ src, alt, ...props }: React.ComponentProps<'img'>) {
+  const { t } = useTranslator('common');
   const [status, setStatus] = React.useState<'loading' | 'loaded' | 'error'>('loading');
   const imageRef = React.useCallback((image: HTMLImageElement | null) => {
     if (image?.complete && image.naturalWidth > 0) setStatus('loaded');
   }, []);
 
-  if (status === 'error') return null;
+  if (status === 'error') {
+    return (
+      <span
+        data-slot="instruction-image-fallback"
+        className="border-border bg-muted/50 text-muted-foreground my-6 block rounded-xl border px-4 py-3 text-sm"
+      >
+        {alt ? `${t('image_unavailable')}: ${alt}` : t('image_unavailable')}
+      </span>
+    );
+  }
   const isLoading = status === 'loading';
 
   return (
