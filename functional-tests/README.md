@@ -14,6 +14,7 @@ functional-tests/
 ├── lib/            # Shared utilities (management-api, i18n, run-state, toast, poll)
 ├── scripts/        # setup-org.ts, teardown-org.ts, run-tests.sh
 ├── apps/           # App adapters (baseURL, webServer config, route map per example app)
+├── tenant/         # Tenant-side code to deploy by hand (step-up Action)
 └── plan/           # Local design notes (not shipped)
 ```
 
@@ -45,15 +46,33 @@ The suite needs a correctly configured Auth0 tenant before any env var below exi
 4. Create the **CI test user** in the tenant: a dedicated email (e.g. a `+ci` alias) + strong password. This is the identity Playwright logs in as; each run's `setup-org.ts` adds it to the run's ephemeral org and grants it admin, so no manual org membership is needed here.
 5. Create a **separate M2M app** for setup/teardown (Applications → Create → Machine to Machine), authorized for the **Management API**, granting exactly:
 
-   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`, `create:organization_discovery_domains`, `read:organization_discovery_domains`, `update:organization_discovery_domains`, `delete:organization_discovery_domains`
+   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`, `create:organization_discovery_domains`, `read:organization_discovery_domains`, `update:organization_discovery_domains`, `delete:organization_discovery_domains`, `update:authentication_methods`, `read:actions`, `create:actions`, `update:actions`, `read:triggers`, `update:triggers`, `read:guardian_factors`, `update:guardian_factors`, `read:tenant_settings`, `update:tenant_settings`
 
    The `*_organization_discovery_domains` scopes let `fixtures/domain.fixture.ts` seed pending and verified domains directly through the Management API (a verified one needs no DNS record) and clean them up, so specs that aren't about the create flow don't click through it.
+
+   `update:authentication_methods` and the `actions`, `triggers`, `guardian_factors` and `tenant_settings` grants are for step-up MFA: setup provisions the tenant side and the spec gives its throwaway user a TOTP secret the test knows (see [Step-up MFA setup](#step-up-mfa-setup)). `update:triggers` lets CI change what runs on every login, so only grant it on a test tenant.
 
    `read:clients` / `update:clients` are used for one thing: `setup-org.ts` raises the SPA client's refresh-token rotation **leeway** to 300s so overlapping exchanges don't fail with "invalid refresh token". Setup warns and continues if these grants are missing.
 
    **Deliberately no `update:organizations`:** only the component under test may modify org details (via the My Organization API). Admin write access would let an assertion pass while the component is broken. Kept separate from the SPA client so CI credentials rotate independently.
 
 When swapping to a new tenant later, repeat these steps, update the secrets below, and delete the old M2M app. No code or spec changes needed; tenant identity is entirely secrets-driven.
+
+---
+
+## Step-up MFA setup (step-up spec)
+
+`specs/step-up.spec.ts` checks that inviting a member asks for MFA in a Universal Login popup and only sends the invite after a valid one-time code. None of the step-up config is set up by hand: `scripts/setup-org.ts` makes sure the tenant has
+
+- the **One-time Password** factor enabled,
+- **Customize MFA Factors using Actions** on (`customize_mfa_in_postlogin_action`),
+- the `ft-step-up-mfa` Action from [`tenant/step-up-action.js`](./tenant/step-up-action.js) deployed and bound to post-login.
+
+Each one is read first and only written when missing or different, so this runs every time but costs a few GETs once the tenant is set up, and editing the Action file redeploys it on the next run. The tenant is the record of what's in place, so there is no marker file to go stale. Leave the MFA policy ("Require Multi-factor Auth") at its default, **Never**.
+
+Nothing is ever removed, and nothing needs to be. The Action only challenges users with `app_metadata.ft_step_up`, and only the step-up spec creates one: a throwaway org admin with a random password and TOTP secret, deleted by the spec (the scheduled cleanup removes it if that fails). The CI user is never challenged, so the other specs are unaffected and run order doesn't matter.
+
+The test computes the code itself from the secret (`lib/totp.ts`), the same way an authenticator app does after scanning the QR code.
 
 ---
 

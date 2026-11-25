@@ -474,16 +474,12 @@ export function deleteRole(roleId: string): Promise<void> {
   return mgmt<void>('DELETE', `roles/${encodeURIComponent(roleId)}`);
 }
 
-export async function findUserIdByEmail(email: string): Promise<string> {
+export async function findUserIdByEmail(email: string): Promise<string | undefined> {
   const users = await mgmt<Array<{ user_id: string; email: string }>>(
     'GET',
     `users-by-email?email=${encodeURIComponent(email)}`,
   );
-  const match = users[0];
-  if (!match) {
-    throw new Error(`No user found with email ${email} on tenant ${domain()}`);
-  }
-  return match.user_id;
+  return users[0]?.user_id;
 }
 
 /** Used by the scheduled cleanup job (UIC-1999) to find leftover `ci-org-*` organizations. */
@@ -496,6 +492,7 @@ export interface CreateUserInput {
   password: string;
   name?: string;
   connectionName: string;
+  appMetadata?: Record<string, unknown>;
 }
 
 export interface User {
@@ -513,13 +510,14 @@ export function createUser(input: CreateUserInput): Promise<User> {
         name: input.name,
         connection: input.connectionName,
         email_verified: true,
+        ...(input.appMetadata ? { app_metadata: input.appMetadata } : {}),
       }),
     async () => ({
-      user_id: await waitForPropagation(
+      user_id: (await waitForPropagation(
         `the user for ${input.email} created by a retried POST /users to be readable`,
         () => findUserIdByEmail(input.email),
         Boolean,
-      ),
+      )) as string,
       email: input.email,
       name: input.name,
     }),
@@ -528,6 +526,14 @@ export function createUser(input: CreateUserInput): Promise<User> {
 
 export function deleteUser(userId: string): Promise<void> {
   return mgmt<void>('DELETE', `users/${encodeURIComponent(userId)}`);
+}
+
+// PUT replaces every MFA method on the user, so a retried setup still ends with exactly this secret.
+// Requires `update:authentication_methods`.
+export async function setTotpAuthenticator(userId: string, totpSecret: string): Promise<void> {
+  await mgmt<unknown>('PUT', `users/${encodeURIComponent(userId)}/authentication-methods`, [
+    { type: 'totp', name: 'FT step-up', totp_secret: totpSecret },
+  ]);
 }
 
 export interface OrgMember {
@@ -626,4 +632,95 @@ export function deleteInvitation(organizationId: string, invitationId: string): 
     'DELETE',
     `organizations/${organizationId}/invitations/${encodeURIComponent(invitationId)}`,
   );
+}
+
+export interface Action {
+  id: string;
+  name: string;
+  code: string;
+  status?: string;
+  all_changes_deployed?: boolean;
+}
+
+const POST_LOGIN = 'post-login';
+
+export async function findPostLoginAction(name: string): Promise<Action | undefined> {
+  const { actions } = await mgmt<{ actions: Action[] }>(
+    'GET',
+    `actions/actions?actionName=${encodeURIComponent(name)}&triggerId=${POST_LOGIN}`,
+  );
+  return actions.find((action) => action.name === name);
+}
+
+export function createPostLoginAction(name: string, code: string): Promise<Action> {
+  return mgmt<Action>('POST', 'actions/actions', {
+    name,
+    code,
+    runtime: 'node22',
+    supported_triggers: [{ id: POST_LOGIN, version: 'v3' }],
+  });
+}
+
+export function updateActionCode(actionId: string, code: string): Promise<Action> {
+  return mgmt<Action>('PATCH', `actions/actions/${encodeURIComponent(actionId)}`, { code });
+}
+
+// Deploying a draft that is still building is rejected, so wait for the build first.
+export async function deployAction(actionId: string): Promise<void> {
+  const built = await waitForPropagation(
+    `action ${actionId} to finish building`,
+    () => mgmt<Action>('GET', `actions/actions/${encodeURIComponent(actionId)}`),
+    (action) => action.status === 'built' || action.status === 'failed',
+  );
+  if (built.status === 'failed') throw new Error(`Action ${actionId} failed to build`);
+  await mgmt<unknown>('POST', `actions/actions/${encodeURIComponent(actionId)}/deploy`);
+}
+
+interface TriggerBinding {
+  id: string;
+  display_name: string;
+  action?: { name: string };
+}
+
+export async function listPostLoginBindings(): Promise<TriggerBinding[]> {
+  const { bindings } = await mgmt<{ bindings: TriggerBinding[] }>(
+    'GET',
+    `actions/triggers/${POST_LOGIN}/bindings?per_page=100`,
+  );
+  return bindings;
+}
+
+// PATCH replaces the whole list, so every existing binding is sent back unchanged ahead of the new one.
+export async function appendPostLoginBinding(actionName: string): Promise<void> {
+  const existing = await listPostLoginBindings();
+  await mgmt<unknown>('PATCH', `actions/triggers/${POST_LOGIN}/bindings`, {
+    bindings: [
+      ...existing.map((binding) => ({
+        ref: { type: 'binding_id', value: binding.id },
+        display_name: binding.display_name,
+      })),
+      { ref: { type: 'action_name', value: actionName }, display_name: actionName },
+    ],
+  });
+}
+
+export function listGuardianFactors(): Promise<Array<{ name: string; enabled: boolean }>> {
+  return mgmt('GET', 'guardian/factors');
+}
+
+export function enableGuardianFactor(name: string): Promise<void> {
+  return mgmt<void>('PUT', `guardian/factors/${encodeURIComponent(name)}`, { enabled: true });
+}
+
+export function getCustomizeMfaInActions(): Promise<{
+  customize_mfa_in_postlogin_action?: boolean;
+}> {
+  return mgmt(
+    'GET',
+    'tenants/settings?fields=customize_mfa_in_postlogin_action&include_fields=true',
+  );
+}
+
+export function enableCustomizeMfaInActions(): Promise<void> {
+  return mgmt<void>('PATCH', 'tenants/settings', { customize_mfa_in_postlogin_action: true });
 }

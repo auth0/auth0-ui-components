@@ -26,7 +26,7 @@ import { MemberManagementPage } from '../pages/member-management.page';
 
 const org = requireRunState();
 const route = reactSpaNpmApp.routes.memberManagement;
-const connectionName = process.env.FT_CONNECTION_NAME ?? 'Universal-Components-Demo';
+const connectionName = process.env.FT_CONNECTION_NAME || 'Universal-Components-Demo';
 const adminRoleName = process.env.FT_ADMIN_ROLE_NAME || 'admin';
 
 testUnauthenticatedRedirect(route, (page) => new MemberManagementPage(page).membersTab);

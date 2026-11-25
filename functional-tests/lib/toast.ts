@@ -85,6 +85,7 @@ function countContaining(texts: string[], message: string): number {
 export interface ToastWatcher {
   expectSuccess(message: string, options?: { timeout?: number }): Promise<void>;
   expectError(message: string, options?: { timeout?: number }): Promise<void>;
+  expectAnyError(options?: { timeout?: number }): Promise<void>;
 }
 
 export async function watchToasts(page: Page): Promise<ToastWatcher> {
@@ -151,5 +152,8 @@ export async function watchToasts(page: Page): Promise<ToastWatcher> {
       waitFor(SUCCESS_ATTR, message, true, options?.timeout ?? DEFAULT_TIMEOUT_MS),
     expectError: (message, options) =>
       waitFor(ERROR_ATTR, message, false, options?.timeout ?? DEFAULT_TIMEOUT_MS),
+    // An empty needle matches any text, so the first error toast counts.
+    expectAnyError: (options) =>
+      waitFor(ERROR_ATTR, '', false, options?.timeout ?? DEFAULT_TIMEOUT_MS),
   };
 }
