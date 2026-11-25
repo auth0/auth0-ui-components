@@ -17,6 +17,7 @@
     "dist",
     "src/styles",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
