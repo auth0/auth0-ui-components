@@ -265,7 +265,11 @@ export function SsoGuidedSetup({
         companyName={companyName}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
-          primaryButtonRef.current?.focus();
+          const primaryButton = primaryButtonRef.current;
+          (primaryButton && !primaryButton.disabled
+            ? primaryButton
+            : pageTitleRef.current
+          )?.focus();
         }}
         customMessages={customMessages}
       />
