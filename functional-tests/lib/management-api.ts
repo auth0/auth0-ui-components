@@ -106,7 +106,7 @@ function retryWaitMs(response: Response, attempt: number): number | null {
 }
 
 // Carries the HTTP status so callers can branch on it without parsing the message.
-class ManagementApiError extends Error {
+export class ManagementApiError extends Error {
   constructor(
     readonly status: number,
     method: string,
@@ -232,6 +232,16 @@ export function createOrganization(input: CreateOrganizationInput): Promise<Orga
 
 export function getOrganization(organizationId: string): Promise<Organization> {
   return mgmt<Organization>('GET', `organizations/${organizationId}`);
+}
+
+export async function organizationExists(organizationId: string): Promise<boolean> {
+  try {
+    await getOrganization(organizationId);
+    return true;
+  } catch (error) {
+    if (error instanceof ManagementApiError && error.status === 404) return false;
+    throw error;
+  }
 }
 
 export function getOrganizationByName(name: string): Promise<Organization> {
@@ -486,9 +496,34 @@ export async function findUserIdByEmail(email: string): Promise<string> {
   return match.user_id;
 }
 
-/** Used by the scheduled cleanup job (UIC-1999) to find leftover `ci-org-*` organizations. */
+// These return the first 100 only; the stale-resource cleanup works in batches of 100.
 export function listOrganizations(): Promise<Organization[]> {
   return mgmt<Organization[]>('GET', 'organizations?per_page=100');
+}
+
+export function listRolesByPrefix(prefix: string): Promise<Role[]> {
+  return mgmt<Role[]>('GET', `roles?name_filter=${encodeURIComponent(prefix)}&per_page=100`);
+}
+
+export interface UserRecord {
+  user_id: string;
+  email?: string;
+  created_at: string;
+  identities: Array<{ provider: string; connection: string }>;
+}
+
+export function listUsersOnConnection(connectionName: string): Promise<UserRecord[]> {
+  const query = new URLSearchParams({
+    q: `identities.connection:"${connectionName}"`,
+    search_engine: 'v3',
+    fields: 'user_id,email,created_at,identities',
+    per_page: '100',
+  });
+  return mgmt<UserRecord[]>('GET', `users?${query}`);
+}
+
+export function listUsersByEmail(email: string): Promise<UserRecord[]> {
+  return mgmt<UserRecord[]>('GET', `users-by-email?email=${encodeURIComponent(email)}`);
 }
 
 export interface CreateUserInput {

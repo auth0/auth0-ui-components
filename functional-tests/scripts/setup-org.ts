@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { env } from '../env';
+import { env, requireAllEnv } from '../env';
 import {
   addMembers,
   assignMemberRoles,
@@ -79,6 +79,8 @@ async function ensureRefreshTokenLeeway(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  requireAllEnv();
+
   const connectionName = process.env.FT_CONNECTION_NAME ?? DEFAULT_CONNECTION_NAME;
   const adminRoleName = process.env.FT_ADMIN_ROLE_NAME ?? DEFAULT_ADMIN_ROLE_NAME;
   const userEmail = env.FT_TEST_USER_EMAIL;

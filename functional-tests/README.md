@@ -12,7 +12,7 @@ functional-tests/
 ├── pages/          # Page objects; all locators live here, none in specs
 ├── fixtures/       # Playwright fixtures (auth, unauthenticated)
 ├── lib/            # Shared utilities (management-api, i18n, run-state, toast, poll)
-├── scripts/        # setup-org.ts, teardown-org.ts, run-tests.sh
+├── scripts/        # setup-org.ts, teardown-org.ts, cleanup-stale-resources.ts, run-tests.sh
 ├── apps/           # App adapters (baseURL, webServer config, route map per example app)
 └── plan/           # Local design notes (not shipped)
 ```
@@ -45,7 +45,7 @@ The suite needs a correctly configured Auth0 tenant before any env var below exi
 4. Create the **CI test user** in the tenant: a dedicated email (e.g. a `+ci` alias) + strong password. This is the identity Playwright logs in as; each run's `setup-org.ts` adds it to the run's ephemeral org and grants it admin, so no manual org membership is needed here.
 5. Create a **separate M2M app** for setup/teardown (Applications → Create → Machine to Machine), authorized for the **Management API**, granting exactly:
 
-   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`, `create:organization_discovery_domains`, `read:organization_discovery_domains`, `update:organization_discovery_domains`, `delete:organization_discovery_domains`
+   `create:organizations`, `read:organizations`, `delete:organizations`, `create:organization_connections`, `create:organization_members`, `read:organization_members`, `create:organization_member_roles`, `read:organization_member_roles`, `read:connections`, `delete:connections`, `read:roles`, `create:roles`, `delete:roles`, `read:users`, `create:users`, `delete:users`, `create:organization_invitations`, `read:organization_invitations`, `delete:organization_invitations`, `read:clients`, `update:clients`, `create:organization_discovery_domains`, `read:organization_discovery_domains`, `update:organization_discovery_domains`, `delete:organization_discovery_domains`
 
    The `*_organization_discovery_domains` scopes let `fixtures/domain.fixture.ts` seed pending and verified domains directly through the Management API (a verified one needs no DNS record) and clean them up, so specs that aren't about the create flow don't click through it.
 
@@ -70,7 +70,7 @@ Admin console > Applications > Applications > Create App Integration > **Classic
 | App integration name                    | `auth0-ui-components e2e`                                                                                                                                                  |
 | Client definition                       | Okta-generated client ID (not CIMD)                                                                                                                                        |
 | Grant type                              | Authorization Code only. Client Credentials, Refresh Token and DPoP unchecked                                                                                              |
-| Sign-in redirect URI                    | `https://vkuifttenant.dx-uic-4.auth0c.com/login/callback` (the Auth0 tenant callback, shared by all connections). Replace the default `localhost:8080`; wildcard unchecked |
+| Sign-in redirect URI                    | `https://<your-tenant>.<region>.auth0.com/login/callback` (the Auth0 tenant callback, shared by all connections). Replace the default `localhost:8080`; wildcard unchecked |
 | Sign-out redirect URIs, Trusted Origins | leave empty                                                                                                                                                                |
 | Assignments                             | Skip group assignment (keeps the app off other people's dashboards); "Allow everyone in your organization" also works                                                      |
 | Federation Broker Mode                  | leave **unchecked** (it disables dashboard and provisioning features, not needed)                                                                                          |
@@ -86,7 +86,7 @@ Security > Authentication Policies > App sign-in. Attach the org's built-in `Pas
 Directory > People > Add person:
 
 - User type `User`, first name `FT`, last name `E2E`.
-- Username and primary email both `auth0-ui-components-e2e@example.com` (use the reserved `example.com` domain so no email can reach a real person). `FT_OKTA_SSO_USER_EMAIL` must be this exact string, because the test invites that address and Auth0 rejects a mismatch.
+- Username and primary email both `<sso-test-user>@example.com` (use the reserved `example.com` domain so no email can reach a real person). `FT_OKTA_SSO_USER_EMAIL` must be this exact string, because the test invites that address and Auth0 rejects a mismatch.
 - No groups. Activation `Activate now`.
 - Check "I will set password" and set a strong password (store it in a password manager). **Uncheck** "User must change password on first login". Status must be Active.
 
@@ -96,7 +96,7 @@ Then open the app > Assignments > Assign > Assign to People > the test user.
 
 The oktapreview org's authenticator Enrollment policy requires a Security Question for every user, separate from the app sign-in policy. Without it Okta shows "Set up security methods, Required now" after the password and the test stalls. Enroll once by hand:
 
-1. In a private browser window open `https://auth0-occ-poc.oktapreview.com/` and sign in as the test user.
+1. In a private browser window open `https://<your-okta-org>.oktapreview.com/` and sign in as the test user.
 2. Click **Set up** next to Security Question, choose a question, set the answer, and save the answer in a password manager.
 3. Finish the sign-in.
 
@@ -133,7 +133,7 @@ In CI these six values are GitHub repository secrets with the same names. Locall
 **Required by the SSO invitation spec** (`specs/sso-invitation.spec.ts`). Any missing variable fails the run before it starts, naming the missing ones:
 
 ```
-FT_OKTA_DOMAIN               # Okta org host without "-admin", e.g. auth0-occ-poc.oktapreview.com
+FT_OKTA_DOMAIN               # Okta org host without "-admin", e.g. <your-okta-org>.oktapreview.com
 FT_OKTA_CLIENT_ID
 FT_OKTA_CLIENT_SECRET
 FT_OKTA_SSO_USER_EMAIL       # also the invited email; must match the Okta username exactly
@@ -141,6 +141,8 @@ FT_OKTA_SSO_USER_PASSWORD
 ```
 
 These need a real Okta app and test user. Console setup: [Okta console setup](#okta-console-setup-sso-invitation-spec). In CI they are five more repository secrets.
+
+Read required variables through `env` from `env.ts`, never `process.env`. Each one is checked when it's first read, so a standalone script like the cleanup only needs the variables it uses; `setup-org.ts` still checks the full list up front, so a test run fails before it starts. Optional variables and flags (`FT_CONNECTION_NAME`, `CI`, `HEADLESS`, …) are read from `process.env` directly.
 
 ---
 
@@ -219,3 +221,26 @@ One running server = one org value, so the org is pinned per run, not per worker
 Workflow: `.github/workflows/functional-tests.yml`. It does not run on every push. Add the `run-ft` label to a PR to start a run (the workflow removes the label once it starts, so re-add it to re-run). It can also be started manually (`workflow_dispatch`) or called from the release workflow as a gate. Fork PRs are skipped since GitHub strips their secrets.
 
 Steps: `pnpm install --frozen-lockfile` → build the react package → `playwright install chromium ffmpeg` → `org:setup` → `playwright test` → `org:teardown` (`always()`) → upload the HTML report and `test-results/` (`always()`). Playwright retries failed tests twice in CI, and traces are off in CI.
+
+### Leaked resource cleanup
+
+Teardown and each spec's `afterAll` clean up after themselves, but a cancelled run, crashed runner, local Ctrl-C or failed delete can leave things behind. `.github/workflows/functional-tests-cleanup.yml` runs `scripts/cleanup-stale-resources.ts` every Monday at 03:17 UTC and deletes:
+
+| Resource      | Matched by                                                         |
+| ------------- | ------------------------------------------------------------------ |
+| Organizations | `ci-org-<ms>-<suffix>`                                             |
+| Connections   | `con-org-<orgId>-*` whose org is being deleted or no longer exists |
+| Users         | `ft-<label>-<ms>@example.com` on `FT_CONNECTION_NAME`              |
+| Okta SSO user | `FT_OKTA_SSO_USER_EMAIL` with no database identity                 |
+| Roles         | `ft-role-<ms>`                                                     |
+
+Only resources older than 24h are deleted (age comes from the timestamp in the name, or `created_at` for the SSO user), so live CI runs and local sessions are safe. Each type is capped at 100 deletions per run; the rest wait for the next run. Orgs and users are read one page of 100 at a time, which assumes the FT tenant is dedicated: a tenant with 100+ other orgs or users on the connection could keep leaks off that page. The job fails if any delete fails, and the step summary lists counts.
+
+**Keep the patterns in sync.** If you change how a test resource is named (`generateOrgName` in `setup-org.ts`, `uniqueEmail` or the `ft-role-` name in the specs) or start creating a new kind of resource, update the patterns in `scripts/cleanup-stale-resources.ts` in the same PR. Anything that doesn't match is skipped silently and left on the tenant. Run `pnpm run cleanup:stale --dry-run` to check.
+
+Run it manually from the Actions tab (`dry_run` defaults to on), or locally:
+
+```bash
+pnpm run cleanup:stale --dry-run   # list only
+pnpm run cleanup:stale             # delete
+```
