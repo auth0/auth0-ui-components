@@ -5,6 +5,7 @@ import {
   getRelativeTimeLabel,
   openHttpsUrlInNewTab,
   resolveOrFalse,
+  scrollToTop,
 } from '../helper-utils';
 
 const mockT = ((_key: string, vars?: Record<string, unknown>, fallback?: string): string => {
@@ -242,4 +243,31 @@ describe('resolveOrFalse', () => {
   ])('returns the outcome of %s', async (_name, action, expected) => {
     await expect(resolveOrFalse(action)).resolves.toBe(expected);
   });
+});
+
+describe('scrollToTop', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it.each(['auto', 'hidden'])(
+    'resets every %s-overflow ancestor and the page, leaving others alone',
+    (overflow) => {
+      document.body.innerHTML = `<div id="scroller" style="overflow-y: ${overflow}"><div id="plain"><h2 id="title"></h2></div></div>`;
+      const scroller = document.getElementById('scroller') as HTMLElement;
+      const plain = document.getElementById('plain') as HTMLElement;
+      Object.defineProperty(scroller, 'scrollHeight', { value: 500 });
+      Object.defineProperty(scroller, 'clientHeight', { value: 100 });
+      scroller.scrollTop = 200;
+      plain.scrollTop = 50;
+      const root = document.scrollingElement ?? document.documentElement;
+      root.scrollTop = 300;
+
+      scrollToTop(document.getElementById('title'));
+
+      expect(scroller.scrollTop).toBe(0);
+      expect(root.scrollTop).toBe(0);
+      expect(plain.scrollTop).toBe(50);
+    },
+  );
 });

@@ -140,7 +140,8 @@ export async function resolveOrFalse(action: () => Promise<boolean> | boolean): 
 export function scrollToTop(element: Element | null | undefined): void {
   for (let node = element?.parentElement; node; node = node.parentElement) {
     const { overflowY } = window.getComputedStyle(node);
-    if (/auto|scroll/.test(overflowY) && node.scrollHeight > node.clientHeight) node.scrollTop = 0;
+    if (/auto|scroll|hidden/.test(overflowY) && node.scrollHeight > node.clientHeight)
+      node.scrollTop = 0;
   }
   (document.scrollingElement ?? document.documentElement).scrollTop = 0;
 }
