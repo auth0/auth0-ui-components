@@ -74,6 +74,24 @@ describe('MarkdownContent', () => {
       expect(img).toHaveAttribute('loading', 'lazy');
     });
 
+    it('holds a fixed-ratio box with a spinner until the image loads', () => {
+      const { container } = render(
+        <MarkdownContent text="![Okta apps](/img/okta/1.png)" baseUrl={BASE_URL} />,
+      );
+      const box = container.querySelector('[data-slot="instruction-image"]');
+
+      expect(box).toHaveClass('aspect-video');
+      expect(box).toHaveAttribute('aria-busy', 'true');
+      expect(box?.querySelector('.animate-spin')).not.toBeNull();
+
+      fireEvent.load(screen.getByRole('img', { name: 'Okta apps' }));
+
+      expect(box).not.toHaveClass('aspect-video');
+      expect(box).toHaveAttribute('aria-busy', 'false');
+      expect(box?.querySelector('.animate-spin')).toBeNull();
+      expect(screen.getByRole('img', { name: 'Okta apps' })).not.toHaveClass('opacity-0');
+    });
+
     it.each(['javascript:alert(1)', 'data:image/png;base64,AA', 'http://insecure.test/a.png'])(
       'does not render an image for %s',
       (src) => {

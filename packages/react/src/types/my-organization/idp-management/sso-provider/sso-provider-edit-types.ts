@@ -178,6 +178,7 @@ export interface SsoProviderAttributeMappingsProps
   isProvisioning?: boolean;
   hideExternalNamespace?: boolean;
   hideHeader?: boolean;
+  showEmptyOptional?: boolean;
   className?: string;
 }
 

@@ -4,6 +4,7 @@
  * @internal
  */
 
+import { Info } from 'lucide-react';
 import React from 'react';
 
 import { DataTable, type Column } from '@/components/auth0/shared/data-table';
@@ -28,6 +29,7 @@ export interface MappingProps<Item> {
       items: Item[];
       columns: Column<Item>[];
     };
+    emptyMessage?: string;
   };
   className?: string;
   expanded?: boolean;
@@ -72,7 +74,17 @@ export function Mapping<Item>({
               </div>
             </AccordionTrigger>
             <AccordionContent className="pb-6">
-              <DataTable data={card.table.items} columns={card.table.columns} />
+              {card.emptyMessage && card.table.items.length === 0 ? (
+                <p
+                  data-slot="mapping-empty"
+                  className="border-border text-foreground flex items-center gap-2 rounded-xl border px-4 py-3 text-sm"
+                >
+                  <Info className="size-4 shrink-0" aria-hidden="true" />
+                  {card.emptyMessage}
+                </p>
+              ) : (
+                <DataTable data={card.table.items} columns={card.table.columns} />
+              )}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

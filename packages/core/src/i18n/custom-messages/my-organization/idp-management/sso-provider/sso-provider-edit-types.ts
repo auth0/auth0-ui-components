@@ -119,6 +119,7 @@ export interface SsoProviderNotificationMessages {
 interface AttributeMappingSectionMessages {
   title?: string;
   description?: string;
+  empty?: string;
   table?: {
     columns?: {
       attribute_name_label?: string;

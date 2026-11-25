@@ -111,6 +111,7 @@ const AttributeNameCell = ({
  * @param props.hideExternalNamespace - Leave out the External Namespace field.
  * @param props.customMessages - Custom i18n message overrides.
  * @param props.hideHeader - Hides the section title and description.
+ * @param props.showEmptyOptional - Shows the Optional Attributes section with a notice when it's empty.
  * @param props.className - Additional CSS class names.
  * @returns Attribute mappings component.
  * @internal
@@ -121,6 +122,7 @@ export function SsoProviderAttributeMappings({
   isProvisioning = false,
   hideExternalNamespace = false,
   hideHeader = false,
+  showEmptyOptional = false,
   customMessages,
   className,
 }: SsoProviderAttributeMappingsProps) {
@@ -197,7 +199,7 @@ export function SsoProviderAttributeMappings({
         }
       />
 
-      {optionalItems.length > 0 && (
+      {(optionalItems.length > 0 || showEmptyOptional) && (
         <Mapping
           expanded
           card={{
@@ -207,6 +209,7 @@ export function SsoProviderAttributeMappings({
               items: optionalItems,
               columns: getColumns('optional'),
             },
+            emptyMessage: t('mappings.optional.empty'),
           }}
           content={null}
         />

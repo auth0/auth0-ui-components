@@ -237,19 +237,21 @@ export function SsoGuidedSetup({
             />
           </div>
 
-          <FormActions
-            align="right"
-            isLoading={isSubmitting}
-            showPrevious={false}
-            showUnsavedChanges={false}
-            nextAction={{
-              type: 'button',
-              label: t(creation.primaryLabelKey),
-              variant: 'primary',
-              disabled: creation.isPrimaryDisabled || isBlockedByMappings,
-              onClick: creation.handlePrimary,
-            }}
-          />
+          {!isBlockedByMappings && (
+            <FormActions
+              align="right"
+              isLoading={isSubmitting}
+              showPrevious={false}
+              showUnsavedChanges={false}
+              nextAction={{
+                type: 'button',
+                label: t(creation.primaryLabelKey),
+                variant: 'primary',
+                disabled: creation.isPrimaryDisabled,
+                onClick: creation.handlePrimary,
+              }}
+            />
+          )}
         </section>
       </CardContent>
 

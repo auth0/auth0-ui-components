@@ -18,6 +18,7 @@ import type { Components } from 'react-markdown';
 import { CopyButton } from '@/components/auth0/shared/copy-button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Markdown } from '@/components/ui/markdown';
+import { spinnerVariants } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
 export type MarkdownContentVariant = 'default' | 'notice';
@@ -56,6 +57,52 @@ function CodeBlock({ children, ...props }: React.ComponentProps<'pre'>) {
   );
 }
 
+/**
+ * Image that holds a fixed-ratio box with a spinner until it loads, so the text around it
+ * doesn't shift. Renders nothing if the image fails to load.
+ * @param props - `img` element props.
+ * @param props.src - Image URL.
+ * @param props.alt - Alternative text.
+ * @returns JSX element, or `null` after a load error.
+ */
+function InstructionImage({ src, alt, ...props }: React.ComponentProps<'img'>) {
+  const [status, setStatus] = React.useState<'loading' | 'loaded' | 'error'>('loading');
+  const imageRef = React.useCallback((image: HTMLImageElement | null) => {
+    if (image?.complete && image.naturalWidth > 0) setStatus('loaded');
+  }, []);
+
+  if (status === 'error') return null;
+  const isLoading = status === 'loading';
+
+  return (
+    <span
+      data-slot="instruction-image"
+      aria-busy={isLoading}
+      className={cn(
+        'border-border relative my-6 block w-full overflow-hidden rounded-xl border',
+        isLoading && 'bg-muted/50 aspect-video',
+      )}
+    >
+      {isLoading && (
+        <span
+          aria-hidden="true"
+          className={cn(spinnerVariants({ colorScheme: 'muted' }), 'absolute inset-0 m-auto')}
+        />
+      )}
+      <img
+        ref={imageRef}
+        src={src}
+        alt={alt ?? ''}
+        loading="lazy"
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
+        className={cn('block h-auto w-full', isLoading && 'absolute inset-0 opacity-0')}
+        {...props}
+      />
+    </span>
+  );
+}
+
 const instructionComponents: Components = {
   a: ({ node: _node, href, children, ...props }) => {
     const external = isExternalUrl(href);
@@ -71,15 +118,7 @@ const instructionComponents: Components = {
     );
   },
   img: ({ node: _node, src, alt, ...props }) =>
-    src ? (
-      <img
-        src={src}
-        alt={alt ?? ''}
-        loading="lazy"
-        className="border-border my-6 block h-auto w-full rounded-xl border"
-        {...props}
-      />
-    ) : null,
+    src ? <InstructionImage key={src} src={src} alt={alt} {...props} /> : null,
   pre: ({ node: _node, children, ...props }) => <CodeBlock {...props}>{children}</CodeBlock>,
 };
 
