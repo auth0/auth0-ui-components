@@ -13,6 +13,7 @@ Auth0 Universal Components for React - pre-built UI components for organization 
 - [Auth0 Universal Components](https://auth0.com/docs/get-started/universal-components/universal-components-overview) - installation, configuration, and component reference
 - [Examples](https://github.com/auth0/auth0-ui-components/tree/main/examples) - sample applications for React SPA, React shadcn, and Next.js
 - [Auth0 Docs](https://auth0.com/docs) - explore our docs site and learn more about Auth0
+- [Changelog](https://github.com/auth0/auth0-ui-components/releases) - release notes for every version
 
 ## Getting Started
 

@@ -197,6 +197,23 @@ jobs:
 
           echo "Publishing: ${VERSION} @ ${NPM_TAG}"
 
+      - name: Generate release notes
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          for PKG in core react; do
+            node .github/scripts/changelog.mjs --release-body "$PKG" "$VERSION" "$NPM_TAG" > "$RUNNER_TEMP/$PKG-release-body.md"
+          done
+
+          if [ "$DRY_RUN" = "true" ]; then
+            for PKG in core react; do
+              echo "## Release notes: $PKG@$VERSION" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              cat "$RUNNER_TEMP/$PKG-release-body.md" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+
       - name: Update Core package for public npm
         working-directory: ./packages/core
         run: |
@@ -351,18 +368,7 @@ jobs:
         with:
           tag_name: core@${{ env.VERSION }}
           name: "@auth0/universal-components-core@${{ env.VERSION }}"
-          body: |
-            Published to NPM
-
-            **Package**: `@auth0/universal-components-core`
-            **Version**: `${{ env.VERSION }}`
-            **NPM Tag**: `${{ env.NPM_TAG }}`
-
-            ```bash
-            npm install @auth0/universal-components-core@${{ env.VERSION }}
-            ```
-
-            [View on NPM](https://www.npmjs.com/package/@auth0/universal-components-core/v/${{ env.VERSION }})
+          body_path: ${{ runner.temp }}/core-release-body.md
           prerelease: ${{ env.NPM_TAG != 'latest' }}
           draft: false
 
@@ -372,19 +378,7 @@ jobs:
         with:
           tag_name: react@${{ env.VERSION }}
           name: "@auth0/universal-components-react@${{ env.VERSION }}"
-          body: |
-            Published to NPM
-
-            **Package**: `@auth0/universal-components-react`
-            **Version**: `${{ env.VERSION }}`
-            **NPM Tag**: `${{ env.NPM_TAG }}`
-            **Requires**: `@auth0/universal-components-core@${{ env.VERSION }}`
-
-            ```bash
-            npm install @auth0/universal-components-react@${{ env.VERSION }}
-            ```
-
-            [View on NPM](https://www.npmjs.com/package/@auth0/universal-components-react/v/${{ env.VERSION }})
+          body_path: ${{ runner.temp }}/react-release-body.md
           prerelease: ${{ env.NPM_TAG != 'latest' }}
           draft: false
 
