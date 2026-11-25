@@ -33,6 +33,7 @@ export function SsoGuidedSetupCreateModal({
   onProceed,
   isCreating = false,
   companyName,
+  onCloseAutoFocus,
   customMessages = {},
 }: SsoGuidedSetupCreateModalProps) {
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
@@ -43,7 +44,11 @@ export function SsoGuidedSetupCreateModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="gap-6 p-10" showCloseButton={!isCreating}>
+      <DialogContent
+        className="gap-6 p-10"
+        showCloseButton={!isCreating}
+        onCloseAutoFocus={onCloseAutoFocus}
+      >
         <DialogHeader className="gap-6">
           <DialogTitle>{t('create_modal.title')}</DialogTitle>
           <DialogDescription>{t('create_modal.description', { companyName })}</DialogDescription>

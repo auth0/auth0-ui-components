@@ -4,6 +4,7 @@
     "copied": "Copied!",
     "copy_failed": "Failed to copy",
     "your_domain_placeholder": "YOUR_DOMAIN",
+    "image_unavailable": "Image unavailable",
     "last_updated": "Last updated",
     "refresh": "Refresh",
     "time": {
@@ -814,6 +815,7 @@
         "optional": {
           "title": "Optional Attributes",
           "description": "Mapping these attributes will enhance the user profile but is not required.",
+          "empty": "No optional attributes are available for this connection.",
           "table": {
             "columns": {
               "attribute_name_label": "Attribute Name",
@@ -1345,8 +1347,10 @@
         }
       },
       "attribute_mapping_pending": "Attribute mappings appear here once the provider is created.",
-      "attribute_mapping_unavailable": "Attribute mappings aren't available because no user attribute profile is assigned. Contact your administrator to finish setting up this provider.",
-      "attribute_mapping_load_failed": "Attribute mappings couldn't be loaded. Try again, or continue and check them later.",
+      "attribute_mapping_unavailable_title": "Attribute mapping isn't available",
+      "attribute_mapping_unavailable": "Your identity provider can't be set up yet because user attributes haven't been configured for your account.",
+      "attribute_mapping_load_failed_title": "We couldn't load attributes",
+      "attribute_mapping_load_failed": "Something went wrong while loading attribute mappings. Try again. If the problem continues, contact your service provider.",
       "attribute_mapping_retry": "Try again",
       "lifecycle": {
         "out_of_date": "Provider instructions may be outdated. Please contact ${organizationDisplayName} support for assistance if needed.",

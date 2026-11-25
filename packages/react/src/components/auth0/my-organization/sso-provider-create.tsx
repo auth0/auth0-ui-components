@@ -330,7 +330,9 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
   let guidedAttributeMappingsError: AttributeMappingsError | undefined;
   if (!isLoadingIdpConfig) {
     if (isIdpConfigError) guidedAttributeMappingsError = 'load_failed';
-    else if (idpConfig === null) guidedAttributeMappingsError = 'unavailable';
+    else if (!getStrategyUserAttributes(idpConfig, strategy)) {
+      guidedAttributeMappingsError = 'unavailable';
+    }
   }
   const guidedEntryContext = useMemo(() => {
     if (guidedAttributeMappingsError) return { hasMappings: true };

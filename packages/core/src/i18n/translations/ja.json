@@ -4,6 +4,7 @@
     "copied": "コピーしました",
     "copy_failed": "コピーに失敗しました",
     "your_domain_placeholder": "あなたのドメイン",
+    "image_unavailable": "画像を表示できません",
     "last_updated": "最終更新日",
     "refresh": "更新",
     "time": {
@@ -755,6 +756,7 @@
         "optional": {
           "title": "オプション属性",
           "description": "これらの属性をマッピングするとユーザープロファイルが強化されますが、必須ではありません。",
+          "empty": "この接続で使用できるオプション属性はありません。",
           "table": {
             "columns": {
               "attribute_name_label": "属性名",
@@ -1225,8 +1227,10 @@
         }
       },
       "attribute_mapping_pending": "プロバイダーが作成されると、ここに属性マッピングが表示されます。",
-      "attribute_mapping_unavailable": "ユーザー属性プロファイルが割り当てられていないため、属性マッピングを利用できません。このプロバイダーの設定を完了するには、管理者にお問い合わせください。",
-      "attribute_mapping_load_failed": "属性マッピングを読み込めませんでした。もう一度お試しいただくか、このまま進めて後で確認してください。",
+      "attribute_mapping_unavailable_title": "属性マッピングを利用できません",
+      "attribute_mapping_unavailable": "アカウントのユーザー属性が設定されていないため、IDプロバイダーをまだ設定できません。",
+      "attribute_mapping_load_failed_title": "属性を読み込めませんでした",
+      "attribute_mapping_load_failed": "属性マッピングの読み込み中に問題が発生しました。もう一度お試しください。問題が解決しない場合は、サービスプロバイダーにお問い合わせください。",
       "attribute_mapping_retry": "再試行",
       "lifecycle": {
         "out_of_date": "プロバイダーの手順が古くなっている可能性があります。必要に応じて ${organizationDisplayName} のサポートにお問い合わせください。",

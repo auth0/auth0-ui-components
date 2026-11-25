@@ -63,10 +63,8 @@ export function useGuidedSetupCreation({
     setCreating(true);
     try {
       const created = onCreateProvider ? await resolveOrFalse(onCreateProvider) : false;
-      if (created) {
-        setConfirmOpen(false);
-        setCreatedFromPageKey(currentPageKey ?? null);
-      }
+      setConfirmOpen(false);
+      if (created) setCreatedFromPageKey(currentPageKey ?? null);
     } finally {
       setCreating(false);
     }

@@ -90,6 +90,21 @@ const createMockIdpConfig = () => ({
   strategies: AVAILABLE_STRATEGY_LIST,
 });
 
+/** The default configuration with a required email mapping for every strategy. */
+const createIdpConfigWithMappings = () => {
+  const config = createMockUseIdpConfig().idpConfig!;
+  const userAttributes = { email: { label: 'Email', is_required: true, sso_field: ['email'] } };
+  return {
+    ...config,
+    strategies: Object.fromEntries(
+      Object.entries(config.strategies).map(([key, value]) => [
+        key,
+        { ...value, user_attributes: userAttributes },
+      ]),
+    ),
+  } as typeof config;
+};
+
 describe('SsoProviderCreate', () => {
   let mockCoreClient: ReturnType<typeof initMockCoreClient>;
   let queryClient: QueryClient;
@@ -119,7 +134,9 @@ describe('SsoProviderCreate', () => {
       }),
     );
 
-    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(createMockUseIdpConfig());
+    vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+      createMockUseIdpConfig({ idpConfig: createIdpConfigWithMappings() }),
+    );
   });
 
   afterEach(() => {
@@ -909,6 +926,7 @@ describe('SsoProviderCreate', () => {
         );
         vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
           createMockUseIdpConfig({
+            idpConfig: createIdpConfigWithMappings(),
             showCrossAppAccess: vi.fn(() => true),
             isCrossAppAccessReadOnly: vi.fn(() => false),
           }),
@@ -962,6 +980,11 @@ describe('SsoProviderCreate', () => {
       await user.click(await screen.findByRole('button', { name: 'create_modal.proceed' }));
 
       await waitFor(() => expect(createApi).toHaveBeenCalledTimes(1));
+      await waitFor(() =>
+        expect(
+          screen.queryByRole('button', { name: 'create_modal.proceed' }),
+        ).not.toBeInTheDocument(),
+      );
       expect(pageTitle()).toHaveTextContent('Configure Connection');
       expect(createAction.onAfter).not.toHaveBeenCalled();
     });
@@ -1051,16 +1074,31 @@ describe('SsoProviderCreate', () => {
         ).toBeInTheDocument();
       });
 
-      it('stops on the mapping page when the configuration is unavailable', async () => {
-        mockIdpConfig(null);
+      it.each([
+        ['the configuration is missing', null],
+        ['the strategy has no user attribute profile', 'omitted'],
+      ])('blocks on the mapping page when %s', async (_case, variant) => {
+        const config = createMockUseIdpConfig().idpConfig!;
+        const refetchIdpConfig = vi.fn(async () => undefined);
+        vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+          createMockUseIdpConfig({
+            idpConfig: (variant === null ? null : config) as typeof config,
+            refetchIdpConfig,
+          }),
+        );
         const user = userEvent.setup();
         await openAdfsGuidedSetup(user);
 
         await user.click(screen.getByRole('button', { name: /^next$/ }));
 
         expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
-        expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_unavailable');
-        expect(screen.getByRole('button', { name: /^next$/ })).toBeDisabled();
+        const alert = screen.getByRole('alert');
+        expect(alert).toHaveTextContent('attribute_mapping_unavailable_title');
+        expect(alert).toHaveTextContent('attribute_mapping_unavailable');
+        expect(screen.queryByRole('button', { name: /^next$/ })).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole('button', { name: 'attribute_mapping_retry' }));
+        expect(refetchIdpConfig).toHaveBeenCalledTimes(1);
       });
 
       it('offers a retry and does not block Next when the configuration fails to load', async () => {
@@ -1074,6 +1112,7 @@ describe('SsoProviderCreate', () => {
         await user.click(screen.getByRole('button', { name: /^next$/ }));
 
         expect(pageTitle()).toHaveTextContent('Configure Claims Issuance Policy');
+        expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_load_failed_title');
         expect(screen.getByRole('alert')).toHaveTextContent('attribute_mapping_load_failed');
         expect(screen.getByRole('button', { name: /^next$/ })).toBeEnabled();
 

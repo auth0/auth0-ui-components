@@ -5,10 +5,14 @@
  * @internal
  */
 
+import { RefreshCw } from 'lucide-react';
+import * as React from 'react';
+
 import { ProviderConfigureFields } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { SsoProviderAttributeMappings } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-edit/sso-provider-attribute-mappings';
 import { Button } from '@/components/ui/button';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { cn } from '@/lib/utils';
 import type { InstructionContentProps } from '@/types/my-organization/idp-management/sso-guided-setup/sso-guided-setup-types';
 
 /**
@@ -52,25 +56,43 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
     customMessages,
   } = setup;
   const { t } = useTranslator('idp_management.sso_guided_setup', customMessages);
+  const [isRetrying, setRetrying] = React.useState(false);
 
-  if (attributeMappingsError === 'unavailable') {
+  const retry = async () => {
+    setRetrying(true);
+    try {
+      await onRetryAttributeMappings?.();
+    } finally {
+      setRetrying(false);
+    }
+  };
+
+  if (attributeMappingsError) {
+    const key =
+      attributeMappingsError === 'unavailable'
+        ? 'attribute_mapping_unavailable'
+        : 'attribute_mapping_load_failed';
     return (
-      <p
-        className="text-sm text-destructive-foreground"
+      <div
         role="alert"
         data-slot="attribute-mapping-error"
+        data-error={attributeMappingsError}
+        className="border-border flex flex-col items-center gap-4 rounded-xl border px-6 py-8 text-center"
       >
-        {t('attribute_mapping_unavailable')}
-      </p>
-    );
-  }
-
-  if (attributeMappingsError === 'load_failed') {
-    return (
-      <div className="space-y-3" role="alert" data-slot="attribute-mapping-error">
-        <p className="text-sm text-destructive-foreground">{t('attribute_mapping_load_failed')}</p>
+        <div className="max-w-md space-y-2">
+          <p className="text-foreground text-sm font-medium">{t(`${key}_title`)}</p>
+          <p className="text-foreground text-sm">{t(key)}</p>
+        </div>
         {onRetryAttributeMappings && (
-          <Button type="button" variant="outline" size="sm" onClick={onRetryAttributeMappings}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={retry}
+            disabled={isRetrying}
+            aria-busy={isRetrying}
+          >
+            <RefreshCw className={cn('size-4', isRetrying && 'animate-spin')} aria-hidden="true" />
             {t('attribute_mapping_retry')}
           </Button>
         )}
@@ -97,6 +119,7 @@ export function InstructionAttributeMapping({ setup }: InstructionContentProps) 
       isProvisioning={kind === 'provisioning'}
       hideExternalNamespace={kind === 'provisioning' && strategy === 'okta'}
       hideHeader
+      showEmptyOptional
     />
   );
 }

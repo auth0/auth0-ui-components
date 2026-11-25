@@ -83,6 +83,27 @@ describe('SsoProviderAttributeMappings', () => {
       renderWithProviders(<SsoProviderAttributeMappings {...props} />);
 
       expect(screen.queryByText('mappings.optional.title')).not.toBeInTheDocument();
+      expect(screen.queryByText('mappings.optional.empty')).not.toBeInTheDocument();
+    });
+
+    it('shows the optional section with a notice when showEmptyOptional is set and none exist', () => {
+      renderWithProviders(
+        <SsoProviderAttributeMappings
+          {...defaultProps}
+          userAttributeMap={[mockRequiredAttribute]}
+          showEmptyOptional
+        />,
+      );
+
+      expect(screen.getByText('mappings.optional.title')).toBeInTheDocument();
+      expect(screen.getByText('mappings.optional.empty')).toBeInTheDocument();
+    });
+
+    it('lists optional attributes instead of the notice when they exist', () => {
+      renderWithProviders(<SsoProviderAttributeMappings {...defaultProps} showEmptyOptional />);
+
+      expect(screen.getByText('Phone')).toBeInTheDocument();
+      expect(screen.queryByText('mappings.optional.empty')).not.toBeInTheDocument();
     });
   });
 

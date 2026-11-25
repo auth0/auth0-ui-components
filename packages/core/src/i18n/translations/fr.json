@@ -4,6 +4,7 @@
     "copied": "Copié!",
     "copy_failed": "Échec de la copie",
     "your_domain_placeholder": "VOTRE_DOMAINE",
+    "image_unavailable": "Image indisponible",
     "last_updated": "Dernière mise à jour",
     "refresh": "Rafraîchir",
     "time": {
@@ -702,6 +703,7 @@
         "optional": {
           "title": "Attributs optionnels",
           "description": "Le mappage de ces attributs améliorera le profil utilisateur mais n'est pas obligatoire.",
+          "empty": "Aucun attribut optionnel n’est disponible pour cette connexion.",
           "table": {
             "columns": {
               "attribute_name_label": "Nom de l'attribut",
@@ -1171,8 +1173,10 @@
         }
       },
       "attribute_mapping_pending": "Les mappages d’attributs apparaîtront ici une fois le fournisseur créé.",
-      "attribute_mapping_unavailable": "Les mappages d’attributs ne sont pas disponibles, car aucun profil d’attributs utilisateur n’est attribué. Contactez votre administrateur pour terminer la configuration de ce fournisseur.",
-      "attribute_mapping_load_failed": "Impossible de charger les mappages d’attributs. Réessayez, ou continuez et vérifiez-les plus tard.",
+      "attribute_mapping_unavailable_title": "Le mappage d’attributs n’est pas disponible",
+      "attribute_mapping_unavailable": "Votre fournisseur d’identité ne peut pas encore être configuré, car les attributs utilisateur n’ont pas été configurés pour votre compte.",
+      "attribute_mapping_load_failed_title": "Impossible de charger les attributs",
+      "attribute_mapping_load_failed": "Une erreur s’est produite lors du chargement des mappages d’attributs. Réessayez. Si le problème persiste, contactez votre fournisseur de services.",
       "attribute_mapping_retry": "Réessayer",
       "lifecycle": {
         "out_of_date": "Les instructions du fournisseur sont peut-être obsolètes. Contactez l’assistance de ${organizationDisplayName} si besoin.",

@@ -10,7 +10,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const spinnerVariants = cva(
+export const spinnerVariants = cva(
   'inline-block h-8 w-8 animate-spin rounded-full border-2 border-transparent',
   {
     variants: {

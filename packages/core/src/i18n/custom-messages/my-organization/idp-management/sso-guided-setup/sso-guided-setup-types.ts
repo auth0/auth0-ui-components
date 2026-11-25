@@ -52,7 +52,9 @@ export interface SsoGuidedSetupMessages {
   create_modal?: SsoGuidedSetupCreateModalMessages;
   copy_values?: SsoGuidedSetupCopyValueMessages;
   attribute_mapping_pending?: string;
+  attribute_mapping_unavailable_title?: string;
   attribute_mapping_unavailable?: string;
+  attribute_mapping_load_failed_title?: string;
   attribute_mapping_load_failed?: string;
   attribute_mapping_retry?: string;
   lifecycle?: SsoGuidedSetupLifecycleMessages;
