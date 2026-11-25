@@ -48,26 +48,6 @@ describe('WizardStepper', () => {
     expect(indicators[2]?.getAttribute('data-status')).toBe('current');
   });
 
-  it('keeps steps up to the furthest one completed and clickable after going back', () => {
-    const onStepClick = vi.fn();
-    const { container } = render(
-      <WizardStepper steps={steps} currentStep={0} furthestStep={2} onStepClick={onStepClick} />,
-    );
-
-    expect(states(container)).toEqual(['current', 'completed', 'completed']);
-
-    fireEvent.click(screen.getByText('Step three'));
-    expect(onStepClick).toHaveBeenCalledWith(2, 'three');
-  });
-
-  it('leaves the furthest step pending when it is not completed through', () => {
-    const { container } = render(
-      <WizardStepper steps={steps} currentStep={0} furthestStep={2} completedThrough={1} />,
-    );
-
-    expect(states(container)).toEqual(['current', 'completed', 'pending']);
-  });
-
   describe('navigation', () => {
     it('is not clickable without onStepClick', () => {
       render(<WizardStepper steps={steps} currentStep={1} />);

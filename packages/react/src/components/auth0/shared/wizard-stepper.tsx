@@ -30,8 +30,6 @@ export interface WizardStep {
 interface WizardStepperProps {
   steps: WizardStep[];
   currentStep?: number;
-  furthestStep?: number;
-  completedThrough?: number;
   onStepClick?: (stepIndex: number, stepId?: string) => void;
   className?: string;
   hideNumbers?: boolean;
@@ -43,8 +41,6 @@ interface WizardStepperProps {
  * @param props - Component props.
  * @param props.steps - Array of wizard steps
  * @param props.currentStep - Current active step index
- * @param props.furthestStep - Furthest step reached; every step up to it stays clickable after going back
- * @param props.completedThrough - Last step shown as completed after going back (defaults to `furthestStep`)
  * @param props.onStepClick - Callback fired when a completed or current step is clicked
  * @param props.className - Optional CSS class name for styling
  * @param props.hideNumbers - Whether to hide numbers
@@ -54,8 +50,6 @@ interface WizardStepperProps {
 function WizardStepper({
   steps,
   currentStep = 0,
-  furthestStep = currentStep,
-  completedThrough = furthestStep,
   onStepClick,
   className,
   hideNumbers = true,
@@ -70,17 +64,15 @@ function WizardStepper({
       className={cn(isHorizontal ? 'w-full gap-0' : 'gap-4', !isHorizontal && className)}
     >
       {steps.map((step, index) => {
-        const reachedStep = Math.max(currentStep, furthestStep);
         const isCurrent = index === currentStep;
-        const isCompleted = !isCurrent && (index < currentStep || index <= completedThrough);
-        const isClickable = !!onStepClick && index <= reachedStep;
+        const isCompleted = index < currentStep;
+        const isClickable = !!onStepClick && (isCompleted || isCurrent);
 
         const body = (
           <>
             <StepperIndicator
               value={index}
               size="sm"
-              status={isCurrent ? 'current' : isCompleted ? 'complete' : 'incomplete'}
               showNumber={!hideNumbers}
               className="mt-0.5 size-[21px]"
             />

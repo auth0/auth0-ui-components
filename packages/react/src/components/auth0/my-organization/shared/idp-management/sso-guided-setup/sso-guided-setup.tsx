@@ -191,8 +191,6 @@ export function SsoGuidedSetup({
             orientation="vertical"
             steps={flow.visiblePages.map((page) => ({ id: page.key, title: page.title }))}
             currentStep={flow.currentIndex}
-            furthestStep={flow.furthestIndex}
-            completedThrough={flow.completedThroughIndex}
             onStepClick={(index) => leavePage(() => flow.goToPage(index))}
           />
         </nav>

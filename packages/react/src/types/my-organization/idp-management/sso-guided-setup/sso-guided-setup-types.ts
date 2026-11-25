@@ -170,8 +170,6 @@ export interface UseGuidedSetupFlowOptions<TPage extends InstructionsFlowPage> {
 export interface UseGuidedSetupFlowResult<TPage extends InstructionsFlowPage> {
   visiblePages: TPage[];
   currentIndex: number;
-  furthestIndex: number;
-  completedThroughIndex: number;
   currentPage: TPage | undefined;
   isFirstPage: boolean;
   isLastPage: boolean;
