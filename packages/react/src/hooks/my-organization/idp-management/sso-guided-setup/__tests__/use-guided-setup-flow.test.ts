@@ -175,19 +175,22 @@ describe('useGuidedSetupFlow', () => {
     expect(result.current.canLeaveCurrentPage).toBe(true);
   });
 
-  it('remembers the furthest page reached after going back', () => {
-    const { result } = renderHook(() =>
-      useGuidedSetupFlow({ pages, entryContext: noMappings, exitState: created }),
+  it('remembers the furthest page reached and only counts it as completed once it can be left', () => {
+    const { result, rerender } = renderHook(
+      ({ exitState }) => useGuidedSetupFlow({ pages, entryContext: noMappings, exitState }),
+      { initialProps: { exitState: notCreated } },
     );
 
     act(() => {
-      result.current.goToPage(2);
+      result.current.goToPage(1);
     });
     act(() => {
       result.current.goToPage(0);
     });
+    expect(result.current.furthestIndex).toBe(1);
+    expect(result.current.completedThroughIndex).toBe(0);
 
-    expect(result.current.currentIndex).toBe(0);
-    expect(result.current.furthestIndex).toBe(2);
+    rerender({ exitState: created });
+    expect(result.current.completedThroughIndex).toBe(1);
   });
 });

@@ -22,6 +22,7 @@ import { useGuidedSetupPages } from '@/hooks/my-organization/idp-management/sso-
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ATTRIBUTE_MAPPING_CONTENT_TYPE } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
+import { scrollToTop } from '@/lib/utils/shared/helper-utils';
 import { useId } from '@/lib/utils/use-id-compat';
 import type {
   InstructionSetup,
@@ -104,7 +105,7 @@ export function SsoGuidedSetup({
     shownPageKey.current = currentPage?.key;
     if ((previousKey || autoFocus) && previousKey !== currentPage?.key) {
       const title = pageTitleRef.current;
-      title?.closest('[data-slot="sso-guided-setup"]')?.scrollIntoView?.({ block: 'start' });
+      scrollToTop(title);
       title?.focus({ preventScroll: true });
     }
   }, [currentPage?.key]);
@@ -191,6 +192,7 @@ export function SsoGuidedSetup({
             steps={flow.visiblePages.map((page) => ({ id: page.key, title: page.title }))}
             currentStep={flow.currentIndex}
             furthestStep={flow.furthestIndex}
+            completedThrough={flow.completedThroughIndex}
             onStepClick={(index) => leavePage(() => flow.goToPage(index))}
           />
         </nav>
