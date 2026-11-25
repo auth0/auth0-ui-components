@@ -174,4 +174,20 @@ describe('useGuidedSetupFlow', () => {
     expect(result.current.currentExitPolicy).toBe('suggested');
     expect(result.current.canLeaveCurrentPage).toBe(true);
   });
+
+  it('remembers the furthest page reached after going back', () => {
+    const { result } = renderHook(() =>
+      useGuidedSetupFlow({ pages, entryContext: noMappings, exitState: created }),
+    );
+
+    act(() => {
+      result.current.goToPage(2);
+    });
+    act(() => {
+      result.current.goToPage(0);
+    });
+
+    expect(result.current.currentIndex).toBe(0);
+    expect(result.current.furthestIndex).toBe(2);
+  });
 });

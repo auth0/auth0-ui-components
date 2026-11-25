@@ -45,6 +45,16 @@ export function useGuidedSetupFlow<TPage extends InstructionsFlowPage>({
 
   const canLeaveCurrentPage = currentPage ? canLeavePage(currentPage, exitState) : false;
 
+  const [furthestKey, setFurthestKey] = React.useState<string | undefined>();
+  const furthestIndex = Math.max(
+    currentIndex,
+    visiblePages.findIndex((page) => page.key === furthestKey),
+  );
+
+  React.useEffect(() => {
+    if (currentPage && currentIndex >= furthestIndex) setFurthestKey(currentPage.key);
+  }, [currentPage, currentIndex, furthestIndex]);
+
   const goToPage = React.useCallback(
     (index: number) => {
       const target = Math.max(0, Math.min(index, visiblePages.length - 1));
@@ -65,6 +75,7 @@ export function useGuidedSetupFlow<TPage extends InstructionsFlowPage>({
   return {
     visiblePages,
     currentIndex,
+    furthestIndex,
     currentPage,
     isFirstPage: currentIndex === 0,
     isLastPage: currentIndex === visiblePages.length - 1,

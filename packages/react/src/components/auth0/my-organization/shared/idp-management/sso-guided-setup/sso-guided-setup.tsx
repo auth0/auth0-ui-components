@@ -103,7 +103,9 @@ export function SsoGuidedSetup({
     const previousKey = shownPageKey.current;
     shownPageKey.current = currentPage?.key;
     if ((previousKey || autoFocus) && previousKey !== currentPage?.key) {
-      pageTitleRef.current?.focus();
+      const title = pageTitleRef.current;
+      title?.closest('[data-slot="sso-guided-setup"]')?.scrollIntoView?.({ block: 'start' });
+      title?.focus({ preventScroll: true });
     }
   }, [currentPage?.key]);
 
@@ -188,6 +190,7 @@ export function SsoGuidedSetup({
             orientation="vertical"
             steps={flow.visiblePages.map((page) => ({ id: page.key, title: page.title }))}
             currentStep={flow.currentIndex}
+            furthestStep={flow.furthestIndex}
             onStepClick={(index) => leavePage(() => flow.goToPage(index))}
           />
         </nav>
@@ -266,10 +269,9 @@ export function SsoGuidedSetup({
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           const primaryButton = primaryButtonRef.current;
-          (primaryButton && !primaryButton.disabled
-            ? primaryButton
-            : pageTitleRef.current
-          )?.focus();
+          (primaryButton && !primaryButton.disabled ? primaryButton : pageTitleRef.current)?.focus({
+            preventScroll: true,
+          });
         }}
         customMessages={customMessages}
       />
