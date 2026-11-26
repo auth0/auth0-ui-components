@@ -211,6 +211,19 @@ describe('createMfaFlow', () => {
       expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'sms' }))).toContain('sms-note');
     });
 
+    it('hides a step placed next to an added step where that step is narrowed out', () => {
+      const flow = createMfaFlow({
+        add: [
+          { id: 'a', before: 'enroll.contact', when: (f) => f.factor === 'sms' },
+          { id: 'b', after: 'a' },
+        ],
+      });
+      expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'voice' }))).not.toContain('b');
+      expect(visiblePaths(flow, facts({ mode: 'enroll', factor: 'sms' }))).toEqual(
+        expect.arrayContaining(['a', 'b']),
+      );
+    });
+
     it('keeps a step placed next to a last step from showing before an option is picked', () => {
       const flow = createMfaFlow({ add: [{ id: 'tail' }, { id: 'tail-2', after: 'tail' }] });
       expect(visiblePaths(flow, facts())).not.toContain('tail-2');

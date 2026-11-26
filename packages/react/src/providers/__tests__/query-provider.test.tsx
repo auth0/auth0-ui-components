@@ -409,6 +409,30 @@ describe('QueryProvider GateKeeper integration', () => {
     expect(result.current.gkCtx.onRetry).toBeDefined();
   });
 
+  it('keeps a failed mutation recoverable when an unrelated query succeeds', async () => {
+    let finishQuery!: (value: string) => void;
+    const queryResult = new Promise<string>((resolve) => {
+      finishQuery = resolve;
+    });
+    const { result } = renderHook(
+      () => {
+        const gkCtx = useGateKeeperContext();
+        const mutation = useMutation({ mutationFn: () => Promise.reject(mfaError) });
+        const query = useQuery({ queryKey: ['unrelated'], queryFn: () => queryResult });
+        return { gkCtx, mutation, query };
+      },
+      { wrapper },
+    );
+    act(() => result.current.mutation.mutate());
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(mfaError));
+
+    await act(async () => finishQuery('ok'));
+
+    await waitFor(() => expect(result.current.query.data).toBe('ok'));
+    expect(result.current.gkCtx.error).toBe(mfaError);
+    expect(result.current.gkCtx.onRetry).toBeDefined();
+  });
+
   it('should not set gate keeper error for non-MFA mutation errors', async () => {
     const { result } = renderHook(
       () => {

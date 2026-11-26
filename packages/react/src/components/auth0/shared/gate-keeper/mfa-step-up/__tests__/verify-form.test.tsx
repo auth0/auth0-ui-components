@@ -220,6 +220,52 @@ describe('VerifyForm', () => {
     });
   });
 
+  describe('when the first challenge fails', () => {
+    const smsAuthenticator = { id: 'auth-5', authenticatorType: 'oob' as const, type: 'sms' };
+
+    it('offers retry and cancel instead of a spinner that never ends', async () => {
+      const user = userEvent.setup();
+      const onCancel = vi.fn();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue(undefined) });
+
+      render(
+        <VerifyForm
+          error={mockError}
+          authenticator={smsAuthenticator}
+          onComplete={vi.fn()}
+          onCancel={onCancel}
+        />,
+      );
+
+      expect(await screen.findByRole('button', { name: 'fallback.retry' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'mfa.cancel' }));
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+
+    it('asks again on retry, and shows the code form once it works', async () => {
+      const user = userEvent.setup();
+      const challenge = vi
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ oobCode: 'oob-code-1' });
+      mockUseMfaStepUp({ challenge });
+
+      render(
+        <VerifyForm
+          error={mockError}
+          authenticator={smsAuthenticator}
+          onComplete={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'fallback.retry' }));
+
+      expect(await screen.findByRole('button', { name: 'mfa.verify_button' })).toBeInTheDocument();
+      expect(challenge).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('back navigation', () => {
     it('calls onCancel when back button is clicked', async () => {
       const user = userEvent.setup();

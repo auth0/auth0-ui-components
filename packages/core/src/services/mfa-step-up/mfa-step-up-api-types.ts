@@ -23,6 +23,7 @@ export interface MfaAuthenticator {
   createdAt?: string;
   lastAuth?: string;
   type?: ChallengeType;
+  oobChannel?: OobChannel;
 }
 
 export type ChallengeType =

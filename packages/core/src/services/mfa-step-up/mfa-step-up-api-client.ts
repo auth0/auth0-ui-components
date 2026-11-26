@@ -77,6 +77,7 @@ export function createProxyMfaClient(
         authenticatorType: item.authenticatorType ?? item.authenticator_type,
         createdAt: item.createdAt ?? item.created_at,
         lastAuth: item.lastAuth ?? item.last_auth,
+        oobChannel: item.oobChannel ?? item.oob_channel,
       })) as MfaAuthenticator[];
     },
 

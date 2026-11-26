@@ -16,6 +16,7 @@ import type {
   MfaApiClient,
   MfaAuthenticator,
   MfaRequiredError,
+  OobChannel,
 } from '../mfa-step-up-api-types';
 import { normalizeFactorType } from '../mfa-step-up-api-utils';
 
@@ -48,13 +49,22 @@ function toEnrollOptions(factors: EnrollmentFactor[]): MfaOption[] {
   );
 }
 
+const FACTOR_OF_OOB_CHANNEL: Record<OobChannel, string> = {
+  sms: FACTOR_TYPE_SMS,
+  voice: FACTOR_TYPE_VOICE,
+  email: FACTOR_TYPE_EMAIL,
+  auth0: FACTOR_TYPE_PUSH,
+};
+
 /**
  * @param authenticator - An authenticator.
- * @returns The factor it represents.
+ * @returns The factor it represents. An out-of-band authenticator is named by its `type`, or by
+ * its channel when the API sends no `type`.
  */
 function getAuthenticatorFactor(authenticator: MfaAuthenticator): string {
-  const { authenticatorType, type } = authenticator;
-  return normalizeFactorType(authenticatorType === 'oob' && type ? type : authenticatorType);
+  const { authenticatorType, type, oobChannel } = authenticator;
+  if (authenticatorType !== 'oob') return normalizeFactorType(authenticatorType);
+  return normalizeFactorType(type ?? (oobChannel && FACTOR_OF_OOB_CHANNEL[oobChannel]) ?? 'oob');
 }
 
 /**

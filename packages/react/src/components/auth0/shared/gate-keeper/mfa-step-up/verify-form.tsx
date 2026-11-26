@@ -54,6 +54,8 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
   const isPush = authenticator.type === FACTOR_TYPE_PUSH_NOTIFICATION;
 
   const [challenged, setChallenged] = useState(!isOob);
+  const [challengeFailed, setChallengeFailed] = useState(false);
+  const [challengeAttempt, setChallengeAttempt] = useState(0);
   const [oobCode, setOobCode] = useState<string | undefined>();
 
   const handleVerify = async (code: string) => {
@@ -71,15 +73,43 @@ export function VerifyForm({ error, authenticator, onComplete, onCancel }: Verif
     if (!isOob) return;
 
     const initializeChallenge = async () => {
+      setChallengeFailed(false);
       const response = await challenge(authenticator);
       if (response?.oobCode) {
         setOobCode(response.oobCode);
         setChallenged(true);
+      } else {
+        setChallengeFailed(true);
       }
     };
 
     initializeChallenge();
-  }, [isOob, challenge, authenticator.id]);
+  }, [isOob, challenge, authenticator.id, challengeAttempt]);
+
+  if (challengeFailed) {
+    return (
+      <>
+        <DialogHeader>
+          <DialogTitle>{t('mfa.title')}</DialogTitle>
+          <DialogDescription>{t('fallback.description')}</DialogDescription>
+        </DialogHeader>
+        <Separator />
+        <div className="flex justify-end gap-3">
+          <Button type="button" variant="outline" onClick={onCancel} aria-label={t('mfa.cancel')}>
+            {t('mfa.cancel')}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            onClick={() => setChallengeAttempt((attempt) => attempt + 1)}
+            aria-label={t('fallback.retry')}
+          >
+            {t('fallback.retry')}
+          </Button>
+        </div>
+      </>
+    );
+  }
 
   if (!challenged) {
     return (

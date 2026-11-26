@@ -28,7 +28,6 @@ const DEFAULT_PUSH_POLL_INTERVAL_MS = 3000;
 const DEFAULT_PUSH_TIMEOUT_MS = 120_000;
 const DEFAULT_PUSH_APPROVED_DELAY_MS = 1200;
 const SLOW_DOWN_STEP_MS = 5000;
-const MAX_PUSH_CHECK_FAILURES = 3;
 
 type StepExit = 'leave' | 'stay' | 'start-over';
 
@@ -68,7 +67,6 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
   const { dispatch, getState } = store;
 
   const {
-    now = Date.now,
     pushPollIntervalMs = DEFAULT_PUSH_POLL_INTERVAL_MS,
     pushTimeoutMs = DEFAULT_PUSH_TIMEOUT_MS,
     pushApprovedDelayMs = DEFAULT_PUSH_APPROVED_DELAY_MS,
@@ -152,7 +150,7 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     }
 
     if (!(await requests.runStepRequests(target.path))) {
-      if (getState().current === undefined) blockFlow('unavailable');
+      if (getState().current === undefined && !isFinal(getState())) blockFlow('unavailable');
       return false;
     }
     dispatch({ type: 'stepEntered', path: target.path });
@@ -164,22 +162,25 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
     stopPolling();
     const { signal } = (polling = new AbortController());
     const isCurrent = () => !signal.aborted && !isFinal(getState());
-    const deadline = now() + pushTimeoutMs;
+    const expiry = setTimeout(() => {
+      if (!isCurrent()) return;
+      dispatch({ type: 'pushPhaseChanged', phase: 'expired' });
+      stopPolling();
+    }, pushTimeoutMs);
     let interval = pushPollIntervalMs;
-    let failures = 0;
 
     dispatch({ type: 'pushPhaseChanged', phase: 'waiting' });
     try {
       while (isCurrent()) {
         await wait(interval, signal);
         if (!isCurrent()) return;
-        if (now() >= deadline) return dispatch({ type: 'pushPhaseChanged', phase: 'expired' });
 
-        const check = await requests.checkPush();
+        const check = await requests.checkPush(signal);
         if (!isCurrent()) return;
 
         switch (check) {
           case 'approved':
+            clearTimeout(expiry);
             dispatch({ type: 'pushPhaseChanged', phase: 'approved' });
             await wait(pushApprovedDelayMs, signal);
             if (isCurrent()) await withBusy(() => goToNextStep(MFA_STEP.challenge));
@@ -196,19 +197,16 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
             return;
           case 'slow-down':
             interval += SLOW_DOWN_STEP_MS;
-            failures = 0;
             break;
           case 'failed':
-            failures += 1;
-            if (failures >= MAX_PUSH_CHECK_FAILURES) return blockFlow('unavailable');
-            break;
           case 'pending':
-            failures = 0;
             break;
         }
       }
     } catch (err) {
       if (isCurrent()) blockFlow('unexpected', err);
+    } finally {
+      clearTimeout(expiry);
     }
   };
 
@@ -281,8 +279,8 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
       runUserAction(async () => {
         const state = getState();
         if (!isChallenged(state, state.current)) return;
-        const sent = await requests.ensureChallenge(true);
-        if (sent && canPollPush()) void pollPush();
+        const result = await requests.ensureChallenge(true);
+        if (result === 'sent' && canPollPush()) void pollPush();
       }),
 
     switchToCode: () => {
@@ -296,7 +294,11 @@ export function createMfaStepUpMachine(options: MfaStepUpOptions): MfaStepUpMach
       runUserAction(async () => {
         if (!isPushChallenge() || !getState().pushSupported) return;
         dispatch({ type: 'pushModeChanged', mode: 'push' });
-        await requests.ensureChallenge(true);
+        const result = await requests.ensureChallenge(true);
+        if (result === 'failed') {
+          dispatch({ type: 'pushModeChanged', mode: 'code' });
+          return;
+        }
         if (canPollPush()) void pollPush();
       }),
 
