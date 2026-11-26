@@ -24,6 +24,9 @@ import type {
   QRPhase,
 } from '@/types/my-account/user-mfa-management/factor-enrollment-types';
 
+/** Re-exported so headless hosts can type factors without importing the core package. */
+export type { Authenticator, MFAType } from '@auth0/universal-components-core';
+
 export type EnrollmentPhase = 'enterContact' | 'showQr' | 'showRecovery' | 'installation' | null;
 
 export type OtpData = { barcodeUri: string; manualInputCode: string };
