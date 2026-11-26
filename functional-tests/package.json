@@ -8,6 +8,7 @@
     "type-check": "tsc --noEmit",
     "org:setup": "tsx scripts/setup-org.ts",
     "org:teardown": "tsx scripts/teardown-org.ts",
+    "cleanup:stale": "tsx scripts/cleanup-stale-resources.ts",
     "report": "playwright show-report"
   },
   "devDependencies": {

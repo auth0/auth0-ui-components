@@ -21,11 +21,32 @@ const REQUIRED_VARS = [
   'FT_OKTA_SSO_USER_PASSWORD',
 ] as const;
 
-const missing = REQUIRED_VARS.filter((name) => !process.env[name]);
-if (missing.length > 0) {
-  throw new Error(
-    `Missing environment variables: ${missing.join(', ')}. See functional-tests/.env.example`,
-  );
+/**
+ * Required vars, checked when read rather than at import, so a standalone script (the cleanup job)
+ * only needs the vars it uses. Read required vars through this, never `process.env`; optional vars
+ * and flags (`FT_CONNECTION_NAME`, `CI`, …) use `process.env`.
+ */
+export const env = {} as Record<(typeof REQUIRED_VARS)[number], string>;
+
+for (const name of REQUIRED_VARS) {
+  Object.defineProperty(env, name, {
+    enumerable: true,
+    get() {
+      const value = process.env[name];
+      if (!value) {
+        throw new Error(`Missing environment variable ${name}. See functional-tests/.env.example`);
+      }
+      return value;
+    },
+  });
 }
 
-export const env = process.env as Record<(typeof REQUIRED_VARS)[number], string>;
+// Called by setup-org.ts so a test run with any secret missing fails before it starts.
+export function requireAllEnv(): void {
+  const missing = REQUIRED_VARS.filter((name) => !process.env[name]);
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing environment variables: ${missing.join(', ')}. See functional-tests/.env.example`,
+    );
+  }
+}

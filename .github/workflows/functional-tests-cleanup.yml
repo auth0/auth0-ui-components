@@ -1,0 +1,55 @@
+name: Functional Tests Cleanup
+
+# Deletes ci-org-* orgs, their connections, and ft-* users/roles that a run leaked.
+# Only resources older than 24h are touched, so this never collides with a live run.
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: List what would be deleted without deleting it
+        type: boolean
+        default: true
+
+concurrency:
+  group: functional-tests-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Delete leaked test resources
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+        with:
+          version: 10.6.5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: functional-tests/.nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Delete leaked resources
+        working-directory: functional-tests
+        # Secrets on this step only, so install scripts and third-party actions never see them.
+        env:
+          FT_AUTH0_DOMAIN: ${{ secrets.FT_AUTH0_DOMAIN }}
+          FT_AUTH0_MGMT_CLIENT_ID: ${{ secrets.FT_AUTH0_MGMT_CLIENT_ID }}
+          FT_AUTH0_MGMT_CLIENT_SECRET: ${{ secrets.FT_AUTH0_MGMT_CLIENT_SECRET }}
+          FT_OKTA_SSO_USER_EMAIL: ${{ secrets.FT_OKTA_SSO_USER_EMAIL }}
+        run: pnpm run cleanup:stale ${{ inputs.dry_run && '--dry-run' || '' }}
