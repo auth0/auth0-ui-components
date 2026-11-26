@@ -5,7 +5,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { MfaWizard } from '@/components/auth0/shared/gate-keeper/mfa-step-up/mfa-wizard';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import {
   createMockCoreClient,
   createMockMfaApiClient,
@@ -52,13 +51,16 @@ describe('classes for the MFA step-up dialog', () => {
 
   const renderWizard = (classes: MfaStepUpClasses = everyClass) =>
     renderWithProviders(
-      <GateKeeperContext.Provider value={{ error: null, mfaStepUp: { classes } }}>
-        <Dialog open>
-          <DialogContent>
-            <MfaWizard error={mockMfaRequiredError} onComplete={vi.fn()} onCancel={vi.fn()} />
-          </DialogContent>
-        </Dialog>
-      </GateKeeperContext.Provider>,
+      <Dialog open>
+        <DialogContent>
+          <MfaWizard
+            error={mockMfaRequiredError}
+            onComplete={vi.fn()}
+            onCancel={vi.fn()}
+            classes={classes}
+          />
+        </DialogContent>
+      </Dialog>,
       { coreClient: createMockCoreClient(undefined, apiClient) },
     );
 

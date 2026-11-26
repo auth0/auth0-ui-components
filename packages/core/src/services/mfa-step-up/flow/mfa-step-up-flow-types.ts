@@ -35,7 +35,7 @@ export type MfaStepPath = MfaBuiltInStepPath | (string & {});
 export interface MfaCustomStep {
   /** The name of the step. The key of its screen in `screens`. Must not be a built-in step. */
   id: string;
-  /** Narrow when the step shows. It never shows where the step it is placed next to does not. */
+  /** Narrow when the step shows. It never shows where the step it is placed next to does not apply, hidden or not. */
   when?: MfaFlowCondition;
   /** Place the step right before this step: a built-in one, or an added one listed earlier. */
   before?: MfaStepPath;
@@ -104,7 +104,7 @@ export interface MfaStepUpSnapshot {
   reason?: MfaBlockReason | MfaCancelReason;
   failure?: MfaStepUpError;
   round: number;
-  options: MfaOption[];
+  options: readonly MfaOption[];
   selected?: MfaOption;
   facts: MfaFlowFacts;
   request: { name?: MfaRequestName; isLoading: boolean; error?: unknown };

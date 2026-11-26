@@ -15,8 +15,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
-import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
+import type { MfaStepScreenProps, MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 const PHASE_ICONS: Record<
   Exclude<MfaPushPhase, 'waiting'>,
@@ -33,9 +32,14 @@ const PHASE_ICONS: Record<
  * @returns A round icon.
  * @internal
  */
-function PhaseIcon({ phase }: { phase: Exclude<MfaPushPhase, 'waiting'> }) {
+function PhaseIcon({
+  phase,
+  classes,
+}: {
+  phase: Exclude<MfaPushPhase, 'waiting'>;
+  classes?: MfaStepUpClasses;
+}) {
   const { icon: Icon, className } = PHASE_ICONS[phase];
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   return (
     <span
       className={cn(
@@ -61,17 +65,19 @@ function PushMessage({
   title,
   description,
   children,
+  classes,
 }: {
   title: string;
   description: string;
   children?: ReactNode;
+  classes?: MfaStepUpClasses;
 }) {
   return (
     <div className="space-y-6 text-center">
-      <MfaDialogHeader className="items-center text-center">
+      <MfaDialogHeader classes={classes} className="items-center text-center">
         {children}
-        <MfaDialogTitle>{title}</MfaDialogTitle>
-        <MfaDialogDescription>{description}</MfaDialogDescription>
+        <MfaDialogTitle classes={classes}>{title}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>{description}</MfaDialogDescription>
       </MfaDialogHeader>
     </div>
   );
@@ -84,21 +90,26 @@ function PushMessage({
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot. Its `push` says which phase this is.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Push challenge element.
  * @internal
  */
-export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
+export function PushChallenge({ snapshot, machine, classes }: MfaStepScreenProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const device = snapshot.selected?.authenticator?.name;
   const phase = snapshot.push?.phase ?? 'waiting';
 
   const anotherMethod = snapshot.canChooseAnotherFactor ? (
-    <MfaButton type="button" variant="outline" onClick={machine.chooseAnotherFactor}>
+    <MfaButton
+      classes={classes}
+      type="button"
+      variant="outline"
+      onClick={machine.chooseAnotherFactor}
+    >
       {t('mfa.challenge.use_another_method')}
     </MfaButton>
   ) : (
-    <MfaButton type="button" variant="outline" onClick={machine.cancel}>
+    <MfaButton classes={classes} type="button" variant="outline" onClick={machine.cancel}>
       {t('mfa.cancel')}
     </MfaButton>
   );
@@ -106,10 +117,11 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
   if (phase === 'approved') {
     return (
       <PushMessage
+        classes={classes}
         title={t('mfa.challenge.push_approved_title')}
         description={t('mfa.challenge.push_approved_description')}
       >
-        <PhaseIcon phase="approved" />
+        <PhaseIcon classes={classes} phase="approved" />
       </PushMessage>
     );
   }
@@ -118,6 +130,7 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
     return (
       <div className="space-y-6">
         <PushMessage
+          classes={classes}
           title={t('mfa.challenge.push_denied_title')}
           description={
             device
@@ -125,10 +138,10 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
               : t('mfa.challenge.push_denied_description_generic')
           }
         >
-          <PhaseIcon phase="denied" />
+          <PhaseIcon classes={classes} phase="denied" />
         </PushMessage>
-        <ActionRow className="justify-center">
-          <MfaButton type="button" variant="primary" onClick={machine.resend}>
+        <ActionRow classes={classes} className="justify-center">
+          <MfaButton classes={classes} type="button" variant="primary" onClick={machine.resend}>
             {t('mfa.challenge.push_try_again')}
           </MfaButton>
           {anotherMethod}
@@ -141,13 +154,14 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
     return (
       <div className="space-y-6">
         <PushMessage
+          classes={classes}
           title={t('mfa.challenge.push_expired_title')}
           description={t('mfa.challenge.push_expired_description')}
         >
-          <PhaseIcon phase="expired" />
+          <PhaseIcon classes={classes} phase="expired" />
         </PushMessage>
-        <ActionRow className="justify-center">
-          <MfaButton type="button" variant="primary" onClick={machine.resend}>
+        <ActionRow classes={classes} className="justify-center">
+          <MfaButton classes={classes} type="button" variant="primary" onClick={machine.resend}>
             {t('mfa.challenge.push_resend')}
           </MfaButton>
           {anotherMethod}
@@ -159,6 +173,7 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
   return (
     <div className="space-y-6">
       <PushMessage
+        classes={classes}
         title={t('mfa.challenge.push_waiting_title')}
         description={
           device
@@ -180,16 +195,16 @@ export function PushChallenge({ snapshot, machine }: MfaStepScreenProps) {
       </div>
       <p className="text-center text-sm text-muted-foreground">
         {t('mfa.challenge.push_not_received')}{' '}
-        <MfaLink onClick={machine.resend} className="text-sm">
+        <MfaLink classes={classes} onClick={machine.resend} className="text-sm">
           {t('mfa.challenge.push_resend')}
         </MfaLink>{' '}
         ·{' '}
-        <MfaLink onClick={machine.switchToCode} className="text-sm">
+        <MfaLink classes={classes} onClick={machine.switchToCode} className="text-sm">
           {t('mfa.challenge.push_enter_code')}
         </MfaLink>
       </p>
-      <ActionRow className="justify-center">
-        <MfaButton type="button" variant="outline" onClick={machine.cancel}>
+      <ActionRow classes={classes} className="justify-center">
+        <MfaButton classes={classes} type="button" variant="outline" onClick={machine.cancel}>
           {t('mfa.cancel')}
         </MfaButton>
       </ActionRow>

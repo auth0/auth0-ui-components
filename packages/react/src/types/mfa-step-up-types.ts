@@ -14,6 +14,7 @@ import type { ComponentType } from 'react';
 export interface MfaStepScreenProps {
   snapshot: MfaStepUpSnapshot;
   machine: MfaStepUpMachine;
+  classes?: MfaStepUpClasses;
 }
 
 export type MfaStepScreen = ComponentType<MfaStepScreenProps>;

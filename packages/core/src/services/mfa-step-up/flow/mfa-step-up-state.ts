@@ -28,7 +28,7 @@ export interface StepUpState {
   reason?: MfaBlockReason | MfaCancelReason;
   current?: string;
   history: string[];
-  options: MfaOption[];
+  options: readonly MfaOption[];
   selected?: MfaOption;
   contact: string;
   verifiedAtDepth?: number;
@@ -257,7 +257,7 @@ export const getCurrentEnrollment = (state: StepUpState) => {
 export const isChallenged = (state: StepUpState, path: string | undefined): boolean => {
   if (path === MFA_STEP.verify) return getCurrentEnrollment(state)?.authenticatorType === 'oob';
   if (path === MFA_STEP.challenge) {
-    if (isPush(state) && !state.pushSupported) return false;
+    if (isPush(state) && (!state.pushSupported || state.pushMode === 'code')) return false;
     return state.selected?.authenticator?.authenticatorType === 'oob';
   }
   return false;

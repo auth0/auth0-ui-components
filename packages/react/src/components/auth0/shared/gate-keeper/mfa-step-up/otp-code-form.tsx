@@ -12,7 +12,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 interface OtpCodeFormProps {
   onSubmit: (code: string) => Promise<void>;
@@ -22,6 +22,7 @@ interface OtpCodeFormProps {
   isRecoveryCode?: boolean;
   onResend?: () => Promise<void>;
   footer?: ReactNode;
+  classes?: MfaStepUpClasses;
 }
 
 type CodeForm = { code: string };
@@ -51,9 +52,9 @@ export function OtpCodeForm({
   isRecoveryCode = false,
   onResend,
   footer,
+  classes,
 }: OtpCodeFormProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
 
   const [isResending, setIsResending] = useState(false);
 
@@ -117,7 +118,12 @@ export function OtpCodeForm({
           {onResend && (
             <p className="text-sm text-muted-foreground text-center">
               {t('mfa.challenge.resend_prompt')}
-              <MfaLink onClick={handleResend} aria-disabled={isResending} className="text-sm ms-1">
+              <MfaLink
+                classes={classes}
+                onClick={handleResend}
+                aria-disabled={isResending}
+                className="text-sm ms-1"
+              >
                 {t('mfa.challenge.resend')}
               </MfaLink>
             </p>
@@ -125,8 +131,9 @@ export function OtpCodeForm({
           {footer}
         </div>
 
-        <ActionRow>
+        <ActionRow classes={classes}>
           <MfaButton
+            classes={classes}
             type="submit"
             variant="primary"
             disabled={(isRecoveryCode ? !code : code?.length !== 6) || isLoading}
@@ -136,6 +143,7 @@ export function OtpCodeForm({
             {submitLabel}
           </MfaButton>
           <MfaButton
+            classes={classes}
             type="button"
             variant="outline"
             onClick={onCancel}

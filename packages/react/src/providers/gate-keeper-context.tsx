@@ -3,13 +3,10 @@
 import { getStatusCode, isMfaStepUpError } from '@auth0/universal-components-core';
 import { createContext, useContext } from 'react';
 
-import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
-
 export interface GateKeeperContextValue {
   error: Error | null;
   /** Defined only when an error is active. */
   onRetry?: () => Promise<boolean>;
-  mfaStepUp?: MfaStepUpSettings;
 }
 
 export const GateKeeperContext = createContext<GateKeeperContextValue | null>(null);

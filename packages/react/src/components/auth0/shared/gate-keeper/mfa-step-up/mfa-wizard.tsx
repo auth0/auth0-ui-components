@@ -27,8 +27,12 @@ import { Spinner } from '@/components/ui/spinner';
 import { useMfaStepUp } from '@/hooks/shared/use-mfa-step-up';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
-import type { MfaActionsAlign, MfaStepScreen, MfaStepScreenProps } from '@/types/mfa-step-up-types';
+import type {
+  MfaActionsAlign,
+  MfaStepScreen,
+  MfaStepScreenProps,
+  MfaStepUpClasses,
+} from '@/types/mfa-step-up-types';
 
 interface MfaWizardProps {
   error: unknown;
@@ -37,6 +41,7 @@ interface MfaWizardProps {
   onCancel: (failure?: MfaStepUpError) => void;
   flow?: MfaFlowConfig;
   screens?: Partial<Record<string, MfaStepScreen>>;
+  classes?: MfaStepUpClasses;
 }
 
 /**
@@ -45,23 +50,26 @@ interface MfaWizardProps {
  * @param props - Screen props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns The list step element.
  * @internal
  */
-function ListStep({ snapshot, machine }: MfaStepScreenProps) {
+function ListStep({ snapshot, machine, classes }: MfaStepScreenProps) {
   const { t } = useTranslator('gate_keeper');
   const isChallenge = snapshot.options[0]?.kind === 'challenge';
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{isChallenge ? t('mfa.verify_title') : t('mfa.title')}</MfaDialogTitle>
-        <MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>
+          {isChallenge ? t('mfa.verify_title') : t('mfa.title')}
+        </MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
           {isChallenge ? t('mfa.choose_method') : t('mfa.subtitle')}
         </MfaDialogDescription>
       </MfaDialogHeader>
       {!isChallenge && <Separator />}
-      <AuthenticatorsList snapshot={snapshot} machine={machine} />
+      <AuthenticatorsList classes={classes} snapshot={snapshot} machine={machine} />
     </>
   );
 }
@@ -87,22 +95,34 @@ const BUILT_IN_SCREENS: Record<string, MfaStepScreen> = {
  * @returns Unavailable element.
  * @internal
  */
-function Unavailable({ message, onCancel }: { message: string; onCancel: () => void }) {
+function Unavailable({
+  message,
+  onCancel,
+  classes,
+}: {
+  message: string;
+  onCancel: () => void;
+  classes?: MfaStepUpClasses;
+}) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{t('mfa.title')}</MfaDialogTitle>
-        <MfaDialogDescription>{t('mfa.subtitle')}</MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t('mfa.title')}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>{t('mfa.subtitle')}</MfaDialogDescription>
       </MfaDialogHeader>
       <p className={cn('text-sm text-muted-foreground', classes?.['MfaStepUp-message'])}>
         {message}
       </p>
       <Separator />
-      <ActionRow>
-        <MfaButton variant="outline" onClick={onCancel} aria-label={t('mfa.cancel')}>
+      <ActionRow classes={classes}>
+        <MfaButton
+          classes={classes}
+          variant="outline"
+          onClick={onCancel}
+          aria-label={t('mfa.cancel')}
+        >
           {t('mfa.cancel')}
         </MfaButton>
       </ActionRow>
@@ -119,12 +139,12 @@ function Unavailable({ message, onCancel }: { message: string; onCancel: () => v
  * @param props.onCancel - Called once, when the flow ended without that.
  * @param props.flow - Flow customization: hide steps, add steps.
  * @param props.screens - Screens for added steps, or replacements for built-in ones.
+ * @param props.classes - The integrator's class overrides.
  * @returns The screen of the current step.
  * @internal
  */
-function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWizardProps) {
+function MfaWizardContent({ error, onComplete, onCancel, flow, screens, classes }: MfaWizardProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const { machine, snapshot } = useMfaStepUp({ error, flow });
 
   const callbacks = useRef({ onComplete, onCancel });
@@ -146,9 +166,9 @@ function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWiz
   if (!machine || !snapshot || snapshot.status === 'loading') {
     return (
       <>
-        <MfaDialogHeader>
-          <MfaDialogTitle>{t('mfa.title')}</MfaDialogTitle>
-          <MfaDialogDescription>{t('mfa.subtitle')}</MfaDialogDescription>
+        <MfaDialogHeader classes={classes}>
+          <MfaDialogTitle classes={classes}>{t('mfa.title')}</MfaDialogTitle>
+          <MfaDialogDescription classes={classes}>{t('mfa.subtitle')}</MfaDialogDescription>
         </MfaDialogHeader>
         <div
           className={cn('flex items-center justify-center p-8', classes?.['MfaStepUp-loading'])}
@@ -164,6 +184,7 @@ function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWiz
   if (snapshot.status === 'blocked') {
     return (
       <Unavailable
+        classes={classes}
         message={
           snapshot.reason === 'no_authenticators'
             ? t('mfa.no_authenticators')
@@ -179,9 +200,15 @@ function MfaWizardContent({ error, onComplete, onCancel, flow, screens }: MfaWiz
     : undefined;
   if (!Screen) {
     console.warn(`MFA step-up: there is no screen for the step "${snapshot.step}"`);
-    return <Unavailable message={t('fallback.description')} onCancel={() => machine.cancel()} />;
+    return (
+      <Unavailable
+        classes={classes}
+        message={t('fallback.description')}
+        onCancel={() => machine.cancel()}
+      />
+    );
   }
-  return <Screen snapshot={snapshot} machine={machine} />;
+  return <Screen snapshot={snapshot} machine={machine} classes={classes} />;
 }
 
 /**

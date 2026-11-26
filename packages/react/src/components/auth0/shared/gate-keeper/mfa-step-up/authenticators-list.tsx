@@ -18,11 +18,12 @@ import { Separator } from '@/components/ui/separator';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 interface AuthenticatorsListProps {
   snapshot: MfaStepUpSnapshot;
   machine: MfaStepUpMachine;
+  classes?: MfaStepUpClasses;
 }
 
 const UNKNOWN_FACTOR = 'oob';
@@ -34,7 +35,7 @@ const UNKNOWN_FACTOR = 'oob';
  * @returns Enrollment list element.
  * @internal
  */
-function EnrollList({ snapshot, machine }: AuthenticatorsListProps) {
+function EnrollList({ snapshot, machine, classes }: AuthenticatorsListProps) {
   const { t } = useTranslator('gate_keeper');
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
@@ -67,6 +68,7 @@ function EnrollList({ snapshot, machine }: AuthenticatorsListProps) {
                 <CardTitle className="text-base font-semibold text-left">{item.label}</CardTitle>
                 <CardAction>
                   <MfaButton
+                    classes={classes}
                     variant="primary"
                     onClick={item.onSelect}
                     disabled={activeItemId !== null}
@@ -85,8 +87,9 @@ function EnrollList({ snapshot, machine }: AuthenticatorsListProps) {
         ))}
       </List>
       <Separator />
-      <ActionRow>
+      <ActionRow classes={classes}>
         <MfaButton
+          classes={classes}
           variant="outline"
           onClick={machine.cancel}
           disabled={activeItemId !== null}
@@ -106,9 +109,8 @@ function EnrollList({ snapshot, machine }: AuthenticatorsListProps) {
  * @returns Authenticators grouped by method, to pick one from.
  * @internal
  */
-function ChallengeList({ snapshot, machine }: AuthenticatorsListProps) {
+function ChallengeList({ snapshot, machine, classes }: AuthenticatorsListProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const [selectedId, setSelectedId] = useState(snapshot.options[0]?.id);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -153,13 +155,14 @@ function ChallengeList({ snapshot, machine }: AuthenticatorsListProps) {
               {t(`mfa.method.${group.key}`)}
             </h3>
             {group.options.map((option) => (
-              <AuthenticatorCard key={option.id} option={option} />
+              <AuthenticatorCard classes={classes} key={option.id} option={option} />
             ))}
           </section>
         ))}
       </RadioGroup>
-      <ActionRow>
+      <ActionRow classes={classes}>
         <MfaButton
+          classes={classes}
           variant="primary"
           onClick={handleContinue}
           disabled={!selectedId || isSubmitting}
@@ -168,6 +171,7 @@ function ChallengeList({ snapshot, machine }: AuthenticatorsListProps) {
           {isSubmitting ? <Spinner size="sm" colorScheme="foreground" /> : t('mfa.continue')}
         </MfaButton>
         <MfaButton
+          classes={classes}
           variant="outline"
           onClick={machine.cancel}
           disabled={isSubmitting}
@@ -187,10 +191,10 @@ function ChallengeList({ snapshot, machine }: AuthenticatorsListProps) {
  * @returns Authenticator list element.
  * @internal
  */
-export function AuthenticatorsList({ snapshot, machine }: AuthenticatorsListProps) {
+export function AuthenticatorsList({ snapshot, machine, classes }: AuthenticatorsListProps) {
   return snapshot.options[0]?.kind === 'challenge' ? (
-    <ChallengeList snapshot={snapshot} machine={machine} />
+    <ChallengeList classes={classes} snapshot={snapshot} machine={machine} />
   ) : (
-    <EnrollList snapshot={snapshot} machine={machine} />
+    <EnrollList classes={classes} snapshot={snapshot} machine={machine} />
   );
 }

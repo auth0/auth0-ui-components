@@ -94,12 +94,10 @@ function toAddedSteps(add: MfaCustomStep[]): AddedStep[] {
     const anchor = before ?? after;
     const anchorAppliesWhen = anchor === undefined ? undefined : appliesWhenByPath.get(anchor);
     const appliesWhen = anchorAppliesWhen ?? hasPickedOption;
-    appliesWhenByPath.set(id, appliesWhen);
+    const isVisible: MfaFlowCondition = (facts) => appliesWhen(facts) && when(facts);
+    appliesWhenByPath.set(id, isVisible);
 
-    const step: MfaFlowStep = {
-      path: id,
-      isVisible: (facts) => appliesWhen(facts) && when(facts),
-    };
+    const step: MfaFlowStep = { path: id, isVisible };
     addedSteps.push({ step, before, after });
   }
 

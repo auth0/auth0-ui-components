@@ -307,17 +307,6 @@ describe('QueryProvider GateKeeper integration', () => {
     expect(result.current.gkCtx.onRetry).toBeDefined();
   });
 
-  it('should hand the MFA settings to the gate keeper', () => {
-    const mfaStepUp = { actionsAlign: 'center' as const };
-    const { result } = renderHook(() => useGateKeeperContext(), {
-      wrapper: ({ children }: React.PropsWithChildren) => (
-        <QueryProvider mfaStepUp={mfaStepUp}>{children}</QueryProvider>
-      ),
-    });
-
-    expect(result.current.mfaStepUp).toBe(mfaStepUp);
-  });
-
   it('should set gate keeper error when a query fails because the step-up failed', async () => {
     const { result } = renderHook(
       () => {
@@ -434,6 +423,30 @@ describe('QueryProvider GateKeeper integration', () => {
     act(() => result.current.mutation.mutate());
 
     await waitFor(() => expect(result.current.gkCtx.error).toBe(stepUpFailure));
+    expect(result.current.gkCtx.onRetry).toBeDefined();
+  });
+
+  it('keeps a failed mutation recoverable when an unrelated query succeeds', async () => {
+    let finishQuery!: (value: string) => void;
+    const queryResult = new Promise<string>((resolve) => {
+      finishQuery = resolve;
+    });
+    const { result } = renderHook(
+      () => {
+        const gkCtx = useGateKeeperContext();
+        const mutation = useMutation({ mutationFn: () => Promise.reject(stepUpFailure) });
+        const query = useQuery({ queryKey: ['unrelated'], queryFn: () => queryResult });
+        return { gkCtx, mutation, query };
+      },
+      { wrapper },
+    );
+    act(() => result.current.mutation.mutate());
+    await waitFor(() => expect(result.current.gkCtx.error).toBe(stepUpFailure));
+
+    await act(async () => finishQuery('ok'));
+
+    await waitFor(() => expect(result.current.query.data).toBe('ok'));
+    expect(result.current.gkCtx.error).toBe(stepUpFailure);
     expect(result.current.gkCtx.onRetry).toBeDefined();
   });
 
