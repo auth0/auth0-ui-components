@@ -29,7 +29,7 @@ export const SsoProvisioningProps = {
   onListScimTokens: mockOnListScimTokens,
   onCreateScimToken: mockOnCreateScimToken,
   onDeleteScimToken: mockOnDeleteScimToken,
-  fetchProvisioning: mockFetchProvisioning,
+  onFetchProvisioning: mockFetchProvisioning,
   styling: { variables: { common: {}, light: {}, dark: {} }, classes: {} },
   customMessages: {},
 };

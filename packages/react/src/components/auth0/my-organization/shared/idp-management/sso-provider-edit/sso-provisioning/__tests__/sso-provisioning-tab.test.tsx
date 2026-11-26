@@ -9,10 +9,6 @@ import {
   mockProvider,
   SsoProvisioningProps,
   mockOnCreateProvisioning,
-  mockOnDeleteProvisioning,
-  mockOnListScimTokens,
-  mockOnCreateScimToken,
-  mockOnDeleteScimToken,
   mockFetchProvisioning,
 } from '@/tests/utils/__mocks__/my-organization/idp-management/sso-provider-edit/sso-provisioning/sso-provisioning-tab.mocks';
 import {
@@ -20,30 +16,7 @@ import {
   createIdpPermissions,
 } from '@/tests/utils/__mocks__/permissions/permission.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
-
-const createMockSsoProviderEditReturn = (overrides = {}) => ({
-  provisioningConfig: null,
-  isProvisioningLoading: false,
-  isProvisioningUpdating: false,
-  isProvisioningDeleting: false,
-  isScimTokensLoading: false,
-  isScimTokenCreating: false,
-  isScimTokenDeleting: false,
-  fetchProvisioning: mockFetchProvisioning,
-  createProvisioning: mockOnCreateProvisioning,
-  deleteProvisioning: mockOnDeleteProvisioning,
-  listScimTokens: mockOnListScimTokens,
-  createScimToken: mockOnCreateScimToken,
-  deleteScimToken: mockOnDeleteScimToken,
-  scimTokenConfig: undefined,
-  ...overrides,
-});
-
-const mockUseSsoProviderEdit = vi.fn(() => createMockSsoProviderEditReturn());
-
-vi.mock('@/hooks/my-organization/use-sso-provider-edit', () => ({
-  useSsoProviderEdit: () => mockUseSsoProviderEdit(),
-}));
+import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-management/sso-provisioning/sso-provisioning-tab-types';
 
 describe('SsoProvisioningTab', () => {
   const renderComponent = (props = {}) => {
@@ -97,7 +70,7 @@ describe('SsoProvisioningTab', () => {
   it('should render loading state', () => {
     renderComponent({ isProvisioningLoading: true });
 
-    expect(screen.getByRole('switch')).toBeInTheDocument();
+    expect(screen.queryByRole('switch')).not.toBeInTheDocument();
   });
 
   it('should render with null provisioningConfig', () => {
@@ -190,12 +163,9 @@ describe('SsoProvisioningTab', () => {
     it('should show correct tooltip based on provider and provisioning state', async () => {
       // State 1: Provider disabled
       const user = userEvent.setup();
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: null,
-        }),
-      );
       const { unmount: unmount1 } = renderComponent({
+        provisioningConfig: null,
+
         provider: { ...mockProvider, is_enabled: false },
       });
 
@@ -209,12 +179,9 @@ describe('SsoProvisioningTab', () => {
       unmount1();
 
       // State 2: Provider enabled, provisioning enabled
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: { id: 'provisioning_123' },
-        }),
-      );
       const { unmount: unmount2 } = renderComponent({
+        provisioningConfig: { id: 'provisioning_123' },
+
         provider: { ...mockProvider, is_enabled: true },
       });
 
@@ -228,12 +195,9 @@ describe('SsoProvisioningTab', () => {
       unmount2();
 
       // State 3: Provider enabled, provisioning disabled
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: null,
-        }),
-      );
       renderComponent({
+        provisioningConfig: null,
+
         provider: { ...mockProvider, is_enabled: true },
       });
 
@@ -247,13 +211,10 @@ describe('SsoProvisioningTab', () => {
     });
 
     it('should not show tooltip when loading spinner is displayed', () => {
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: null,
-          isProvisioningLoading: true,
-        }),
-      );
-      renderComponent();
+      renderComponent({
+        provisioningConfig: null,
+        isProvisioningLoading: true,
+      });
 
       // When loading, spinner is shown instead of switch
       expect(screen.queryByRole('switch')).not.toBeInTheDocument();
@@ -261,12 +222,9 @@ describe('SsoProvisioningTab', () => {
 
     it('should show tooltip on keyboard focus', async () => {
       const user = userEvent.setup();
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: null,
-        }),
-      );
       renderComponent({
+        provisioningConfig: null,
+
         provider: { ...mockProvider, is_enabled: true },
       });
 
@@ -280,12 +238,10 @@ describe('SsoProvisioningTab', () => {
 
     it('should show provider disabled tooltip even when switch is disabled', async () => {
       const user = userEvent.setup();
-      mockUseSsoProviderEdit.mockReturnValueOnce(
-        createMockSsoProviderEditReturn({
-          provisioningConfig: null,
-        }),
-      );
-      renderComponent({ provider: { ...mockProvider, is_enabled: false, id: '' } });
+      renderComponent({
+        provisioningConfig: null,
+        provider: { ...mockProvider, is_enabled: false, id: '' },
+      });
 
       const switchElement = screen.getByRole('switch');
       expect(switchElement).toBeDisabled();
@@ -296,6 +252,33 @@ describe('SsoProvisioningTab', () => {
         const tooltip = screen.getByRole('tooltip', { hidden: true });
         expect(tooltip).toHaveTextContent('header.provider_disabled_tooltip');
       });
+    });
+  });
+
+  describe('view-supplied data', () => {
+    it('renders provisioning from the provisioningConfig prop', () => {
+      renderComponent({ provisioningConfig: { strategy: 'waad', attributes: [] } });
+
+      expect(screen.getByRole('switch')).toBeChecked();
+    });
+
+    it('fetches provisioning through the onFetchProvisioning prop on mount', () => {
+      renderComponent();
+
+      expect(mockFetchProvisioning).toHaveBeenCalled();
+    });
+
+    it('turns provisioning off through the host callback so its actions apply', async () => {
+      const hostDelete = vi.fn().mockResolvedValue(undefined);
+      renderComponent({
+        provisioningConfig: { strategy: 'waad', attributes: [] },
+        onDeleteProvisioning: hostDelete,
+      });
+
+      await userEvent.click(screen.getByRole('switch'));
+      await userEvent.click(await screen.findByRole('button', { name: /delete_button_label/ }));
+
+      await waitFor(() => expect(hostDelete).toHaveBeenCalledTimes(1));
     });
   });
 
@@ -334,14 +317,17 @@ describe('SsoProvisioningTab', () => {
   });
 
   describe('guided setup', () => {
-    const PROVISIONING_ON = { provisioningConfig: { strategy: 'waad', attributes: [] } };
+    const PROVISIONING_ON = {
+      provisioningConfig: { strategy: 'waad', attributes: [] } as unknown as NonNullable<
+        SsoProvisioningTabProps['provisioningConfig']
+      >,
+    };
     const guidedSetupButton = () =>
       screen.queryByRole('button', { name: /guided_setup_button_label/ });
 
     it('offers guided setup when provisioning is on and the strategy has instructions', async () => {
-      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
       const onStartGuidedSetup = vi.fn();
-      renderComponent({ onStartGuidedSetup });
+      renderComponent({ ...PROVISIONING_ON, onStartGuidedSetup });
 
       await userEvent.click(
         await screen.findByRole('button', { name: /guided_setup_button_label/ }),
@@ -351,15 +337,13 @@ describe('SsoProvisioningTab', () => {
     });
 
     it('is not offered unless enabled', async () => {
-      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
-      renderComponent();
+      renderComponent(PROVISIONING_ON);
 
       await waitFor(() => expect(screen.getByRole('switch')).toBeChecked());
       expect(guidedSetupButton()).not.toBeInTheDocument();
     });
 
     it('disables guided setup for deprecated instructions', async () => {
-      mockUseSsoProviderEdit.mockReturnValue(createMockSsoProviderEditReturn(PROVISIONING_ON));
       const coreClient = createMockCoreClient();
       const { identityProviderProvisioningInstructions } =
         coreClient.getMyOrganizationApiClient().organization.configuration;
@@ -373,6 +357,7 @@ describe('SsoProvisioningTab', () => {
         <SsoProvisioningTab
           permissions={ALL_IDP_PERMISSIONS}
           {...SsoProvisioningProps}
+          {...PROVISIONING_ON}
           onStartGuidedSetup={onStartGuidedSetup}
         />,
         { coreClient },

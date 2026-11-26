@@ -25,7 +25,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useGuidedSetupInstructions } from '@/hooks/my-organization/idp-management/sso-guided-setup/use-guided-setup-instructions';
-import { useSsoProviderEdit } from '@/hooks/my-organization/use-sso-provider-edit';
 import { useTheme } from '@/hooks/shared/use-theme';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
@@ -48,6 +47,18 @@ import type { SsoProvisioningTabProps } from '@/types/my-organization/idp-manage
  * @param props.focusGuidedSetupButton - Moves focus to the Guided Setup button once it shows, after returning from guided setup.
  * @param props.onCreateProvisioning - Turns provisioning on through the host's provisioning actions.
  * @param props.isProvisioningUpdating - Whether the host is turning provisioning on.
+ * @param props.provisioningConfig - The provider's provisioning configuration, or `null` when provisioning is off.
+ * @param props.isProvisioningLoading - Whether the provisioning configuration is loading.
+ * @param props.isProvisioningDeleting - Whether provisioning is being turned off.
+ * @param props.isScimTokensLoading - Whether SCIM tokens are loading.
+ * @param props.isScimTokenCreating - Whether a SCIM token is being created.
+ * @param props.isScimTokenDeleting - Whether a SCIM token is being deleted.
+ * @param props.scimTokenConfig - SCIM token lifetime settings.
+ * @param props.onFetchProvisioning - Loads the provisioning configuration.
+ * @param props.onDeleteProvisioning - Turns provisioning off through the host's provisioning actions.
+ * @param props.onListScimTokens - Lists SCIM tokens.
+ * @param props.onCreateScimToken - Creates a SCIM token through the host's provisioning actions.
+ * @param props.onDeleteScimToken - Deletes a SCIM token through the host's provisioning actions.
  * @returns SSO provisioning tab content.
  * @internal
  */
@@ -65,6 +76,18 @@ export function SsoProvisioningTab({
   onCreateProvisioning,
   focusGuidedSetupButton = false,
   isProvisioningUpdating: isHostProvisioningUpdating,
+  provisioningConfig,
+  isProvisioningLoading,
+  isProvisioningDeleting,
+  isScimTokensLoading,
+  isScimTokenCreating,
+  isScimTokenDeleting,
+  scimTokenConfig,
+  onFetchProvisioning: fetchProvisioning,
+  onDeleteProvisioning: deleteProvisioning,
+  onListScimTokens: listScimTokens,
+  onCreateScimToken: createScimToken,
+  onDeleteScimToken: deleteScimToken,
   hideGuidedSetupLifecycleWarnings = false,
   organizationDisplayName,
   guidedSetupMessages,
@@ -74,21 +97,6 @@ export function SsoProvisioningTab({
     customMessages,
   );
   const { t: tCommon } = useTranslator('common', customMessages?.common);
-
-  const {
-    provisioningConfig,
-    isProvisioningLoading,
-    isProvisioningDeleting,
-    isScimTokensLoading,
-    isScimTokenCreating,
-    isScimTokenDeleting,
-    fetchProvisioning,
-    deleteProvisioning,
-    listScimTokens,
-    createScimToken,
-    deleteScimToken,
-    scimTokenConfig,
-  } = useSsoProviderEdit(provider?.id || '');
 
   const { isDarkMode } = useTheme();
   const currentStyles = React.useMemo(

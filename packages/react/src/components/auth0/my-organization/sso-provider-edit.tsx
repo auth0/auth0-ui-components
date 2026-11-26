@@ -169,6 +169,7 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     isCrossAppAccessReadOnly,
     isOrganizationBlocked,
     isProvisioningUpdating,
+    isProvisioningLoading,
     isProvisioningDeleting,
     isScimTokensLoading,
     isScimTokenCreating,
@@ -190,6 +191,8 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
     createScimToken,
     deleteScimToken,
     syncProvisioningAttributes,
+    fetchProvisioning,
+    scimTokenConfig,
     resolveSamlMetadata,
     showSignRequest,
   } = props;
@@ -405,6 +408,10 @@ function SsoProviderEditView(props: SsoProviderEditViewProps) {
               ) : (
                 <SsoProvisioningTab
                   provider={provider!}
+                  provisioningConfig={provisioningConfig}
+                  isProvisioningLoading={isProvisioningLoading}
+                  scimTokenConfig={scimTokenConfig}
+                  onFetchProvisioning={fetchProvisioning}
                   readOnly={readOnly}
                   isProvisioningUpdating={isProvisioningUpdating}
                   isProvisioningDeleting={isProvisioningDeleting}
