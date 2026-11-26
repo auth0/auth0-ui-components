@@ -57,6 +57,14 @@ describe('withMfaStepUp', () => {
     expect(call).toHaveBeenCalledTimes(2);
   });
 
+  it('hands back a 403 whose body is already being read, without opening anything', async () => {
+    const response = Response.json(mfaRequired, { status: 403 });
+    response.body?.getReader();
+
+    await expect(withMfaStepUp(async () => response)).resolves.toBe(response);
+    expect(mfaStepUpStore.getSnapshot()).toBeUndefined();
+  });
+
   it.each([
     ['a 403 that is not MFA', () => Response.json({ error: 'forbidden' }, { status: 403 })],
     ['a 403 without JSON', () => new Response('nope', { status: 403 })],

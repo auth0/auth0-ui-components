@@ -40,6 +40,9 @@ const DEFAULT_RESEND_COOLDOWN_MS = 30_000;
 /** `another-factor`: the code was right, but the server wants one more, so a new round started. */
 export type VerifyOutcome = 'verified' | 'rejected' | 'another-factor';
 
+/** `sent`: a new code or push went out. `already-sent`: the current one is reused. */
+export type ChallengeResult = 'sent' | 'already-sent' | 'failed';
+
 export type PushCheck =
   | 'pending'
   | 'slow-down'
@@ -166,19 +169,18 @@ export function createStepUpRequests(
     return { oobCode };
   };
 
-  const ensureChallenge = async (force = false) => {
+  const ensureChallenge = async (force = false): Promise<ChallengeResult> => {
     const state = getState();
     const key = getChallengeKey(state);
-    if (!key) return false;
-    if (!force && state.challenges[key]) return true;
+    if (!key) return 'failed';
+    if (!force && state.challenges[key]) return 'already-sent';
     const pushEnded = state.pushPhase === 'denied' || state.pushPhase === 'expired';
-    if (force && !pushEnded && now() < (state.resendAvailableAt ?? 0)) return false;
+    if (force && !pushEnded && now() < (state.resendAvailableAt ?? 0)) return 'already-sent';
 
     const response = await sendRequest('challenge', () => sendChallenge(state));
-    if (response) {
-      dispatch({ type: 'challenged', key, response, resendAvailableAt: now() + resendCooldownMs });
-    }
-    return !!response;
+    if (!response) return 'failed';
+    dispatch({ type: 'challenged', key, response, resendAvailableAt: now() + resendCooldownMs });
+    return 'sent';
   };
 
   const startNextRound = (error: MfaRequiredError): 'another-factor' | 'rejected' => {
@@ -213,7 +215,8 @@ export function createStepUpRequests(
     return 'verified';
   };
 
-  const checkPush = async (): Promise<PushCheck> => {
+  const checkPush = async (signal: AbortSignal): Promise<PushCheck> => {
+    const isStale = () => signal.aborted || isSettled();
     const state = getState();
     const key = getChallengeKey(state);
     const oobCode = key ? state.challenges[key]?.oobCode : undefined;
@@ -222,7 +225,7 @@ export function createStepUpRequests(
     try {
       await apiClient.verify({ mfaToken: state.mfaToken, oobCode });
     } catch (err) {
-      if (isSettled()) return 'stopped';
+      if (isStale()) return 'stopped';
       if (isMfaRequiredError(err)) {
         return startNextRound(err) === 'another-factor' ? 'another-factor' : 'stopped';
       }
@@ -235,7 +238,7 @@ export function createStepUpRequests(
       onError?.(err);
       return fatalCode ? 'stopped' : 'failed';
     }
-    if (isSettled()) return 'stopped';
+    if (isStale()) return 'stopped';
     dispatch({ type: 'verified' });
     return 'approved';
   };
@@ -257,7 +260,7 @@ export function createStepUpRequests(
     runStepRequests: async (path: string) => {
       const needsEnroll = path === MFA_STEP.qr || path === MFA_STEP.verify;
       if (needsEnroll && !(await ensureEnroll())) return false;
-      return isChallenged(getState(), path) ? ensureChallenge() : true;
+      return isChallenged(getState(), path) ? (await ensureChallenge()) !== 'failed' : true;
     },
 
     verifyCode,

@@ -14,7 +14,14 @@ import {
   QueryClient,
   QueryClientProvider as TanStackQueryClientProvider,
 } from '@tanstack/react-query';
-import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import {
+  useMemo,
+  useState,
+  type Dispatch,
+  type ReactElement,
+  type ReactNode,
+  type SetStateAction,
+} from 'react';
 
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import type { QueryCacheConfig } from '@/types/cache-types';
@@ -111,6 +118,12 @@ function isGateKeeperError(query: Query): boolean {
   return !!query.state.error && !isNotifiableError(query.state.error);
 }
 
+interface GateKeeperState {
+  error: Error;
+  onRetry: () => Promise<boolean>;
+  source: 'query' | 'mutation';
+}
+
 /**
  * Creates a QueryClient with config and global GateKeeper error interception.
  * @param cacheConfig - Cache configuration.
@@ -122,7 +135,7 @@ function isGateKeeperError(query: Query): boolean {
 function createQueryClient(
   cacheConfig: Required<QueryCacheConfig>,
   retryConfig: ResolvedRetryConfig,
-  setGateKeeperState: (state: { error: Error; onRetry: () => Promise<boolean> } | null) => void,
+  setGateKeeperState: Dispatch<SetStateAction<GateKeeperState | null>>,
 ): QueryClient {
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
@@ -134,7 +147,7 @@ function createQueryClient(
           if (!stillFailing) setGateKeeperState(null);
           return !stillFailing;
         };
-        setGateKeeperState({ error, onRetry });
+        setGateKeeperState({ error, source: 'query', onRetry });
       },
       onSuccess: () => {
         const stillFailing = queryClient
@@ -142,7 +155,9 @@ function createQueryClient(
           .getAll()
           .filter((q) => q.getObserversCount() > 0)
           .some(isGateKeeperError);
-        if (!stillFailing) setGateKeeperState(null);
+        if (!stillFailing) {
+          setGateKeeperState((current) => (current?.source === 'query' ? null : current));
+        }
       },
     }),
     mutationCache: new MutationCache({
@@ -158,7 +173,7 @@ function createQueryClient(
             return false;
           }
         };
-        setGateKeeperState({ error, onRetry });
+        setGateKeeperState({ error, source: 'mutation', onRetry });
       },
     }),
     defaultOptions: {
@@ -216,10 +231,7 @@ export function QueryProvider({
   retryConfig,
   mfaStepUp,
 }: QueryProviderProps): ReactElement {
-  const [gateKeeperState, setGateKeeperState] = useState<{
-    error: Error;
-    onRetry: () => Promise<boolean>;
-  } | null>(null);
+  const [gateKeeperState, setGateKeeperState] = useState<GateKeeperState | null>(null);
   const [queryClient] = useState(() =>
     createQueryClient(
       resolveCacheConfig(cacheConfig),

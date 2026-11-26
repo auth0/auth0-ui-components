@@ -65,7 +65,19 @@ export function createMfaStepUpStore() {
       return openStepUp(error);
     },
     getSnapshot: () => open?.request,
-    subscribe: subscribers.subscribe,
+    subscribe: (listener: () => void) => {
+      const unsubscribe = subscribers.subscribe(listener);
+      let isSubscribed = true;
+
+      return () => {
+        if (!isSubscribed) return;
+        isSubscribed = false;
+        unsubscribe();
+        if (open && subscribers.isEmpty()) {
+          open.request.cancel(createMfaStepUpError('unavailable', { cause: open.request.error }));
+        }
+      };
+    },
   };
 }
 

@@ -98,6 +98,16 @@ describe('initializeMfaStepUpClient', () => {
       });
     });
 
+    it('reads the channel of an out-of-band authenticator from a snake_case response', async () => {
+      stubFetch(true, [
+        { id: 'auth_1', authenticator_type: 'oob', oob_channel: 'sms', active: true },
+      ]);
+
+      const [authenticator] = await createProxyMfaClient(PROXY_URL).getAuthenticators(MFA_TOKEN);
+
+      expect(authenticator).toMatchObject({ authenticatorType: 'oob', oobChannel: 'sms' });
+    });
+
     it('returns parsed JSON response', async () => {
       const authenticators = [{ id: 'auth_1', authenticatorType: 'otp', active: true }];
       stubFetch(true, authenticators);

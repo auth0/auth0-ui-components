@@ -146,7 +146,7 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
   const mockMfaApiClient = createMockMfaApiClient();
   const mockPermissionApiClient = createMockPermissionApiClient();
 
-  return {
+  const coreClient: CoreClientInterface = {
     auth: mockAuth,
     i18nService: mockI18nService,
     myAccountApiClient: mockMyAccountApiClient,
@@ -158,7 +158,11 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
       () => mockMyOrganizationApiClient,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
     createMfaStepUpMachine: vi.fn((options) =>
-      createMfaStepUpMachine({ ...options, apiClient: mockMfaApiClient, isProxyMode: false }),
+      createMfaStepUpMachine({
+        ...options,
+        apiClient: mockMfaApiClient,
+        isProxyMode: coreClient.isProxyMode(),
+      }),
     ) as CoreClientInterface['createMfaStepUpMachine'],
     getPermissionApiClient: vi.fn(
       () => mockPermissionApiClient,
@@ -168,6 +172,8 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
       () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
     ),
   };
+
+  return coreClient;
 };
 
 /**

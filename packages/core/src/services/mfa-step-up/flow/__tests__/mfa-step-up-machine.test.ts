@@ -256,6 +256,26 @@ describe('createMfaStepUpMachine', () => {
       expect(stepUp.getSnapshot().options.map((option) => option.id)).toEqual(['challenge:app']);
     });
 
+    it.each([
+      [{ oobChannel: 'sms' as const }, 'sms'],
+      [{ oobChannel: 'voice' as const }, 'voice'],
+      [{ oobChannel: 'email' as const }, 'email'],
+      [{ oobChannel: 'auth0' as const }, 'push'],
+      [{ type: 'email' as const, oobChannel: 'sms' as const }, 'email'],
+    ])(
+      'names an out-of-band authenticator by its channel when it has no type: %j',
+      async (patch, factor) => {
+        const { apiClient } = createClient({
+          getAuthenticators: vi.fn(async () => [
+            authenticator({ authenticatorType: 'oob', ...patch }),
+          ]),
+        });
+        const { stepUp } = await setup(apiClient);
+
+        expect(stepUp.getSnapshot().options[0]?.factor).toBe(factor);
+      },
+    );
+
     it('SPA without getEnrollmentFactors lists authenticators', async () => {
       const { apiClient } = createClient({
         getEnrollmentFactors: undefined,
@@ -852,14 +872,29 @@ describe('createMfaStepUpMachine', () => {
         expect(apiClient.verify).toHaveBeenLastCalledWith({ mfaToken: TOKEN, otp: '246100' });
       });
 
-      it('blocks as unavailable after three failed checks in a row', async () => {
-        const { apiClient, stepUp, onError } = await pushSetup();
+      it('expires on time even when the wait for the next check is longer than the time left', async () => {
+        const { apiClient, stepUp } = await pushSetup({ pushTimeoutMs: 3500 });
+        vi.mocked(apiClient.verify).mockRejectedValue(answered('slow_down'));
+
+        await tick(1000);
+        expect(stepUp.getSnapshot().push?.phase).toBe('waiting');
+
+        await tick(2500);
+        expect(stepUp.getSnapshot().push?.phase).toBe('expired');
+        stepUp.dispose();
+      });
+
+      it('keeps asking after failed checks, reports each one, and expires on time', async () => {
+        const { apiClient, stepUp, onError } = await pushSetup({ pushTimeoutMs: 5500 });
         vi.mocked(apiClient.verify).mockRejectedValue(new Error('network'));
 
         await tick(3000);
-
-        expect(stepUp.getSnapshot()).toMatchObject({ status: 'blocked', reason: 'unavailable' });
+        expect(stepUp.getSnapshot()).toMatchObject({ status: 'active' });
         expect(onError).toHaveBeenCalledTimes(3);
+
+        await tick(3000);
+        expect(stepUp.getSnapshot().push?.phase).toBe('expired');
+        stepUp.dispose();
       });
 
       it('sends a new push on resend after a denial, even inside the cooldown', async () => {
@@ -935,6 +970,109 @@ describe('createMfaStepUpMachine', () => {
         await tick(5000);
 
         expect(stepUp.getSnapshot().status).toBe('done');
+      });
+
+      it('ignores a push approval that arrives after the user switched to the code', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        let approve!: (result: { access_token: string }) => void;
+        vi.mocked(apiClient.verify).mockImplementationOnce(
+          () => new Promise((resolve) => (approve = resolve)),
+        );
+        await tick(1000);
+
+        stepUp.switchToCode();
+        approve({ access_token: 'token' });
+        await tick(2000);
+
+        expect(stepUp.getSnapshot().facts.isVerified).toBe(false);
+        expect(stepUp.getSnapshot().status).toBe('active');
+        stepUp.dispose();
+      });
+
+      it('does not start a new round for an mfa_required that arrives after the switch', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        let reject!: (error: unknown) => void;
+        vi.mocked(apiClient.verify).mockImplementationOnce(
+          () => new Promise((_, rejectCall) => (reject = rejectCall)),
+        );
+        await tick(1000);
+
+        stepUp.switchToCode();
+        reject(
+          Object.assign(new Error('mfa_required'), {
+            data: { error: 'mfa_required', mfa_token: 'second-token' },
+          }),
+        );
+        await tick(2000);
+
+        expect(stepUp.getSnapshot()).toMatchObject({ status: 'active', round: 1 });
+        stepUp.dispose();
+      });
+
+      it('expires on time even when a check is still pending, and ignores its late answer', async () => {
+        const { apiClient, stepUp } = await pushSetup({ pushTimeoutMs: 3500 });
+        let approve!: (result: { access_token: string }) => void;
+        vi.mocked(apiClient.verify).mockImplementationOnce(
+          () => new Promise((resolve) => (approve = resolve)),
+        );
+        await tick(1000);
+        expect(stepUp.getSnapshot().push?.phase).toBe('waiting');
+
+        await tick(3000);
+
+        expect(stepUp.getSnapshot().push?.phase).toBe('expired');
+        approve({ access_token: 'token' });
+        await tick(2000);
+        expect(stepUp.getSnapshot().push?.phase).toBe('expired');
+        expect(stepUp.getSnapshot().facts.isVerified).toBe(false);
+        stepUp.dispose();
+      });
+
+      it('does not resend, or offer to resend, while the user enters the Guardian code', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        stepUp.switchToCode();
+        await tick(31_000);
+        vi.mocked(apiClient.challenge).mockClear();
+        vi.mocked(apiClient.verify).mockClear();
+
+        await stepUp.resend();
+        await tick(5000);
+
+        expect(stepUp.getSnapshot().canResend).toBe(false);
+        expect(apiClient.challenge).not.toHaveBeenCalled();
+        expect(apiClient.verify).not.toHaveBeenCalled();
+        stepUp.dispose();
+      });
+
+      it('stays on the code when sending a new push fails, and can try again', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        stepUp.switchToCode();
+        await tick(31_000);
+        vi.mocked(apiClient.challenge).mockRejectedValueOnce(new Error('boom'));
+        vi.mocked(apiClient.verify).mockClear();
+
+        await stepUp.switchToPush();
+        await tick(5000);
+
+        expect(stepUp.getSnapshot().push?.mode).toBe('code');
+        expect(apiClient.verify).not.toHaveBeenCalled();
+
+        await stepUp.switchToPush();
+        expect(stepUp.getSnapshot().push?.mode).toBe('push');
+        stepUp.dispose();
+      });
+
+      it('still polls the current push when switching back within the cooldown', async () => {
+        const { apiClient, stepUp } = await pushSetup();
+        stepUp.switchToCode();
+        vi.mocked(apiClient.verify).mockClear();
+
+        await stepUp.switchToPush();
+        await tick(1000);
+
+        expect(stepUp.getSnapshot().push?.mode).toBe('push');
+        expect(apiClient.verify).toHaveBeenCalled();
+        stepUp.dispose();
       });
 
       it('keeps asking when there is no other factor to choose', async () => {
@@ -1250,11 +1388,17 @@ describe('createMfaStepUpMachine', () => {
     });
 
     it('ignores back and chooseAnotherFactor while a request is in flight, but can still cancel', async () => {
-      const { apiClient } = challengeSetup({ authenticatorType: 'otp' });
+      const { apiClient } = createClient({
+        getAuthenticators: vi.fn(async () => [
+          authenticator({ authenticatorType: 'otp' }),
+          authenticator({ id: 'auth-2', authenticatorType: 'otp' }),
+        ]),
+      });
       let finish: (value: object) => void = () => {};
       vi.mocked(apiClient.verify).mockReturnValueOnce(new Promise((resolve) => (finish = resolve)));
       const { stepUp } = await setup(apiClient);
       await pickAndConfirm(stepUp, 'challenge:auth-1');
+      expect(stepUp.getSnapshot().canChooseAnotherFactor).toBe(true);
 
       const verifying = stepUp.next('123456');
       stepUp.back();
@@ -1385,6 +1529,16 @@ describe('createMfaStepUpMachine', () => {
       const { stepUp } = await setup(apiClient, { flow: { skipListForSingleOption: true } });
 
       expect(stepUp.getSnapshot()).toMatchObject({ status: 'blocked', reason: 'unavailable' });
+    });
+
+    it('keeps the rate_limited reason when the first step is rate limited', async () => {
+      const { apiClient } = otpClient();
+      vi.mocked(apiClient.enroll).mockRejectedValueOnce(
+        Object.assign(new Error('slow down'), { status: 429 }),
+      );
+      const { stepUp } = await setup(apiClient, { flow: { skipListForSingleOption: true } });
+
+      expect(stepUp.getSnapshot()).toMatchObject({ status: 'blocked', reason: 'rate_limited' });
     });
 
     it('blocks instead of crashing when a condition throws', async () => {

@@ -35,7 +35,8 @@ export async function withMfaStepUp<T>(call: () => Promise<T>): Promise<T> {
  */
 async function throwIfMfaRequired<T>(result: T): Promise<T> {
   const response: unknown = result;
-  if (response instanceof Response && response.status === 403 && !response.bodyUsed) {
+  const isReadable = response instanceof Response && !response.bodyUsed && !response.body?.locked;
+  if (isReadable && response.status === 403) {
     const body = await response
       .clone()
       .json()

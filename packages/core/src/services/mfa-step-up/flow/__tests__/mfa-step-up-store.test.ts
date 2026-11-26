@@ -118,6 +118,43 @@ describe('createMfaStepUpStore', () => {
     expect(store.getSnapshot()).toBeUndefined();
   });
 
+  describe('when the last subscriber leaves', () => {
+    it('fails the open step-up as unavailable, and the next request is refused at once', async () => {
+      const store = createMfaStepUpStore();
+      const unsubscribe = store.subscribe(() => undefined);
+      const waiting = settled(store.request(mfaRequired()));
+
+      unsubscribe();
+
+      expect(await waiting).toMatchObject({ code: 'unavailable' });
+      expect(store.getSnapshot()).toBeUndefined();
+      await expect(store.request(mfaRequired())).rejects.toMatchObject({ code: 'unavailable' });
+    });
+
+    it('keeps the step-up open while another subscriber can still answer it', () => {
+      const store = createMfaStepUpStore();
+      const unsubscribeFirst = store.subscribe(() => undefined);
+      store.subscribe(() => undefined);
+      void store.request(mfaRequired());
+
+      unsubscribeFirst();
+
+      expect(store.getSnapshot()).toBeDefined();
+    });
+
+    it('ignores a subscriber that unsubscribes twice', () => {
+      const store = createMfaStepUpStore();
+      const unsubscribe = store.subscribe(() => undefined);
+      unsubscribe();
+      store.subscribe(() => undefined);
+      void store.request(mfaRequired());
+
+      unsubscribe();
+
+      expect(store.getSnapshot()).toBeDefined();
+    });
+  });
+
   describe('a subscriber that throws', () => {
     const throwingStore = () => {
       const store = withDialog();
