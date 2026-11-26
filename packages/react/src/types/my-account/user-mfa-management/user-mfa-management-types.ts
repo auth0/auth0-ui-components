@@ -13,8 +13,19 @@ import type {
   ConfirmEnrollmentOptions,
   UserMfaManagementMessages,
   SharedComponentProps,
+  getComponentStyles,
 } from '@auth0/universal-components-core';
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query';
+import type * as React from 'react';
+
+import type { ActionPartProps } from '@/types/composability-types';
+import type {
+  ContactPhase,
+  QRPhase,
+} from '@/types/my-account/user-mfa-management/factor-enrollment-types';
+
+/** Re-exported so headless hosts can type factors without importing the core package. */
+export type { Authenticator, MFAType } from '@auth0/universal-components-core';
 
 export type EnrollmentPhase = 'enterContact' | 'showQr' | 'showRecovery' | 'installation' | null;
 
@@ -132,6 +143,167 @@ export interface UseUserMFAReturn {
   handleConfirmRecoveryCode: () => Promise<void>;
   handleEnterQRPhase: () => Promise<void>;
 }
+
+/** State and command of one action, shared by action parts and headless hosts. */
+export interface MFAActionModel {
+  /** The action is not offered and its part renders nothing. */
+  hidden: boolean;
+  /** The action is shown but cannot be triggered. */
+  disabled: boolean;
+  /** The action's command is running. */
+  pending: boolean;
+  /** Runs the action. Does nothing while hidden, disabled or pending. */
+  onClick: () => void;
+}
+
+/** One factor type, as rendered by `UserMFAManagement.Factor`. */
+export interface MFAFactorModel {
+  factorType: MFAType;
+  /** Enrolled authenticators of this type. */
+  activeFactors: Authenticator[];
+  hasActiveFactors: boolean;
+  /** `false` when `factorConfig[factorType].enabled` is `false`. */
+  isEnabled: boolean;
+  enrollAction: MFAActionModel;
+}
+
+/** One enrolled authenticator, as rendered inside `UserMFAManagement.FactorList`. */
+export interface MFAEnrolledFactorModel {
+  factor: Authenticator;
+  factorType: MFAType;
+  deleteAction: MFAActionModel;
+}
+
+/** Value read by `useUserMFAEnrolledFactorContext` inside `UserMFAManagement.FactorList`. */
+export interface UserMFAEnrolledFactorContextValue extends MFAEnrolledFactorModel {
+  /** Display label, such as the phone number, the email or the factor title. */
+  label: string;
+  /**
+   * Id of the element showing `label`. `UserMFAManagement.EnrolledFactorName` sets it,
+   * and `DeleteAction` is described by it. Put it on your own name element if you do not
+   * render `EnrolledFactorName`.
+   */
+  labelId: string;
+}
+
+/** Options for `useUserMFAModel`. */
+export interface UseUserMFAModelOptions extends UseUserMFAOptions {
+  disableEnroll?: UserMFAManagementProps['disableEnroll'];
+}
+
+/**
+ * Headless model for MFA management.
+ *
+ * A host that renders its own UI must honour `hidden`/`disabled`/`pending` on each
+ * action, render the enroll flow from `isEnrollDialogOpen` / `enrollmentPhase`, and
+ * render a confirmation from `isDeleteDialogOpen` / `factorToDelete` before calling
+ * `handleConfirmDelete`.
+ */
+export interface UserMFAModel extends UseUserMFAReturn {
+  readOnly: boolean;
+  disableEnroll: boolean;
+  disableDelete: boolean;
+  showActiveOnly: boolean;
+  factorConfig: FactorConfig;
+  /** Props for one factor type. */
+  getFactorProps: (factorType: MFAType) => MFAFactorModel;
+  /** Props for one enrolled authenticator. */
+  getEnrolledFactorProps: (factor: Authenticator, factorType: MFAType) => MFAEnrolledFactorModel;
+}
+
+/** Value read by every `UserMFAManagement` part. */
+export interface UserMFAManagementContextValue {
+  model: UserMFAModel;
+  customMessages: NonNullable<UserMFAManagementProps['customMessages']>;
+  styling: NonNullable<UserMFAManagementProps['styling']>;
+  classes: UserMFAManagementClasses;
+  /** CSS variables of the `styling` prop, applied to dialog panels, which render in a portal. */
+  variables: ReturnType<typeof getComponentStyles>['variables'];
+  /** Validation schema overrides for the enrollment forms. */
+  schema: UserMFAManagementProps['schema'];
+  hideHeader: boolean;
+}
+
+/** Value read by parts inside `UserMFAManagement.EnrollDialog`. */
+export interface UserMFAEnrollDialogContextValue {
+  /** Step of the QR enrollment: scanning the code, or entering the one-time code. */
+  qrPhase: QRPhase;
+  setQrPhase: (phase: QRPhase) => void;
+  /** Step of the phone or email enrollment: entering the contact, or the one-time code. */
+  contactPhase: ContactPhase;
+  setContactPhase: (phase: ContactPhase) => void;
+}
+
+/** Props for `UserMFAManagement.Root`. */
+export interface UserMFAManagementRootProps extends UserMFAManagementProps {
+  children?: React.ReactNode;
+  /**
+   * Mount the default enroll and delete dialogs. Set to `false` to render
+   * `UserMFAManagement.EnrollDialog` and `UserMFAManagement.DeleteDialog` yourself, with
+   * the default content or with parts you arrange. Defaults to `true`.
+   */
+  mountDialogs?: boolean;
+}
+
+/** Props for parts that only take content. */
+export interface UserMFAManagementChildrenProps {
+  children?: React.ReactNode;
+}
+
+/** Props for `UserMFAManagement.EnrollPhase`. */
+export interface UserMFAManagementEnrollPhaseProps {
+  /** Renders the current enrollment phase. Defaults to the part for that phase. */
+  children?: (phase: NonNullable<EnrollmentPhase>) => React.ReactNode;
+}
+
+/** Props for `UserMFAManagement.DefaultLayout`. */
+export interface UserMFAManagementDefaultLayoutProps {
+  /**
+   * Replaces the enroll action of every factor, e.g. an `EnrollAction` with `render`.
+   * It is rendered inside each `Factor`, so it acts on that factor.
+   */
+  enrollAction?: React.ReactNode;
+  /** Replaces the default factor card. */
+  renderFactor?: (factorType: MFAType) => React.ReactNode;
+}
+
+/** Props for `UserMFAManagement.Factors`. */
+export interface UserMFAManagementFactorsProps {
+  /** Renders each visible factor type. Defaults to `<UserMFAManagement.Factor />`. */
+  children?: (factorType: MFAType) => React.ReactNode;
+  className?: string;
+}
+
+/** Props for `UserMFAManagement.FactorList`. */
+export interface UserMFAManagementFactorListProps {
+  /** Renders each enrolled authenticator. Defaults to the built-in list with a menu. */
+  children?: (factor: Authenticator) => React.ReactNode;
+  className?: string;
+}
+
+/** Props for parts that only take content and a class name. */
+export interface UserMFAManagementPartProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+/** Props for `UserMFAManagement.Header`. */
+export interface UserMFAManagementHeaderProps extends UserMFAManagementPartProps {
+  /** Text alignment of the default title and description. */
+  align?: 'start' | 'center' | 'end';
+}
+
+/** Props for `UserMFAManagement.HeaderActions`. */
+export interface UserMFAManagementHeaderActionsProps extends UserMFAManagementPartProps {
+  /** Side the actions sit on from the `sm` breakpoint up. */
+  align?: 'start' | 'end';
+}
+
+/**
+ * Props for the action parts: `EnrollAction`, `DeleteAction`, `EnrolledFactorMenuDelete`,
+ * `DeleteDialogCancel` and `DeleteDialogConfirm`.
+ */
+export type UserMFAManagementActionProps = ActionPartProps;
 
 /** Return type of useUserMFAService hook. */
 export interface UseUserMFAServiceReturn {

@@ -6,6 +6,9 @@
 export {
   UserMFAManagement,
   UserMFAManagementView,
+  useUserMFAManagementContext,
+  useUserMFAFactorContext,
+  useUserMFAEnrolledFactorContext,
 } from './components/auth0/my-account/user-mfa-management';
 export {
   UserPasskeyManagement,
@@ -49,7 +52,7 @@ export { useErrorHandler } from './hooks/shared/use-error-handler';
 export { usePermissions } from './hooks/shared/use-permissions';
 
 // My Account hooks
-export { useUserMFA } from './hooks/my-account/use-user-mfa';
+export { useUserMFA, useUserMFAModel } from './hooks/my-account/use-user-mfa';
 export { useUserPasskey } from './hooks/my-account/use-user-passkey';
 
 // My Organization hooks
@@ -73,6 +76,7 @@ export * from './types/auth-types';
 // My Account types
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';
 export * from './types/my-account/user-passkey-management/user-passkey-management-types';
+export * from './types/composability-types';
 
 // My Organization types
 export * from './types/my-organization/config/config-types';

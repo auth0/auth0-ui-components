@@ -30,10 +30,14 @@ import {
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   EnrollmentPhase,
+  FactorConfig,
   FactorToDelete,
+  MFAActionModel,
   OtpData,
+  UseUserMFAModelOptions,
   UseUserMFAOptions,
   UseUserMFAReturn,
+  UserMFAModel,
 } from '@/types/my-account/user-mfa-management/user-mfa-management-types';
 
 const EMPTY_SESSION = { authSession: '', authenticationMethodId: '' };
@@ -331,4 +335,101 @@ export function useUserMFA({
     handleConfirmRecoveryCode,
     handleEnterQRPhase,
   };
+}
+
+/** Flags the MFA model needs besides hook state. */
+interface UserMFAModelFlags {
+  readOnly: boolean;
+  disableEnroll: boolean;
+  disableDelete: boolean;
+  showActiveOnly: boolean;
+  factorConfig: FactorConfig;
+}
+
+/**
+ * Adds flags and prop getters to MFA state. Pure, so the presentational view can
+ * build the same model from props as `useUserMFAModel` builds from the API.
+ * @param state - MFA state and handlers.
+ * @param flags - Component flags that gate actions.
+ * @returns The headless MFA model.
+ * @internal
+ */
+export function createUserMFAModel(
+  state: UseUserMFAReturn,
+  flags: UserMFAModelFlags,
+): UserMFAModel {
+  const action = (model: Omit<MFAActionModel, 'onClick'>, run: () => void): MFAActionModel => ({
+    ...model,
+    onClick: () => {
+      if (!model.hidden && !model.disabled && !model.pending) run();
+    },
+  });
+
+  const isEnabled = (factorType: MFAType) => flags.factorConfig[factorType]?.enabled !== false;
+
+  return {
+    ...state,
+    ...flags,
+    getFactorProps: (factorType) => {
+      const activeFactors = (state.factorsByType[factorType] ?? []).filter((f) => f.enrolled);
+      return {
+        factorType,
+        activeFactors,
+        hasActiveFactors: activeFactors.length > 0,
+        isEnabled: isEnabled(factorType),
+        enrollAction: action(
+          {
+            hidden: flags.readOnly,
+            disabled: flags.disableEnroll || !isEnabled(factorType),
+            pending: state.isEnrolling && state.enrollFactor === factorType,
+          },
+          () => void state.handleEnroll(factorType),
+        ),
+      };
+    },
+    getEnrolledFactorProps: (factor, factorType) => ({
+      factor,
+      factorType,
+      deleteAction: action(
+        {
+          hidden: flags.readOnly,
+          disabled: flags.disableDelete || state.isDeleting || !isEnabled(factorType),
+          pending: state.isDeleting && state.factorToDelete?.id === factor.id,
+        },
+        () => void state.handleDeleteFactor(factor.id, factorType),
+      ),
+    }),
+  };
+}
+
+/**
+ * Headless MFA management model: data, mutations, enroll and delete flow state,
+ * flags and prop getters. The host owns all markup.
+ *
+ * @param options - {@link UseUserMFAModelOptions}
+ * @returns The MFA model, see {@link UserMFAModel}.
+ *
+ * @example
+ * ```tsx
+ * const model = useUserMFAModel({ readOnly });
+ * return model.visibleFactorTypes.map((type) => {
+ *   const { enrollAction } = model.getFactorProps(type);
+ *   return enrollAction.hidden ? null : (
+ *     <HostButton key={type} onClick={enrollAction.onClick} disabled={enrollAction.disabled} />
+ *   );
+ * });
+ * ```
+ */
+export function useUserMFAModel({
+  disableEnroll = false,
+  ...options
+}: UseUserMFAModelOptions = {}): UserMFAModel {
+  const state = useUserMFA(options);
+  return createUserMFAModel(state, {
+    readOnly: options.readOnly ?? false,
+    disableEnroll,
+    disableDelete: options.disableDelete ?? false,
+    showActiveOnly: options.showActiveOnly ?? false,
+    factorConfig: options.factorConfig ?? {},
+  });
 }
