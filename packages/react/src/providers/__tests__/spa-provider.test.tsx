@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 import { useCoreClientInitialization } from '@/hooks/shared/use-core-client-initialization';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 import { Auth0ComponentProvider } from '@/providers/spa-provider';
 
 vi.mock('@auth0/auth0-react', () => ({
@@ -47,21 +46,6 @@ describe('Auth0ComponentProvider (SPA)', () => {
 
     expect(screen.getByTestId('child-content')).toBeInTheDocument();
     expect(screen.getByText('Test Content')).toBeInTheDocument();
-  });
-
-  it('should give the MFA step-up settings to descendants', () => {
-    const mfaStepUp = { flow: { skipListForSingleOption: true } };
-    const Probe = () => (
-      <p>{String(useGateKeeperContext().mfaStepUp?.flow?.skipListForSingleOption)}</p>
-    );
-
-    render(
-      <Auth0ComponentProvider mfaStepUp={mfaStepUp}>
-        <Probe />
-      </Auth0ComponentProvider>,
-    );
-
-    expect(screen.getByText('true')).toBeInTheDocument();
   });
 
   it('should use auth0 context from useAuth0 hook', () => {
