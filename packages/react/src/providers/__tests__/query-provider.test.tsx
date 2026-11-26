@@ -307,17 +307,6 @@ describe('QueryProvider GateKeeper integration', () => {
     expect(result.current.gkCtx.onRetry).toBeDefined();
   });
 
-  it('should hand the MFA settings to the gate keeper', () => {
-    const mfaStepUp = { actionsAlign: 'center' as const };
-    const { result } = renderHook(() => useGateKeeperContext(), {
-      wrapper: ({ children }: React.PropsWithChildren) => (
-        <QueryProvider mfaStepUp={mfaStepUp}>{children}</QueryProvider>
-      ),
-    });
-
-    expect(result.current.mfaStepUp).toBe(mfaStepUp);
-  });
-
   it('should set gate keeper error when a query fails because the step-up failed', async () => {
     const { result } = renderHook(
       () => {

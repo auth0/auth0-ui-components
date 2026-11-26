@@ -52,11 +52,12 @@ import { TextField } from '@/components/ui/text-field';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 interface EnrollmentStepProps {
   snapshot: MfaStepUpSnapshot;
   machine: MfaStepUpMachine;
+  classes?: MfaStepUpClasses;
 }
 
 const GUARDIAN_APP_STORE_URL = 'https://apps.apple.com/us/app/auth0-guardian/id1093447833';
@@ -70,19 +71,21 @@ type ContactForm = EmailContactForm | SmsContactForm;
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Install step element.
  * @internal
  */
-export function InstallStep({ snapshot, machine }: EnrollmentStepProps) {
+export function InstallStep({ snapshot, machine, classes }: EnrollmentStepProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const isLoading = snapshot.request.isLoading;
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{t('mfa.enroll.install_title')}</MfaDialogTitle>
-        <MfaDialogDescription>{t('mfa.enroll.install_description')}</MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t('mfa.enroll.install_title')}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
+          {t('mfa.enroll.install_description')}
+        </MfaDialogDescription>
       </MfaDialogHeader>
       <Separator />
 
@@ -123,8 +126,9 @@ export function InstallStep({ snapshot, machine }: EnrollmentStepProps) {
 
       <Separator />
 
-      <ActionRow className="mt-4">
+      <ActionRow classes={classes} className="mt-4">
         <MfaButton
+          classes={classes}
           type="button"
           variant="outline"
           onClick={machine.back}
@@ -134,6 +138,7 @@ export function InstallStep({ snapshot, machine }: EnrollmentStepProps) {
           {t('mfa.back')}
         </MfaButton>
         <MfaButton
+          classes={classes}
           type="button"
           variant="primary"
           onClick={() => machine.next()}
@@ -154,12 +159,12 @@ export function InstallStep({ snapshot, machine }: EnrollmentStepProps) {
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Contact step element.
  * @internal
  */
-export function ContactStep({ snapshot, machine }: EnrollmentStepProps) {
+export function ContactStep({ snapshot, machine, classes }: EnrollmentStepProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const isLoading = snapshot.request.isLoading;
   const isEmail = snapshot.facts.factor === FACTOR_TYPE_EMAIL;
 
@@ -198,8 +203,8 @@ export function ContactStep({ snapshot, machine }: EnrollmentStepProps) {
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{inputConfig.title}</MfaDialogTitle>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{inputConfig.title}</MfaDialogTitle>
       </MfaDialogHeader>
       <Separator />
       <Form {...form}>
@@ -235,8 +240,9 @@ export function ContactStep({ snapshot, machine }: EnrollmentStepProps) {
 
           <Separator />
 
-          <ActionRow>
+          <ActionRow classes={classes}>
             <MfaButton
+              classes={classes}
               type="button"
               variant="outline"
               onClick={machine.back}
@@ -246,6 +252,7 @@ export function ContactStep({ snapshot, machine }: EnrollmentStepProps) {
               {t('mfa.back')}
             </MfaButton>
             <MfaButton
+              classes={classes}
               type="submit"
               variant="primary"
               disabled={!form.formState.isValid || isLoading}
@@ -267,12 +274,12 @@ export function ContactStep({ snapshot, machine }: EnrollmentStepProps) {
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns QR step element.
  * @internal
  */
-export function QrStep({ snapshot, machine }: EnrollmentStepProps) {
+export function QrStep({ snapshot, machine, classes }: EnrollmentStepProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const isLoading = snapshot.request.isLoading;
   const isPush = snapshot.facts.factor === FACTOR_TYPE_PUSH;
   const { barcodeUri, authenticatorType, secret } = snapshot.enrollment;
@@ -281,8 +288,8 @@ export function QrStep({ snapshot, machine }: EnrollmentStepProps) {
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{t('mfa.title')}</MfaDialogTitle>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t('mfa.title')}</MfaDialogTitle>
       </MfaDialogHeader>
       <Separator />
       <div className={cn('flex justify-center my-4', classes?.['MfaStepUp-qrCode'])}>
@@ -303,8 +310,9 @@ export function QrStep({ snapshot, machine }: EnrollmentStepProps) {
 
       <Separator className="mt-4" />
 
-      <ActionRow className="mt-4">
+      <ActionRow classes={classes} className="mt-4">
         <MfaButton
+          classes={classes}
           type="button"
           variant="outline"
           onClick={machine.back}
@@ -314,6 +322,7 @@ export function QrStep({ snapshot, machine }: EnrollmentStepProps) {
           {t('mfa.back')}
         </MfaButton>
         <MfaButton
+          classes={classes}
           type="button"
           variant="primary"
           onClick={() => machine.next()}
@@ -334,12 +343,12 @@ export function QrStep({ snapshot, machine }: EnrollmentStepProps) {
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Recovery codes step element.
  * @internal
  */
-export function RecoveryStep({ snapshot, machine }: EnrollmentStepProps) {
+export function RecoveryStep({ snapshot, machine, classes }: EnrollmentStepProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const recoveryCodes = snapshot.newRecoveryCode
@@ -348,9 +357,11 @@ export function RecoveryStep({ snapshot, machine }: EnrollmentStepProps) {
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{t('mfa.enroll.backup_code_title')}</MfaDialogTitle>
-        <MfaDialogDescription>{t('mfa.enroll.backup_code_description')}</MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t('mfa.enroll.backup_code_title')}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
+          {t('mfa.enroll.backup_code_description')}
+        </MfaDialogDescription>
       </MfaDialogHeader>
       <div className="space-y-4 my-6">
         {recoveryCodes.map((code) => (
@@ -373,8 +384,9 @@ export function RecoveryStep({ snapshot, machine }: EnrollmentStepProps) {
         </div>
       </div>
 
-      <ActionRow>
+      <ActionRow classes={classes}>
         <MfaButton
+          classes={classes}
           type="button"
           variant="primary"
           onClick={() => machine.next()}

@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react';
 import { MfaWizard } from './mfa-wizard';
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
 
 const getNoRequest = () => undefined;
 
@@ -13,16 +13,17 @@ const getNoRequest = () => undefined;
  * The one MFA step-up dialog of the app. It shows the step-up that is open, whoever asked for it:
  * a component of this library, or a call wrapped in `withMfaStepUp`.
  *
+ * @param props - Component props.
+ * @param props.settings - The integrator's customization of the dialog.
  * @returns The dialog while a step-up is open, nothing otherwise.
  * @internal
  */
-export function MfaStepUpDialog() {
+export function MfaStepUpDialog({ settings }: { settings?: MfaStepUpSettings }) {
   const request = useSyncExternalStore(
     mfaStepUpStore.subscribe,
     mfaStepUpStore.getSnapshot,
     getNoRequest,
   );
-  const { mfaStepUp } = useGateKeeperContext();
 
   if (!request) return null;
 
@@ -31,14 +32,15 @@ export function MfaStepUpDialog() {
 
   return (
     <Dialog open onOpenChange={(open) => !open && request.cancel()}>
-      <DialogContent className={mfaStepUp?.classes?.['MfaStepUp-dialogContent']}>
+      <DialogContent className={settings?.classes?.['MfaStepUp-dialogContent']}>
         <MfaWizard
           error={request.error}
           onComplete={request.complete}
           onCancel={cancel}
-          flow={mfaStepUp?.flow}
-          screens={mfaStepUp?.screens}
-          actionsAlign={mfaStepUp?.actionsAlign}
+          flow={settings?.flow}
+          screens={settings?.screens}
+          actionsAlign={settings?.actionsAlign}
+          classes={settings?.classes}
         />
       </DialogContent>
     </Dialog>

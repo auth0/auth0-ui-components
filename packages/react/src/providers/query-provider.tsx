@@ -25,7 +25,6 @@ import {
 
 import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import type { QueryCacheConfig } from '@/types/cache-types';
-import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
 import type { QueryRetryConfig } from '@/types/retry-types';
 
 /** Default cache configuration. */
@@ -212,7 +211,6 @@ export interface QueryProviderProps {
   cacheConfig?: QueryCacheConfig;
   /** Retry config, only read on mount. */
   retryConfig?: QueryRetryConfig;
-  mfaStepUp?: MfaStepUpSettings;
 }
 
 /**
@@ -221,7 +219,6 @@ export interface QueryProviderProps {
  * @param props.children - Child components.
  * @param props.cacheConfig - Cache configuration.
  * @param props.retryConfig - Retry configuration.
- * @param props.mfaStepUp - Customization of the MFA step-up dialog.
  * @returns The context provider component
  * @internal
  */
@@ -229,7 +226,6 @@ export function QueryProvider({
   children,
   cacheConfig,
   retryConfig,
-  mfaStepUp,
 }: QueryProviderProps): ReactElement {
   const [gateKeeperState, setGateKeeperState] = useState<GateKeeperState | null>(null);
   const [queryClient] = useState(() =>
@@ -240,10 +236,7 @@ export function QueryProvider({
     ),
   );
 
-  const contextValue = useMemo(
-    () => ({ ...(gateKeeperState ?? { error: null }), mfaStepUp }),
-    [gateKeeperState, mfaStepUp],
-  );
+  const contextValue = useMemo(() => gateKeeperState ?? { error: null }, [gateKeeperState]);
 
   return (
     <GateKeeperContext.Provider value={contextValue}>

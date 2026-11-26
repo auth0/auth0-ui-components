@@ -152,18 +152,14 @@ export const Auth0ComponentProvider = (
         )}
         {coreClient ? (
           <CoreClientContext.Provider value={coreClientValue}>
-            <QueryProvider
-              cacheConfig={cacheConfig}
-              retryConfig={retryConfig}
-              mfaStepUp={mfaStepUp}
-            >
+            <QueryProvider cacheConfig={cacheConfig} retryConfig={retryConfig}>
               <PermissionProvider
                 isAuthenticated={isAuthenticated}
                 disablePermissionEnforcement={disablePermissionEnforcement}
               >
                 {children}
               </PermissionProvider>
-              <MfaStepUpDialog />
+              <MfaStepUpDialog settings={mfaStepUp} />
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (

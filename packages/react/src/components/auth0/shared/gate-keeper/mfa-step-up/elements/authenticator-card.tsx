@@ -6,7 +6,7 @@ import type { ComponentType } from 'react';
 
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 export interface MethodGroup {
   key: string;
@@ -42,12 +42,18 @@ const formatDate = (iso?: string) => {
  *
  * @param props - Component props.
  * @param props.option - The authenticator.
+ * @param props.classes - The integrator's class overrides.
  * @returns A radio card.
  * @internal
  */
-export function AuthenticatorCard({ option }: { option: MfaOption }) {
+export function AuthenticatorCard({
+  option,
+  classes,
+}: {
+  option: MfaOption;
+  classes?: MfaStepUpClasses;
+}) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const group = getMethodGroup(option);
   const { name, lastAuth, createdAt } = option.authenticator ?? {};
 

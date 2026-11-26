@@ -9,7 +9,6 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MfaStepUpDialog } from '@/components/auth0/shared/gate-keeper/mfa-step-up/mfa-step-up-dialog';
-import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import {
   createMockCoreClient,
   createMockMfaApiClient,
@@ -38,12 +37,9 @@ describe('MfaStepUpDialog', () => {
   });
 
   const renderHost = (settings?: MfaStepUpSettings) =>
-    renderWithProviders(
-      <GateKeeperContext.Provider value={{ error: null, mfaStepUp: settings }}>
-        <MfaStepUpDialog />
-      </GateKeeperContext.Provider>,
-      { coreClient: createMockCoreClient(undefined, apiClient) },
-    );
+    renderWithProviders(<MfaStepUpDialog settings={settings} />, {
+      coreClient: createMockCoreClient(undefined, apiClient),
+    });
 
   const open = (error: MfaRequiredError = mockMfaRequiredError) => {
     let outcome: Promise<unknown>;

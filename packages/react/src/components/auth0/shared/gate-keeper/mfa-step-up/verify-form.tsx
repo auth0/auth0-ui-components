@@ -26,17 +26,18 @@ import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
  * @param props - Component props.
  * @param props.snapshot - The flow's snapshot.
  * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Verify form element.
  * @internal
  */
-export function VerifyForm({ snapshot, machine }: MfaStepScreenProps) {
+export function VerifyForm({ snapshot, machine, classes }: MfaStepScreenProps) {
   const { t } = useTranslator('gate_keeper');
   const { selected, facts } = snapshot;
   const isEnrolling = selected?.kind === 'enroll';
   const isGuardianCode = facts.factor === FACTOR_TYPE_PUSH && snapshot.push?.mode === 'code';
 
   if (facts.factor === FACTOR_TYPE_PUSH && !isGuardianCode) {
-    return <PushChallenge snapshot={snapshot} machine={machine} />;
+    return <PushChallenge classes={classes} snapshot={snapshot} machine={machine} />;
   }
 
   const sentTo = isEnrolling ? snapshot.contact : selected?.authenticator?.name;
@@ -59,7 +60,7 @@ export function VerifyForm({ snapshot, machine }: MfaStepScreenProps) {
   const footer =
     isGuardianCode && snapshot.push?.canApprove ? (
       <p className="text-center">
-        <MfaLink onClick={machine.switchToPush} className="text-sm">
+        <MfaLink classes={classes} onClick={machine.switchToPush} className="text-sm">
           {t('mfa.challenge.use_push_instead')}
         </MfaLink>
       </p>
@@ -67,11 +68,12 @@ export function VerifyForm({ snapshot, machine }: MfaStepScreenProps) {
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{title}</MfaDialogTitle>
-        <MfaDialogDescription>{description}</MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{title}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>{description}</MfaDialogDescription>
       </MfaDialogHeader>
       <OtpCodeForm
+        classes={classes}
         onSubmit={(code) => machine.next(code)}
         onCancel={isEnrolling ? machine.back : machine.cancel}
         cancelLabel={isEnrolling ? t('mfa.back') : undefined}

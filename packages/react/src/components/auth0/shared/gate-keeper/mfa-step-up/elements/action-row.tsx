@@ -2,18 +2,22 @@
 import type { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
+import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
 /**
  * The row of buttons at the bottom of an MFA screen. Right-aligned, unless the wizard says otherwise.
  *
  * @param props - Div props.
  * @param props.className - Classes to add.
+ * @param props.classes - The integrator's class overrides.
  * @returns Action row element.
  * @internal
  */
-export function ActionRow({ className, ...props }: ComponentProps<'div'>) {
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
+export function ActionRow({
+  className,
+  classes,
+  ...props
+}: ComponentProps<'div'> & { classes?: MfaStepUpClasses }) {
   return (
     <div
       className={cn(

@@ -14,7 +14,6 @@ import { RadioGroup } from '@/components/ui/radio-group';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { cn } from '@/lib/utils';
-import { useGateKeeperContext } from '@/providers/gate-keeper-context';
 import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
 
 /**
@@ -27,9 +26,8 @@ import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
  * @returns Confirm step element.
  * @internal
  */
-export function ConfirmStep({ snapshot, machine }: MfaStepScreenProps) {
+export function ConfirmStep({ snapshot, machine, classes }: MfaStepScreenProps) {
   const { t } = useTranslator('gate_keeper');
-  const classes = useGateKeeperContext().mfaStepUp?.classes;
   const [selectedId, setSelectedId] = useState(snapshot.selected?.id);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,9 +49,9 @@ export function ConfirmStep({ snapshot, machine }: MfaStepScreenProps) {
 
   return (
     <>
-      <MfaDialogHeader>
-        <MfaDialogTitle>{t('mfa.title')}</MfaDialogTitle>
-        <MfaDialogDescription>
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t('mfa.title')}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
           {sendsPush ? t('mfa.confirm.push_description') : t('mfa.subtitle')}
         </MfaDialogDescription>
       </MfaDialogHeader>
@@ -77,13 +75,14 @@ export function ConfirmStep({ snapshot, machine }: MfaStepScreenProps) {
               {t(`mfa.confirm.method.${group.key}`)}
             </h3>
             {options.map((option) => (
-              <AuthenticatorCard key={option.id} option={option} />
+              <AuthenticatorCard classes={classes} key={option.id} option={option} />
             ))}
           </section>
         </RadioGroup>
       )}
-      <ActionRow>
+      <ActionRow classes={classes}>
         <MfaButton
+          classes={classes}
           variant="primary"
           onClick={handleConfirm}
           disabled={!selectedId || isSubmitting}
@@ -98,6 +97,7 @@ export function ConfirmStep({ snapshot, machine }: MfaStepScreenProps) {
           )}
         </MfaButton>
         <MfaButton
+          classes={classes}
           variant="outline"
           onClick={machine.cancel}
           disabled={isSubmitting}
