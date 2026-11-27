@@ -4,176 +4,199 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { AuthenticatorsList } from '@/components/auth0/shared/gate-keeper/mfa-step-up/authenticators-list';
 import {
-  mockMfaRequiredError,
-  mockUseMfaRequirements,
+  createMockSnapshot,
+  createMockStepUpMachine,
 } from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-vi.mock('@/hooks/shared/use-mfa-requirements');
+const enrollOptions = [
+  { id: 'enroll:otp', kind: 'enroll' as const, factor: 'otp' },
+  { id: 'enroll:sms', kind: 'enroll' as const, factor: 'sms' },
+];
 
-const mockError = mockMfaRequiredError;
-
-const defaultProps = {
-  error: mockError,
-  onSelectFactor: vi.fn(),
-  onSelectAuthenticator: vi.fn(),
-  onCancel: vi.fn(),
-};
+const challengeOptions = [
+  {
+    id: 'challenge:auth-1',
+    kind: 'challenge' as const,
+    factor: 'sms',
+    authenticator: { id: 'auth-1', authenticatorType: 'oob' as const, type: 'phone' as const },
+  },
+  {
+    id: 'challenge:auth-2',
+    kind: 'challenge' as const,
+    factor: 'oob',
+    authenticator: { id: 'auth-2', authenticatorType: 'oob' as const, name: 'My phone' },
+  },
+];
 
 describe('AuthenticatorsList', () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
 
-  describe('loading state', () => {
-    it('renders a spinner while loading', () => {
-      mockUseMfaRequirements({ isLoading: true });
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
-
-      // When loading, should show spinner, not list
-      expect(screen.queryByRole('list')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('empty state', () => {
-    it('shows no_authenticators message when both factors and authenticators are empty', async () => {
-      mockUseMfaRequirements();
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
-
-      expect(await screen.findByText('mfa.no_authenticators')).toBeInTheDocument();
-    });
-  });
-
-  describe('enroll mode (factors)', () => {
-    it('renders factor items with enroll buttons', async () => {
-      mockUseMfaRequirements({
-        factors: [{ type: 'otp' as const }, { type: 'sms' as const }],
-        isEnrollMode: true,
-      });
-
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
-
-      const enrollButtons = await screen.findAllByRole('button', { name: /mfa.enroll_button/i });
-      expect(enrollButtons).toHaveLength(2);
-    });
-
-    it('calls onSelectFactor with the correct factor when enroll button is clicked', async () => {
-      const user = userEvent.setup();
-      const mockOnSelectFactor = vi.fn();
-      const otpFactor = { type: 'otp' as const };
-
-      mockUseMfaRequirements({
-        factors: [otpFactor],
-        isEnrollMode: true,
-      });
-
+  describe('enroll options', () => {
+    it('renders each factor with an enroll button', async () => {
       renderWithProviders(
-        <AuthenticatorsList {...defaultProps} onSelectFactor={mockOnSelectFactor} />,
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: enrollOptions })}
+          machine={createMockStepUpMachine()}
+        />,
       );
 
-      await user.click(await screen.findByRole('button', { name: /mfa.enroll_button/i }));
-
-      expect(mockOnSelectFactor).toHaveBeenCalledWith(otpFactor);
+      expect(await screen.findAllByRole('button', { name: /mfa.enroll_button/i })).toHaveLength(2);
+      expect(screen.getByText('mfa.authenticator_type.otp')).toBeInTheDocument();
+      expect(screen.getByText('mfa.authenticator_type.sms')).toBeInTheDocument();
     });
 
-    it('disables all factor buttons after one is selected', async () => {
+    it('hands the option id to the machine when enroll is clicked', async () => {
+      const machine = createMockStepUpMachine();
       const user = userEvent.setup();
-      mockUseMfaRequirements({
-        factors: [{ type: 'otp' as const }, { type: 'sms' as const }],
-        isEnrollMode: true,
-      });
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: enrollOptions })}
+          machine={machine}
+        />,
+      );
 
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
+      await user.click(
+        await screen.findByRole('button', { name: 'mfa.enroll_button mfa.authenticator_type.sms' }),
+      );
 
-      const [firstButton] = await screen.findAllByRole('button', { name: /mfa.enroll_button/i });
-      await user.click(firstButton!);
+      expect(machine.next).toHaveBeenCalledWith('enroll:sms');
+    });
+  });
+
+  describe('challenge options', () => {
+    const datedOptions = [
+      {
+        id: 'challenge:otp-1',
+        kind: 'challenge' as const,
+        factor: 'otp',
+        authenticator: {
+          id: 'otp-1',
+          authenticatorType: 'otp' as const,
+          createdAt: '2026-02-01T10:00:00.000Z',
+        },
+      },
+      {
+        id: 'challenge:sms-1',
+        kind: 'challenge' as const,
+        factor: 'sms',
+        authenticator: {
+          id: 'sms-1',
+          authenticatorType: 'oob' as const,
+          name: '+\u2022\u2022\u2022\u2022\u20222345',
+          lastAuth: '2026-05-02T10:00:00.000Z',
+        },
+      },
+    ];
+
+    it('groups the authenticators by method, and names an unknown one by its name', async () => {
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: challengeOptions })}
+          machine={createMockStepUpMachine()}
+        />,
+      );
+
+      expect(await screen.findAllByRole('radio')).toHaveLength(2);
+      expect(screen.getByRole('heading', { name: 'mfa.method.phone' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'mfa.method.other' })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: 'My phone' })).toBeInTheDocument();
+    });
+
+    it('shows when an authenticator was last used, or else when it was added', async () => {
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: datedOptions })}
+          machine={createMockStepUpMachine()}
+        />,
+      );
+
+      expect(await screen.findByRole('radio', { name: /mfa.added_on/ })).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: /mfa.last_used_on/ })).toBeInTheDocument();
+    });
+
+    it('selects the first authenticator, and hands the chosen one to the machine on continue', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: challengeOptions })}
+          machine={machine}
+        />,
+      );
+
+      expect(await screen.findByRole('radio', { name: /mfa.method.phone/ })).toBeChecked();
+      await user.click(screen.getByRole('radio', { name: 'My phone' }));
+      await user.click(screen.getByRole('button', { name: 'mfa.continue' }));
+
+      expect(machine.next).toHaveBeenCalledWith('challenge:auth-2');
+    });
+
+    it('cancels through the machine', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: challengeOptions })}
+          machine={machine}
+        />,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'mfa.cancel' }));
+
+      expect(machine.cancel).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('while an option is being picked', () => {
+    it('disables every button until the machine has finished, then enables them again', async () => {
+      let finish!: () => void;
+      const machine = createMockStepUpMachine();
+      vi.mocked(machine.next).mockImplementation(
+        () => new Promise<void>((resolve) => (finish = resolve)),
+      );
+      const user = userEvent.setup();
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: enrollOptions })}
+          machine={machine}
+        />,
+      );
+
+      await user.click(
+        await screen.findByRole('button', { name: 'mfa.enroll_button mfa.authenticator_type.otp' }),
+      );
 
       await waitFor(() => {
-        screen.getAllByRole('button', { name: /mfa.enroll_button/i }).forEach((btn) => {
-          expect(btn).toBeDisabled();
-        });
-      });
-    });
-  });
-
-  describe('challenge mode (authenticators)', () => {
-    it('renders authenticator items with verify buttons', async () => {
-      mockUseMfaRequirements({
-        authenticators: [
-          {
-            id: 'auth-1',
-            authenticatorType: 'oob',
-            active: true,
-            type: 'sms',
-            name: 'SMS',
-          } as never,
-          {
-            id: 'auth-2',
-            authenticatorType: 'otp',
-            active: true,
-            type: 'otp',
-            name: 'OTP',
-          } as never,
-        ],
-        isEnrollMode: false,
+        screen.getAllByRole('button').forEach((button) => expect(button).toBeDisabled());
       });
 
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
+      finish();
 
-      const verifyButtons = await screen.findAllByRole('button', { name: /mfa.verify_button/i });
-      expect(verifyButtons).toHaveLength(2);
-    });
-
-    it('calls onSelectAuthenticator with the correct authenticator when verify button is clicked', async () => {
-      const user = userEvent.setup();
-      const mockOnSelectAuthenticator = vi.fn();
-      const authenticator = {
-        id: 'auth-1',
-        authenticatorType: 'oob',
-        active: true,
-        type: 'sms',
-        name: 'SMS',
-      } as never;
-
-      mockUseMfaRequirements({
-        authenticators: [authenticator],
-        isEnrollMode: false,
-      });
-
-      renderWithProviders(
-        <AuthenticatorsList {...defaultProps} onSelectAuthenticator={mockOnSelectAuthenticator} />,
+      await waitFor(() =>
+        expect(
+          screen.getByRole('button', { name: 'mfa.enroll_button mfa.authenticator_type.sms' }),
+        ).toBeEnabled(),
       );
-
-      await user.click(await screen.findByRole('button', { name: /mfa.verify_button/i }));
-
-      expect(mockOnSelectAuthenticator).toHaveBeenCalledWith(authenticator);
     });
   });
 
   describe('cancel button', () => {
-    it('renders cancel button in list view', async () => {
-      mockUseMfaRequirements({
-        authenticators: [{ id: 'auth-1', authenticatorType: 'otp', active: true } as never],
-      });
-
-      renderWithProviders(<AuthenticatorsList {...defaultProps} />);
-
-      expect(await screen.findByRole('button', { name: 'mfa.cancel' })).toBeInTheDocument();
-    });
-
-    it('calls onCancel when cancel is clicked', async () => {
+    it('cancels the flow through the machine', async () => {
+      const machine = createMockStepUpMachine();
       const user = userEvent.setup();
-      const mockOnCancel = vi.fn();
-
-      mockUseMfaRequirements({
-        authenticators: [{ id: 'auth-1', authenticatorType: 'otp', active: true } as never],
-      });
-
-      renderWithProviders(<AuthenticatorsList {...defaultProps} onCancel={mockOnCancel} />);
+      renderWithProviders(
+        <AuthenticatorsList
+          snapshot={createMockSnapshot({ options: enrollOptions })}
+          machine={machine}
+        />,
+      );
 
       await user.click(await screen.findByRole('button', { name: 'mfa.cancel' }));
 
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
+      expect(machine.cancel).toHaveBeenCalledTimes(1);
     });
   });
 });

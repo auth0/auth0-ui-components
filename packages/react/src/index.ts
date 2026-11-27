@@ -3,7 +3,6 @@
  */
 
 // Components
-export { GateKeeper } from './components/auth0/shared/gate-keeper/gate-keeper';
 export {
   UserMFAManagement,
   UserMFAManagementView,
@@ -53,6 +52,18 @@ export {
 // Providers
 export { PermissionProvider } from './providers/permission-provider';
 
+// MFA step-up for calls made outside the library's components
+export {
+  withMfaStepUp,
+  MFA_STEP,
+  type MfaBuiltInStepPath,
+  type MfaCustomStep,
+  type MfaFlowConfig,
+  type MfaFlowFacts,
+  type MfaStepUpMachine,
+  type MfaStepUpSnapshot,
+} from '@auth0/universal-components-core';
+
 // Shared hooks
 export { useCoreClient, CoreClientContext } from './hooks/shared/use-core-client';
 export { useTranslator } from './hooks/shared/use-translator';
@@ -60,6 +71,11 @@ export { useTheme } from './hooks/shared/use-theme';
 export { useCoreClientInitialization } from './hooks/shared/use-core-client-initialization';
 export { useErrorHandler } from './hooks/shared/use-error-handler';
 export { usePermissions } from './hooks/shared/use-permissions';
+export {
+  useMfaStepUp,
+  type UseMfaStepUpOptions,
+  type UseMfaStepUpResult,
+} from './hooks/shared/use-mfa-step-up';
 
 // My Account hooks
 export { useUserMFA } from './hooks/my-account/use-user-mfa';
@@ -86,6 +102,7 @@ export { useOrganizationMemberDetail } from './hooks/my-organization/use-member-
 
 // Auth types
 export * from './types/auth-types';
+export * from './types/mfa-step-up-types';
 
 // My Account types
 export * from './types/my-account/user-mfa-management/user-mfa-management-types';

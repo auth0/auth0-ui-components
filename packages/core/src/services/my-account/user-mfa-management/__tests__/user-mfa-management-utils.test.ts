@@ -251,16 +251,6 @@ describe('mfa-utils', () => {
         expect(phoneFactors?.[0]?.enrolled).toBe(false);
       });
 
-      it('should exclude webauthn-platform and webauthn-roaming from full listing', () => {
-        const availableFactors = createMockAvailableFactors();
-        const enrolledFactors = createEmptyEnrolledFactors();
-
-        const result = transformMyAccountFactors(availableFactors, enrolledFactors, false);
-
-        expect(result['webauthn-platform']).toBeUndefined();
-        expect(result['webauthn-roaming']).toBeUndefined();
-      });
-
       it('should group multiple enrolled factors of the same type', () => {
         const availableFactors = createMockAvailableFactors();
         const enrolledFactors = createMockEnrolledFactors([

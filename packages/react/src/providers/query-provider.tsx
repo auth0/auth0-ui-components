@@ -6,7 +6,7 @@
  * @internal
  */
 
-import { isMfaRequiredError, isNotifiableError } from '@auth0/universal-components-core';
+import { isMfaStepUpError, isNotifiableError } from '@auth0/universal-components-core';
 import {
   MutationCache,
   type Query,
@@ -139,18 +139,14 @@ function createQueryClient(
   const queryClient = new QueryClient({
     queryCache: new QueryCache({
       onError: (error) => {
-        if (!isNotifiableError(error)) {
-          setGateKeeperState({
-            error,
-            source: 'query',
-            onRetry: async () => {
-              await queryClient.refetchQueries({ predicate: isGateKeeperError });
-              const stillFailing = queryClient.getQueryCache().getAll().some(isGateKeeperError);
-              if (!stillFailing) setGateKeeperState(null);
-              return !stillFailing;
-            },
-          });
-        }
+        if (isNotifiableError(error)) return;
+        const onRetry = async () => {
+          await queryClient.refetchQueries({ predicate: isGateKeeperError });
+          const stillFailing = queryClient.getQueryCache().getAll().some(isGateKeeperError);
+          if (!stillFailing) setGateKeeperState(null);
+          return !stillFailing;
+        };
+        setGateKeeperState({ error, source: 'query', onRetry });
       },
       onSuccess: () => {
         const stillFailing = queryClient
@@ -165,22 +161,18 @@ function createQueryClient(
     }),
     mutationCache: new MutationCache({
       onError: (error, variables, _context, mutation) => {
-        if (isMfaRequiredError(error)) {
-          setGateKeeperState({
-            error,
-            source: 'mutation',
-            onRetry: async () => {
-              try {
-                await mutation.execute(variables);
-                await queryClient.invalidateQueries();
-                setGateKeeperState(null);
-                return true;
-              } catch {
-                return false;
-              }
-            },
-          });
-        }
+        if (!isMfaStepUpError(error)) return;
+        const onRetry = async () => {
+          try {
+            await mutation.execute(variables);
+            await queryClient.invalidateQueries();
+            setGateKeeperState(null);
+            return true;
+          } catch {
+            return false;
+          }
+        };
+        setGateKeeperState({ error, source: 'mutation', onRetry });
       },
     }),
     defaultOptions: {
@@ -191,7 +183,7 @@ function createQueryClient(
         refetchOnWindowFocus: cacheConfig.refetchOnWindowFocus,
         retry: (failureCount, error) =>
           retryConfig.enabled &&
-          !isMfaRequiredError(error) &&
+          !isMfaStepUpError(error) &&
           failureCount < retryConfig.queries.maxRetries,
         retryDelay: (attemptIndex: number) =>
           Math.min(
@@ -203,7 +195,7 @@ function createQueryClient(
       mutations: {
         retry: (failureCount, error) =>
           retryConfig.enabled &&
-          !isMfaRequiredError(error) &&
+          !isMfaStepUpError(error) &&
           failureCount < retryConfig.mutations.maxRetries,
       },
     },
@@ -244,10 +236,7 @@ export function QueryProvider({
     ),
   );
 
-  const contextValue = useMemo(
-    () => ({ error: gateKeeperState?.error ?? null, onRetry: gateKeeperState?.onRetry }),
-    [gateKeeperState],
-  );
+  const contextValue = useMemo(() => gateKeeperState ?? { error: null }, [gateKeeperState]);
 
   return (
     <GateKeeperContext.Provider value={contextValue}>

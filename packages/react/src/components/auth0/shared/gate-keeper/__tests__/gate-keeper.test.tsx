@@ -1,149 +1,101 @@
-import * as coreModule from '@auth0/universal-components-core';
+import { createMfaStepUpError } from '@auth0/universal-components-core';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { GateKeeper } from '@/components/auth0/shared/gate-keeper/gate-keeper';
-import * as gateKeeperContextModule from '@/providers/gate-keeper-context';
-import { createMockCoreClient } from '@/tests/utils/__mocks__/core/core-client.mocks';
-import {
-  mockMfaRequiredError,
-  mock5xxError,
-} from '@/tests/utils/__mocks__/shared/mfa-step-up.mocks';
+import { GateKeeperContext } from '@/providers/gate-keeper-context';
 import { renderWithProviders } from '@/tests/utils/test-provider';
 
-vi.mock('@/providers/gate-keeper-context');
-
-const setupContext = (error: unknown = null, onRetry = vi.fn()) => {
-  vi.mocked(gateKeeperContextModule.useGateKeeperContext).mockReturnValue({
-    error,
-    onRetry,
-  } as ReturnType<typeof gateKeeperContextModule.useGateKeeperContext>);
-};
-
-const setupSystemError = (statusCode: number) => {
-  vi.spyOn(coreModule, 'isMfaRequiredError').mockReturnValue(false);
-  vi.spyOn(coreModule, 'getStatusCode').mockReturnValue(statusCode);
-};
-
-const setupMfaError = () => {
-  vi.spyOn(coreModule, 'isMfaRequiredError').mockReturnValue(true);
-  vi.spyOn(coreModule, 'getStatusCode').mockReturnValue(undefined);
-  setupContext(mockMfaRequiredError);
-};
-
 describe('GateKeeper', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-    vi.restoreAllMocks();
+  it('shows a spinner, not the content, while loading', () => {
+    const { container } = renderWithProviders(
+      <GateKeeper isLoading>
+        <p>content</p>
+      </GateKeeper>,
+    );
+
+    expect(container.querySelector('.auth0-universal .animate-spin')).not.toBeNull();
+    expect(screen.queryByText('content')).not.toBeInTheDocument();
   });
 
-  describe('no error', () => {
-    it('renders children when there is no error and not loading', async () => {
-      setupContext(null);
+  it('shows the content once it loaded', () => {
+    const { container } = renderWithProviders(
+      <GateKeeper isLoading={false}>
+        <p>content</p>
+      </GateKeeper>,
+    );
 
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
-      );
-
-      expect(await screen.findByText('child content')).toBeInTheDocument();
-    });
+    expect(screen.getByText('content')).toBeInTheDocument();
+    expect(container.querySelector('.animate-spin')).toBeNull();
   });
 
-  describe('loading state', () => {
-    it('shows spinner and hides children when isLoading is true', () => {
-      setupContext(null);
+  it('applies the variables of the styling to its scope', () => {
+    const { container } = renderWithProviders(
+      <GateKeeper
+        isLoading
+        // The suite's mock of getComponentStyles hands the styling back as it is.
+        styling={{ variables: { '--radius-2xl': '0px' } } as never}
+      >
+        <p>content</p>
+      </GateKeeper>,
+    );
 
-      renderWithProviders(
-        <GateKeeper isLoading>
-          <p>child content</p>
-        </GateKeeper>,
-      );
-
-      expect(screen.queryByText('child content')).not.toBeInTheDocument();
-    });
+    const scope = container
+      .querySelector('.animate-spin')
+      ?.closest<HTMLElement>('.auth0-universal');
+    expect(scope?.style.getPropertyValue('--radius-2xl')).toBe('0px');
   });
 
-  describe('5xx system error', () => {
-    it('shows error fallback with retry button for 5xx errors', async () => {
-      setupSystemError(503);
-      setupContext(mock5xxError);
-
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
+  describe('when the load failed', () => {
+    const withStatus = (status: number) => Object.assign(new Error(`HTTP ${status}`), { status });
+    const renderWithError = (
+      error: Error | null,
+      onRetry = vi.fn().mockResolvedValue(true),
+      isLoading = true,
+    ) => {
+      const view = renderWithProviders(
+        <GateKeeperContext.Provider value={{ error, onRetry }}>
+          <GateKeeper isLoading={isLoading}>
+            <p>content</p>
+          </GateKeeper>
+        </GateKeeperContext.Provider>,
       );
+      return { ...view, onRetry };
+    };
 
-      expect(await screen.findByText('fallback.title')).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: /fallback.retry/i })).toBeInTheDocument();
-      expect(screen.queryByText('child content')).not.toBeInTheDocument();
+    it.each([
+      ['a 500', withStatus(500)],
+      ['a 429', withStatus(429)],
+      ['a cancelled step-up', createMfaStepUpError('cancelled')],
+      ['a step-up that could not finish', createMfaStepUpError('unavailable')],
+    ])('shows the message in place of the spinner and the content for %s', (_name, error) => {
+      const { container } = renderWithError(error, undefined, false);
+
+      expect(screen.getByText('fallback.title')).toBeInTheDocument();
+      expect(screen.queryByText('content')).not.toBeInTheDocument();
+      expect(screen.getByText('fallback.description')).toBeInTheDocument();
+      expect(container.querySelector('.animate-spin')).toBeNull();
     });
 
-    it('calls onRetry when retry button is clicked', async () => {
+    it.each([
+      ['a 404', withStatus(404)],
+      ['a plain error', new Error('boom')],
+      ['no error', null],
+    ])('keeps the spinner for %s', (_name, error) => {
+      const { container } = renderWithError(error);
+
+      expect(container.querySelector('.animate-spin')).not.toBeNull();
+      expect(screen.queryByText('fallback.title')).not.toBeInTheDocument();
+    });
+
+    it('fetches again when the user presses Retry', async () => {
       const user = userEvent.setup();
-      const mockOnRetry = vi.fn().mockResolvedValue(undefined);
+      const { onRetry } = renderWithError(withStatus(503));
 
-      setupSystemError(500);
-      setupContext(mock5xxError, mockOnRetry);
+      await user.click(screen.getByRole('button', { name: /fallback.retry/ }));
 
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
-      );
-
-      await user.click(await screen.findByRole('button', { name: /fallback.retry/i }));
-
-      await waitFor(() => expect(mockOnRetry).toHaveBeenCalledTimes(1));
-    });
-  });
-
-  describe('MFA required error', () => {
-    it('shows MFA dialog overlaid on children without blocking them', async () => {
-      setupMfaError();
-
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
-      );
-
-      expect(await screen.findByRole('dialog')).toBeInTheDocument();
-      expect(await screen.findByText('mfa.title')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: /fallback.retry/i })).not.toBeInTheDocument();
-      expect(screen.getByText('child content')).toBeInTheDocument();
-    });
-
-    it('emits console.warn in SPA mode', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      setupMfaError();
-
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
-      );
-
-      await screen.findByRole('dialog');
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('[Auth0 Components Warning]'));
-    });
-
-    it('does not emit console.warn in proxy mode', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      setupMfaError();
-
-      renderWithProviders(
-        <GateKeeper>
-          <p>child content</p>
-        </GateKeeper>,
-        { coreClient: { ...createMockCoreClient(), isProxyMode: () => true } },
-      );
-
-      await screen.findByRole('dialog');
-      expect(warnSpy).not.toHaveBeenCalled();
+      await waitFor(() => expect(onRetry).toHaveBeenCalledTimes(1));
     });
   });
 });

@@ -5,163 +5,116 @@
  */
 
 import {
-  FACTOR_TYPE_PUSH_NOTIFICATION,
+  FACTOR_TYPE_PUSH,
   FACTOR_TYPE_RECOVERY_CODE,
-  type MfaRequiredError,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_VOICE,
 } from '@auth0/universal-components-core';
-import { useEffect, useState } from 'react';
 
+import {
+  MfaDialogDescription,
+  MfaDialogHeader,
+  MfaDialogTitle,
+  MfaLink,
+} from './elements/dialog-elements';
 import { OtpCodeForm } from './otp-code-form';
+import { PushChallenge } from './push-challenge';
 
-import { Button } from '@/components/ui/button';
-import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
-import { Spinner } from '@/components/ui/spinner';
-import { useMfaStepUp } from '@/hooks/shared/use-mfa-step-up';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
 
-interface VerifyAuthenticator {
-  id?: string;
-  authenticatorType: 'otp' | 'oob' | 'recovery-code';
-  oobCode?: string;
-  type?: string;
-  name?: string;
-}
+const TEXTS = {
+  guardian: {
+    title: 'mfa.challenge.guardian_code_title',
+    description: 'mfa.challenge.guardian_code_description',
+  },
+  recovery: {
+    title: 'mfa.challenge.recovery_title',
+    description: 'mfa.challenge.recovery_code_description',
+  },
+  email: {
+    title: 'mfa.challenge.email_title',
+    description: 'mfa.challenge.code_sent_description',
+  },
+  phone: {
+    title: 'mfa.challenge.phone_title',
+    description: 'mfa.challenge.code_sent_description',
+  },
+  otp: { title: 'mfa.challenge.otp_title', description: 'mfa.challenge.otp_description' },
+} as const;
 
-interface VerifyFormProps {
-  error: MfaRequiredError;
-  authenticator: VerifyAuthenticator;
-  onComplete: () => void;
-  onCancel: () => void;
+/**
+ * Picks the texts of the screen: where the code came from, if it was sent to the user.
+ *
+ * @param factor - The factor being verified.
+ * @param isGuardianCode - Whether the user types a Guardian code instead of approving a push.
+ * @param sentTo - Where the code was sent, if known.
+ * @returns The key of the texts to show.
+ */
+function getTextsVariant(
+  factor: string | undefined,
+  isGuardianCode: boolean,
+  sentTo: string | undefined,
+): keyof typeof TEXTS {
+  if (isGuardianCode) return 'guardian';
+  if (factor === FACTOR_TYPE_RECOVERY_CODE) return 'recovery';
+  if (!sentTo) return 'otp';
+  if (factor === 'email') return 'email';
+  return factor === FACTOR_TYPE_SMS || factor === FACTOR_TYPE_VOICE ? 'phone' : 'otp';
 }
 
 /**
- * Verify form for MFA step-up. Handles OTP, OOB (SMS, email, push, voice), and recovery-code authenticators.
+ * Where the user proves who they are. A push waits for them to approve it on their device, and
+ * every other factor asks for a code. It also finishes enrolling a factor, with the code that
+ * was sent to the new contact or the one the authenticator app shows.
  *
  * @param props - Component props.
+ * @param props.snapshot - The flow's snapshot.
+ * @param props.machine - The flow's machine.
+ * @param props.classes - The integrator's class overrides.
  * @returns Verify form element.
  * @internal
  */
-export function VerifyForm({ error, authenticator, onComplete, onCancel }: VerifyFormProps) {
+export function VerifyForm({ snapshot, machine, classes }: MfaStepScreenProps) {
   const { t } = useTranslator('gate_keeper');
-  const { challenge, verify, isLoading } = useMfaStepUp({ error, onComplete });
-  const mfaToken = error.mfa_token;
+  const { selected, facts } = snapshot;
+  const isEnrolling = selected?.kind === 'enroll';
+  const isGuardianCode = facts.factor === FACTOR_TYPE_PUSH && snapshot.push?.mode === 'code';
 
-  const authenticatorType = authenticator.authenticatorType;
-
-  const isOob = authenticatorType === 'oob';
-  const isRecoveryCode = authenticatorType === FACTOR_TYPE_RECOVERY_CODE;
-  const isPush = authenticator.type === FACTOR_TYPE_PUSH_NOTIFICATION;
-
-  const [challenged, setChallenged] = useState(!isOob);
-  const [challengeFailed, setChallengeFailed] = useState(false);
-  const [challengeAttempt, setChallengeAttempt] = useState(0);
-  const [oobCode, setOobCode] = useState<string | undefined>();
-
-  const handleVerify = async (code: string) => {
-    if (isOob) await verify({ mfaToken, oobCode, bindingCode: code });
-    else if (isRecoveryCode) await verify({ mfaToken, recoveryCode: code });
-    else await verify({ mfaToken, otp: code });
-  };
-
-  const handleResend = async () => {
-    const response = await challenge(authenticator);
-    if (response?.oobCode) setOobCode(response.oobCode);
-  };
-
-  useEffect(() => {
-    if (!isOob) return;
-
-    const initializeChallenge = async () => {
-      setChallengeFailed(false);
-      const response = await challenge(authenticator);
-      if (response?.oobCode) {
-        setOobCode(response.oobCode);
-        setChallenged(true);
-      } else {
-        setChallengeFailed(true);
-      }
-    };
-
-    initializeChallenge();
-  }, [isOob, challenge, authenticator.id, challengeAttempt]);
-
-  if (challengeFailed) {
-    return (
-      <>
-        <DialogHeader>
-          <DialogTitle>{t('mfa.title')}</DialogTitle>
-          <DialogDescription>{t('fallback.description')}</DialogDescription>
-        </DialogHeader>
-        <Separator />
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel} aria-label={t('mfa.cancel')}>
-            {t('mfa.cancel')}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={() => setChallengeAttempt((attempt) => attempt + 1)}
-            aria-label={t('fallback.retry')}
-          >
-            {t('fallback.retry')}
-          </Button>
-        </div>
-      </>
-    );
+  if (facts.factor === FACTOR_TYPE_PUSH && !isGuardianCode) {
+    return <PushChallenge classes={classes} snapshot={snapshot} machine={machine} />;
   }
 
-  if (!challenged) {
-    return (
-      <div className="flex items-center justify-center p-8" role="status" aria-live="polite">
-        <Spinner />
-      </div>
-    );
-  }
+  const isRecoveryCode = facts.factor === FACTOR_TYPE_RECOVERY_CODE;
+  const sentTo = isEnrolling ? snapshot.contact : selected?.authenticator?.name;
+  const { title, description } = TEXTS[getTextsVariant(facts.factor, isGuardianCode, sentTo)];
 
-  if (isPush) {
-    return (
-      <>
-        <DialogHeader>
-          <DialogTitle>{t('mfa.challenge.push_title')}</DialogTitle>
-          <DialogDescription>{t('mfa.challenge.push_description')}</DialogDescription>
-        </DialogHeader>
-
-        <p className="text-center text-paragraph font-normal my-4">
-          {t('mfa.challenge.push_waiting')}
-        </p>
-
-        <Separator />
-
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onCancel} aria-label={t('mfa.cancel')}>
-            {t('mfa.cancel')}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            onClick={onComplete}
-            aria-label={t('mfa.continue')}
-          >
-            {t('mfa.continue')}
-          </Button>
-        </div>
-      </>
-    );
-  }
+  const footer =
+    isGuardianCode && snapshot.push?.canApprove ? (
+      <p className="text-center">
+        <MfaLink classes={classes} onClick={machine.switchToPush} className="text-sm">
+          {t('mfa.challenge.use_push_instead')}
+        </MfaLink>
+      </p>
+    ) : undefined;
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>{t('mfa.title')}</DialogTitle>
-      </DialogHeader>
-      <Separator />
+      <MfaDialogHeader classes={classes}>
+        <MfaDialogTitle classes={classes}>{t(title)}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
+          {t(description, { name: sentTo })}
+        </MfaDialogDescription>
+      </MfaDialogHeader>
       <OtpCodeForm
-        onSubmit={handleVerify}
-        onCancel={onCancel}
-        isLoading={isLoading}
-        authenticator={authenticator}
-        onResend={isOob && !isPush ? handleResend : undefined}
+        classes={classes}
+        onSubmit={(code) => machine.next(code)}
+        onCancel={isEnrolling ? machine.back : machine.cancel}
+        cancelLabel={isEnrolling ? t('mfa.back') : undefined}
+        isLoading={snapshot.request.isLoading}
+        isRecoveryCode={isRecoveryCode}
+        onResend={snapshot.canResend && !isGuardianCode ? machine.resend : undefined}
+        footer={footer}
       />
     </>
   );

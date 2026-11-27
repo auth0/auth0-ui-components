@@ -24,7 +24,7 @@ const ListItem = React.forwardRef<HTMLLIElement, ListItemProps>(
   ({ className, children, icon, description, info, ...props }, ref) => {
     return (
       <li ref={ref} className={cn('flex items-start justify-between gap-2', className)} {...props}>
-        <div className="flex min-w-0 gap-2">
+        <div className="flex min-w-0 flex-1 gap-2">
           {icon && <div className="text-muted-foreground mt-1 shrink-0">{icon}</div>}
           <div className="min-w-0 flex-1">
             <div className="text-primary text-sm">{children}</div>

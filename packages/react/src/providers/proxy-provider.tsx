@@ -13,6 +13,7 @@ import type {
 } from '@auth0/universal-components-core';
 import * as React from 'react';
 
+import { MfaStepUpDialog } from '@/components/auth0/shared/gate-keeper/mfa-step-up/mfa-step-up-dialog';
 import { Toaster } from '@/components/auth0/shared/sonner';
 import { StyledScope } from '@/components/auth0/shared/styled-scope';
 import { Spinner } from '@/components/ui/spinner';
@@ -54,6 +55,7 @@ export const Auth0ComponentProvider = ({
   children,
   telemetry: telemetryEnabled = true,
   disablePermissionEnforcement = false,
+  mfaStepUpSettings,
   disableTokenRequestQueue = false,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
@@ -139,6 +141,7 @@ export const Auth0ComponentProvider = ({
               >
                 {children}
               </PermissionProvider>
+              <MfaStepUpDialog settings={mfaStepUpSettings} />
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (
