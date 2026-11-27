@@ -1,5 +1,7 @@
 import { Auth0Client } from '@auth0/nextjs-auth0/server';
 
+import { sessionStore } from './session-store';
+
 // Validate required environment variables
 function validateEnvVars() {
   // Skip validation during build time
@@ -70,6 +72,7 @@ const domain = process.env.AUTH0_DOMAIN?.replace(/\/$/, '');
 
 export const auth0 = new Auth0Client({
   httpTimeout: 20000, // 20 seconds
+  sessionStore,
   authorizationParameters: {
     audience: domain ? `${domain}/my-org/` : undefined,
     scope: {
