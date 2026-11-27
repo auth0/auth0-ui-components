@@ -12,6 +12,7 @@ import {
   getProviderDomainsMode,
   getStatusBadgeVariant,
   isDomainAssociationUnavailable,
+  isDomainAvailableForProvider,
   isDomainUsedForDiscovery,
   isLastRequiredDomainLocked,
   isProviderEnableBlockedByDomains,
@@ -19,6 +20,7 @@ import {
 } from '../domain-management-utils';
 
 import { ASSOCIATION_BLOCK_REASONS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 
 const policy = (
   overrides: Partial<OrganizationDiscoveryConfig> = {},
@@ -74,6 +76,36 @@ describe('domain-management-utils', () => {
         [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: 't:table.actions.last_verified_domain_tooltip',
       });
       expect(new Set(Object.values(messages)).size).toBe(4);
+    });
+  });
+
+  describe('isDomainAvailableForProvider', () => {
+    it('should be true for a verified domain no provider holds', () => {
+      expect(
+        isDomainAvailableForProvider(
+          createMockDomain({ status: 'verified', identity_provider_association: 'unassociated' }),
+        ),
+      ).toBe(true);
+    });
+
+    it('should be false for a verified domain a provider already holds', () => {
+      expect(
+        isDomainAvailableForProvider(
+          createMockDomain({ status: 'verified', identity_provider_association: 'associated' }),
+        ),
+      ).toBe(false);
+    });
+
+    it('should be false for a domain that is not verified', () => {
+      expect(
+        isDomainAvailableForProvider(
+          createMockDomain({ status: 'pending', identity_provider_association: 'unassociated' }),
+        ),
+      ).toBe(false);
+    });
+
+    it('should be false when the association is not reported', () => {
+      expect(isDomainAvailableForProvider(createMockDomain({ status: 'verified' }))).toBe(false);
     });
   });
 

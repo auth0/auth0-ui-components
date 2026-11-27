@@ -454,6 +454,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
         mode: 'required',
         options: [createMockVerifiedDomain()],
         isLoading: false,
+        isError: false,
         canList: true,
       };
       mockProviderDomains.mockReturnValue(offered);

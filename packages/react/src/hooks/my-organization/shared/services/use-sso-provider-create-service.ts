@@ -28,7 +28,10 @@ import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { MAX_ORG_DOMAINS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
-import { getProviderDomainsMode } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
+import {
+  getProviderDomainsMode,
+  isDomainAvailableForProvider,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
   ProviderDetailsDomainsProps,
@@ -39,10 +42,7 @@ import type {
 const NO_DOMAINS: Domain[] = [];
 
 const selectAvailableDomains = (domains: Domain[]): Domain[] =>
-  domains.filter(
-    (domain) =>
-      domain.status === 'verified' && domain.identity_provider_association === 'unassociated',
-  );
+  domains.filter(isDomainAvailableForProvider);
 
 /**
  * Extracts domain from discovery error detail.
@@ -106,10 +106,18 @@ export function useSsoProviderCreateService({
             mode: domainsMode,
             options: domainsQuery.data ?? NO_DOMAINS,
             isLoading: canListDomains && domainsQuery.isLoading,
+            isError: canListDomains && domainsQuery.isError,
             canList: canListDomains,
           }
         : null,
-    [domainsMode, showDomainsField, domainsQuery.data, domainsQuery.isLoading, canListDomains],
+    [
+      domainsMode,
+      showDomainsField,
+      domainsQuery.data,
+      domainsQuery.isLoading,
+      domainsQuery.isError,
+      canListDomains,
+    ],
   );
 
   const notifyCreated = useCallback(

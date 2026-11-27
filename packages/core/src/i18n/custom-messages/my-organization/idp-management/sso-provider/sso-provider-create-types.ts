@@ -39,17 +39,13 @@ export interface ProviderDetailsMessages {
       empty_message?: string;
       error?: string;
       no_permission?: string;
-      learn_more?: {
-        text?: string;
-        link_text?: string;
-      };
+      learn_more?: string;
     };
   };
   alerts?: {
     no_verified_domains?: {
       title?: string;
       description?: string;
-      link_text?: string;
     };
   };
 }

@@ -18,6 +18,7 @@ const domainsField = (
   mode: 'required',
   options: [acme, initech],
   isLoading: false,
+  isError: false,
   canList: true,
   ...overrides,
 });
@@ -200,6 +201,14 @@ describe('useProviderDetailsForm', () => {
       );
 
       expect(result.current.showNoVerifiedDomainsAlert).toBe(true);
+    });
+
+    it('should be false when the domains failed to load', () => {
+      const { result } = renderHook(() =>
+        useProviderDetailsForm({ domains: domainsField({ options: [], isError: true }) }),
+      );
+
+      expect(result.current.showNoVerifiedDomainsAlert).toBe(false);
     });
 
     it('should be false while loading', () => {

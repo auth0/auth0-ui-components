@@ -734,6 +734,7 @@ describe('useSsoProviderCreateService', () => {
           mode: 'required',
           canList: false,
           isLoading: false,
+          isError: false,
           options: [],
         });
         expect(mockList).not.toHaveBeenCalled();
@@ -765,6 +766,17 @@ describe('useSsoProviderCreateService', () => {
         await waitFor(() => {
           expect(mockList).toHaveBeenCalledTimes(2);
         });
+      });
+
+      it('should flag a failure to load the domains', async () => {
+        mockList.mockRejectedValue(new Error('Request failed'));
+
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(result.current.providerDomains?.isError).toBe(true);
+        });
+        expect(result.current.providerDomains?.options).toEqual([]);
       });
 
       it('should report a failure to load the domains', async () => {

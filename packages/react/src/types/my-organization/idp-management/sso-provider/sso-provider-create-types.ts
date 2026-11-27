@@ -50,6 +50,7 @@ export interface ProviderDetailsDomainsProps {
   mode: ProviderDomainsMode;
   options: Domain[];
   isLoading: boolean;
+  isError: boolean;
   canList: boolean;
 }
 

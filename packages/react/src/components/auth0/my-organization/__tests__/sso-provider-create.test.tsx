@@ -702,7 +702,7 @@ describe('SsoProviderCreate', () => {
 
         expect(await screen.findByText('alerts.no_verified_domains.title')).toBeInTheDocument();
         expect(
-          screen.getByRole('link', { name: 'alerts.no_verified_domains.link_text' }),
+          screen.getByRole('link', { name: 'alerts.no_verified_domains.description' }),
         ).toHaveAttribute('target', '_blank');
 
         await goNext(user);
@@ -723,6 +723,24 @@ describe('SsoProviderCreate', () => {
         expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
       });
 
+      it('should not claim there is no verified domain when the domains fail to load', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+        (organization.domains.list as ReturnType<typeof vi.fn>).mockRejectedValue(
+          new Error('Request failed'),
+        );
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await waitFor(() => {
+          expect(organization.domains.list).toHaveBeenCalled();
+        });
+
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+      });
+
       it('should lead to the domains docs from the helper link', async () => {
         const user = userEvent.setup();
         arrange('required');
@@ -730,7 +748,7 @@ describe('SsoProviderCreate', () => {
         await waitForComponentToLoad();
         await fillDetails(user);
 
-        const link = screen.getByRole('link', { name: 'fields.domains.learn_more.link_text' });
+        const link = screen.getByRole('link', { name: 'fields.domains.learn_more' });
 
         expect(link).toHaveAttribute('href', expect.stringContaining('configure-org-domains'));
         expect(link).toHaveAttribute('rel', 'noopener noreferrer');

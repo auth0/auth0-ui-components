@@ -88,7 +88,11 @@ export function useProviderDetailsForm({
   }, [form, hasDomainsField]);
 
   const showNoVerifiedDomainsAlert =
-    isDomainsRequired && Boolean(domains?.canList) && !isDomainsLoading && domainNames.length === 0;
+    isDomainsRequired &&
+    Boolean(domains?.canList) &&
+    !isDomainsLoading &&
+    !domains?.isError &&
+    domainNames.length === 0;
 
   return { form, domainNames, isDomainsRequired, showNoVerifiedDomainsAlert, getData };
 }

@@ -57,6 +57,17 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
       [domainNames],
     );
 
+    const docsLink = (children: string) => (
+      <Link
+        key="domains-docs-link"
+        href={CONFIGURE_ORG_DOMAINS_DOCS_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {children}
+      </Link>
+    );
+
     React.useEffect(() => {
       onFormDirty?.(isDirty);
     }, [isDirty, onFormDirty]);
@@ -152,14 +163,9 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                       {t('fields.domains.helper_text')}
                     </FormDescription>
                     <p className="text-paragraph font-normal text-left text-muted-foreground">
-                      {t('fields.domains.learn_more.text')}{' '}
-                      <Link
-                        href={CONFIGURE_ORG_DOMAINS_DOCS_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t('fields.domains.learn_more.link_text')}
-                      </Link>
+                      <>
+                        {t.trans('fields.domains.learn_more', { components: { link: docsLink } })}
+                      </>
                     </p>
                     {!domainsField.canList && (
                       <p className="text-paragraph font-normal text-left text-muted-foreground">
@@ -177,14 +183,11 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                 <Info />
                 <AlertDescription className="text-warning-foreground">
                   <strong>{t('alerts.no_verified_domains.title')}</strong>{' '}
-                  {t('alerts.no_verified_domains.description')}{' '}
-                  <Link
-                    href={CONFIGURE_ORG_DOMAINS_DOCS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t('alerts.no_verified_domains.link_text')}
-                  </Link>
+                  <>
+                    {t.trans('alerts.no_verified_domains.description', {
+                      components: { link: docsLink },
+                    })}
+                  </>
                 </AlertDescription>
               </Alert>
             )}

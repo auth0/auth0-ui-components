@@ -74,6 +74,16 @@ export function getProviderDomainsMode(
 }
 
 /**
+ * Whether a domain can be associated with an identity provider: it is verified and no provider holds it yet.
+ * @param domain - Organization domain
+ * @returns `true` when the domain is available
+ * @internal
+ */
+export function isDomainAvailableForProvider(domain: Domain): boolean {
+  return domain.status === 'verified' && domain.identity_provider_association === 'unassociated';
+}
+
+/**
  * Whether domains can't be associated with identity providers at all.
  * @param mode - Domain verification mode
  * @returns True in `none` mode
