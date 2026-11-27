@@ -796,6 +796,22 @@ export default function OrganizationManagementPage() {
               </tr>
               <tr>
                 <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  mfaStepUpSettings
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  <code className="text-xs">MfaStepUpSettings</code>
+                </td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">No</td>
+                <td className="px-4 py-2 text-sm text-gray-500">
+                  Customizes the MFA step-up dialog: hide steps, add your own screens, and style it.
+                  See{' '}
+                  <a href="/with-mfa-step-up" className="text-blue-600 hover:underline">
+                    withMfaStepUp
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                   loader
                 </td>
                 <td className="px-4 py-2 text-sm text-gray-500">
@@ -1493,6 +1509,174 @@ export default function OrganizationManagementPage() {
   cacheConfig={{ enabled: false }}
 >
   <SensitiveFlow />
+</Auth0ComponentProvider>`,
+              },
+            ]}
+          />
+        </div>
+        {/* MFA Step-Up Settings */}
+        <div className="mt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-3">mfaStepUpSettings</h3>
+          <p className="text-gray-600 mb-4">
+            When the server asks for MFA, one dialog opens for the whole app, whether the request
+            came from a component or from your own call wrapped in{' '}
+            <code className="text-xs">withMfaStepUp</code>. Use{' '}
+            <code className="text-xs">mfaStepUpSettings</code> to hide steps, add your own screens
+            and style the dialog. Every property is optional. For your own API calls, see{' '}
+            <a href="/with-mfa-step-up" className="text-blue-600 hover:underline">
+              withMfaStepUp
+            </a>
+            .
+          </p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
+                    Property
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
+                    Type
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Description
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {[
+                  {
+                    name: 'flow.add',
+                    type: 'MfaCustomStep[]',
+                    description:
+                      'Your own steps. Each has an id, and optionally before or after (a step path to place it next to) and when (a condition that narrows when it shows).',
+                  },
+                  {
+                    name: 'flow.hide',
+                    type: 'Record<step, boolean | condition>',
+                    description:
+                      'Skip a built-in step: enroll.install, enroll.recovery or challenge.confirm. Pass true, or a condition that receives the flow facts.',
+                  },
+                  {
+                    name: 'flow.skipListForSingleOption',
+                    type: 'boolean',
+                    description: 'Skip the method list when the user has only one option.',
+                  },
+                  {
+                    name: 'screens',
+                    type: 'Record<step, Component>',
+                    description:
+                      'The screen of each added step, by its id, or a replacement for a built-in step, by its path. A screen receives snapshot, machine and classes.',
+                  },
+                  {
+                    name: 'actionsAlign',
+                    type: "'left' | 'center' | 'right'",
+                    description:
+                      "Where the buttons at the bottom of the built-in screens sit. Defaults to 'right'.",
+                  },
+                  {
+                    name: 'classes',
+                    type: 'MfaStepUpClasses',
+                    description:
+                      'Class overrides for the parts of the dialog, such as MfaStepUp-title, MfaStepUp-primaryButton and MfaStepUp-dialogContent.',
+                  },
+                ].map(({ name, type, description }) => (
+                  <tr key={name}>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {name}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">
+                      <code className="text-xs">{type}</code>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">{description}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="my-4 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900 space-y-2">
+            <p>
+              <strong>Step paths:</strong> <code className="text-xs">list</code>,{' '}
+              <code className="text-xs">enroll.install</code>,{' '}
+              <code className="text-xs">enroll.contact</code>,{' '}
+              <code className="text-xs">enroll.qr</code>,{' '}
+              <code className="text-xs">enroll.verify</code>,{' '}
+              <code className="text-xs">enroll.recovery</code>,{' '}
+              <code className="text-xs">challenge.confirm</code>,{' '}
+              <code className="text-xs">challenge</code> and{' '}
+              <code className="text-xs">challenge.newRecoveryCode</code>. Use{' '}
+              <code className="text-xs">MFA_STEP</code> instead of typing them.
+            </p>
+            <p>
+              <strong>Placing a step:</strong> A step you add shows only where the step it is placed
+              next to applies. Use <code className="text-xs">before</code> or{' '}
+              <code className="text-xs">after</code>, not both. A step without either goes last.
+            </p>
+          </div>
+
+          <TabbedCodeBlock
+            title="mfaStepUpSettings examples"
+            language="tsx"
+            tabs={[
+              {
+                label: 'Add a screen',
+                code: `import { MFA_STEP, type MfaStepScreenProps } from '@auth0/universal-components-react';
+
+function TermsScreen({ machine }: MfaStepScreenProps) {
+  return (
+    <div>
+      <p>Accept the terms to continue.</p>
+      <button onClick={() => machine.back()}>Back</button>
+      <button onClick={() => machine.next()}>Accept</button>
+    </div>
+  );
+}
+
+<Auth0ComponentProvider
+  mode="proxy"
+  domain="your-tenant.auth0.com"
+  proxyConfig={{ baseUrl: '/api/auth' }}
+  mfaStepUpSettings={{
+    flow: { add: [{ id: 'terms', after: MFA_STEP.list }] },
+    screens: { terms: TermsScreen },
+  }}
+>
+  <App />
+</Auth0ComponentProvider>`,
+              },
+              {
+                label: 'Hide steps',
+                code: `<Auth0ComponentProvider
+  mode="proxy"
+  domain="your-tenant.auth0.com"
+  proxyConfig={{ baseUrl: '/api/auth' }}
+  mfaStepUpSettings={{
+    flow: {
+      hide: { [MFA_STEP.confirm]: true },
+      skipListForSingleOption: true,
+    },
+  }}
+>
+  <App />
+</Auth0ComponentProvider>`,
+              },
+              {
+                label: 'Style the dialog',
+                code: `<Auth0ComponentProvider
+  mode="proxy"
+  domain="your-tenant.auth0.com"
+  proxyConfig={{ baseUrl: '/api/auth' }}
+  mfaStepUpSettings={{
+    actionsAlign: 'center',
+    classes: {
+      'MfaStepUp-title': 'text-xl',
+      'MfaStepUp-primaryButton': 'rounded-full',
+    },
+  }}
+>
+  <App />
 </Auth0ComponentProvider>`,
               },
             ]}

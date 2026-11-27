@@ -14,6 +14,7 @@ import SsoProviderEditDocs from './pages/SsoProviderEditDocs';
 import SsoProviderTableDocs from './pages/SsoProviderTableDocs';
 import Styling from './pages/Styling';
 import UserMFAManagementDocs from './pages/UserMFAManagementDocs';
+import WithMfaStepUpDocs from './pages/WithMfaStepUpDocs';
 
 function AppContent() {
   return (
@@ -22,6 +23,7 @@ function AppContent() {
         <Route path="/" element={<GettingStarted />} />
         <Route path="/getting-started" element={<GettingStarted />} />
         <Route path="/styling" element={<Styling />} />
+        <Route path="/with-mfa-step-up" element={<WithMfaStepUpDocs />} />
         <Route path="/my-account" element={<MyAccountIntroduction />} />
         <Route path="/my-account/user-mfa-management" element={<UserMFAManagementDocs />} />
         <Route path="/my-organization" element={<MyOrganizationIntroduction />} />

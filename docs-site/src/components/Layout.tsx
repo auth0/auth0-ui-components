@@ -9,6 +9,7 @@ import {
   GitBranch,
   BookOpenText,
   Palette,
+  ShieldCheck,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -74,6 +75,12 @@ export default function Layout({ children }: LayoutProps) {
       icon: Palette,
       color: 'text-violet-500',
       href: '/styling',
+    },
+    {
+      title: 'withMfaStepUp',
+      icon: ShieldCheck,
+      color: 'text-emerald-500',
+      href: '/with-mfa-step-up',
     },
     {
       title: 'My Account',
