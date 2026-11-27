@@ -1,7 +1,6 @@
-import { FACTOR_TYPE_EMAIL } from '../my-account/user-mfa-management/user-mfa-management-constants';
-
 import {
   FACTOR_TYPE_ALIASES,
+  FACTOR_TYPE_EMAIL,
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_VOICE,
   MFA_REQUIRED_ERROR,
