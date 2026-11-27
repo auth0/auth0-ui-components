@@ -59,7 +59,7 @@ export const Auth0ComponentProvider = (
     authContext,
     telemetry: telemetryEnabled = true,
     disablePermissionEnforcement = false,
-    mfaStepUp,
+    mfaStepUpSettings,
     disableTokenRequestQueue = false,
   } = props;
   const mergedToastSettings = useToastProvider(toastSettings);
@@ -159,7 +159,7 @@ export const Auth0ComponentProvider = (
               >
                 {children}
               </PermissionProvider>
-              <MfaStepUpDialog settings={mfaStepUp} />
+              <MfaStepUpDialog settings={mfaStepUpSettings} />
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (

@@ -43,7 +43,7 @@ export type Auth0ComponentProviderProps = (
   /** TanStack Query retry config. Use `{ enabled: false }` to disable. */
   retryConfig?: QueryRetryConfig;
   /** Hide or add steps of the MFA step-up flow, and bring the screens for them. */
-  mfaStepUp?: MfaStepUpSettings;
+  mfaStepUpSettings?: MfaStepUpSettings;
   previewMode?: boolean;
   telemetry?: boolean;
   /** Disables permission enforcement; all gated features are enabled and the permissions API is not called. */

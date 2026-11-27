@@ -1,10 +1,10 @@
 /** @internal */
 import { mfaStepUpStore, type MfaStepUpError } from '@auth0/universal-components-core';
-import { useSyncExternalStore } from 'react';
 
 import { MfaWizard } from './mfa-wizard';
 
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useSyncExternalStore } from '@/lib/utils/use-sync-external-store-compat';
 import type { MfaStepUpSettings } from '@/types/mfa-step-up-types';
 
 const getNoRequest = () => undefined;

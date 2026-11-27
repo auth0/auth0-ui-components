@@ -55,7 +55,7 @@ export const Auth0ComponentProvider = ({
   children,
   telemetry: telemetryEnabled = true,
   disablePermissionEnforcement = false,
-  mfaStepUp,
+  mfaStepUpSettings,
   disableTokenRequestQueue = false,
 }: Extract<Auth0ComponentProviderProps, { mode: 'proxy' }> & { children: React.ReactNode }) => {
   const mergedToastSettings = useToastProvider(toastSettings);
@@ -141,7 +141,7 @@ export const Auth0ComponentProvider = ({
               >
                 {children}
               </PermissionProvider>
-              <MfaStepUpDialog settings={mfaStepUp} />
+              <MfaStepUpDialog settings={mfaStepUpSettings} />
             </QueryProvider>
           </CoreClientContext.Provider>
         ) : (
