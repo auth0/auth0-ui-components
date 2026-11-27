@@ -4,6 +4,8 @@ export const FACTOR_TYPE_OTP = 'otp';
 export const FACTOR_TYPE_SMS = 'sms';
 export const FACTOR_TYPE_PUSH = 'push';
 export const FACTOR_TYPE_VOICE = 'voice';
+export const FACTOR_TYPE_EMAIL = 'email';
+export const FACTOR_TYPE_RECOVERY_CODE = 'recovery-code';
 
 export const FACTOR_TYPE_ALIASES: Record<string, string> = {
   phone: FACTOR_TYPE_SMS,

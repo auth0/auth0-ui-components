@@ -5,6 +5,7 @@ import {
   createMockContextInterface,
   TEST_DOMAIN,
 } from '../../internals/__mocks__/shared/api-service.mocks';
+import { mfaStepUpStore } from '../../services/mfa-step-up/flow/mfa-step-up-store';
 import { AUTH0_SCOPE_HEADER, createProxyFetcher, createSpaFetcher } from '../api-utils';
 import { ContentType, HeaderName } from '../http-constants';
 import type { TelemetryConfig } from '../telemetry';
@@ -22,6 +23,81 @@ const defaultTelemetry: TelemetryConfig = {
 const mockGetComponent = () => 'test-component';
 
 describe('api-utils', () => {
+  describe('passing MFA when a request needs it', () => {
+    const mfaRequired = () =>
+      Response.json({ error: 'mfa_required', mfa_token: 'tok' }, { status: 403 });
+    let stopAnswering: (() => void) | undefined;
+
+    afterEach(() => {
+      stopAnswering?.();
+      vi.unstubAllGlobals();
+    });
+
+    const answerStepUp = (act: 'complete' | 'cancel') => {
+      stopAnswering = mfaStepUpStore.subscribe(() => {
+        const request = mfaStepUpStore.getSnapshot();
+        if (request) queueMicrotask(() => request[act]());
+      });
+    };
+
+    it('sends the request again once the user passed MFA (proxy)', async () => {
+      const ok = Response.json({ ok: true });
+      const mockFetch = vi.fn().mockResolvedValueOnce(mfaRequired()).mockResolvedValueOnce(ok);
+      vi.stubGlobal('fetch', mockFetch);
+      answerStepUp('complete');
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await expect(fetcher('https://example.com/api', { method: 'GET' })).resolves.toBe(ok);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not send the request again when the user cancels (proxy)', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(mfaRequired());
+      vi.stubGlobal('fetch', mockFetch);
+      answerStepUp('cancel');
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await expect(fetcher('https://example.com/api')).rejects.toMatchObject({ code: 'cancelled' });
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns another 403 untouched (proxy)', async () => {
+      const forbidden = Response.json({ error: 'forbidden' }, { status: 403 });
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(forbidden));
+      const fetcher = createProxyFetcher({
+        telemetry: defaultTelemetry,
+        getComponent: mockGetComponent,
+      });
+
+      await expect(fetcher('https://example.com/api')).resolves.toBe(forbidden);
+    });
+
+    it('sends the request again when the SDK throws mfa_required (SPA)', async () => {
+      const contextInterface = createMockContextInterface();
+      const fetchWithAuth = vi
+        .fn()
+        .mockRejectedValueOnce({ error: 'mfa_required', mfa_token: 'tok' })
+        .mockResolvedValueOnce('ok');
+      contextInterface.createFetcher = vi.fn(() => ({ fetchWithAuth })) as never;
+      answerStepUp('complete');
+      const fetcher = createSpaFetcher(
+        { contextInterface } as unknown as SpaAuthConfig,
+        'nonce',
+        defaultTelemetry,
+        mockGetComponent,
+      );
+
+      await expect(fetcher('https://example.com/api')).resolves.toBe('ok');
+      expect(fetchWithAuth).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('createProxyFetcher', () => {
     afterEach(() => {
       vi.unstubAllGlobals();

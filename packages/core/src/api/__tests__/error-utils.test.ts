@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
+import { createMfaStepUpError } from '../../services/mfa-step-up/mfa-step-up-api-error';
 import { isNetworkError, isNotifiableError, resolveErrorMessage } from '../error-utils';
 
 describe('isNotifiableError', () => {
@@ -22,6 +23,10 @@ describe('isNotifiableError', () => {
 
     it('should return false for error with mfa_required nested in body', () => {
       expect(isNotifiableError({ body: { error: 'mfa_required' } })).toBe(false);
+    });
+
+    it('should return false for a failed step-up', () => {
+      expect(isNotifiableError(createMfaStepUpError('unavailable'))).toBe(false);
     });
   });
 

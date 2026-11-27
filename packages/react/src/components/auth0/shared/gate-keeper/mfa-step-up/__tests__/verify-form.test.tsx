@@ -20,14 +20,12 @@ const otpAuthenticator = { id: 'auth-1', authenticatorType: 'otp' as const };
 const oobSmsAuthenticator = {
   id: 'auth-2',
   authenticatorType: 'oob' as const,
-  oobCode: 'oob-code-123',
   type: 'sms',
   name: '+1234567890',
 };
 const pushAuthenticator = {
   id: 'auth-3',
   authenticatorType: 'oob' as const,
-  oobCode: 'oob-code-push',
   type: 'push-notification',
 };
 const recoveryAuthenticator = { id: 'auth-4', authenticatorType: 'recovery-code' as const };
@@ -98,7 +96,11 @@ describe('VerifyForm', () => {
     it('calls verify with oobCode and binding code on submit', async () => {
       const user = userEvent.setup();
       const mockVerify = vi.fn().mockResolvedValue(undefined);
-      mockUseMfaStepUp({ verify: mockVerify });
+      const resolvedOobCode = 'oob-code-123';
+      mockUseMfaStepUp({
+        verify: mockVerify,
+        challenge: vi.fn().mockResolvedValue({ oobCode: resolvedOobCode }),
+      });
 
       render(
         <VerifyForm
@@ -116,7 +118,7 @@ describe('VerifyForm', () => {
       await waitFor(() => {
         expect(mockVerify).toHaveBeenCalledWith({
           mfaToken: mockError.mfa_token,
-          oobCode: oobSmsAuthenticator.oobCode,
+          oobCode: resolvedOobCode,
           bindingCode: '123456',
         });
       });
@@ -125,7 +127,7 @@ describe('VerifyForm', () => {
 
   describe('Push authenticator', () => {
     it('renders push waiting title and message', async () => {
-      mockUseMfaStepUp();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
 
       render(
         <VerifyForm
@@ -143,7 +145,7 @@ describe('VerifyForm', () => {
     it('calls onCancel when cancel is clicked in push view', async () => {
       const user = userEvent.setup();
       const mockOnCancel = vi.fn();
-      mockUseMfaStepUp();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
 
       render(
         <VerifyForm
@@ -162,7 +164,7 @@ describe('VerifyForm', () => {
     it('calls onComplete when continue is clicked in push view', async () => {
       const user = userEvent.setup();
       const mockOnComplete = vi.fn();
-      mockUseMfaStepUp();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-push' }) });
 
       render(
         <VerifyForm
@@ -218,11 +220,57 @@ describe('VerifyForm', () => {
     });
   });
 
+  describe('when the first challenge fails', () => {
+    const smsAuthenticator = { id: 'auth-5', authenticatorType: 'oob' as const, type: 'sms' };
+
+    it('offers retry and cancel instead of a spinner that never ends', async () => {
+      const user = userEvent.setup();
+      const onCancel = vi.fn();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue(undefined) });
+
+      render(
+        <VerifyForm
+          error={mockError}
+          authenticator={smsAuthenticator}
+          onComplete={vi.fn()}
+          onCancel={onCancel}
+        />,
+      );
+
+      expect(await screen.findByRole('button', { name: 'fallback.retry' })).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'mfa.cancel' }));
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
+
+    it('asks again on retry, and shows the code form once it works', async () => {
+      const user = userEvent.setup();
+      const challenge = vi
+        .fn()
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce({ oobCode: 'oob-code-1' });
+      mockUseMfaStepUp({ challenge });
+
+      render(
+        <VerifyForm
+          error={mockError}
+          authenticator={smsAuthenticator}
+          onComplete={vi.fn()}
+          onCancel={vi.fn()}
+        />,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'fallback.retry' }));
+
+      expect(await screen.findByRole('button', { name: 'mfa.verify_button' })).toBeInTheDocument();
+      expect(challenge).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('back navigation', () => {
     it('calls onCancel when back button is clicked', async () => {
       const user = userEvent.setup();
       const mockOnCancel = vi.fn();
-      mockUseMfaStepUp();
+      mockUseMfaStepUp({ challenge: vi.fn().mockResolvedValue({ oobCode: 'oob-code-123' }) });
 
       render(
         <VerifyForm

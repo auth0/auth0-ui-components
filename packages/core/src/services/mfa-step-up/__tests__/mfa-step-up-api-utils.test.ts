@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest';
 
 import type { MfaRequiredError } from '../mfa-step-up-api-types';
 import {
+  getMfaToken,
   isMfaRequiredError,
   normalizeMfaRequiredError,
   normalizeFactorType,
+  requiresContactInput,
 } from '../mfa-step-up-api-utils';
 
 describe('isMfaRequiredError', () => {
@@ -89,6 +91,45 @@ describe('normalizeMfaRequiredError', () => {
   });
 });
 
+describe('an axios error', () => {
+  const axiosError = (data: unknown) => ({ isAxiosError: true, response: { status: 403, data } });
+  const body = { error: 'mfa_required', mfa_token: 'tok', mfa_requirements: { challenge: [] } };
+
+  it('is recognized by the body of its response', () => {
+    expect(isMfaRequiredError(axiosError(body))).toBe(true);
+    expect(isMfaRequiredError(axiosError({ error: 'forbidden' }))).toBe(false);
+  });
+
+  it('gives its token and requirements from the response body', () => {
+    const normalized = normalizeMfaRequiredError(axiosError(body) as never) as unknown as {
+      mfa_token: string;
+      mfa_requirements: unknown;
+    };
+
+    expect(normalized.mfa_token).toBe('tok');
+    expect(normalized.mfa_requirements).toEqual({ challenge: [] });
+    expect(getMfaToken(axiosError(body))).toBe('tok');
+  });
+});
+
+describe('getMfaToken', () => {
+  it.each([
+    ['the error itself', { error: 'mfa_required', mfa_token: 'tok' }],
+    ['its body', { body: { error: 'mfa_required', mfa_token: 'tok' } }],
+    ['its data', { data: { error: 'mfa_required', mfa_token: 'tok' } }],
+  ])('reads the token from %s', (_name, err) => {
+    expect(getMfaToken(err)).toBe('tok');
+  });
+
+  it.each([
+    ['another error', new Error('boom')],
+    ['an mfa_required error without a token', { error: 'mfa_required' }],
+    ['nothing', undefined],
+  ])('returns undefined for %s', (_name, err) => {
+    expect(getMfaToken(err)).toBeUndefined();
+  });
+});
+
 describe('normalizeFactorType', () => {
   it('maps phone to sms', () => {
     expect(normalizeFactorType('phone')).toBe('sms');
@@ -106,5 +147,38 @@ describe('normalizeFactorType', () => {
     expect(normalizeFactorType('sms')).toBe('sms');
     expect(normalizeFactorType('voice')).toBe('voice');
     expect(normalizeFactorType('email')).toBe('email');
+  });
+});
+
+describe('requiresContactInput', () => {
+  it.each([
+    ['sms', true],
+    ['voice', true],
+    ['email', true],
+    ['otp', false],
+    ['push', false],
+    ['recovery-code', false],
+    [undefined, false],
+  ])('%s -> %s', (factor, expected) => {
+    expect(requiresContactInput(factor)).toBe(expected);
+  });
+});
+
+describe('an error whose body is in `data`', () => {
+  const proxyError = {
+    status: 403,
+    data: { error: 'mfa_required', mfa_token: 'next-token', mfa_requirements: { enroll: [] } },
+  };
+
+  it('is recognised as mfa_required', () => {
+    expect(isMfaRequiredError(proxyError)).toBe(true);
+    expect(isMfaRequiredError({ status: 403, data: { error: 'invalid_grant' } })).toBe(false);
+  });
+
+  it('has its token and requirements lifted', () => {
+    const normalized = normalizeMfaRequiredError(proxyError as unknown as MfaRequiredError);
+
+    expect(normalized.mfa_token).toBe('next-token');
+    expect(normalized.mfa_requirements).toEqual({ enroll: [] });
   });
 });

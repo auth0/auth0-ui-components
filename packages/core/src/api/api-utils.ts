@@ -5,6 +5,7 @@
  */
 
 import type { FetcherAuthParams, FetcherSupplier, SpaAuthConfig } from '../auth/auth-types';
+import { withMfaStepUp } from '../services/mfa-step-up/mfa-step-up-interceptor';
 
 import { ContentType, HeaderName } from './http-constants';
 import {
@@ -15,6 +16,14 @@ import {
 import { coordinateProxyRequest, createCoordinatedTokenGetter } from './token-coordination';
 
 export const AUTH0_SCOPE_HEADER = HeaderName.Auth0Scope;
+
+/**
+ * @param fetcher - Sends a request.
+ * @returns A fetcher that has the user pass MFA when the server asks for it, then sends the request again.
+ */
+function fetcherWithStepUp(fetcher: FetcherSupplier): FetcherSupplier {
+  return (url, init, authParams) => withMfaStepUp(() => fetcher(url, init, authParams));
+}
 
 /**
  * Configuration for proxy mode fetcher with telemetry.
@@ -40,7 +49,7 @@ export interface ProxyFetcherConfig {
  */
 export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier {
   const fetchFn = config.customFetcher;
-  return async (url, init, authParams) => {
+  return fetcherWithStepUp(async (url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);
@@ -70,7 +79,7 @@ export function createProxyFetcher(config: ProxyFetcherConfig): FetcherSupplier 
     return config.disableTokenRequestQueue
       ? send(authParams?.scope)
       : coordinateProxyRequest(authParams, init, send);
-  };
+  });
 }
 
 /**
@@ -97,7 +106,7 @@ export function createSpaFetcher(
         getAccessToken: createCoordinatedTokenGetter(contextInterface.getAccessTokenSilently),
       }),
   });
-  return (url, init, authParams) => {
+  return fetcherWithStepUp((url, init, authParams) => {
     const headers = new Headers(init?.headers);
     if (init?.body) {
       headers.set(HeaderName.ContentType, ContentType.JSON);
@@ -120,5 +129,5 @@ export function createSpaFetcher(
         audience: authParams?.audience,
       },
     );
-  };
+  });
 }

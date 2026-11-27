@@ -488,7 +488,7 @@ describe('MFAMappers', () => {
       });
 
       it('should not add extra properties for factors that do not require options', () => {
-        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_RECOVERY_CODE as MFAType, {
+        const result = MFAMappers.buildEnrollParams(FACTOR_TYPE_TOTP as MFAType, {
           email: 'should-be-ignored@test.com',
         });
 
@@ -902,6 +902,26 @@ describe('MFAMappers', () => {
       expect(confirmParams).toEqual({
         auth_session: 'auth_session_xyz',
         otp_code: '654321',
+      });
+    });
+
+    it('should handle complete enrollment flow for a factor that needs no extra data', () => {
+      // Step 1: Build enroll params (no additional data needed)
+      const enrollParams = MFAMappers.buildEnrollParams(FACTOR_TYPE_PUSH_NOTIFICATION as MFAType);
+
+      expect(enrollParams).toEqual({
+        type: FACTOR_TYPE_PUSH_NOTIFICATION,
+      });
+
+      // Step 2: Build confirm enrollment params (no OTP needed)
+      const confirmParams = MFAMappers.buildConfirmEnrollmentParams(
+        FACTOR_TYPE_PUSH_NOTIFICATION as MFAType,
+        'auth_session_abc',
+        {},
+      );
+
+      expect(confirmParams).toEqual({
+        auth_session: 'auth_session_abc',
       });
     });
 

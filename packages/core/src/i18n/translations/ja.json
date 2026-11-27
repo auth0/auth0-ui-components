@@ -48,13 +48,22 @@
       "description": "もう一度お試しいただくか、問題が解決しない場合はサポートにお問い合わせください。",
       "retry": "再試行"
     },
-    "mfa_error": {
-      "title": "追加認証が必要です",
-      "description": "追加認証を完了できませんでした。サポートにお問い合わせください。"
-    },
     "mfa": {
       "title": "アカウントを確認してください",
       "subtitle": "この操作を実行するには、以下のオプションのいずれかから第二認証要素を入力してください。",
+      "verify_title": "本人確認",
+      "choose_method": "続行する方法を選択してください。",
+      "method": {
+        "otp": "認証アプリ",
+        "push": "Guardianアプリ",
+        "phone": "テキストメッセージまたは通話",
+        "email": "メールコード",
+        "recovery": "バックアップコード",
+        "other": "その他の方法"
+      },
+      "added_on": "${date} に追加",
+      "last_used_on": "最終使用: ${date}",
+      "ending_in": "末尾 ${digits}",
       "authenticator_type": {
         "otp": "認証アプリ",
         "recovery-code": "リカバリーコード",
@@ -70,7 +79,7 @@
       "back": "戻る",
       "continue": "続ける",
       "challenge": {
-        "otp_description": "認証アプリに表示されているワンタイムコードを入力してください。",
+        "otp_description": "認証アプリを開いてコードを確認してください。",
         "phone_title": "電話番号を確認してください",
         "code_sent_description": "${name} に送信したワンタイムコードを入力してください。",
         "email_title": "メールアドレスを確認してください",
@@ -80,7 +89,28 @@
         "recovery_code_description": "保存済みのリカバリーコードを入力してください。",
         "resend_prompt": "コードが届きませんでしたか？",
         "resend": "再送信",
-        "verifying": "確認中..."
+        "verifying": "確認中...",
+        "otp_title": "6桁のコードを入力",
+        "recovery_title": "バックアップコードを入力",
+        "guardian_code_title": "Guardianのコードを入力",
+        "guardian_code_description": "Guardianアプリを開き、このアカウントに表示されている6桁のコードを入力してください。",
+        "use_push_instead": "代わりにプッシュ通知を使用",
+        "use_another_method": "別の方法を使用",
+        "push_waiting_title": "Guardianアプリを確認してください",
+        "push_waiting_description": "${device} に通知を送信しました。続行するには承認してください。",
+        "push_waiting_description_generic": "Guardianアプリに通知を送信しました。続行するには承認してください。",
+        "push_waiting_status": "承認を待っています…",
+        "push_not_received": "届きませんか？",
+        "push_resend": "通知を再送信",
+        "push_enter_code": "代わりにコードを入力",
+        "push_approved_title": "リクエストが承認されました",
+        "push_approved_description": "本人確認が完了しました。続行します…",
+        "push_denied_title": "リクエストが拒否されました",
+        "push_denied_description": "リクエストは ${device} で拒否されました。心当たりがない場合は、別の方法を選択してください。",
+        "push_denied_description_generic": "リクエストが拒否されました。心当たりがない場合は、別の方法を選択してください。",
+        "push_expired_title": "リクエストの有効期限が切れました",
+        "push_expired_description": "通知は承認される前に有効期限が切れました。",
+        "push_try_again": "もう一度試す"
       },
       "enroll": {
         "install_title": "認証アプリの設定",
@@ -98,11 +128,24 @@
         "scan_helper": "認証アプリでこのコードをスキャンしてセットアップを完了してください。スキャンできない場合は、以下のコードを手動で入力してください。",
         "push_scan_description": "このQRコードをGuardianアプリでスキャンしてください。",
         "qr_alt": "登録QRコード",
-        "recovery_title": "リカバリーコードを生成する",
-        "recovery_description": "これらのリカバリーコードをコピーして、安全な場所に保管してください。認証方法にアクセスできなくなった場合に必要になります。",
-        "recovery_confirmed": "これらのコードを安全に記録しました",
         "invalid_email": "有効なメールアドレスを入力してください。",
-        "invalid_phone_number": "有効な電話番号を入力してください。"
+        "invalid_phone_number": "有効な電話番号を入力してください。",
+        "backup_code_title": "バックアップコードを作成",
+        "backup_code_description": "このバックアップコードをコピーして安全な場所に保管してください。デバイスなしでサインインする必要がある場合に必要になります",
+        "backup_code_confirmed": "このコードを安全に記録しました"
+      },
+      "confirm": {
+        "push_description": "Auth0 Guardianアプリ経由で、次のデバイスに通知が送信されます",
+        "verify_selected": "選択した要素で確認",
+        "send_push": "プッシュ通知を送信",
+        "method": {
+          "otp": "認証アプリ",
+          "push": "プッシュ通知",
+          "phone": "テキストメッセージまたは通話",
+          "email": "メールのワンタイムパスワード",
+          "recovery": "バックアップコード",
+          "other": "その他の方法"
+        }
       }
     }
   },

@@ -23,6 +23,7 @@ export interface MfaAuthenticator {
   createdAt?: string;
   lastAuth?: string;
   type?: ChallengeType;
+  oobChannel?: OobChannel;
 }
 
 export type ChallengeType =
@@ -36,6 +37,12 @@ export type ChallengeType =
 export type OobChannel = 'sms' | 'voice' | 'auth0' | 'email';
 
 export type MfaFactorType = 'otp' | 'sms' | 'email' | 'push' | 'voice';
+
+// What the proxy's associate route reads: the authenticator type, and the channel for out-of-band.
+export type AssociateFields = {
+  authenticator_types: ('otp' | 'oob')[];
+  oob_channels?: OobChannel[];
+};
 
 export interface EnrollBaseParams {
   mfaToken: string;
@@ -127,10 +134,15 @@ export interface MfaRequiredError extends Error {
   mfa_requirements?: MfaRequirements;
 }
 
+/** What a successful verification returns. Using a recovery code also returns the next one. */
+export interface MfaVerifyResult extends Partial<TokenEndpointResponse> {
+  recovery_code?: string;
+}
+
 export interface MfaApiClient {
   getAuthenticators(mfaToken: string): Promise<MfaAuthenticator[]>;
   enroll(params: EnrollParams): Promise<EnrollmentResponse>;
   challenge(params: ChallengeMfaAuthenticatorParams): Promise<ChallengeResponse>;
   getEnrollmentFactors?(mfaToken: string): Promise<EnrollmentFactor[]>;
-  verify(params: VerifyParams): Promise<TokenEndpointResponse>;
+  verify(params: VerifyParams): Promise<MfaVerifyResult>;
 }

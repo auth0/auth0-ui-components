@@ -3,6 +3,7 @@
  * @module error-utils
  */
 
+import { isMfaStepUpError } from '../services/mfa-step-up/mfa-step-up-api-error';
 import { isMfaRequiredError } from '../services/mfa-step-up/mfa-step-up-api-utils';
 
 import { hasApiErrorBody, getStatusCode } from './api-error';
@@ -44,7 +45,7 @@ export function isNetworkError(error: unknown): boolean {
 
 /**
  * Determines whether an error should be surfaced to the user.
- * Returns `false` for MFA step-up errors and server errors (5xx) as these
+ * Returns `false` for MFA step-up errors, failed step-ups and server errors (5xx) as these
  * are handled by a GateKeeper layer.
  *
  * @param error - The unknown error to evaluate.
@@ -53,7 +54,7 @@ export function isNetworkError(error: unknown): boolean {
 export function isNotifiableError(error: unknown): boolean {
   if (!error) return false;
 
-  if (isMfaRequiredError(error)) return false;
+  if (isMfaRequiredError(error) || isMfaStepUpError(error)) return false;
 
   const statusCode = getStatusCode(error);
   return !(statusCode && statusCode >= 500);

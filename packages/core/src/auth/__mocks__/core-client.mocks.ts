@@ -2,6 +2,8 @@ import { vi } from 'vitest';
 
 import { createMockI18nService } from '../../i18n/__mocks__/i18n-service.mocks';
 import { createMockContextInterface } from '../../internals/__mocks__/shared/api-service.mocks';
+import { createMfaStepUpMachine } from '../../services/mfa-step-up/flow/mfa-step-up-machine';
+import type { MfaApiClient } from '../../services/mfa-step-up/mfa-step-up-api-types';
 import type { AuthDetails, CoreClientInterface } from '../auth-types';
 
 /**
@@ -121,15 +123,13 @@ export const createMockMyOrganizationApiClient =
 /**
  * Creates a mock CoreClientInterface
  */
-export const createMockMfaApiClient = (): ReturnType<
-  CoreClientInterface['getMFAStepUpApiClient']
-> =>
+export const createMockMfaApiClient = (): MfaApiClient =>
   ({
     getAuthenticators: vi.fn().mockResolvedValue([]),
     enroll: vi.fn().mockResolvedValue({}),
-    challenge: vi.fn().mockResolvedValue({}),
+    challenge: vi.fn().mockResolvedValue({ challengeType: 'oob', oobCode: 'oob-1' }),
     verify: vi.fn().mockResolvedValue({}),
-  }) as ReturnType<CoreClientInterface['getMFAStepUpApiClient']>;
+  }) as MfaApiClient;
 
 export const createMockPermissionApiClient = (): ReturnType<
   CoreClientInterface['getPermissionApiClient']
@@ -146,7 +146,7 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
   const mockMfaApiClient = createMockMfaApiClient();
   const mockPermissionApiClient = createMockPermissionApiClient();
 
-  return {
+  const coreClient: CoreClientInterface = {
     auth: mockAuth,
     i18nService: mockI18nService,
     myAccountApiClient: mockMyAccountApiClient,
@@ -157,9 +157,13 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
     getMyOrganizationApiClient: vi.fn(
       () => mockMyOrganizationApiClient,
     ) as CoreClientInterface['getMyOrganizationApiClient'],
-    getMFAStepUpApiClient: vi.fn(
-      () => mockMfaApiClient,
-    ) as CoreClientInterface['getMFAStepUpApiClient'],
+    createMfaStepUpMachine: vi.fn((options) =>
+      createMfaStepUpMachine({
+        ...options,
+        apiClient: mockMfaApiClient,
+        isProxyMode: coreClient.isProxyMode(),
+      }),
+    ) as CoreClientInterface['createMfaStepUpMachine'],
     getPermissionApiClient: vi.fn(
       () => mockPermissionApiClient,
     ) as CoreClientInterface['getPermissionApiClient'],
@@ -168,6 +172,8 @@ export const createMockCoreClient = (authDetails?: Partial<AuthDetails>): CoreCl
       () => mockAuth.domain ?? mockAuth.contextInterface?.getConfiguration()?.domain,
     ),
   };
+
+  return coreClient;
 };
 
 /**
