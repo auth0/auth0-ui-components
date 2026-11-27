@@ -637,6 +637,28 @@ describe('SsoProviderCreate', () => {
         });
       });
 
+      it('should offer the domains that load after the step is shown', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        let resolveDomains: (value: unknown) => void = () => {};
+        const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+        (organization.domains.list as ReturnType<typeof vi.fn>).mockReturnValue(
+          new Promise((resolve) => {
+            resolveDomains = resolve;
+          }),
+        );
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await act(async () => {
+          resolveDomains({ response: { organization_domains: [acme] } });
+        });
+        await user.click(domainsInput('fields.domains.label'));
+
+        expect(await screen.findByRole('button', { name: 'acme.com' })).toBeInTheDocument();
+      });
+
       it('should send every chosen domain', async () => {
         const user = userEvent.setup();
         arrange('required');

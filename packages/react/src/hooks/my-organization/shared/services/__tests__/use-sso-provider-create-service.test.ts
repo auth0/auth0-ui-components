@@ -733,6 +733,7 @@ describe('useSsoProviderCreateService', () => {
         expect(result.current.providerDomains).toMatchObject({
           mode: 'required',
           canList: false,
+          isLoading: false,
           options: [],
         });
         expect(mockList).not.toHaveBeenCalled();

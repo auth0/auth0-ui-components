@@ -105,7 +105,7 @@ export function useSsoProviderCreateService({
         ? {
             mode: domainsMode,
             options: domainsQuery.data ?? NO_DOMAINS,
-            isLoading: domainsQuery.isLoading,
+            isLoading: canListDomains && domainsQuery.isLoading,
             canList: canListDomains,
           }
         : null,

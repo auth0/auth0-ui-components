@@ -270,6 +270,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
       createStepActions,
       isLoadingIdpConfig,
       idpConfig,
+      providerDomains,
       showThirdPartyAccess,
       isThirdPartyAccessReadOnly,
       showCrossAppAccess,
