@@ -233,7 +233,7 @@ export function ContactStep({ snapshot, machine, classes }: EnrollmentStepProps)
                 <FormDescription className="text-paragraph font-normal text-left">
                   {inputConfig.description}
                 </FormDescription>
-                <FormMessage className="text-left text-paragraph" id="contact-error" role="alert" />
+                <FormMessage className="text-left text-paragraph" role="alert" />
               </FormItem>
             )}
           />

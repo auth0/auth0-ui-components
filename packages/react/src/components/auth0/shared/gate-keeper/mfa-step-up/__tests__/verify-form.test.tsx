@@ -55,6 +55,21 @@ describe('VerifyForm', () => {
       expect(screen.getByText('mfa.challenge.otp_description')).toBeInTheDocument();
     });
 
+    it('asks for the code of a named OTP authenticator, not one that was sent', async () => {
+      renderInDialog(
+        <VerifyForm
+          snapshot={snapshotFor('otp', {
+            selected: challengeOption({ authenticatorType: 'otp', name: 'My phone' }, 'otp'),
+          })}
+          machine={createMockStepUpMachine()}
+        />,
+      );
+
+      expect(await screen.findByText('mfa.challenge.otp_title')).toBeInTheDocument();
+      expect(screen.getByText('mfa.challenge.otp_description')).toBeInTheDocument();
+      expect(screen.queryByText('mfa.challenge.code_sent_description')).not.toBeInTheDocument();
+    });
+
     it('hands a recovery code to the machine', async () => {
       const machine = createMockStepUpMachine();
       const user = userEvent.setup();
@@ -151,6 +166,7 @@ describe('VerifyForm', () => {
         <VerifyForm
           snapshot={createMockSnapshot({
             step: 'enroll.verify',
+            facts: createMockFacts({ mode: 'enroll', factor: 'sms' }),
             contact: '+14155550123',
             selected: { id: 'enroll:sms', kind: 'enroll', factor: 'sms' },
             enrollment: { authenticatorType: 'oob' },
@@ -231,6 +247,18 @@ describe('VerifyForm', () => {
       expect(await screen.findByText('mfa.challenge.guardian_code_title')).toBeInTheDocument();
       expect(await screen.findAllByRole('textbox')).toHaveLength(6);
       await user.click(screen.getByText('mfa.challenge.use_push_instead'));
+
+      expect(machine.switchToPush).toHaveBeenCalledTimes(1);
+    });
+
+    it('lets the keyboard reach and use the push again action', async () => {
+      const machine = createMockStepUpMachine();
+      const user = userEvent.setup();
+      renderInDialog(<VerifyForm snapshot={pushSnapshot('code')} machine={machine} />);
+
+      const action = await screen.findByRole('button', { name: 'mfa.challenge.use_push_instead' });
+      action.focus();
+      await user.keyboard('{Enter}');
 
       expect(machine.switchToPush).toHaveBeenCalledTimes(1);
     });

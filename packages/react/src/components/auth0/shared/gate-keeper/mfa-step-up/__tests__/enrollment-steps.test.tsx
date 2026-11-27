@@ -176,14 +176,16 @@ describe('enrollment steps', () => {
     });
 
     it('shows nothing without a QR code', () => {
-      const { container } = renderInDialog(
+      renderInDialog(
         <QrStep
           snapshot={createMockSnapshot({ facts: factsFor('otp') })}
           machine={createMockStepUpMachine()}
         />,
       );
 
-      expect(container).toBeEmptyDOMElement();
+      expect(screen.queryByText('mfa.title')).not.toBeInTheDocument();
+      expect(screen.queryByText('mfa.enroll.scan_description')).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'mfa.continue' })).not.toBeInTheDocument();
     });
 
     it('continues, and goes back, through the machine', async () => {

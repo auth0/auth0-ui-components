@@ -4,7 +4,12 @@
  * @internal
  */
 
-import { FACTOR_TYPE_PUSH, FACTOR_TYPE_RECOVERY_CODE } from '@auth0/universal-components-core';
+import {
+  FACTOR_TYPE_PUSH,
+  FACTOR_TYPE_RECOVERY_CODE,
+  FACTOR_TYPE_SMS,
+  FACTOR_TYPE_VOICE,
+} from '@auth0/universal-components-core';
 
 import {
   MfaDialogDescription,
@@ -17,6 +22,46 @@ import { PushChallenge } from './push-challenge';
 
 import { useTranslator } from '@/hooks/shared/use-translator';
 import type { MfaStepScreenProps } from '@/types/mfa-step-up-types';
+
+const TEXTS = {
+  guardian: {
+    title: 'mfa.challenge.guardian_code_title',
+    description: 'mfa.challenge.guardian_code_description',
+  },
+  recovery: {
+    title: 'mfa.challenge.recovery_title',
+    description: 'mfa.challenge.recovery_code_description',
+  },
+  email: {
+    title: 'mfa.challenge.email_title',
+    description: 'mfa.challenge.code_sent_description',
+  },
+  phone: {
+    title: 'mfa.challenge.phone_title',
+    description: 'mfa.challenge.code_sent_description',
+  },
+  otp: { title: 'mfa.challenge.otp_title', description: 'mfa.challenge.otp_description' },
+} as const;
+
+/**
+ * Picks the texts of the screen: where the code came from, if it was sent to the user.
+ *
+ * @param factor - The factor being verified.
+ * @param isGuardianCode - Whether the user types a Guardian code instead of approving a push.
+ * @param sentTo - Where the code was sent, if known.
+ * @returns The key of the texts to show.
+ */
+function getTextsVariant(
+  factor: string | undefined,
+  isGuardianCode: boolean,
+  sentTo: string | undefined,
+): keyof typeof TEXTS {
+  if (isGuardianCode) return 'guardian';
+  if (factor === FACTOR_TYPE_RECOVERY_CODE) return 'recovery';
+  if (!sentTo) return 'otp';
+  if (factor === 'email') return 'email';
+  return factor === FACTOR_TYPE_SMS || factor === FACTOR_TYPE_VOICE ? 'phone' : 'otp';
+}
 
 /**
  * Where the user proves who they are. A push waits for them to approve it on their device, and
@@ -40,22 +85,9 @@ export function VerifyForm({ snapshot, machine, classes }: MfaStepScreenProps) {
     return <PushChallenge classes={classes} snapshot={snapshot} machine={machine} />;
   }
 
-  const sentTo = isEnrolling ? snapshot.contact : selected?.authenticator?.name;
   const isRecoveryCode = facts.factor === FACTOR_TYPE_RECOVERY_CODE;
-
-  let title = t('mfa.challenge.otp_title');
-  let description = t('mfa.challenge.otp_description');
-  if (isGuardianCode) {
-    title = t('mfa.challenge.guardian_code_title');
-    description = t('mfa.challenge.guardian_code_description');
-  } else if (isRecoveryCode) {
-    title = t('mfa.challenge.recovery_title');
-    description = t('mfa.challenge.recovery_code_description');
-  } else if (sentTo) {
-    title =
-      facts.factor === 'email' ? t('mfa.challenge.email_title') : t('mfa.challenge.phone_title');
-    description = t('mfa.challenge.code_sent_description', { name: sentTo });
-  }
+  const sentTo = isEnrolling ? snapshot.contact : selected?.authenticator?.name;
+  const { title, description } = TEXTS[getTextsVariant(facts.factor, isGuardianCode, sentTo)];
 
   const footer =
     isGuardianCode && snapshot.push?.canApprove ? (
@@ -69,8 +101,10 @@ export function VerifyForm({ snapshot, machine, classes }: MfaStepScreenProps) {
   return (
     <>
       <MfaDialogHeader classes={classes}>
-        <MfaDialogTitle classes={classes}>{title}</MfaDialogTitle>
-        <MfaDialogDescription classes={classes}>{description}</MfaDialogDescription>
+        <MfaDialogTitle classes={classes}>{t(title)}</MfaDialogTitle>
+        <MfaDialogDescription classes={classes}>
+          {t(description, { name: sentTo })}
+        </MfaDialogDescription>
       </MfaDialogHeader>
       <OtpCodeForm
         classes={classes}

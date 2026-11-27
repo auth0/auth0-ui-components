@@ -3,7 +3,6 @@ import type { ComponentProps } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Link } from '@/components/ui/link';
 import { cn } from '@/lib/utils';
 import type { MfaStepUpClasses } from '@/types/mfa-step-up-types';
 
@@ -86,18 +85,26 @@ export function MfaButton({
 }
 
 /**
- * A link of the dialog. Takes the integrator's `MfaStepUp-link` class.
+ * An action of the dialog that looks like a link, such as "resend". It is a button, so the keyboard
+ * can reach it. Takes the integrator's `MfaStepUp-link` class.
  *
- * @param props - Link props.
+ * @param props - Button props.
  * @param props.className - Classes to add.
  * @param props.classes - The integrator's class overrides.
- * @returns Link element.
+ * @returns Button element.
  * @internal
  */
 export function MfaLink({
   className,
   classes,
   ...props
-}: ComponentProps<typeof Link> & WithClasses) {
-  return <Link className={cn(className, classes?.['MfaStepUp-link'])} {...props} />;
+}: ComponentProps<typeof Button> & WithClasses) {
+  return (
+    <Button
+      type="button"
+      variant="link"
+      className={cn('h-auto p-0', className, classes?.['MfaStepUp-link'])}
+      {...props}
+    />
+  );
 }
