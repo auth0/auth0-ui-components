@@ -3,11 +3,9 @@
  */
 import {
   FACTOR_TYPE_EMAIL,
-  FACTOR_TYPE_RECOVERY_CODE,
-} from '../../my-account/user-mfa-management/user-mfa-management-constants';
-import {
   FACTOR_TYPE_OTP,
   FACTOR_TYPE_PUSH,
+  FACTOR_TYPE_RECOVERY_CODE,
   FACTOR_TYPE_SMS,
   FACTOR_TYPE_VOICE,
 } from '../mfa-step-up-api-constants';
