@@ -129,6 +129,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
     isIdpConfigError,
     refetchIdpConfig,
     idpConfig,
+    providerDomains,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     showCrossAppAccess,
@@ -203,6 +204,7 @@ function SsoProviderCreateView(props: SsoProviderCreateViewProps) {
             mode="create"
             ref={detailsRef}
             initialData={details ?? undefined}
+            domains={providerDomains}
             customMessages={customMessages?.provider_details}
             styling={styling}
             className={currentStyles?.classes?.['ProviderDetails-root']}

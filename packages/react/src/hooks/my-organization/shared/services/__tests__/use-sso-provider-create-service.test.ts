@@ -1,6 +1,8 @@
-import type {
-  CreateIdentityProviderRequestContentPrivate,
-  IdpKnownResponse,
+import {
+  domainQueryKeys,
+  ssoDomainQueryKeys,
+  type CreateIdentityProviderRequestContentPrivate,
+  type IdpKnownResponse,
 } from '@auth0/universal-components-core';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, type Mock } from 'vitest';
@@ -11,6 +13,8 @@ import { useSsoProviderCreateService } from '@/hooks/my-organization/shared/serv
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ORG_DOMAINS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createTestQueryClientWrapper } from '@/tests/utils/test-provider';
 
@@ -49,11 +53,14 @@ describe('useSsoProviderCreateService', () => {
     return key;
   });
 
+  const mockList = vi.fn();
+
   const mockOrgClient = {
     organization: {
       identityProviders: {
         create: mockCreate,
       },
+      domains: { list: mockList },
     },
   };
   const mockCoreClient = {
@@ -67,6 +74,7 @@ describe('useSsoProviderCreateService', () => {
     mockHandleError = vi.fn();
     (useErrorHandler as Mock).mockReturnValue(mockHandleError);
     vi.mocked(useIdpConfig).mockReturnValue(createMockUseIdpConfig());
+    mockList.mockResolvedValue({ response: { organization_domains: [] } });
   });
 
   const renderUseSsoProviderCreateService = (
@@ -496,6 +504,278 @@ describe('useSsoProviderCreateService', () => {
         const payload = mockCreate.mock.calls[0]![0];
         expect(payload).not.toHaveProperty('show_as_button');
         expect(payload).not.toHaveProperty('assign_membership_on_login');
+      });
+    });
+  });
+  describe('domains', () => {
+    const providerData: CreateIdentityProviderRequestContentPrivate = {
+      strategy: 'samlp',
+      name: 'test-provider',
+      display_name: 'Test Provider',
+      signingCert: 'cert123',
+      domains: ['acme.com', 'initech.com'],
+    };
+
+    const withMode = (mode?: string) =>
+      vi.mocked(useIdpConfig).mockReturnValue(
+        createMockUseIdpConfig({
+          idpConfig: {
+            strategies: {},
+            organization: {},
+            ...(mode === undefined ? {} : { domain_aliases_config: { domain_verification: mode } }),
+          } as never,
+        }),
+      );
+
+    it.each(['optional', 'required'])('should send the domains in %s mode', async (mode) => {
+      withMode(mode);
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+      await result.current.createProvider(providerData);
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({ domains: ['acme.com', 'initech.com'] }),
+        );
+      });
+    });
+
+    it.each([
+      ['the mode is none', 'none'],
+      ['the mode is not a known one', 'strict'],
+      ['the configuration reports no mode', undefined],
+    ])('should not send domains when %s', async (_label, mode) => {
+      withMode(mode);
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+      await result.current.createProvider(providerData);
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+      });
+      expect(mockCreate.mock.calls[0]![0]).not.toHaveProperty('domains');
+    });
+
+    it('should not send an empty list of domains', async () => {
+      withMode('optional');
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+      await result.current.createProvider({ ...providerData, domains: [] });
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+      });
+      expect(mockCreate.mock.calls[0]![0]).not.toHaveProperty('domains');
+    });
+
+    it('should keep the domains out of the provider options', async () => {
+      withMode('required');
+      mockCreate.mockResolvedValue(mockIdentityProvider);
+
+      const { result } = renderUseSsoProviderCreateService();
+      await result.current.createProvider(providerData);
+
+      await waitFor(() => {
+        expect(mockCreate).toHaveBeenCalledTimes(1);
+      });
+      expect(mockCreate.mock.calls[0]![0].options).not.toHaveProperty('domains');
+    });
+
+    describe('after the provider is created', () => {
+      const renderWithClient = () => {
+        const { wrapper, queryClient } = createTestQueryClientWrapper();
+        const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+        const { result } = renderHook(() => useSsoProviderCreateService(), { wrapper });
+        return { result, invalidate };
+      };
+
+      it('should refresh the domain and provider caches when domains were attached', async () => {
+        withMode('required');
+        mockCreate.mockResolvedValue({ ...mockIdentityProvider, domains: ['acme.com'] });
+        const { result, invalidate } = renderWithClient();
+
+        await result.current.createProvider(providerData);
+
+        await waitFor(() => {
+          expect(invalidate).toHaveBeenCalledWith({ queryKey: domainQueryKeys.lists() });
+        });
+        expect(invalidate).toHaveBeenCalledWith({ queryKey: domainQueryKeys.available() });
+        expect(invalidate).toHaveBeenCalledWith({ queryKey: domainQueryKeys.allProviders() });
+        expect(invalidate).toHaveBeenCalledWith({ queryKey: ssoDomainQueryKeys.lists() });
+      });
+
+      it('should leave the domain caches alone when no domain was attached', async () => {
+        withMode('optional');
+        mockCreate.mockResolvedValue(mockIdentityProvider);
+        const { result, invalidate } = renderWithClient();
+
+        await result.current.createProvider({ ...providerData, domains: [] });
+
+        await waitFor(() => {
+          expect(mockCreate).toHaveBeenCalledTimes(1);
+        });
+        expect(invalidate).not.toHaveBeenCalledWith({ queryKey: domainQueryKeys.lists() });
+        expect(invalidate).not.toHaveBeenCalledWith({ queryKey: domainQueryKeys.available() });
+      });
+    });
+  });
+  describe('the domains field', () => {
+    const domain = (name: string, status: 'verified' | 'pending', association: string) =>
+      createMockDomain({
+        id: `id_${name}`,
+        domain: name,
+        status,
+        identity_provider_association: association as 'associated' | 'unassociated',
+      });
+    const acme = domain('acme.com', 'verified', 'unassociated');
+    const initech = domain('initech.com', 'verified', 'unassociated');
+    const pending = domain('pending.com', 'pending', 'unassociated');
+    const taken = domain('taken.com', 'verified', 'associated');
+
+    const withMode = (mode?: string) =>
+      vi.mocked(useIdpConfig).mockReturnValue(
+        createMockUseIdpConfig({
+          idpConfig: {
+            strategies: {},
+            organization: {},
+            ...(mode === undefined ? {} : { domain_aliases_config: { domain_verification: mode } }),
+          } as never,
+        }),
+      );
+
+    beforeEach(() => {
+      mockList.mockResolvedValue({
+        response: { organization_domains: [acme, pending, taken, initech] },
+      });
+    });
+
+    describe.each([
+      ['the mode is none', 'none'],
+      ['the mode is not a known one', 'strict'],
+      ['the configuration reports no mode', undefined],
+    ])('when %s', (_label, mode) => {
+      it('should not offer the field or load domains', () => {
+        withMode(mode);
+
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        expect(result.current.providerDomains).toBeNull();
+        expect(mockList).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when the mode is optional', () => {
+      beforeEach(() => withMode('optional'));
+
+      it('should offer the verified domains that no provider holds', async () => {
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(result.current.providerDomains?.options).toEqual([acme, initech]);
+        });
+        expect(result.current.providerDomains).toMatchObject({
+          mode: 'optional',
+          isLoading: false,
+          canList: true,
+        });
+      });
+
+      it('should ask for as many domains as the Assign list does', async () => {
+        renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(mockList).toHaveBeenCalledWith({ take: MAX_ORG_DOMAINS });
+        });
+      });
+
+      it('should report loading until the domains arrive', async () => {
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        expect(result.current.providerDomains).toMatchObject({ isLoading: true, options: [] });
+
+        await waitFor(() => {
+          expect(result.current.providerDomains?.isLoading).toBe(false);
+        });
+      });
+
+      it('should not offer the field without permission to list domains', () => {
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: false });
+
+        expect(result.current.providerDomains).toBeNull();
+        expect(mockList).not.toHaveBeenCalled();
+      });
+
+      it('should not offer the field when the permission is not given', () => {
+        const { result } = renderUseSsoProviderCreateService();
+
+        expect(result.current.providerDomains).toBeNull();
+      });
+    });
+
+    describe('when the mode is required', () => {
+      beforeEach(() => withMode('required'));
+
+      it('should offer the field with the available domains', async () => {
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(result.current.providerDomains?.options).toEqual([acme, initech]);
+        });
+        expect(result.current.providerDomains).toMatchObject({ mode: 'required', canList: true });
+      });
+
+      it('should keep the field, marked as not listable, without loading domains', () => {
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: false });
+
+        expect(result.current.providerDomains).toMatchObject({
+          mode: 'required',
+          canList: false,
+          options: [],
+        });
+        expect(mockList).not.toHaveBeenCalled();
+      });
+
+      it('should offer no domains when the organization has none', async () => {
+        mockList.mockResolvedValue({ response: undefined });
+
+        const { result } = renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(result.current.providerDomains?.isLoading).toBe(false);
+        });
+        expect(result.current.providerDomains?.options).toEqual([]);
+      });
+
+      it('should load fresh domains each time it mounts', async () => {
+        const { wrapper } = createTestQueryClientWrapper();
+        const first = renderHook(() => useSsoProviderCreateService({ canListDomains: true }), {
+          wrapper,
+        });
+        await waitFor(() => {
+          expect(first.result.current.providerDomains?.options).toHaveLength(2);
+        });
+        first.unmount();
+
+        renderHook(() => useSsoProviderCreateService({ canListDomains: true }), { wrapper });
+
+        await waitFor(() => {
+          expect(mockList).toHaveBeenCalledTimes(2);
+        });
+      });
+
+      it('should report a failure to load the domains', async () => {
+        mockList.mockRejectedValue(new Error('Request failed'));
+
+        renderUseSsoProviderCreateService({ canListDomains: true });
+
+        await waitFor(() => {
+          expect(mockHandleError).toHaveBeenCalledWith(expect.any(Error), {
+            fallbackMessage: 'An error occurred',
+          });
+        });
       });
     });
   });

@@ -34,6 +34,10 @@ export interface ProviderDetailsSchema {
     maxLength?: number;
     required?: boolean;
   };
+  domains?: {
+    errorMessage?: string;
+    required?: boolean;
+  };
 }
 
 /**
@@ -386,6 +390,4 @@ export interface ProviderConfigureSchema {
 }
 
 export interface SsoProviderSchema
-  extends ProviderSelectionSchema,
-    ProviderDetailsSchema,
-    ProviderConfigureSchema {}
+  extends ProviderSelectionSchema, ProviderDetailsSchema, ProviderConfigureSchema {}

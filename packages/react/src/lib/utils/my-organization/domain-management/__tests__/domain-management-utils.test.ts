@@ -9,6 +9,7 @@ import {
   getAssociationBlockReasonMessages,
   getDiscoveryState,
   getDomainVerificationMode,
+  getProviderDomainsMode,
   getStatusBadgeVariant,
   isDomainAssociationUnavailable,
   isDomainUsedForDiscovery,
@@ -73,6 +74,37 @@ describe('domain-management-utils', () => {
         [ASSOCIATION_BLOCK_REASONS.LAST_DOMAIN]: 't:table.actions.last_verified_domain_tooltip',
       });
       expect(new Set(Object.values(messages)).size).toBe(4);
+    });
+  });
+
+  describe('getProviderDomainsMode', () => {
+    it.each(['optional', 'required'] as const)(
+      'returns %s when the configuration reports it',
+      (mode) => {
+        const config = {
+          domain_aliases_config: { domain_verification: mode },
+        } as GetIdpConfigurationResponseContent;
+
+        expect(getProviderDomainsMode(config)).toBe(mode);
+      },
+    );
+
+    it.each([
+      ['the mode is none', { domain_aliases_config: { domain_verification: 'none' } }],
+      ['the mode is not a known one', { domain_aliases_config: { domain_verification: 'strict' } }],
+      ['the mode is empty', { domain_aliases_config: { domain_verification: '' } }],
+      ['domain_aliases_config is null', { domain_aliases_config: null }],
+      ['domain_aliases_config is not reported', {}],
+    ])('returns null when %s', (_label, config) => {
+      expect(
+        getProviderDomainsMode(config as unknown as GetIdpConfigurationResponseContent),
+      ).toBeNull();
+    });
+
+    it('returns null without a configuration, unlike the mode used to gate association', () => {
+      expect(getProviderDomainsMode(null)).toBeNull();
+      expect(getProviderDomainsMode(undefined)).toBeNull();
+      expect(getDomainVerificationMode(undefined)).toBe('optional');
     });
   });
 

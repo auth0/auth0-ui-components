@@ -495,6 +495,26 @@
             "placeholder": "Enter display name",
             "helper_text": "The name displayed to end users of this provider.",
             "error": "Please enter a valid display name"
+          },
+          "domains": {
+            "label": "Domains",
+            "label_optional": "Domains (Optional)",
+            "placeholder": "Select verified Domains",
+            "helper_text": "Only verified domains that aren't already associated with an identity provider appear here.",
+            "empty_message": "No domains are available to assign.",
+            "error": "Select at least one verified domain.",
+            "no_permission": "You don't have access to list domains, so a domain can't be selected.",
+            "learn_more": {
+              "text": "Need a different domain? Create a new domain on the",
+              "link_text": "Domains page"
+            }
+          }
+        },
+        "alerts": {
+          "no_verified_domains": {
+            "title": "Verify a domain first.",
+            "description": "This identity provider requires at least one verified domain, and your organization doesn't have one yet. Domain verification can take a while to go through DNS.",
+            "link_text": "Go to Domains"
           }
         }
       },

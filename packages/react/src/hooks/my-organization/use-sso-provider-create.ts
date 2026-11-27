@@ -54,6 +54,13 @@ export function useSsoProviderCreate({
     result: IdpKnownResponse;
   } | null>(null);
 
+  const { createPermissionResolver } = usePermissions();
+
+  const permissions = useMemo(
+    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
+    [createPermissionResolver, readOnly],
+  );
+
   const serviceCreateAction = useMemo(
     () => ({
       ...createAction,
@@ -70,11 +77,13 @@ export function useSsoProviderCreate({
     isCreating,
     isOrganizationBlocked,
     organizationDisplayName,
+    providerDomains,
     notifyCreated,
   } = useSsoProviderCreateService({
     createAction: serviceCreateAction,
     customMessages,
     shouldDeferSuccessToast: () => isGuidedSetupRef.current,
+    canListDomains: permissions.canListDomains,
   });
 
   const [formData, setFormData] = useState<FormState>({});
@@ -84,12 +93,6 @@ export function useSsoProviderCreate({
   const guidedConfigureRef = useRef<ProviderConfigureFormHandle>(null);
   const advancedConnectionAccessRef = useRef<ReturnType<typeof pickConnectionAccess>>({});
   const guidedConfigureDataRef = useRef<ProviderConfigureFormValues | null>(null);
-  const { createPermissionResolver } = usePermissions();
-
-  const permissions = useMemo(
-    () => createPermissionResolver(getIdpManagementPermissions, { readOnly }),
-    [createPermissionResolver, readOnly],
-  );
   const {
     isLoadingConfig,
     filteredStrategies,
@@ -237,6 +240,7 @@ export function useSsoProviderCreate({
     isIdpConfigError,
     refetchIdpConfig,
     idpConfig,
+    providerDomains,
     showThirdPartyAccess,
     isThirdPartyAccessReadOnly,
     thirdPartyAccessDefaultValue,

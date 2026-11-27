@@ -4,15 +4,12 @@
  * @internal
  */
 
-import {
-  createProviderDetailsSchema,
-  type ProviderDetailsFormValues,
-} from '@auth0/universal-components-core';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Info } from 'lucide-react';
 import * as React from 'react';
-import { useForm } from 'react-hook-form';
 
 import { Section } from '@/components/auth0/shared/section';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Combobox, type ComboboxOption } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
@@ -22,9 +19,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Link } from '@/components/ui/link';
 import { TextField } from '@/components/ui/text-field';
+import { useProviderDetailsForm } from '@/hooks/my-organization/idp-management/sso-provider-shared/use-provider-details-form';
 import { useTranslator } from '@/hooks/shared/use-translator';
-import { FORM_REVALIDATE_MODE, FORM_VALIDATION_MODE } from '@/lib/constants/form-constants';
+import { CONFIGURE_ORG_DOMAINS_DOCS_URL } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import type {
   ProviderDetailsFormHandle,
   ProviderDetailsProps,
@@ -32,7 +31,15 @@ import type {
 
 export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, ProviderDetailsProps>(
   function ProviderDetails(
-    { initialData, mode, readOnly = false, customMessages = {}, className, onFormDirty },
+    {
+      initialData,
+      mode,
+      domains: domainsField = null,
+      readOnly = false,
+      customMessages = {},
+      className,
+      onFormDirty,
+    },
     ref,
   ) {
     const { t } = useTranslator(
@@ -40,17 +47,15 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
       customMessages,
     );
 
-    const form = useForm<ProviderDetailsFormValues>({
-      resolver: zodResolver(createProviderDetailsSchema()),
-      mode: FORM_VALIDATION_MODE,
-      reValidateMode: FORM_REVALIDATE_MODE,
-      defaultValues: {
-        name: initialData?.name || '',
-        display_name: initialData?.display_name || '',
-      },
-    });
+    const { form, domainNames, isDomainsRequired, showNoVerifiedDomainsAlert, getData } =
+      useProviderDetailsForm({ initialData, domains: domainsField, customMessages });
 
     const { isDirty } = form.formState;
+
+    const domainOptions = React.useMemo<ComboboxOption[]>(
+      () => domainNames.map((name) => ({ value: name, label: name })),
+      [domainNames],
+    );
 
     React.useEffect(() => {
       onFormDirty?.(isDirty);
@@ -60,7 +65,7 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
       validate: async () => {
         return await form.trigger();
       },
-      getData: () => form.getValues(),
+      getData,
       isDirty: () => form.formState.isDirty,
       reset: (data) => {
         if (data) {
@@ -120,6 +125,69 @@ export const ProviderDetails = React.forwardRef<ProviderDetailsFormHandle, Provi
                 </FormItem>
               )}
             />
+            {domainsField && (
+              <FormField
+                control={form.control}
+                name="domains"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-label font-medium">
+                      {isDomainsRequired
+                        ? t('fields.domains.label')
+                        : t('fields.domains.label_optional')}
+                    </FormLabel>
+                    <FormControl>
+                      <Combobox
+                        multiple
+                        value={field.value ?? []}
+                        onChange={(next) => field.onChange(Array.isArray(next) ? next : [next])}
+                        options={domainOptions}
+                        placeholder={t('fields.domains.placeholder')}
+                        noOptionsMessage={t('fields.domains.empty_message')}
+                        loading={domainsField.isLoading}
+                        disabled={readOnly || !domainsField.canList}
+                      />
+                    </FormControl>
+                    <FormDescription className="text-paragraph font-normal text-left">
+                      {t('fields.domains.helper_text')}
+                    </FormDescription>
+                    <p className="text-paragraph font-normal text-left text-muted-foreground">
+                      {t('fields.domains.learn_more.text')}{' '}
+                      <Link
+                        href={CONFIGURE_ORG_DOMAINS_DOCS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('fields.domains.learn_more.link_text')}
+                      </Link>
+                    </p>
+                    {!domainsField.canList && (
+                      <p className="text-paragraph font-normal text-left text-muted-foreground">
+                        {t('fields.domains.no_permission')}
+                      </p>
+                    )}
+                    <FormMessage className="text-left text-paragraph" role="alert" />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            {showNoVerifiedDomainsAlert && (
+              <Alert variant="warning">
+                <Info />
+                <AlertDescription className="text-warning-foreground">
+                  <strong>{t('alerts.no_verified_domains.title')}</strong>{' '}
+                  {t('alerts.no_verified_domains.description')}{' '}
+                  <Link
+                    href={CONFIGURE_ORG_DOMAINS_DOCS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('alerts.no_verified_domains.link_text')}
+                  </Link>
+                </AlertDescription>
+              </Alert>
+            )}
           </Section>
         </div>
       </Form>

@@ -47,6 +47,57 @@ describe('SsoProviderMappers', () => {
       expect(result.name).toBe('My Provider');
     });
 
+    describe('domains', () => {
+      const formData = {
+        strategy: STRATEGIES.OKTA as IdpStrategy,
+        name: 'Provider',
+        display_name: 'Display',
+        options: { domain: 'example.com', client_id: 'id', client_secret: 'secret' },
+      };
+
+      it('should send the domains when the flag is set', () => {
+        const result = SsoProviderMappers.createToAPI(
+          { ...formData, domains: ['acme.com', 'acme.org'] },
+          { canSetDomains: true },
+        );
+
+        expect(result.domains).toEqual(['acme.com', 'acme.org']);
+      });
+
+      it.each([
+        ['the flag is not set', {}],
+        ['the flag is false', { canSetDomains: false }],
+      ])('should not send the domains when %s', (_label, flags) => {
+        const result = SsoProviderMappers.createToAPI(
+          { ...formData, domains: ['acme.com'] },
+          flags,
+        );
+
+        expect(result).not.toHaveProperty('domains');
+      });
+
+      it.each([
+        ['an empty list', { domains: [] }],
+        ['no domains', {}],
+      ])('should not send %s even when the flag is set', (_label, extra) => {
+        const result = SsoProviderMappers.createToAPI(
+          { ...formData, ...extra },
+          { canSetDomains: true },
+        );
+
+        expect(result).not.toHaveProperty('domains');
+      });
+
+      it('should keep the domains out of the provider options', () => {
+        const result = SsoProviderMappers.createToAPI(
+          { ...formData, domains: ['acme.com'] },
+          { canSetDomains: true },
+        );
+
+        expect(result.options).not.toHaveProperty('domains');
+      });
+    });
+
     describe('validation errors', () => {
       describe.each([
         { name: '', description: 'empty string' },

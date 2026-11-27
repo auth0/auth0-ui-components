@@ -6,7 +6,9 @@ import { useSsoProviderCreate } from '../use-sso-provider-create';
 
 import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
 import { PermissionContext } from '@/providers/permission-provider';
+import { createMockVerifiedDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
+import type { ProviderDetailsDomainsProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
 
 const mockUseConfig = vi.fn(() => ({
   isLoadingConfig: false,
@@ -30,7 +32,10 @@ vi.mock('@/hooks/my-organization/shared/services/use-idp-config-service', () => 
 
 const mockCreateProvider = vi.fn();
 const mockNotifyCreated = vi.fn();
-let serviceOptions: { createAction?: { onAfter?: (...args: unknown[]) => unknown } } | undefined;
+const mockProviderDomains = vi.fn((): ProviderDetailsDomainsProps | null => null);
+let serviceOptions:
+  | { createAction?: { onAfter?: (...args: unknown[]) => unknown }; canListDomains?: boolean }
+  | undefined;
 
 vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service', () => ({
   useSsoProviderCreateService: (options: typeof serviceOptions) => {
@@ -39,6 +44,7 @@ vi.mock('@/hooks/my-organization/shared/services/use-sso-provider-create-service
       createProvider: mockCreateProvider,
       isCreating: false,
       organizationDisplayName: 'Cyborg Inc',
+      providerDomains: mockProviderDomains(),
       notifyCreated: mockNotifyCreated,
     };
   },
@@ -54,6 +60,7 @@ describe('useSsoProviderCreate - logic behavior', () => {
       filteredStrategies: ['samlp', 'oidc'],
       showThirdPartyAccess: false,
     });
+    mockProviderDomains.mockReturnValue(null);
   });
 
   const wrapperFor =
@@ -437,6 +444,41 @@ describe('useSsoProviderCreate - logic behavior', () => {
         expect(mockNotifyCreated).toHaveBeenCalledWith(created.name);
         expect(advanced).not.toHaveBeenCalled();
       });
+    });
+  });
+  describe('providerDomains', () => {
+    const withoutListScope = ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:domains');
+
+    it('should expose what the service offers', () => {
+      const offered: ProviderDetailsDomainsProps = {
+        mode: 'required',
+        options: [createMockVerifiedDomain()],
+        isLoading: false,
+        canList: true,
+      };
+      mockProviderDomains.mockReturnValue(offered);
+
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
+
+      expect(result.current.providerDomains).toBe(offered);
+    });
+
+    it('should expose nothing when the service offers nothing', () => {
+      const { result } = renderHook(() => useSsoProviderCreate(), grantAll);
+
+      expect(result.current.providerDomains).toBeNull();
+    });
+
+    it('should tell the service the user can list domains with the read scope', () => {
+      renderHook(() => useSsoProviderCreate(), grantAll);
+
+      expect(serviceOptions?.canListDomains).toBe(true);
+    });
+
+    it('should tell the service the user cannot list domains without the read scope', () => {
+      renderHook(() => useSsoProviderCreate(), { wrapper: wrapperFor(withoutListScope) });
+
+      expect(serviceOptions?.canListDomains).toBe(false);
     });
   });
 });
