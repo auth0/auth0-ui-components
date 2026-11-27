@@ -132,3 +132,16 @@ export async function resolveOrFalse(action: () => Promise<boolean> | boolean): 
     return false;
   }
 }
+
+/**
+ * Scrolls the page to the very top
+ * @param element - Element inside the content to bring to the top.
+ */
+export function scrollToTop(element: Element | null | undefined): void {
+  for (let node = element?.parentElement; node; node = node.parentElement) {
+    const { overflowY } = window.getComputedStyle(node);
+    if (/auto|scroll|hidden/.test(overflowY) && node.scrollHeight > node.clientHeight)
+      node.scrollTop = 0;
+  }
+  (document.scrollingElement ?? document.documentElement).scrollTop = 0;
+}

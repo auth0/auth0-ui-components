@@ -5,6 +5,7 @@ import {
   getRelativeTimeLabel,
   openHttpsUrlInNewTab,
   resolveOrFalse,
+  scrollToTop,
 } from '../helper-utils';
 
 const mockT = ((_key: string, vars?: Record<string, unknown>, fallback?: string): string => {
@@ -241,5 +242,40 @@ describe('resolveOrFalse', () => {
     ['an async rejection', () => Promise.reject(new Error('boom')), false],
   ])('returns the outcome of %s', async (_name, action, expected) => {
     await expect(resolveOrFalse(action)).resolves.toBe(expected);
+  });
+});
+
+describe('scrollToTop', () => {
+  const root = () => document.scrollingElement ?? document.documentElement;
+
+  const renderScroller = (overflow: string) => {
+    document.body.innerHTML = `<div id="scroller" style="overflow-y: ${overflow}"><h2 id="title"></h2></div>`;
+    const scroller = document.getElementById('scroller') as HTMLElement;
+    Object.defineProperty(scroller, 'scrollHeight', { value: 500 });
+    Object.defineProperty(scroller, 'clientHeight', { value: 100 });
+    scroller.scrollTop = 200;
+    return scroller;
+  };
+
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it.each(['auto', 'hidden'])('resets a scrolled %s container and the page', (overflow) => {
+    const scroller = renderScroller(overflow);
+    root().scrollTop = 300;
+
+    scrollToTop(document.getElementById('title'));
+
+    expect(scroller.scrollTop).toBe(0);
+    expect(root().scrollTop).toBe(0);
+  });
+
+  it('leaves a container that does not scroll alone', () => {
+    const scroller = renderScroller('visible');
+
+    scrollToTop(document.getElementById('title'));
+
+    expect(scroller.scrollTop).toBe(200);
   });
 });

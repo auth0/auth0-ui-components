@@ -22,6 +22,7 @@ import { useGuidedSetupPages } from '@/hooks/my-organization/idp-management/sso-
 import { useTranslator } from '@/hooks/shared/use-translator';
 import { ATTRIBUTE_MAPPING_CONTENT_TYPE } from '@/lib/constants/my-organization/idp-management/idp-management-constants';
 import { cn } from '@/lib/utils';
+import { scrollToTop } from '@/lib/utils/shared/helper-utils';
 import { useId } from '@/lib/utils/use-id-compat';
 import type {
   InstructionSetup,
@@ -103,7 +104,9 @@ export function SsoGuidedSetup({
     const previousKey = shownPageKey.current;
     shownPageKey.current = currentPage?.key;
     if ((previousKey || autoFocus) && previousKey !== currentPage?.key) {
-      pageTitleRef.current?.focus();
+      const title = pageTitleRef.current;
+      scrollToTop(title);
+      title?.focus({ preventScroll: true });
     }
   }, [currentPage?.key]);
 
@@ -266,10 +269,9 @@ export function SsoGuidedSetup({
         onCloseAutoFocus={(event) => {
           event.preventDefault();
           const primaryButton = primaryButtonRef.current;
-          (primaryButton && !primaryButton.disabled
-            ? primaryButton
-            : pageTitleRef.current
-          )?.focus();
+          (primaryButton && !primaryButton.disabled ? primaryButton : pageTitleRef.current)?.focus({
+            preventScroll: true,
+          });
         }}
         customMessages={customMessages}
       />
