@@ -78,6 +78,8 @@ export interface SsoProvisioningTabProps
   extends SharedComponentProps<SsoProvisioningTabMessages, SsoProvisioningTabClasses> {
   provider: IdpKnownResponse;
   permissions: IdpManagementPermissions;
+  provisioningConfig: GetIdPProvisioningConfigResponseContent | null;
+  isProvisioningLoading: boolean;
   isProvisioningUpdating: boolean;
   isProvisioningDeleting: boolean;
   isScimTokensLoading: boolean;
@@ -86,6 +88,8 @@ export interface SsoProvisioningTabProps
   hideAttributeMappings?: boolean;
   onCreateProvisioning: (options?: CreateProvisioningOptions) => Promise<void>;
   onDeleteProvisioning: () => Promise<void>;
+  onFetchProvisioning: () => Promise<GetIdPProvisioningConfigResponseContent | null>;
+  scimTokenConfig?: IdpScimTokenConfig;
   onListScimTokens: () => Promise<ListIdpProvisioningScimTokensResponseContent | null>;
   onCreateScimToken: (
     data: CreateIdpProvisioningScimTokenRequestContent,
