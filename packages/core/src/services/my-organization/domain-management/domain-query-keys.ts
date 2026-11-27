@@ -8,6 +8,7 @@ export const domainQueryKeys = {
   list: (params?: { pageSize?: number; fromToken?: string }) =>
     [...domainQueryKeys.lists(), params ?? {}] as const,
   allProviders: () => [...domainQueryKeys.all, 'providers'] as const,
+  available: () => [...domainQueryKeys.all, 'available'] as const,
   providers: (domainId: string) => [...domainQueryKeys.allProviders(), domainId] as const,
 };
 

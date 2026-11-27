@@ -469,7 +469,9 @@ export const createProviderSelectionSchema = (options: ProviderSelectionSchema =
  * @returns Zod schema for provider details
  */
 export const createProviderDetailsSchema = (options: ProviderDetailsSchema = {}) => {
-  const { name = {}, displayName = {} } = options;
+  const { name = {}, displayName = {}, domains = {} } = options;
+  const domainsMessage = domains.errorMessage || 'Select at least one verified domain';
+  const domainsSchema = z.array(z.string(), { required_error: domainsMessage });
 
   return z.object({
     name: z
@@ -490,6 +492,7 @@ export const createProviderDetailsSchema = (options: ProviderDetailsSchema = {})
         displayName.regex || /.*/,
         displayName.errorMessage || 'Please enter a valid display name',
       ),
+    domains: domains.required ? domainsSchema.min(1, domainsMessage) : domainsSchema.optional(),
   });
 };
 

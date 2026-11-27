@@ -31,6 +31,22 @@ export interface ProviderDetailsMessages {
       helper_text?: string;
       error?: string;
     };
+    domains?: {
+      label?: string;
+      label_optional?: string;
+      placeholder?: string;
+      helper_text?: string;
+      empty_message?: string;
+      error?: string;
+      no_permission?: string;
+      learn_more?: string;
+    };
+  };
+  alerts?: {
+    no_verified_domains?: {
+      title?: string;
+      description?: string;
+    };
   };
 }
 

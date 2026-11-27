@@ -21,6 +21,8 @@ import { useMemo } from 'react';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ORG_DOMAINS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import { isDomainAvailableForProvider } from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import { getPreviousDataOption } from '@/lib/utils/tanstack-compat';
 import type {
   UseSsoDomainTabServiceOptions,
@@ -28,8 +30,6 @@ import type {
 } from '@/types/my-organization/idp-management/sso-domain/sso-domain-tab-types';
 
 const keepPreviousDataOption = getPreviousDataOption();
-
-const MAX_ORG_DOMAINS = 100;
 
 /**
  * Internal service hook for SSO domain tab data and CRUD operations.
@@ -79,9 +79,7 @@ export function useSsoDomainTabService(
     const providerDomainNames = provider?.domains ?? [];
     return organizationDomains.filter(
       (domain) =>
-        domain.status === 'verified' &&
-        domain.identity_provider_association === 'unassociated' &&
-        !providerDomainNames.includes(domain.domain),
+        isDomainAvailableForProvider(domain) && !providerDomainNames.includes(domain.domain),
     );
   }, [provider?.domains, organizationDomains]);
 

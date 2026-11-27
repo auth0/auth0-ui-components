@@ -3717,6 +3717,7 @@
         "@radix-ui/react-checkbox@1.1.1",
         "@radix-ui/react-dialog@1.1.14",
         "@radix-ui/react-label@2.1.7",
+        "@radix-ui/react-popover@1.1.14",
         "@radix-ui/react-radio-group@1.2.0",
         "@radix-ui/react-select@2.2.5",
         "@radix-ui/react-slot@1.2.3",
@@ -4066,9 +4067,19 @@
           "target": "components/ui/checkbox.tsx"
         },
         {
+          "path": "src/components/ui/chip.tsx",
+          "type": "registry:component",
+          "target": "components/ui/chip.tsx"
+        },
+        {
           "path": "src/components/ui/code-block.tsx",
           "type": "registry:component",
           "target": "components/ui/code-block.tsx"
+        },
+        {
+          "path": "src/components/ui/combobox.tsx",
+          "type": "registry:component",
+          "target": "components/ui/combobox.tsx"
         },
         {
           "path": "src/components/ui/dialog.tsx",
@@ -4189,6 +4200,11 @@
           "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-oidc-channel.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/idp-management/sso-provider-shared/use-oidc-channel.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-provider-details-form.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/idp-management/sso-provider-shared/use-provider-details-form.ts"
         },
         {
           "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values.ts",
@@ -5202,6 +5218,11 @@
           "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-oidc-channel.ts",
           "type": "registry:component",
           "target": "hooks/my-organization/idp-management/sso-provider-shared/use-oidc-channel.ts"
+        },
+        {
+          "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-provider-details-form.ts",
+          "type": "registry:component",
+          "target": "hooks/my-organization/idp-management/sso-provider-shared/use-provider-details-form.ts"
         },
         {
           "path": "src/hooks/my-organization/idp-management/sso-provider-shared/use-service-provider-values.ts",

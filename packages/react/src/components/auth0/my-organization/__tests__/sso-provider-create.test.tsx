@@ -2,6 +2,7 @@ import {
   AVAILABLE_STRATEGY_LIST,
   idpConfigQueryKeys,
   type ComponentAction,
+  type Domain,
   type IdpKnownResponse,
   type CreateIdentityProviderRequestContentPrivate,
 } from '@auth0/universal-components-core';
@@ -20,6 +21,7 @@ import * as useIdpConfigModule from '@/hooks/my-organization/shared/services/use
 import { useSsoProviderCreate } from '@/hooks/my-organization/use-sso-provider-create';
 import * as useCoreClientModule from '@/hooks/shared/use-core-client';
 import { createMockUseConfig } from '@/tests/utils/__mocks__/my-organization/config/config.mocks';
+import { createMockDomain } from '@/tests/utils/__mocks__/my-organization/domain-management/domain.mocks';
 import { createMockUseIdpConfig } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-config.mocks';
 import { createMockIdpInstructions } from '@/tests/utils/__mocks__/my-organization/idp-management/idp-instructions.mocks';
 import { ALL_MY_ORG_PERMISSIONS } from '@/tests/utils/__mocks__/permissions/permission.mocks';
@@ -526,6 +528,360 @@ describe('SsoProviderCreate', () => {
             expect(mockCreateAction.onAfter).toHaveBeenCalled();
           });
         });
+      });
+    });
+  });
+
+  describe('domains', () => {
+    const acme = createMockDomain({
+      id: 'domain_acme',
+      domain: 'acme.com',
+      status: 'verified',
+      identity_provider_association: 'unassociated',
+    });
+    const initech = createMockDomain({
+      id: 'domain_initech',
+      domain: 'initech.com',
+      status: 'verified',
+      identity_provider_association: 'unassociated',
+    });
+    const pending = createMockDomain({
+      id: 'domain_pending',
+      domain: 'pending.com',
+      status: 'pending',
+      identity_provider_association: 'unassociated',
+    });
+    const taken = createMockDomain({
+      id: 'domain_taken',
+      domain: 'taken.com',
+      status: 'verified',
+      identity_provider_association: 'associated',
+    });
+
+    const arrange = (mode: string | undefined, domains: Domain[] = [acme, initech]) => {
+      const idpConfig = createIdpConfigWithMappings();
+      const domainAliases = mode === undefined ? undefined : { domain_verification: mode };
+      vi.spyOn(useIdpConfigModule, 'useIdpConfig').mockReturnValue(
+        createMockUseIdpConfig({
+          idpConfig: { ...idpConfig, domain_aliases_config: domainAliases } as typeof idpConfig,
+        }),
+      );
+      const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+      (organization.domains.list as ReturnType<typeof vi.fn>).mockResolvedValue({
+        response: { organization_domains: domains },
+      });
+    };
+
+    const fillDetails = async (user: ReturnType<typeof userEvent.setup>) => {
+      const strategyCards = await waitForStrategyButtons();
+      await user.click(strategyCards[0]!);
+      await user.type(
+        await screen.findByRole('textbox', { name: /fields\.name\.label/i }),
+        'test-provider',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.display_name\.label/i }),
+        'test-provider-label',
+      );
+    };
+
+    const goNext = (user: ReturnType<typeof userEvent.setup>) =>
+      user.click(screen.getByRole('button', { name: /nextbuttonlabel/i }));
+
+    const completeConfigure = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.type(
+        await screen.findByRole('textbox', { name: /fields\.adfs\.meta_data_url\.label/i }),
+        'https://example.com/metadata',
+      );
+      await user.type(
+        screen.getByRole('textbox', { name: /fields\.adfs\.meta_data_location_url\.label/i }),
+        'https://example.com/location',
+      );
+      await user.click(screen.getByRole('button', { name: /completebuttonlabel/i }));
+    };
+
+    const createdWith = () =>
+      vi.mocked(mockCoreClient.getMyOrganizationApiClient().organization.identityProviders.create);
+
+    const domainsInput = (label: string) => screen.getByRole('textbox', { name: label });
+    const pickDomain = async (
+      user: ReturnType<typeof userEvent.setup>,
+      label: string,
+      name: string,
+    ) => {
+      await user.click(domainsInput(label));
+      await user.click(await screen.findByRole('button', { name: name }));
+    };
+
+    describe('when the mode is required', () => {
+      it('should block Next with an error until a domain is chosen, then create with it', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await goNext(user);
+
+        expect(await screen.findByText('fields.domains.error')).toBeInTheDocument();
+        expect(screen.queryByRole('textbox', { name: /fields\.adfs/i })).not.toBeInTheDocument();
+
+        await pickDomain(user, 'fields.domains.label', 'acme.com');
+        await goNext(user);
+        await completeConfigure(user);
+
+        await waitFor(() => {
+          expect(createdWith()).toHaveBeenCalledWith(
+            expect.objectContaining({ domains: ['acme.com'] }),
+          );
+        });
+      });
+
+      it('should offer the domains that load after the step is shown', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        let resolveDomains: (value: unknown) => void = () => {};
+        const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+        (organization.domains.list as ReturnType<typeof vi.fn>).mockReturnValue(
+          new Promise((resolve) => {
+            resolveDomains = resolve;
+          }),
+        );
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await act(async () => {
+          resolveDomains({ response: { organization_domains: [acme] } });
+        });
+        await user.click(domainsInput('fields.domains.label'));
+
+        expect(await screen.findByRole('button', { name: 'acme.com' })).toBeInTheDocument();
+      });
+
+      it('should send every chosen domain', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await user.click(domainsInput('fields.domains.label'));
+        await user.click(await screen.findByRole('button', { name: 'acme.com' }));
+        await user.click(await screen.findByRole('button', { name: 'initech.com' }));
+        await goNext(user);
+        await completeConfigure(user);
+
+        await waitFor(() => {
+          expect(createdWith()).toHaveBeenCalledWith(
+            expect.objectContaining({ domains: ['acme.com', 'initech.com'] }),
+          );
+        });
+      });
+
+      it('should offer only verified domains that no provider holds', async () => {
+        const user = userEvent.setup();
+        arrange('required', [acme, pending, taken]);
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await user.click(domainsInput('fields.domains.label'));
+
+        expect(await screen.findByRole('button', { name: 'acme.com' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'pending.com' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'taken.com' })).not.toBeInTheDocument();
+      });
+
+      it('should explain that a domain must be verified first when there is none', async () => {
+        const user = userEvent.setup();
+        arrange('required', [pending, taken]);
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(await screen.findByText('alerts.no_verified_domains.title')).toBeInTheDocument();
+        expect(
+          screen.getByRole('link', { name: 'alerts.no_verified_domains.description' }),
+        ).toHaveAttribute('target', '_blank');
+
+        await goNext(user);
+
+        expect(await screen.findByText('fields.domains.error')).toBeInTheDocument();
+        expect(createdWith()).not.toHaveBeenCalled();
+      });
+
+      it('should not show the alert while domains exist', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await user.click(domainsInput('fields.domains.label'));
+
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+      });
+
+      it('should not claim there is no verified domain when the domains fail to load', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        const organization = mockCoreClient.getMyOrganizationApiClient().organization;
+        (organization.domains.list as ReturnType<typeof vi.fn>).mockRejectedValue(
+          new Error('Request failed'),
+        );
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await waitFor(() => {
+          expect(organization.domains.list).toHaveBeenCalled();
+        });
+
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+      });
+
+      it('should lead to the domains docs from the helper link', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        const link = screen.getByRole('link', { name: 'fields.domains.learn_more' });
+
+        expect(link).toHaveAttribute('href', expect.stringContaining('configure-org-domains'));
+        expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+      });
+
+      it('should disable the field and explain it without permission to list domains', async () => {
+        const user = userEvent.setup();
+        arrange('required');
+        renderWithProviders(<SsoProviderCreate {...createMockSsoProviderCreateProps()} />, {
+          queryClient,
+          permissions: ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:domains'),
+        });
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(domainsInput('fields.domains.label')).toBeDisabled();
+        expect(screen.getByText('fields.domains.no_permission')).toBeInTheDocument();
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+        expect(
+          (
+            mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+              typeof vi.fn
+            >
+          ).mock.calls,
+        ).toHaveLength(0);
+      });
+    });
+
+    describe('when the mode is optional', () => {
+      it('should offer the optional field and create without domains when none is chosen', async () => {
+        const user = userEvent.setup();
+        arrange('optional');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(domainsInput('fields.domains.label_optional')).toBeEnabled();
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+
+        await goNext(user);
+        await completeConfigure(user);
+
+        await waitFor(() => {
+          expect(createdWith()).toHaveBeenCalled();
+        });
+        expect(createdWith().mock.calls[0]?.[0]).not.toHaveProperty('domains');
+      });
+
+      it('should send the domains that were chosen', async () => {
+        const user = userEvent.setup();
+        arrange('optional');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        await pickDomain(user, 'fields.domains.label_optional', 'initech.com');
+        await goNext(user);
+        await completeConfigure(user);
+
+        await waitFor(() => {
+          expect(createdWith()).toHaveBeenCalledWith(
+            expect.objectContaining({ domains: ['initech.com'] }),
+          );
+        });
+      });
+
+      it('should not show the verify-first alert when there are no domains', async () => {
+        const user = userEvent.setup();
+        arrange('optional', []);
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(domainsInput('fields.domains.label_optional')).toBeInTheDocument();
+        expect(screen.queryByText('alerts.no_verified_domains.title')).not.toBeInTheDocument();
+      });
+
+      it('should hide the field without permission to list domains', async () => {
+        const user = userEvent.setup();
+        arrange('optional');
+        renderWithProviders(<SsoProviderCreate {...createMockSsoProviderCreateProps()} />, {
+          queryClient,
+          permissions: ALL_MY_ORG_PERMISSIONS.filter((p) => p !== 'read:my_org:domains'),
+        });
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(screen.queryByText('fields.domains.label_optional')).not.toBeInTheDocument();
+      });
+
+      it('should keep the chosen domains when going back and forth', async () => {
+        const user = userEvent.setup();
+        arrange('optional');
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+        await pickDomain(user, 'fields.domains.label_optional', 'acme.com');
+
+        await goNext(user);
+        await user.click(await screen.findByRole('button', { name: /previousbuttonlabel/i }));
+
+        expect(await screen.findByText('acme.com')).toBeInTheDocument();
+      });
+    });
+
+    describe.each([
+      ['the mode is none', 'none'],
+      ['the configuration does not report a mode', undefined],
+      ['the mode is not a known one', 'strict'],
+    ])('when %s', (_label, mode) => {
+      it('should neither show the field nor send domains', async () => {
+        const user = userEvent.setup();
+        arrange(mode);
+        renderCreate();
+        await waitForComponentToLoad();
+        await fillDetails(user);
+
+        expect(screen.queryByText(/fields\.domains\.label/)).not.toBeInTheDocument();
+
+        await goNext(user);
+        await completeConfigure(user);
+
+        await waitFor(() => {
+          expect(createdWith()).toHaveBeenCalled();
+        });
+        expect(createdWith().mock.calls[0]?.[0]).not.toHaveProperty('domains');
+        expect(
+          (
+            mockCoreClient.getMyOrganizationApiClient().organization.domains.list as ReturnType<
+              typeof vi.fn
+            >
+          ).mock.calls,
+        ).toHaveLength(0);
       });
     });
   });

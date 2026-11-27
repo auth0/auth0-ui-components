@@ -6,27 +6,43 @@
  */
 
 import {
+  DOMAIN_VERIFICATION_MODES,
+  domainQueryKeys,
   hasApiErrorBody,
   SsoProviderMappers,
+  ssoDomainQueryKeys,
   ssoProviderQueryKeys,
   type CreateIdentityProviderRequestContent,
   type CreateIdentityProviderRequestContentPrivate,
+  type Domain,
   type IdpKnownResponse,
 } from '@auth0/universal-components-core';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 
 import { showToast } from '@/components/auth0/shared/toast';
 import { useIdpConfig } from '@/hooks/my-organization/shared/services/use-idp-config-service';
 import { useOrganizationDetailsEditService } from '@/hooks/my-organization/shared/services/use-organization-details-edit-service';
 import { useCoreClient } from '@/hooks/shared/use-core-client';
 import { useErrorHandler } from '@/hooks/shared/use-error-handler';
+import { useQueryErrorToast } from '@/hooks/shared/use-query-error-toast';
 import { useTranslator } from '@/hooks/shared/use-translator';
+import { MAX_ORG_DOMAINS } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
+import {
+  getProviderDomainsMode,
+  isDomainAvailableForProvider,
+} from '@/lib/utils/my-organization/domain-management/domain-management-utils';
 import { isMutationLoading } from '@/lib/utils/tanstack-compat';
 import type {
+  ProviderDetailsDomainsProps,
   UseSsoProviderCreateServiceOptions,
   UseSsoProviderCreateServiceReturn,
 } from '@/types/my-organization/idp-management/sso-provider/sso-provider-create-types';
+
+const NO_DOMAINS: Domain[] = [];
+
+const selectAvailableDomains = (domains: Domain[]): Domain[] =>
+  domains.filter(isDomainAvailableForProvider);
 
 /**
  * Extracts domain from discovery error detail.
@@ -46,6 +62,7 @@ function extractDomainFromDiscoveryError(detail?: string): string | null {
  * @param options.createAction - Callback after successful creation.
  * @param options.customMessages - Custom translation messages.
  * @param options.shouldDeferSuccessToast - Returns true to leave the success toast to the caller.
+ * @param options.canListDomains - Whether the user may list the organization's domains.
  * @returns Service state and methods.
  * @internal
  */
@@ -53,6 +70,7 @@ export function useSsoProviderCreateService({
   createAction,
   customMessages = {},
   shouldDeferSuccessToast,
+  canListDomains = false,
 }: UseSsoProviderCreateServiceOptions = {}): UseSsoProviderCreateServiceReturn {
   const { coreClient } = useCoreClient();
   const { t } = useTranslator('idp_management.create_sso_provider', customMessages);
@@ -60,6 +78,47 @@ export function useSsoProviderCreateService({
   const handleError = useErrorHandler();
   const { organization } = useOrganizationDetailsEditService({});
   const { idpConfig } = useIdpConfig();
+
+  const domainsMode = getProviderDomainsMode(idpConfig);
+  const showDomainsField =
+    domainsMode === DOMAIN_VERIFICATION_MODES.REQUIRED ||
+    (domainsMode === DOMAIN_VERIFICATION_MODES.OPTIONAL && canListDomains);
+
+  const domainsQuery = useQuery({
+    queryKey: domainQueryKeys.available(),
+    queryFn: async (): Promise<Domain[]> => {
+      const { response } = await coreClient!
+        .getMyOrganizationApiClient()
+        .organization.domains.list({ take: MAX_ORG_DOMAINS });
+      return response?.organization_domains ?? NO_DOMAINS;
+    },
+    select: selectAvailableDomains,
+    enabled: !!coreClient && showDomainsField && canListDomains,
+    staleTime: 0,
+  });
+
+  useQueryErrorToast(domainsQuery, t('notifications.general_error'));
+
+  const providerDomains = useMemo<ProviderDetailsDomainsProps | null>(
+    () =>
+      domainsMode && showDomainsField
+        ? {
+            mode: domainsMode,
+            options: domainsQuery.data ?? NO_DOMAINS,
+            isLoading: canListDomains && domainsQuery.isLoading,
+            isError: canListDomains && domainsQuery.isError,
+            canList: canListDomains,
+          }
+        : null,
+    [
+      domainsMode,
+      showDomainsField,
+      domainsQuery.data,
+      domainsQuery.isLoading,
+      domainsQuery.isError,
+      canListDomains,
+    ],
+  );
 
   const notifyCreated = useCallback(
     (providerName?: string | null) => {
@@ -83,6 +142,7 @@ export function useSsoProviderCreateService({
         strategy,
         name,
         display_name,
+        domains,
         show_as_button,
         assign_membership_on_login,
         use_for_third_party_client_access,
@@ -94,6 +154,7 @@ export function useSsoProviderCreateService({
         strategy,
         name,
         display_name,
+        domains,
         show_as_button,
         assign_membership_on_login,
         use_for_third_party_client_access,
@@ -107,6 +168,7 @@ export function useSsoProviderCreateService({
           canSetShowAsButton: idpConfig?.organization?.can_set_show_as_button,
           canSetAssignMembershipOnLogin:
             idpConfig?.organization?.can_set_assign_membership_on_login,
+          canSetDomains: getProviderDomainsMode(idpConfig) !== null,
         },
       );
 
@@ -124,6 +186,13 @@ export function useSsoProviderCreateService({
       createAction?.onAfter?.(data, result);
 
       queryClient.invalidateQueries({ queryKey: ssoProviderQueryKeys.list() });
+
+      if (result.domains?.length) {
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.available() });
+        queryClient.invalidateQueries({ queryKey: domainQueryKeys.allProviders() });
+        queryClient.invalidateQueries({ queryKey: ssoDomainQueryKeys.lists() });
+      }
     },
     onError: (error, data) => {
       if (
@@ -185,6 +254,7 @@ export function useSsoProviderCreateService({
     isCreating: isMutationLoading(createProviderMutation),
     isOrganizationBlocked: organization?.third_party_client_access === 'block',
     organizationDisplayName: organization?.display_name || undefined,
+    providerDomains,
     notifyCreated,
   };
 }

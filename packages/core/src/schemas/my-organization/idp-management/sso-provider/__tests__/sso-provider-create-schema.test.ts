@@ -172,6 +172,52 @@ describe('SSO Provider Create Schema', () => {
     });
   });
 
+  describe('createProviderDetailsSchema domains', () => {
+    const details = { name: 'provider', display_name: 'Provider' };
+
+    describe('when domains are required', () => {
+      const schema = createProviderDetailsSchema({ domains: { required: true } });
+
+      it('should reject missing and empty domains', () => {
+        expect(schema.safeParse(details).success).toBe(false);
+        expect(schema.safeParse({ ...details, domains: [] }).success).toBe(false);
+      });
+
+      it('should report the default message for an empty selection', () => {
+        const result = schema.safeParse({ ...details, domains: [] });
+
+        expect(result.success).toBe(false);
+        expect(!result.success && result.error.issues[0]?.message).toBe(
+          'Select at least one verified domain',
+        );
+      });
+
+      it('should use the custom message', () => {
+        const custom = createProviderDetailsSchema({
+          domains: { required: true, errorMessage: 'Pick a domain' },
+        });
+        const result = custom.safeParse({ ...details, domains: [] });
+
+        expect(!result.success && result.error.issues[0]?.message).toBe('Pick a domain');
+      });
+
+      it('should accept at least one domain', () => {
+        expect(schema.safeParse({ ...details, domains: ['acme.com'] }).success).toBe(true);
+      });
+    });
+
+    describe('when domains are not required', () => {
+      it.each([
+        ['by default', createProviderDetailsSchema()],
+        ['with required false', createProviderDetailsSchema({ domains: { required: false } })],
+      ])('should accept no domains, an empty list or a selection %s', (_label, schema) => {
+        expect(schema.safeParse(details).success).toBe(true);
+        expect(schema.safeParse({ ...details, domains: [] }).success).toBe(true);
+        expect(schema.safeParse({ ...details, domains: ['acme.com'] }).success).toBe(true);
+      });
+    });
+  });
+
   describe('createProviderDetailsSchema factory', () => {
     it('should use custom error message for name', () => {
       const customMessage = 'Custom name error';

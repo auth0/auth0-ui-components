@@ -16,6 +16,7 @@ import {
 import {
   ASSOCIATION_BLOCK_REASONS,
   type AssociationBlockReason,
+  type ProviderDomainsMode,
 } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
 import type { Domain } from '@/types/my-organization/domain-management/domain-table-types';
 
@@ -52,6 +53,34 @@ export function getDomainVerificationMode(
   idpConfig: GetIdpConfigurationResponseContent | null | undefined,
 ): IdpDomainVerificationMode {
   return idpConfig?.domain_aliases_config?.domain_verification ?? DEFAULT_DOMAIN_VERIFICATION_MODE;
+}
+
+/**
+ * Reads whether the domains field is offered when creating an identity provider.
+ * @param idpConfig - Identity provider configuration
+ * @returns `optional` or `required` when the configuration reports one of them, otherwise `null`
+ * @internal
+ */
+export function getProviderDomainsMode(
+  idpConfig: GetIdpConfigurationResponseContent | null | undefined,
+): ProviderDomainsMode | null {
+  const mode = idpConfig?.domain_aliases_config?.domain_verification;
+
+  if (mode === DOMAIN_VERIFICATION_MODES.OPTIONAL || mode === DOMAIN_VERIFICATION_MODES.REQUIRED) {
+    return mode;
+  }
+
+  return null;
+}
+
+/**
+ * Whether a domain can be associated with an identity provider: it is verified and no provider holds it yet.
+ * @param domain - Organization domain
+ * @returns `true` when the domain is available
+ * @internal
+ */
+export function isDomainAvailableForProvider(domain: Domain): boolean {
+  return domain.status === 'verified' && domain.identity_provider_association === 'unassociated';
 }
 
 /**

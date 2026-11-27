@@ -21,6 +21,7 @@ import type {
   ComponentAction,
   BackButton,
   CreateIdentityProviderRequestContentPrivate,
+  Domain,
   GetIdpConfigurationResponseContent,
   SamlpConfigureFormValues,
   AdfsConfigureFormValues,
@@ -35,6 +36,7 @@ import type React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 
 import type { ProviderConfigureFormHandle } from '@/components/auth0/my-organization/shared/idp-management/sso-provider-create/provider-configure/provider-configure-fields';
+import type { ProviderDomainsMode } from '@/lib/constants/my-organization/domain-management/domain-management-constants';
 import type { StrategyConfigureFormHandle } from '@/types/my-organization/idp-management/sso-provider/sso-provider-shared-types';
 import type { CrossAppAccessSectionProps } from '@/types/my-organization/idp-management/sso-provider/sso-provider-tab-types';
 
@@ -42,6 +44,14 @@ export interface ProviderConfigureHandle {
   validate: () => Promise<boolean>;
   getData: () => ProviderConfigureFormValues;
   getValues: () => ProviderConfigureFormValues;
+}
+
+export interface ProviderDetailsDomainsProps {
+  mode: ProviderDomainsMode;
+  options: Domain[];
+  isLoading: boolean;
+  isError: boolean;
+  canList: boolean;
 }
 
 export interface ProviderDetailsFormHandle {
@@ -68,8 +78,10 @@ export interface SsoProviderCreateClasses {
 }
 
 /** Props for ProviderSelect component. */
-export interface ProviderSelectProps
-  extends SharedComponentProps<ProviderSelectMessages, SsoProviderCreateClasses> {
+export interface ProviderSelectProps extends SharedComponentProps<
+  ProviderSelectMessages,
+  SsoProviderCreateClasses
+> {
   isLoading: boolean;
   strategyList: IdpStrategy[];
   onClickStrategy: (strategy: IdpStrategy) => void;
@@ -79,18 +91,37 @@ export interface ProviderSelectProps
 }
 
 /** Props for ProviderDetails component. */
-export interface ProviderDetailsProps
-  extends SharedComponentProps<ProviderDetailsMessages, SsoProviderCreateClasses> {
+export interface ProviderDetailsProps extends SharedComponentProps<
+  ProviderDetailsMessages,
+  SsoProviderCreateClasses
+> {
   initialData?: Partial<ProviderDetailsFormValues>;
   className?: string;
   hideHeader?: boolean;
   mode: 'edit' | 'create';
+  domains?: ProviderDetailsDomainsProps | null;
   onFormDirty?: (isDirty: boolean) => void;
 }
 
+export interface UseProviderDetailsFormOptions {
+  initialData?: ProviderDetailsProps['initialData'];
+  domains?: ProviderDetailsDomainsProps | null;
+  customMessages?: ProviderDetailsProps['customMessages'];
+}
+
+export interface UseProviderDetailsFormReturn {
+  form: UseFormReturn<ProviderDetailsFormValues>;
+  domainNames: string[];
+  isDomainsRequired: boolean;
+  showNoVerifiedDomainsAlert: boolean;
+  getData: () => ProviderDetailsFormValues;
+}
+
 /** Props for ProviderConfigure component. */
-export interface ProviderConfigureProps
-  extends SharedComponentProps<ProviderConfigureMessages, SsoProviderCreateClasses> {
+export interface ProviderConfigureProps extends SharedComponentProps<
+  ProviderConfigureMessages,
+  SsoProviderCreateClasses
+> {
   className?: string;
   isLoading: boolean;
   strategy: IdpStrategy;
@@ -114,8 +145,10 @@ export interface ProviderConfigureProps
   };
 }
 
-export interface ProviderConfigureFieldsProps
-  extends SharedComponentProps<ProviderConfigureFieldsMessages, SsoProviderCreateClasses> {
+export interface ProviderConfigureFieldsProps extends SharedComponentProps<
+  ProviderConfigureFieldsMessages,
+  SsoProviderCreateClasses
+> {
   strategy: IdpStrategy;
   initialData?: Partial<ProviderConfigureFormValues>;
   className?: string;
@@ -192,16 +225,15 @@ export interface ConnectionAccessFormValues extends ConnectionAccessDefaults {
 }
 
 /** Props for ConnectionAccessFields component. */
-export interface ConnectionAccessFieldsProps
-  extends Pick<
-    ProviderConfigureFieldsProps,
-    | 'strategy'
-    | 'showThirdPartyAccess'
-    | 'isThirdPartyAccessReadOnly'
-    | 'showCrossAppAccess'
-    | 'isCrossAppAccessReadOnly'
-    | 'isOrganizationBlocked'
-  > {
+export interface ConnectionAccessFieldsProps extends Pick<
+  ProviderConfigureFieldsProps,
+  | 'strategy'
+  | 'showThirdPartyAccess'
+  | 'isThirdPartyAccessReadOnly'
+  | 'showCrossAppAccess'
+  | 'isCrossAppAccessReadOnly'
+  | 'isOrganizationBlocked'
+> {
   readOnly?: boolean;
   classes?: Pick<
     SsoProviderCreateClasses,
@@ -242,12 +274,11 @@ export interface SsoProviderCreateGuidedSetupState {
   complete: () => void;
 }
 
-export interface SsoProviderCreateProps
-  extends SharedComponentProps<
-    SsoProviderCreateMessages,
-    SsoProviderCreateClasses,
-    SsoProviderSchema
-  > {
+export interface SsoProviderCreateProps extends SharedComponentProps<
+  SsoProviderCreateMessages,
+  SsoProviderCreateClasses,
+  SsoProviderSchema
+> {
   createAction: ComponentAction<CreateIdentityProviderRequestContentPrivate, IdpKnownResponse>;
   backButton?: SsoProviderCreateBackButton;
   onPrevious?: (stepId: string, values: Partial<SsoProviderFormValues>) => boolean;
@@ -269,6 +300,7 @@ export interface UseSsoProviderCreateOptions {
 
 export interface UseSsoProviderCreateServiceOptions extends UseSsoProviderCreateOptions {
   shouldDeferSuccessToast?: () => boolean;
+  canListDomains?: boolean;
 }
 
 export interface UseSsoProviderCreateServiceReturn {
@@ -278,6 +310,7 @@ export interface UseSsoProviderCreateServiceReturn {
   isCreating: boolean;
   isOrganizationBlocked: boolean;
   organizationDisplayName?: string;
+  providerDomains: ProviderDetailsDomainsProps | null;
   notifyCreated: (providerName?: string | null) => void;
 }
 
@@ -304,6 +337,7 @@ export interface UseSsoProviderCreateResult {
   isIdpConfigError: boolean;
   refetchIdpConfig: () => Promise<unknown>;
   idpConfig?: GetIdpConfigurationResponseContent | null;
+  providerDomains: ProviderDetailsDomainsProps | null;
   showThirdPartyAccess: boolean;
   isThirdPartyAccessReadOnly: boolean;
   thirdPartyAccessDefaultValue?: 'allow' | 'block';
@@ -329,7 +363,8 @@ export type FormState = {
 };
 
 export interface SsoProviderCreateViewProps
-  extends UseSsoProviderCreateResult,
+  extends
+    UseSsoProviderCreateResult,
     Pick<
       SsoProviderCreateProps,
       | 'styling'

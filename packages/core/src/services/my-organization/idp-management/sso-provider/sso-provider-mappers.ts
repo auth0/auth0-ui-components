@@ -39,6 +39,7 @@ type UpdateProviderFormValues = Partial<ProviderDetailsFormValues> & {
 type ConfigurableFieldFlags = {
   canSetShowAsButton?: boolean;
   canSetAssignMembershipOnLogin?: boolean;
+  canSetDomains?: boolean;
 };
 
 const STRATEGY_FIELD_MAPPINGS = {
@@ -128,7 +129,7 @@ export const SsoProviderMappers = {
    * Transforms form data to API request format for creating SSO providers.
    * Filters out form-specific fields and includes only strategy-valid API fields.
    * @param data - The data object to process
-   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login) is included in the payload only when its flag is set (true).
+   * @param flags - Tenant lock flags; a field (show_as_button / assign_membership_on_login / domains) is included in the payload only when its flag is set (true).
    * @returns API request payload for provider creation
    */
   createToAPI(
@@ -139,6 +140,7 @@ export const SsoProviderMappers = {
       strategy,
       name,
       display_name,
+      domains,
       show_as_button,
       assign_membership_on_login,
       use_for_third_party_client_access,
@@ -154,6 +156,7 @@ export const SsoProviderMappers = {
       strategy,
       name: name.trim(),
       display_name,
+      ...(flags.canSetDomains && domains?.length ? { domains } : {}),
       ...(flags.canSetShowAsButton ? { show_as_button } : {}),
       ...(flags.canSetAssignMembershipOnLogin ? { assign_membership_on_login } : {}),
       use_for_third_party_client_access,
